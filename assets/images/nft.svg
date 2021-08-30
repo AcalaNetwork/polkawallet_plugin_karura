@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="144px" height="144px" viewBox="0 0 144 144" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>nft</title>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="25.6399038%" id="linearGradient-1">
+            <stop stop-color="#FE863F" offset="0%"></stop>
+            <stop stop-color="#FE423F" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="3.061617e-15%" id="linearGradient-2">
+            <stop stop-color="#FE863F" offset="0%"></stop>
+            <stop stop-color="#FE423F" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="3.061617e-15%" id="linearGradient-3">
+            <stop stop-color="#FE423F" offset="0%"></stop>
+            <stop stop-color="#FE863F" offset="100%"></stop>
+        </linearGradient>
+        <circle id="path-4" cx="72" cy="61" r="19.8947368"></circle>
+        <filter x="-12.6%" y="-10.1%" width="125.1%" height="125.1%" filterUnits="objectBoundingBox" id="filter-5">
+            <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="1.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.526753049   0 0 0 0 0.605205752   0 0 0 0 1  0 0 0 0.280211976 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="首页" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="图标" transform="translate(-1755.000000, -194.000000)">
+            <g id="nft" transform="translate(1755.000000, 194.000000)">
+                <polygon id="Path-52" fill="url(#linearGradient-1)" points="50.6842105 73.155445 50.6842105 109.315789 72 93.7473536 93.3157895 109.315789 93.3157895 72.3684211"></polygon>
+                <circle id="Oval" fill="url(#linearGradient-2)" cx="72" cy="61" r="27"></circle>
+                <g id="Oval">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-5)" xlink:href="#path-4"></use>
+                    <use fill="url(#linearGradient-3)" fill-rule="evenodd" xlink:href="#path-4"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

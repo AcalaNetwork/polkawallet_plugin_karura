@@ -1,0 +1,27 @@
+import 'package:polkawallet_plugin_karura/store/accounts.dart';
+import 'package:polkawallet_plugin_karura/store/assets.dart';
+import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
+import 'package:polkawallet_plugin_karura/store/earn.dart';
+import 'package:polkawallet_plugin_karura/store/gov/governance.dart';
+import 'package:polkawallet_plugin_karura/store/homa.dart';
+import 'package:polkawallet_plugin_karura/store/loan.dart';
+import 'package:polkawallet_plugin_karura/store/setting.dart';
+
+class PluginStore {
+  PluginStore(StoreCache cache)
+      : setting = SettingStore(cache),
+        gov = GovernanceStore(cache),
+        assets = AssetsStore(cache),
+        loan = LoanStore(cache),
+        earn = EarnStore(cache),
+        homa = HomaStore(cache);
+
+  final accounts = AccountsStore();
+
+  final SettingStore setting;
+  final AssetsStore assets;
+  final LoanStore loan;
+  final EarnStore earn;
+  final HomaStore homa;
+  final GovernanceStore gov;
+}
