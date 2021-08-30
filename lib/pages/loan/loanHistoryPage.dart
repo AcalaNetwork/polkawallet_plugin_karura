@@ -22,7 +22,7 @@ class LoanHistoryPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/loan/txs';
+  static const String route = '/karura/loan/txs';
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class LoanHistoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            I18n.of(context).getDic(i18n_full_dic_acala, 'acala')['loan.txs']),
+            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['loan.txs']),
         centerTitle: true,
       ),
       body: SafeArea(

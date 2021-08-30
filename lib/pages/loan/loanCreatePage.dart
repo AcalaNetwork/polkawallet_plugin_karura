@@ -24,7 +24,7 @@ class LoanCreatePage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/loan/create';
+  static const String route = '/karura/loan/create';
 
   @override
   _LoanCreatePageState createState() => _LoanCreatePageState();
@@ -121,7 +121,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
   String _validateAmount1(
       String value, BigInt available, int collateralDecimals) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     String v = value.trim();
     try {
@@ -140,8 +140,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
   String _validateAmount2(
       String value, LoanType loanType, String max, int stableCoinDecimals) {
-    final assetDic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     String v = value.trim();
     try {
@@ -237,8 +237,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
-      final assetDic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+      final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
       final symbols = widget.plugin.networkState.tokenSymbol;
       final decimals = widget.plugin.networkState.tokenDecimals;
 

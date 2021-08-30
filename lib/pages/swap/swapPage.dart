@@ -16,7 +16,7 @@ class SwapPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/dex';
+  static const String route = '/karura/dex';
 
   @override
   _SwapPageState createState() => _SwapPageState();
@@ -47,7 +47,7 @@ class _SwapPageState extends State<SwapPage> {
 
   @override
   Widget build(_) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final isKar = widget.plugin.basic.name == plugin_name_karura;
     // todo: fix this after new acala online
     final bool enabled = widget.plugin.basic.name == 'acala'

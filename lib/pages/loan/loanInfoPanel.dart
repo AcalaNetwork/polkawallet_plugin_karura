@@ -26,7 +26,7 @@ class LoanInfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final priceString = Fmt.token(price, acala_price_decimals);
     final liquidationPriceString =
         Fmt.token(liquidationPrice, acala_price_decimals);

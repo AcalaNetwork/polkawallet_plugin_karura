@@ -19,11 +19,11 @@ class SwapHistoryPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/swap/txs';
+  static const String route = '/karura/swap/txs';
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return Scaffold(
       appBar: AppBar(
         title: Text(dic['loan.txs']),

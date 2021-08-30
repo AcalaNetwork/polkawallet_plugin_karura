@@ -22,7 +22,7 @@ class LoanAdjustPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/loan/adjust';
+  static const String route = '/karura/loan/adjust';
   static const String actionTypeMint = 'mint';
   static const String actionTypePayback = 'payback';
   static const String actionTypeDeposit = 'deposit';
@@ -169,7 +169,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   String _validateAmount1(String value, BigInt available) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     String v = value.trim();
     try {
@@ -187,8 +187,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
   String _validateAmount2(String value, BigInt max, String maxToBorrowView,
       BigInt balanceAUSD, LoanData loan, int stableCoinDecimals) {
-    final assetDic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     String v = value.trim();
     try {
@@ -228,7 +228,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   Future<bool> _confirmPaybackParams() async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final bool res = await showCupertinoDialog(
         context: context,
         builder: (_) {
@@ -242,7 +242,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               ),
               CupertinoDialogAction(
                 child: Text(I18n.of(context)
-                    .getDic(i18n_full_dic_acala, 'common')['ok']),
+                    .getDic(i18n_full_dic_karura, 'common')['ok']),
                 onPressed: () => Navigator.of(context).pop(true),
               )
             ],
@@ -379,8 +379,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
   @override
   Widget build(BuildContext context) {
-    var dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
-    var assetDic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    var dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    var assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final symbols = widget.plugin.networkState.tokenSymbol;
     final decimals = widget.plugin.networkState.tokenDecimals;

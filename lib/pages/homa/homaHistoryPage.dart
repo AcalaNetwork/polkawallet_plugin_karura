@@ -19,7 +19,7 @@ class HomaHistoryPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/homa/txs';
+  static const String route = '/karura/homa/txs';
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class HomaHistoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            I18n.of(context).getDic(i18n_full_dic_acala, 'acala')['loan.txs']),
+            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['loan.txs']),
         centerTitle: true,
       ),
       body: SafeArea(

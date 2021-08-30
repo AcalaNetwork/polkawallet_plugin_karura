@@ -50,7 +50,7 @@ class _DemocracyState extends State<Democracy> {
   }
 
   Future<void> _submitCancelVote(int id) async {
-    final govDic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final govDic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     final params = TxConfirmParams(
       module: 'democracy',
       call: 'removeVote',
@@ -66,7 +66,7 @@ class _DemocracyState extends State<Democracy> {
   }
 
   void _onUnlock() async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     final txs = _unlocks
         .map(
             (e) => 'api.tx.democracy.removeVote(${BigInt.parse(e.toString())})')
@@ -109,7 +109,7 @@ class _DemocracyState extends State<Democracy> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     return Observer(
       builder: (_) {
         final decimals = widget.plugin.networkState.tokenDecimals[0];

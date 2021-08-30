@@ -27,7 +27,7 @@ class LoanPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/loan';
+  static const String route = '/karura/loan';
 
   @override
   _LoanPageState createState() => _LoanPageState();
@@ -73,7 +73,7 @@ class _LoanPageState extends State<LoanPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     final stableCoinDecimals = widget.plugin.networkState.tokenDecimals[
         widget.plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
@@ -215,7 +215,7 @@ class LoanOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     final requiredCollateralRatio =
         double.parse(Fmt.token(loan.type.requiredCollateralRatio, 18));
@@ -390,7 +390,7 @@ class CollateralIncentiveList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final tokens = incentives.keys.toList();
     return ListView.builder(
         itemCount: tokens.length,

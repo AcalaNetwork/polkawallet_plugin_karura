@@ -21,11 +21,11 @@ class EarnHistoryPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/earn/txs';
+  static const String route = '/karura/earn/txs';
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     return Scaffold(
       appBar: AppBar(

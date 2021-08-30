@@ -27,7 +27,7 @@ class LoanDebtCard extends StatelessWidget {
   final Map<String, Widget> tokenIcons;
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return RoundedCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
@@ -63,7 +63,7 @@ class LoanDebtCard extends StatelessWidget {
                       Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Text(
-                          '${I18n.of(context).getDic(i18n_full_dic_acala, 'common')['balance']}: $balance',
+                          '${I18n.of(context).getDic(i18n_full_dic_karura, 'common')['balance']}: $balance',
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).unselectedWidgetColor,
@@ -139,7 +139,7 @@ class LoanCollateralCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return RoundedCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
@@ -175,7 +175,7 @@ class LoanCollateralCard extends StatelessWidget {
                       Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Text(
-                          '${I18n.of(context).getDic(i18n_full_dic_acala, 'common')['balance']}: $balance',
+                          '${I18n.of(context).getDic(i18n_full_dic_karura, 'common')['balance']}: $balance',
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).unselectedWidgetColor,

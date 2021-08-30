@@ -17,7 +17,7 @@ class LoanDetailPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/loan/detail';
+  static const String route = '/karura/loan/detail';
 
   @override
   _LoanDetailPageState createState() => _LoanDetailPageState();
@@ -26,7 +26,7 @@ class LoanDetailPage extends StatefulWidget {
 class _LoanDetailPageState extends State<LoanDetailPage> {
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final symbols = widget.plugin.networkState.tokenSymbol;
     final decimals = widget.plugin.networkState.tokenDecimals;
 

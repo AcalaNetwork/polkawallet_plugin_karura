@@ -46,8 +46,8 @@ class SwapTokenInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
-    final dicAssets = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dicAssets = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final max = Fmt.balanceInt(balance?.amount);
 

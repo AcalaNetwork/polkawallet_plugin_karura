@@ -25,7 +25,7 @@ class HomaRedeemPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/homa/redeem';
+  static const String route = '/karura/homa/redeem';
 
   @override
   _HomaRedeemPageState createState() => _HomaRedeemPageState();
@@ -85,7 +85,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
 
   Future<void> _onRadioChange(int value) async {
     if (value == 1) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
       final pool = widget.plugin.store.homa.stakingPoolInfo;
       if (pool.freeList.length == 0) return;
 
@@ -152,7 +152,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
             module: 'homa',
             call: 'redeem',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['homa.redeem'],
+                .getDic(i18n_full_dic_karura, 'acala')['homa.redeem'],
             txDisplay: {
               "amountPay": pay,
               "amountReceive": receive,
@@ -183,9 +183,9 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         final dicAssets =
-            I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+            I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
         final symbols = widget.plugin.networkState.tokenSymbol;
         final decimals = widget.plugin.networkState.tokenDecimals;

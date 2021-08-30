@@ -18,7 +18,7 @@ class CurrencySelectPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(I18n.of(context)
-            .getDic(i18n_full_dic_acala, 'common')['currency.select']),
+            .getDic(i18n_full_dic_karura, 'common')['currency.select']),
         centerTitle: true,
       ),
       body: SafeArea(

@@ -142,7 +142,7 @@ class _TransferPageState extends State<TransferPage> {
 
   /// XCM only support KSM transfer back to Kusama.
   void _onSelectChain() {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     showCupertinoModalPopup(
       context: context,
@@ -184,8 +184,8 @@ class _TransferPageState extends State<TransferPage> {
           );
         }).toList(),
         cancelButton: CupertinoActionSheetAction(
-          child: Text(
-              I18n.of(context).getDic(i18n_full_dic_acala, 'common')['cancel']),
+          child: Text(I18n.of(context)
+              .getDic(i18n_full_dic_karura, 'common')['cancel']),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -201,7 +201,7 @@ class _TransferPageState extends State<TransferPage> {
 
       /// send XCM tx if cross chain
       if (chainTo != widget.plugin.basic.name) {
-        final dicAcala = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dicAcala = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         return TxConfirmParams(
           txTitle: '${dicAcala['transfer']} $_token (${dicAcala['cross.xcm']})',
           module: 'xTokens',
@@ -253,7 +253,7 @@ class _TransferPageState extends State<TransferPage> {
         module: 'currencies',
         call: 'transfer',
         txTitle:
-            '${I18n.of(context).getDic(i18n_full_dic_acala, 'acala')['transfer']} $tokenView',
+            '${I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['transfer']} $tokenView',
         txDisplay: {
           "destination": _accountTo.address,
           "currency": tokenView,
@@ -313,8 +313,8 @@ class _TransferPageState extends State<TransferPage> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
-        final dicAcala = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+        final dicAcala = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         final String args = ModalRoute.of(context).settings.arguments;
         final token = _token ?? args;
         final tokenView = PluginFmt.tokenView(token);
@@ -660,7 +660,7 @@ class _TransferPageState extends State<TransferPage> {
 class _KSMCrossChainTransferWarning extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return Container(
       margin: EdgeInsets.only(top: 16, bottom: 24),
       padding: EdgeInsets.all(8),

@@ -92,7 +92,7 @@ class _SwapFormState extends State<SwapForm> {
   bool _onCheckBalance() {
     final symbols = widget.plugin.networkState.tokenSymbol;
     final decimals = widget.plugin.networkState.tokenDecimals;
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final v = _amountPayCtrl.text.trim();
     final balancePair = PluginFmt.getBalancePair(widget.plugin, _swapPair);
 
@@ -254,7 +254,7 @@ class _SwapFormState extends State<SwapForm> {
   }
 
   void _onSlippageChange(String v) {
-    final Map dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final Map dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     try {
       double value = double.parse(v.trim());
       if (value >= 50 || value < 0.1) {
@@ -334,7 +334,7 @@ class _SwapFormState extends State<SwapForm> {
             call:
                 _swapMode == 0 ? 'swapWithExactSupply' : 'swapWithExactTarget',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['dex.title'],
+                .getDic(i18n_full_dic_karura, 'acala')['dex.title'],
             txDisplay: {
               "currencyPay": _swapPair[0],
               "amountPay": pay,
@@ -381,7 +381,7 @@ class _SwapFormState extends State<SwapForm> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
         final currencyOptionsLeft = PluginFmt.getAllDexTokens(widget.plugin);
         final currencyOptionsRight = currencyOptionsLeft.toList();
@@ -565,7 +565,7 @@ class _SwapFormState extends State<SwapForm> {
                                             padding: EdgeInsets.fromLTRB(
                                                 12, 4, 12, 2),
                                             placeholder: I18n.of(context)
-                                                .getDic(i18n_full_dic_acala,
+                                                .getDic(i18n_full_dic_karura,
                                                     'common')['custom'],
                                             placeholderStyle: TextStyle(
                                                 fontSize: 12,

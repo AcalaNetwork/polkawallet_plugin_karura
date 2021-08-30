@@ -26,7 +26,7 @@ class HomaPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/homa';
+  static const String route = '/karura/homa';
 
   @override
   _HomaPageState createState() => _HomaPageState();
@@ -56,7 +56,7 @@ class _HomaPageState extends State<HomaPage> {
           module: 'homa',
           call: 'withdrawRedemption',
           txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_acala, 'acala')['homa.redeem'],
+              .getDic(i18n_full_dic_karura, 'acala')['homa.redeem'],
           txDisplay: {
             "amountReceive": receive,
           },
@@ -72,7 +72,7 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   Future<bool> _confirmMint() async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return showCupertinoDialog(
         context: context,
         builder: (_) {
@@ -100,14 +100,14 @@ class _HomaPageState extends State<HomaPage> {
             actions: [
               CupertinoButton(
                 child: Text(I18n.of(context)
-                    .getDic(i18n_full_dic_acala, 'common')['cancel']),
+                    .getDic(i18n_full_dic_karura, 'common')['cancel']),
                 onPressed: () {
                   Navigator.of(context).pop(false);
                 },
               ),
               CupertinoButton(
                 child: Text(I18n.of(context)
-                    .getDic(i18n_full_dic_acala, 'common')['ok']),
+                    .getDic(i18n_full_dic_karura, 'common')['ok']),
                 onPressed: () {
                   Navigator.of(context).pop(true);
                 },
@@ -138,7 +138,7 @@ class _HomaPageState extends State<HomaPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         final symbols = widget.plugin.networkState.tokenSymbol;
         final decimals = widget.plugin.networkState.tokenDecimals;
 

@@ -144,6 +144,8 @@ const Map<String, String> enDex = {
   'tx.fee.or': 'or equivalent in other tokens',
   'nft.title': 'NFTs',
   'nft.testnet': 'Mandala testnet badge',
+  'nft.transfer': 'Transfer',
+  'nft.burn': 'Burn',
   'candy.title': 'Candy Claim',
   'candy.claim': 'Claim',
   'candy.amount': 'Candies to claim',

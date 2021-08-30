@@ -13,12 +13,12 @@ class EarnLiquidityDetailPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static final String route = '/acala/earn/dex/tx';
+  static final String route = '/karura/earn/dex/tx';
 
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
     final TxDexLiquidityData tx = ModalRoute.of(context).settings.arguments;

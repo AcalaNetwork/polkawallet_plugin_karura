@@ -21,7 +21,7 @@ class MintPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/homa/mint';
+  static const String route = '/karura/homa/mint';
 
   @override
   _MintPageState createState() => _MintPageState();
@@ -61,7 +61,7 @@ class _MintPageState extends State<MintPage> {
       if (Fmt.tokenInt(input.toString(), stakeDecimal) + poolInfo.staked >
           poolInfo.cap) {
         error = I18n.of(context)
-            .getDic(i18n_full_dic_acala, 'acala')['homa.pool.cap.error'];
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
       }
 
       setState(() {
@@ -72,7 +72,7 @@ class _MintPageState extends State<MintPage> {
   }
 
   void _onSupplyAmountChange(String v, double balance, double minStake) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final supply = v.trim();
     setState(() {
@@ -90,7 +90,7 @@ class _MintPageState extends State<MintPage> {
       }
       if (pay <= minStake) {
         final minLabel = I18n.of(context)
-            .getDic(i18n_full_dic_acala, 'acala')['homa.pool.min'];
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.min'];
         error = '$minLabel > ${minStake.toStringAsFixed(4)}';
       }
     } catch (err) {
@@ -136,7 +136,7 @@ class _MintPageState extends State<MintPage> {
           module: 'homaLite',
           call: 'mint',
           txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_acala, 'acala')['homa.mint'],
+              .getDic(i18n_full_dic_karura, 'acala')['homa.mint'],
           txDisplay: {
             "amountPay": pay,
             "amountReceive": _amountReceive,
@@ -167,7 +167,7 @@ class _MintPageState extends State<MintPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
         final symbols = widget.plugin.networkState.tokenSymbol;
         final stakeToken = relay_chain_token_symbol;

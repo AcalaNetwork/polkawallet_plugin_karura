@@ -38,7 +38,7 @@ class ReferendumPanel extends StatelessWidget {
     final endLeft = BigInt.parse(data.status['end'].toString()) - bestNumber;
     final activateLeft =
         endLeft + BigInt.parse(data.status['delay'].toString());
-    var dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    var dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     List<Widget> list = <Widget>[
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
         Text(
@@ -333,7 +333,7 @@ class _ReferendumArgsList extends State<ReferendumArgsList> {
                   ? Icons.keyboard_arrow_down
                   : Icons.keyboard_arrow_right,
             ),
-            Text(I18n.of(context).getDic(i18n_full_dic_acala, 'gov')['detail'])
+            Text(I18n.of(context).getDic(i18n_full_dic_karura, 'gov')['detail'])
           ],
         ),
         onTap: () {
@@ -399,7 +399,7 @@ class ProposalVoteButtonsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final Map dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     return Row(
       children: <Widget>[
         Expanded(

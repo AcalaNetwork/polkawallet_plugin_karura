@@ -26,7 +26,7 @@ class WithdrawLiquidityPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/earn/withdraw';
+  static const String route = '/karura/earn/withdraw';
 
   @override
   _WithdrawLiquidityPageState createState() => _WithdrawLiquidityPageState();
@@ -61,7 +61,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   }
 
   String _validateInput(String value) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final v = value.trim();
     try {
@@ -134,7 +134,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         module: 'dex',
         call: 'removeLiquidity',
         txTitle: I18n.of(context)
-            .getDic(i18n_full_dic_acala, 'acala')['earn.remove'],
+            .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
         txDisplay: {
           "poolId": poolId,
           "amount": amount,
@@ -148,7 +148,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             module: 'dex',
             call: 'removeLiquidity',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['earn.remove'],
+                .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
             txDisplay: {
               "poolId": poolId,
               "amount": amount,
@@ -165,7 +165,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             module: 'utility',
             call: 'batch',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['earn.remove'],
+                .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
             txDisplay: {
               "poolId": poolId,
               "amount": amount,
@@ -209,9 +209,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         final dicAssets =
-            I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+            I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
         final String poolId = ModalRoute.of(context).settings.arguments;
         final pair = poolId.toUpperCase().split('-');

@@ -28,7 +28,7 @@ class EarnDetailPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/earn/detail';
+  static const String route = '/karura/earn/detail';
 
   Future<void> _onStake(
       BuildContext context, String action, String poolId) async {
@@ -63,7 +63,7 @@ class EarnDetailPage extends StatelessWidget {
             module: 'utility',
             call: 'batch',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['earn.claim'],
+                .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
             txDisplay: {
               "poolId": poolId,
               "incentiveReward": '$incentiveReward $symbol',
@@ -78,7 +78,7 @@ class EarnDetailPage extends StatelessWidget {
             module: 'incentives',
             call: 'claimRewards',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['earn.claim'],
+                .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
             txDisplay: {
               "poolId": poolId,
               "incentiveReward": '$incentiveReward $symbol',
@@ -92,7 +92,7 @@ class EarnDetailPage extends StatelessWidget {
             module: 'incentives',
             call: 'claimRewards',
             txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_acala, 'acala')['earn.claim'],
+                .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
             txDisplay: {
               "poolId": poolId,
               "savingReward": '$savingReward $karura_stable_coin_view',
@@ -105,7 +105,7 @@ class EarnDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final symbols = plugin.networkState.tokenSymbol;
 
     final String poolId = ModalRoute.of(context).settings.arguments;
@@ -296,7 +296,7 @@ class _SystemCard extends StatelessWidget {
   final Widget actions;
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final primary = Theme.of(context).primaryColor;
     final TextStyle primaryText = TextStyle(
       fontSize: 22,
@@ -379,7 +379,7 @@ class _UserCard extends StatelessWidget {
   final int stableCoinDecimal;
 
   Future<void> _onClaim(BuildContext context) async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
@@ -389,14 +389,14 @@ class _UserCard extends StatelessWidget {
           actions: <Widget>[
             CupertinoButton(
               child: Text(I18n.of(context)
-                  .getDic(i18n_full_dic_acala, 'common')['cancel']),
+                  .getDic(i18n_full_dic_karura, 'common')['cancel']),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             CupertinoButton(
-              child: Text(
-                  I18n.of(context).getDic(i18n_full_dic_acala, 'common')['ok']),
+              child: Text(I18n.of(context)
+                  .getDic(i18n_full_dic_karura, 'common')['ok']),
               onPressed: () {
                 Navigator.of(context).pop();
                 onWithdrawReward();
@@ -410,7 +410,7 @@ class _UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     var reward = (poolInfo?.reward?.incentive ?? 0) * (1 - (loyaltyBonus ?? 0));
     var rewardSaving =
         (poolInfo?.reward?.saving ?? 0) * (1 - (savingLoyaltyBonus ?? 0));

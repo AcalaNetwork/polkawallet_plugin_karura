@@ -23,7 +23,7 @@ class AddLiquidityPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/earn/deposit';
+  static const String route = '/karura/earn/deposit';
   static const String actionDeposit = 'deposit';
 
   @override
@@ -98,7 +98,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (index == 0 && _maxInputLeft != null) return null;
     if (index == 1 && _maxInputRight != null) return null;
 
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final String poolId = ModalRoute.of(context).settings.arguments;
     final tokenPair = poolId.toUpperCase().split('-');
     final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
@@ -222,7 +222,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               module: 'utility',
               call: 'batch',
               txTitle: I18n.of(context)
-                  .getDic(i18n_full_dic_acala, 'acala')['earn.add'],
+                  .getDic(i18n_full_dic_karura, 'acala')['earn.add'],
               txDisplay: {
                 "poolId": poolId,
                 "amount": [amountLeft, amountRight],
@@ -244,7 +244,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               module: 'dex',
               call: 'addLiquidity',
               txTitle: I18n.of(context)
-                  .getDic(i18n_full_dic_acala, 'acala')['earn.add'],
+                  .getDic(i18n_full_dic_karura, 'acala')['earn.add'],
               txDisplay: {
                 "poolId": poolId,
                 "amount": [amountLeft, amountRight],
@@ -286,7 +286,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
         final String poolId = ModalRoute.of(context).settings.arguments;
         final tokenPair = poolId.toUpperCase().split('-');
@@ -507,8 +507,8 @@ class StakeLPTips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
-    final dicCommon = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     return Observer(builder: (_) {
       final rewardAPY = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
       final savingRewardAPY =

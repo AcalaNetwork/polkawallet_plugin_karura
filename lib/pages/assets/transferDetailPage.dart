@@ -19,7 +19,7 @@ class TransferDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+        I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final TransferData tx = ModalRoute.of(context).settings.arguments;
 

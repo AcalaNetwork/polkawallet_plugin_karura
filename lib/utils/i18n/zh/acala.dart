@@ -134,6 +134,8 @@ const Map<String, String> zhDex = {
   'tx.fee.or': '或等额其他代币',
   'nft.title': 'NFTs',
   'nft.testnet': 'Mandala 测试网徽章',
+  'nft.transfer': '发送',
+  'nft.burn': '销毁',
   'candy.title': '领糖果',
   'candy.claim': '马上领取',
   'candy.amount': '待领取',

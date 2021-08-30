@@ -39,8 +39,8 @@ class _AcalaEntryState extends State<AcalaEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
-    final dicGov = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dicGov = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     final isKar = widget.plugin.basic.name == plugin_name_karura;
 
     return Scaffold(

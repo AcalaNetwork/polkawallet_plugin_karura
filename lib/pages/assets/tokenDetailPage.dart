@@ -49,7 +49,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final TokenBalanceData token = ModalRoute.of(context).settings.arguments;
 
@@ -147,7 +147,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                           children: <Widget>[
                             BorderedTitle(
                               title: I18n.of(context).getDic(
-                                  i18n_full_dic_acala, 'acala')['loan.txs'],
+                                  i18n_full_dic_karura, 'acala')['loan.txs'],
                             )
                           ],
                         ),

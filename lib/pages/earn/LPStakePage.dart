@@ -24,7 +24,7 @@ class LPStakePage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/earn/stake';
+  static const String route = '/karura/earn/stake';
   static const String actionStake = 'stake';
   static const String actionUnStake = 'unStake';
 
@@ -40,7 +40,7 @@ class _LPStakePage extends State<LPStakePage> {
   bool _isMax = false;
 
   String _validateAmount(String value, BigInt available, int decimals) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     String v = value.trim();
     try {
@@ -80,7 +80,7 @@ class _LPStakePage extends State<LPStakePage> {
   Future<void> _onSubmit(BigInt max, int decimals) async {
     if (!_formKey.currentState.validate()) return;
 
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final LPStakePageParams params = ModalRoute.of(context).settings.arguments;
     final isStake = params.action == LPStakePage.actionStake;
 
@@ -113,8 +113,8 @@ class _LPStakePage extends State<LPStakePage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
-    final assetDic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final symbols = widget.plugin.networkState.tokenSymbol;
     final decimals = widget.plugin.networkState.tokenDecimals;
 

@@ -53,7 +53,7 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
   }
 
   Future<void> _onSwitch() async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     final ProposalInfoData proposal = ModalRoute.of(context).settings.arguments;
     final TxConfirmParams params = TxConfirmParams(
       module: 'democracy',
@@ -78,7 +78,7 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    var dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    var dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     final ProposalInfoData proposalPara =
         ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -231,7 +231,7 @@ class ProposalSecondsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map dic = I18n.of(context).getDic(i18n_full_dic_acala, 'gov');
+    final Map dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
     final List seconding = proposal.seconds.toList();
     seconding.removeAt(0);
     return Container(
@@ -311,7 +311,7 @@ class _ProposalArgsListState extends State<ProposalArgsList> {
                   ? Icons.keyboard_arrow_down
                   : Icons.keyboard_arrow_right,
             ),
-            Text(I18n.of(context).getDic(i18n_full_dic_acala, 'gov')['detail'])
+            Text(I18n.of(context).getDic(i18n_full_dic_karura, 'gov')['detail'])
           ],
         ),
         onTap: () {

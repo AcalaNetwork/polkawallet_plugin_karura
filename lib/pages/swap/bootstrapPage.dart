@@ -24,7 +24,7 @@ class BootstrapPage extends StatefulWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/acala/dex/bootstrap';
+  static const String route = '/karura/dex/bootstrap';
 
   @override
   _BootstrapPageState createState() => _BootstrapPageState();
@@ -66,7 +66,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
   }
 
   void _onAmountChange(int index, String value) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final DexPoolData args = ModalRoute.of(context).settings.arguments;
     final pair = args.tokens.map((e) => e['token'] as String).toList();
     final balancePair = PluginFmt.getBalancePair(widget.plugin, pair);
@@ -118,7 +118,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
   }
 
   Future<TxConfirmParams> _onSubmit() async {
-    final dicCommon = I18n.of(context).getDic(i18n_full_dic_acala, 'common');
+    final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     if (_addTab != 1 && _amountLeftCtrl.text.isEmpty) {
       setState(() {
         _leftAmountError = dicCommon['amount.error'];
@@ -133,7 +133,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
       return null;
     }
 
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final DexPoolData pool = ModalRoute.of(context).settings.arguments;
     final pair = pool.tokens.map((e) => e['token']).toList();
 
@@ -170,7 +170,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final DexPoolData args = ModalRoute.of(context).settings.arguments;

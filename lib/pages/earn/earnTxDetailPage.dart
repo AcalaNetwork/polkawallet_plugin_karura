@@ -15,12 +15,12 @@ class EarnTxDetailPage extends StatelessWidget {
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static final String route = '/acala/earn/incentive/tx';
+  static final String route = '/karura/earn/incentive/tx';
 
   @override
   Widget build(BuildContext context) {
     final isKar = plugin.basic.name == plugin_name_karura;
-    final dic = I18n.of(context).getDic(i18n_full_dic_acala, 'acala');
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
     final TxDexIncentiveData tx = ModalRoute.of(context).settings.arguments;
@@ -48,7 +48,7 @@ class EarnTxDetailPage extends StatelessWidget {
         ),
         TxDetailInfoItem(
           label:
-              I18n.of(context).getDic(i18n_full_dic_acala, 'common')['amount'],
+              I18n.of(context).getDic(i18n_full_dic_karura, 'common')['amount'],
           content: Text(tx.amountShare, style: amountStyle),
         )
       ],
