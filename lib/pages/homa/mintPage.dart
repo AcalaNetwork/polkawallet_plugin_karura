@@ -53,8 +53,9 @@ class _MintPageState extends State<MintPage> {
           1000000; // type of maxRewardPerEra is PerMill
       final exchangeRate = poolInfo.staked > BigInt.zero
           ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
-          : Fmt.balanceInt(
-              widget.plugin.networkConst['homaLite']['defaultExchangeRate']);
+          : Fmt.balanceDouble(
+              widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
+              acala_price_decimals);
       final receive = (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
 
       String error;

@@ -10,6 +10,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -36,6 +37,7 @@ class _HomaPageState extends State<HomaPage> {
   Timer _timer;
 
   Future<void> _refreshData() async {
+    widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
     await widget.plugin.service.homa.queryHomaLiteStakingPool();
 
     if (_timer != null) {
@@ -150,6 +152,18 @@ class _HomaPageState extends State<HomaPage> {
         final amountLeft = cap - staked;
         final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
 
+        final balances = PluginFmt.getBalancePair(
+            widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
+        final balanceStakeToken =
+            Fmt.balanceDouble(balances[0].amount, balances[0].decimals);
+        final balanceLiquidToken =
+            Fmt.balanceDouble(balances[1].amount, balances[1].decimals);
+        final exchangeRate = staked > BigInt.zero
+            ? (liquidTokenIssuance / staked)
+            : Fmt.balanceDouble(
+                widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
+                acala_price_decimals);
+
         final List<charts.Series> seriesList = [
           new charts.Series<num, int>(
             id: 'chartData',
@@ -166,7 +180,6 @@ class _HomaPageState extends State<HomaPage> {
         ];
 
         final nativeDecimal = decimals[symbols.indexOf(stakeSymbol)];
-        final liquidDecimal = decimals[symbols.indexOf('L$stakeSymbol')];
 
         final minStake = Fmt.balanceInt(widget
                 .plugin.networkConst['homaLite']['minimumMintThreshold']
@@ -276,11 +289,83 @@ class _HomaPageState extends State<HomaPage> {
                                     InfoItem(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      title:
-                                          'L$stakeSymbol ${dic['homa.pool.issuance']}',
-                                      content: Fmt.token(
-                                          liquidTokenIssuance, liquidDecimal),
+                                      title: 'APR',
+                                      content: '≈ 16%',
                                     ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          RoundedCard(
+                            margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
+                            padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 24),
+                                  child: Text(dic['homa.user.stats']),
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Column(
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 8),
+                                          child: Text(
+                                            'L$stakeSymbol',
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.only(right: 8),
+                                              child: TokenIcon('L$stakeSymbol',
+                                                  widget.plugin.tokenIcons),
+                                            ),
+                                            InfoItem(
+                                              title:
+                                                  '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                              content: Fmt.priceFloor(
+                                                  balanceLiquidToken,
+                                                  lengthMax: 4),
+                                              lowTitle: true,
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    )),
+                                    Expanded(
+                                        child: Column(
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 8),
+                                          child: Text(
+                                            dic['homa.user.ksm'],
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.only(right: 8),
+                                              child: TokenIcon(stakeSymbol,
+                                                  widget.plugin.tokenIcons),
+                                            ),
+                                            InfoItem(
+                                              title:
+                                                  '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                              content: Fmt.priceFloor(
+                                                  balanceStakeToken,
+                                                  lengthMax: 4),
+                                              lowTitle: true,
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ))
                                   ],
                                 )
                               ],
@@ -289,7 +374,7 @@ class _HomaPageState extends State<HomaPage> {
                         ],
                       ),
                     ),
-                    (poolInfo.liquidTokenIssuance ?? BigInt.zero) >= BigInt.zero
+                    liquidTokenIssuance >= BigInt.zero
                         ? Row(
                             children: <Widget>[
                               Expanded(

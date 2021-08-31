@@ -132,6 +132,9 @@ const Map<String, String> enDex = {
   'homa.user.time': 'Unlock Time',
   'homa.user.blocks': 'Blocks',
   'homa.user.redeemable': 'Redeemable',
+  'homa.user.stats': 'My Stats',
+  'homa.user.ksm': 'Free KSM',
+  'homa.user.lksm': 'Liquid KSM',
   'homa.mint.profit': 'Estimated Profit / Era',
   'homa.mint.warn':
       'LKSM Phase 1 uses proxy staking, and redemption is NOT available until the next Phase. Read more',
