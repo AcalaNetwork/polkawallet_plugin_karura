@@ -20,6 +20,7 @@ const Map<String, String> zhCommon = {
   'amount.all': '全部',
   'amount.staked': '质押中',
   'amount.free': '可转账',
+  'amount.transferable': '可转账',
   'input.invalid': '输入格式错误',
   'balance': '余额',
   'currency': '币种',

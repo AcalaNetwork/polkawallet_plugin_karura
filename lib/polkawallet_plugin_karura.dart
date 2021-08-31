@@ -39,7 +39,9 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanTxDetailPage.dart';
+import 'package:polkawallet_plugin_karura/pages/nft/nftBurnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftPage.dart';
+import 'package:polkawallet_plugin_karura/pages/nft/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapHistoryPage.dart';
@@ -206,6 +208,8 @@ class PluginKarura extends PolkawalletPlugin {
       HomaTxDetailPage.route: (_) => HomaTxDetailPage(this, keyring),
       // NFT pages
       NFTPage.route: (_) => NFTPage(this, keyring),
+      NFTTransferPage.route: (_) => NFTTransferPage(this, keyring),
+      NFTBurnPage.route: (_) => NFTBurnPage(this, keyring),
       // Gov pages
       DemocracyPage.route: (_) => DemocracyPage(this, keyring),
       ReferendumVotePage.route: (_) => ReferendumVotePage(this, keyring),

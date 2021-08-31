@@ -20,6 +20,7 @@ const Map<String, String> enCommon = {
   'amount.all': 'Total',
   'amount.staked': 'Staked',
   'amount.free': 'Free',
+  'amount.transferable': 'Transferable',
   'input.invalid': 'Invalid input',
   'balance': 'Balance',
   'currency': 'Currency',
