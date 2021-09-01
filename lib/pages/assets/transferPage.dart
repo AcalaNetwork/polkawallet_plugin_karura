@@ -42,6 +42,7 @@ class _TransferPageState extends State<TransferPage> {
   final TextEditingController _amountCtrl = new TextEditingController();
 
   KeyPairData _accountTo;
+  List<KeyPairData> _accountOptions = [];
   String _token;
   String _chainTo;
 
@@ -156,6 +157,7 @@ class _TransferPageState extends State<TransferPage> {
                 Container(
                   margin: EdgeInsets.only(right: 8),
                   width: 32,
+                  height: 32,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
                     child: e == widget.plugin.basic.name
@@ -171,9 +173,25 @@ class _TransferPageState extends State<TransferPage> {
             ),
             onPressed: () {
               if (e != _chainTo) {
+                // set ss58 of _chainTo so we can get according address
+                // from AddressInputField
+                widget.keyring.setSS58(
+                    e == relay_chain_name ? 2 : widget.plugin.basic.ss58);
+                final options = widget.keyring.allWithContacts.toList();
+                widget.keyring.setSS58(widget.plugin.basic.ss58);
                 setState(() {
                   _chainTo = e;
+                  _accountOptions = options;
+
+                  final isInAccountList = options
+                          .indexWhere((e) => e.pubKey == _accountTo.pubKey) >=
+                      0;
+                  if (isInAccountList) {
+                    _accountTo = options
+                        .firstWhere((e) => e.pubKey == _accountTo.pubKey);
+                  }
                 });
+
                 _validateAccountTo(_accountTo);
 
                 // update estimated tx fee if switch ToChain
@@ -293,6 +311,7 @@ class _TransferPageState extends State<TransferPage> {
       final String token = ModalRoute.of(context).settings.arguments;
       setState(() {
         _token = token;
+        _accountOptions = widget.keyring.allWithContacts.toList();
       });
 
       _getTxFee();
@@ -375,7 +394,7 @@ class _TransferPageState extends State<TransferPage> {
                       children: <Widget>[
                         AddressInputField(
                           widget.plugin.sdk.api,
-                          widget.keyring.allAccounts,
+                          _accountOptions,
                           label: dic['address'],
                           initialValue: _accountTo,
                           onChanged: (KeyPairData acc) async {
@@ -506,6 +525,7 @@ class _TransferPageState extends State<TransferPage> {
                                                 margin:
                                                     EdgeInsets.only(right: 8),
                                                 width: 32,
+                                                height: 32,
                                                 child: ClipRRect(
                                                   borderRadius:
                                                       BorderRadius.circular(32),
@@ -551,22 +571,28 @@ class _TransferPageState extends State<TransferPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Text(dicAcala['cross.exist']),
-                                    ),
-                                    TapTooltip(
-                                      message: dicAcala['cross.exist.msg'],
-                                      child: Icon(
-                                        Icons.info,
-                                        size: 16,
-                                        color: Theme.of(context)
-                                            .unselectedWidgetColor,
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: Text(dicAcala['cross.exist']),
                                       ),
                                     ),
-                                    Expanded(child: Container(width: 2)),
-                                    Text(
-                                        '${Fmt.priceCeilBigInt(destExistDeposit, decimals, lengthMax: 6)} $tokenView'),
+                                    Expanded(
+                                      child: TapTooltip(
+                                        message: dicAcala['cross.exist.msg'],
+                                        child: Icon(
+                                          Icons.info,
+                                          size: 16,
+                                          color: Theme.of(context)
+                                              .unselectedWidgetColor,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 0,
+                                      child: Text(
+                                          '${Fmt.priceCeilBigInt(destExistDeposit, decimals, lengthMax: 6)} $tokenView'),
+                                    )
                                   ],
                                 ),
                               )
@@ -577,11 +603,12 @@ class _TransferPageState extends State<TransferPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Text(dicAcala['cross.fee']),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: Text(dicAcala['cross.fee']),
+                                      ),
                                     ),
-                                    Expanded(child: Container(width: 2)),
                                     Text(
                                         '${Fmt.priceCeilBigInt(destFee, decimals, lengthMax: 6)} $tokenView'),
                                   ],
@@ -593,9 +620,11 @@ class _TransferPageState extends State<TransferPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Padding(
-                                padding: EdgeInsets.only(right: 4),
-                                child: Text(dicAcala['transfer.exist']),
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: 4),
+                                  child: Text(dicAcala['transfer.exist']),
+                                ),
                               ),
                               TapTooltip(
                                 message: dicAcala['cross.exist.msg'],
@@ -618,11 +647,12 @@ class _TransferPageState extends State<TransferPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Text(dicAcala['transfer.fee']),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: Text(dicAcala['transfer.fee']),
+                                      ),
                                     ),
-                                    Expanded(child: Container(width: 2)),
                                     Text(
                                         '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee.partialFee.toString()), decimals, lengthMax: 6)} $nativeToken'),
                                   ],

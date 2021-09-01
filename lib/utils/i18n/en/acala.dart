@@ -160,6 +160,7 @@ const Map<String, String> enDex = {
   'nft.description': 'Description',
   'nft.class': 'ClassID',
   'nft.publisher': 'Publisher',
+  'nft.deposit': 'Deposit',
   'candy.title': 'Candy Claim',
   'candy.claim': 'Claim',
   'candy.amount': 'Candies to claim',

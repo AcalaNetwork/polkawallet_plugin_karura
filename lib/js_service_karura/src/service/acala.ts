@@ -435,7 +435,9 @@ async function queryNFTs(api: ApiPromise, address: string) {
         }
       });
     });
-  return res;
+
+  const deposits = await Promise.all(res.map((e) => api.query.ormlNft.tokens(e.classId, e.tokenId)));
+  return res.map((e, i) => ({ ...e, deposit: (deposits[i] as any).toJSON()["data"]["deposit"].toString() }));
 }
 
 let walletPromise: WalletPromise;

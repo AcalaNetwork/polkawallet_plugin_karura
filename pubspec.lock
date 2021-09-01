@@ -745,16 +745,16 @@ packages:
       name: polkawallet_sdk
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.1"
   polkawallet_ui:
     dependency: "direct main"
     description:
       path: "."
-      ref: "485a9cde97f2446d74a1aeb6d8d63e33683461a5"
-      resolved-ref: "485a9cde97f2446d74a1aeb6d8d63e33683461a5"
+      ref: dec723c5c21849bb5629127ffbc4a84646c9b0bb
+      resolved-ref: dec723c5c21849bb5629127ffbc4a84646c9b0bb
       url: "https://github.com/polkawallet-io/ui.git"
     source: git
-    version: "0.3.0"
+    version: "0.3.1"
   pool:
     dependency: transitive
     description:

@@ -7,10 +7,10 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/textTag.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class NFTDetailPage extends StatefulWidget {
   NFTDetailPage(this.plugin, this.keyring);
@@ -44,6 +44,10 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final NFTData item = ModalRoute.of(context).settings.arguments;
+    final symbol = widget.plugin.networkState.tokenSymbol[0];
+    final decimal = widget.plugin.networkState.tokenDecimals[0];
+
+    final deposit = Fmt.balance(item.deposit, decimal);
     return Scaffold(
       appBar: AppBar(title: Text(item.metadata['name']), centerTitle: true),
       body: SafeArea(
@@ -83,7 +87,7 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                                           WrapCrossAlignment.start,
                                       children: allProps
                                           .map((e) => TextTag(
-                                                e,
+                                                dic['nft.$e'],
                                                 color: Theme.of(context)
                                                     .disabledColor,
                                                 fontSize: 10,
@@ -99,22 +103,27 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                                   children: [
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
-                                      child: InfoItemRow(dic['nft.name'],
+                                      child: NftInfoItem(dic['nft.name'],
                                           item.metadata['name']),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
-                                      child: InfoItemRow(dic['nft.description'],
+                                      child: NftInfoItem(dic['nft.description'],
                                           item.metadata['description']),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
-                                      child: InfoItemRow(
+                                      child: NftInfoItem(dic['nft.deposit'],
+                                          '$deposit $symbol'),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(bottom: 8),
+                                      child: NftInfoItem(
                                           dic['nft.class'], item.classId),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
-                                      child: InfoItemRow(dic['nft.quantity'],
+                                      child: NftInfoItem(dic['nft.quantity'],
                                           list.length.toString()),
                                     ),
                                   ],
@@ -167,6 +176,35 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
           },
         ),
       ),
+    );
+  }
+}
+
+class NftInfoItem extends StatelessWidget {
+  NftInfoItem(this.label, this.content);
+  final String label;
+  final String content;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 0,
+          child: Container(
+            padding: EdgeInsets.only(right: 8),
+            child: Text(label, style: TextStyle(fontSize: 12)),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            content,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).unselectedWidgetColor),
+          ),
+        )
+      ],
     );
   }
 }

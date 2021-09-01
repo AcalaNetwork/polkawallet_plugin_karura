@@ -15,4 +15,5 @@ abstract class _NFTData {
   String metadataIpfsUrl;
   List<String> properties;
   String tokenId;
+  String deposit;
 }
