@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polkawallet_plugin_karura/api/types/nftData.dart';
-import 'package:polkawallet_plugin_karura/pages/nft/nftBurnPage.dart';
-import 'package:polkawallet_plugin_karura/pages/nft/nftTransferPage.dart';
+import 'package:polkawallet_plugin_karura/pages/nft/nftDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
-import 'package:polkawallet_ui/components/tapTooltip.dart';
 
 class NFTPage extends StatefulWidget {
   NFTPage(this.plugin, this.keyring);
@@ -33,8 +29,8 @@ class _NFTPageState extends State<NFTPage> {
     nft_filter_name_all,
     'Transferable',
     'Burnable',
-    'Mintable',
-    'ClassPropertiesMutable',
+    // 'Mintable',
+    // 'ClassPropertiesMutable',
   ];
   List<String> _filters = [nft_filter_name_all];
 
@@ -43,22 +39,6 @@ class _NFTPageState extends State<NFTPage> {
         .queryNFTs(widget.keyring.current.address);
     if (nft != null) {
       widget.plugin.store.assets.setNFTs(nft);
-    }
-  }
-
-  Future<void> _onBurn(NFTData item) async {
-    final res = await Navigator.of(context)
-        .pushNamed(NFTBurnPage.route, arguments: item);
-    if (res != null) {
-      _refreshKey.currentState.show();
-    }
-  }
-
-  Future<void> _onTransfer(NFTData item) async {
-    final res = await Navigator.of(context)
-        .pushNamed(NFTTransferPage.route, arguments: item);
-    if (res != null) {
-      _refreshKey.currentState.show();
     }
   }
 
@@ -91,7 +71,7 @@ class _NFTPageState extends State<NFTPage> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     boxShadow: [
@@ -139,126 +119,66 @@ class _NFTPageState extends State<NFTPage> {
                   child: RefreshIndicator(
                     key: _refreshKey,
                     onRefresh: _queryNFTs,
-                    child: ListView.builder(
-                      itemCount: classKeys.length + 1,
+                    child: GridView.count(
                       padding: EdgeInsets.all(16),
-                      itemBuilder: (_, i) {
-                        if (i == classes.length) {
-                          return ListTail(
-                              isLoading: false, isEmpty: list.length == 0);
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 8,
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.72,
+                      children: classKeys.map((id) {
+                        final item = list.firstWhere((e) => e.classId == id);
+
+                        final isMintable = item.properties.contains('Mintable');
+                        final allProps = item.properties.toList();
+                        allProps.remove('ClassPropertiesMutable');
+                        allProps.remove('Mintable');
+                        if (!isMintable) {
+                          allProps.add('Unmintable');
                         }
-                        final item =
-                            list.firstWhere((e) => e.classId == classKeys[i]);
-                        final burnable = item.properties.contains('Burnable');
-                        final transferable =
-                            item.properties.contains('Transferable');
-                        return RoundedCard(
-                          margin: EdgeInsets.only(bottom: 16),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Column(
-                              children: [
-                                Image.network(
-                                    '${item.metadata['imageServiceUrl']}?imageView2/2/w/400'),
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        flex: 0,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(right: 4),
+                        return GestureDetector(
+                          child: RoundedCard(
+                            margin: EdgeInsets.only(bottom: 16),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Column(
+                                children: [
+                                  Image.network(
+                                      '${item.metadata['imageServiceUrl']}?imageView2/2/w/400'),
+                                  Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Expanded(
                                           child: Text(
                                             item.metadata['name'],
-                                            style: TextStyle(fontSize: 14),
+                                            style: TextStyle(fontSize: 10),
                                           ),
                                         ),
-                                      ),
-                                      TapTooltip(
-                                        message:
-                                            '\n${item.metadata['description']}\n',
-                                        child: Icon(
-                                          Icons.info,
-                                          color: Theme.of(context)
-                                              .unselectedWidgetColor,
-                                          size: 16,
-                                        ),
-                                      ),
-                                      Expanded(child: Container()),
-                                      Text(
-                                        'x ${classes[item.classId]}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(left: 16, right: 16),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          item.properties
-                                              .map((e) => dic['nft.$e'])
-                                              .join(', '),
+                                        Text(
+                                          'x${classes[item.classId]}',
                                           style: TextStyle(
                                               fontSize: 10,
-                                              color: Theme.of(context)
-                                                  .unselectedWidgetColor),
-                                        ),
-                                      )
-                                    ],
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                burnable || transferable
-                                    ? Container(
-                                        padding: EdgeInsets.all(16),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: item.properties
-                                                      .contains('Burnable')
-                                                  ? OutlinedButtonSmall(
-                                                      content: dic['nft.burn'],
-                                                      active: false,
-                                                      padding: EdgeInsets.only(
-                                                          top: 8, bottom: 8),
-                                                      onPressed: () =>
-                                                          _onBurn(item),
-                                                    )
-                                                  : Container(),
-                                            ),
-                                            Expanded(
-                                              child: item.properties
-                                                      .contains('Transferable')
-                                                  ? OutlinedButtonSmall(
-                                                      content:
-                                                          dic['nft.transfer'],
-                                                      active: true,
-                                                      padding: EdgeInsets.only(
-                                                          top: 8, bottom: 8),
-                                                      margin: EdgeInsets.only(
-                                                          left: 8),
-                                                      onPressed: () =>
-                                                          _onTransfer(item),
-                                                    )
-                                                  : Container(),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Container(
-                                        padding: EdgeInsets.only(bottom: 16))
-                              ],
+                                ],
+                              ),
                             ),
                           ),
+                          onTap: () async {
+                            final res = await Navigator.of(context).pushNamed(
+                                NFTDetailPage.route,
+                                arguments: item);
+                            if (res != null) {
+                              _refreshKey.currentState.show();
+                            }
+                          },
                         );
-                      },
+                      }).toList(),
                     ),
                   ),
                 )

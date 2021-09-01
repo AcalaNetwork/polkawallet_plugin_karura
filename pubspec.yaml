@@ -1,6 +1,6 @@
 name: polkawallet_plugin_karura
 description: Karura network plugin for Polkawallet.
-version: 0.0.1
+version: 0.3.1
 homepage:
 
 environment:
@@ -21,12 +21,12 @@ dependencies:
   device_info: ^2.0.1
   graphql_flutter: ^5.0.0-nullsafety.5
   liquid_progress_indicator: ^0.3.2
-  polkawallet_sdk: ^0.3.0
+  polkawallet_sdk: ^0.3.1
   polkawallet_ui:
     #    path: ../ui
     git:
       url: https://github.com/polkawallet-io/ui.git
-      ref: 485a9cde97f2446d74a1aeb6d8d63e33683461a5
+      ref: dec723c5c21849bb5629127ffbc4a84646c9b0bb
 
 dev_dependencies:
   build_runner: ^2.0.3
