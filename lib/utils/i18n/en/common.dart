@@ -13,6 +13,7 @@ const Map<String, String> enCommon = {
   'list.end': 'No More Data',
   'address': 'Send to Address',
   'amount': 'Amount',
+  'amount.max': 'Max',
   'amount.available': 'Available',
   'amount.error': 'Invalid amount',
   'amount.low': 'Insufficient balance',

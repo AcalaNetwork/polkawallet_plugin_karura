@@ -49,6 +49,7 @@ class _TransferPageState extends State<TransferPage> {
   String _accountToError;
 
   TxFeeEstimateResult _fee;
+  BigInt _amountMax;
 
   Future<String> _checkAccountTo(KeyPairData acc) async {
     if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc.pubKey) >=
@@ -234,7 +235,8 @@ class _TransferPageState extends State<TransferPage> {
             // params.currencyId
             {'Token': _token},
             // params.amount
-            Fmt.tokenInt(_amountCtrl.text.trim(), decimals).toString(),
+            (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
+                .toString(),
             // params.dest
             {
               'X2': [
@@ -264,7 +266,8 @@ class _TransferPageState extends State<TransferPage> {
               }
             : {'Token': _token.toUpperCase(), 'decimals': decimals},
         // params.amount
-        Fmt.tokenInt(_amountCtrl.text.trim(), decimals).toString(),
+        (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
+            .toString(),
       ];
       final tokenView = PluginFmt.tokenView(_token);
       return TxConfirmParams(
@@ -341,6 +344,9 @@ class _TransferPageState extends State<TransferPage> {
         final relayChainToken = relay_chain_token_symbol;
 
         final nativeToken = widget.plugin.networkState.tokenSymbol[0];
+        final nativeTokenBalance =
+            Fmt.balanceInt(widget.plugin.balances.native.freeBalance) -
+                Fmt.balanceInt(widget.plugin.balances.native.frozenFee);
         final decimals =
             widget.plugin.store.assets.tokenBalanceMap[token]?.decimals ?? 12;
         final balanceData =
@@ -418,22 +424,48 @@ class _TransferPageState extends State<TransferPage> {
                           decoration: InputDecoration(
                             hintText: dic['amount'],
                             labelText:
-                                '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
+                                '${dic['amount']} (${dic['asset.transferable']}: ${Fmt.priceFloorBigInt(
                               available,
                               decimals,
                               lengthMax: 6,
                             )})',
+                            suffix: _fee?.partialFee != null &&
+                                    nativeTokenBalance >
+                                        Fmt.balanceInt(
+                                            _fee?.partialFee.toString())
+                                ? GestureDetector(
+                                    child: Text(dic['amount.max'],
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .primaryColor)),
+                                    onTap: () {
+                                      setState(() {
+                                        _amountMax = available;
+                                        _amountCtrl.text = Fmt.bigIntToDouble(
+                                                available, decimals)
+                                            .toStringAsFixed(8);
+                                      });
+                                    },
+                                  )
+                                : Container(),
                           ),
                           inputFormatters: [UI.decimalInputFormatter(decimals)],
                           controller: _amountCtrl,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) {
+                            setState(() {
+                              _amountMax = null;
+                            });
+                          },
                           validator: (v) {
                             if (v.isEmpty) {
                               return dic['amount.error'];
                             }
-                            if (double.parse(v.trim()) >
-                                available / BigInt.from(pow(10, decimals))) {
+                            if (_amountMax == null &&
+                                double.parse(v.trim()) >
+                                    available /
+                                        BigInt.from(pow(10, decimals))) {
                               return dic['amount.low'];
                             }
                             return null;
