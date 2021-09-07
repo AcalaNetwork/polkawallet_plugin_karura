@@ -143,14 +143,22 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   /// XCM only support KSM transfer back to Kusama.
-  void _onSelectChain() {
+  void _onSelectChain(Map<String, Widget> crossChainIcons) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final options = [widget.plugin.basic.name];
+    switch (_token) {
+      case relay_chain_token_symbol:
+        options.addAll([relay_chain_name, para_chain_name_bifrost]);
+        break;
+      case karura_stable_coin:
+        options.add(para_chain_name_bifrost);
+    }
 
     showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(
         title: Text(dic['cross.chain.select']),
-        actions: [widget.plugin.basic.name, relay_chain_name].map((e) {
+        actions: options.map((e) {
           return CupertinoActionSheetAction(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -161,10 +169,7 @@ class _TransferPageState extends State<TransferPage> {
                   height: 32,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
-                    child: e == widget.plugin.basic.name
-                        ? widget.plugin.basic.icon
-                        : TokenIcon(
-                            relay_chain_token_symbol, widget.plugin.tokenIcons),
+                    child: TokenIcon(e, crossChainIcons),
                   ),
                 ),
                 Text(
@@ -217,18 +222,21 @@ class _TransferPageState extends State<TransferPage> {
     if (_accountToError == null && _formKey.currentState.validate()) {
       final decimals =
           widget.plugin.store.assets.tokenBalanceMap[_token].decimals;
+      final tokenView = PluginFmt.tokenView(_token);
 
       /// send XCM tx if cross chain
       if (chainTo != widget.plugin.basic.name) {
         final dicAcala = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        final isToParent = _chainTo == relay_chain_name;
         return TxConfirmParams(
-          txTitle: '${dicAcala['transfer']} $_token (${dicAcala['cross.xcm']})',
+          txTitle:
+              '${dicAcala['transfer']} $tokenView (${dicAcala['cross.xcm']})',
           module: 'xTokens',
           call: 'transfer',
           txDisplay: {
             "chain": chainTo,
             "destination": _accountTo.address,
-            "currency": _token,
+            "currency": tokenView,
             "amount": _amountCtrl.text.trim(),
           },
           params: [
@@ -238,14 +246,30 @@ class _TransferPageState extends State<TransferPage> {
             (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
                 .toString(),
             // params.dest
-            {
-              'X2': [
-                'Parent',
-                {
-                  'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
-                }
-              ]
-            },
+            isToParent
+                ? {
+                    'X2': [
+                      'Parent',
+                      {
+                        'AccountId32': {
+                          'id': _accountTo.address,
+                          'network': 'Any'
+                        }
+                      }
+                    ]
+                  }
+                : {
+                    'X3': [
+                      'Parent',
+                      {'Parachain': para_chain_ids[_chainTo]},
+                      {
+                        'AccountId32': {
+                          'id': _accountTo.address,
+                          'network': 'Any'
+                        }
+                      }
+                    ]
+                  },
             // params.weight
             xcm_dest_weight
           ],
@@ -269,7 +293,6 @@ class _TransferPageState extends State<TransferPage> {
         (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
             .toString(),
       ];
-      final tokenView = PluginFmt.tokenView(_token);
       return TxConfirmParams(
         module: 'currencies',
         call: 'transfer',
@@ -341,7 +364,8 @@ class _TransferPageState extends State<TransferPage> {
         final token = _token ?? args;
         final tokenView = PluginFmt.tokenView(token);
 
-        final relayChainToken = relay_chain_token_symbol;
+        final canCrossChain =
+            token == relay_chain_token_symbol || token == karura_stable_coin;
 
         final nativeToken = widget.plugin.networkState.tokenSymbol[0];
         final nativeTokenBalance =
@@ -365,13 +389,15 @@ class _TransferPageState extends State<TransferPage> {
         final isCrossChain = widget.plugin.basic.name != chainTo;
         final destExistDeposit = isCrossChain
             ? Fmt.balanceInt(
-                relay_chain_xcm_fees[chainTo]['existentialDeposit'])
+                cross_chain_xcm_fees[chainTo][token]['existentialDeposit'])
             : BigInt.zero;
         final destFee = isCrossChain
-            ? Fmt.balanceInt(relay_chain_xcm_fees[chainTo]['fee'])
+            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo][token]['fee'])
             : BigInt.zero;
 
         final colorGrey = Theme.of(context).unselectedWidgetColor;
+        final crossChainIcons = cross_chain_icons
+            .map((k, v) => MapEntry(k.toUpperCase(), Image.asset(v)));
 
         return Scaffold(
           appBar: AppBar(
@@ -530,7 +556,7 @@ class _TransferPageState extends State<TransferPage> {
                             },
                           ),
                         ),
-                        token == relayChainToken
+                        canCrossChain
                             ? GestureDetector(
                                 child: Container(
                                   color: Theme.of(context).canvasColor,
@@ -562,10 +588,8 @@ class _TransferPageState extends State<TransferPage> {
                                                   borderRadius:
                                                       BorderRadius.circular(32),
                                                   child: isCrossChain
-                                                      ? TokenIcon(
-                                                          token,
-                                                          widget.plugin
-                                                              .tokenIcons)
+                                                      ? TokenIcon(_chainTo,
+                                                          crossChainIcons)
                                                       : widget
                                                           .plugin.basic.icon,
                                                 ),
@@ -594,7 +618,7 @@ class _TransferPageState extends State<TransferPage> {
                                     ],
                                   ),
                                 ),
-                                onTap: _onSelectChain,
+                                onTap: () => _onSelectChain(crossChainIcons),
                               )
                             : Container(),
                         isCrossChain

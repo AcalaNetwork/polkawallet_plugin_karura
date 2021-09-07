@@ -54,6 +54,7 @@ flutter:
     - assets/images/scan.svg
     - assets/images/homa.svg
     - assets/images/nft.svg
+    - assets/images/bifrost.png
     - assets/images/tokens/KAR.png
     - assets/images/tokens/KUSD.png
     - assets/images/tokens/KSM.png

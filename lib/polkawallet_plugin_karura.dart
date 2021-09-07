@@ -119,26 +119,15 @@ class PluginKarura extends PolkawalletPlugin {
   @override
   List<HomeNavItem> getNavItems(BuildContext context, Keyring keyring) {
     return [
-      basic.name == plugin_name_karura
-          ? HomeNavItem(
-              text: 'Karura',
-              icon: SvgPicture.asset(
-                  'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
-                  color: Theme.of(context).disabledColor),
-              iconActive: Image.asset(
-                  'packages/polkawallet_plugin_karura/assets/images/tokens/KAR.png'),
-              content: AcalaEntry(this, keyring),
-            )
-          : HomeNavItem(
-              text: 'Acala',
-              icon: SvgPicture.asset(
-                'packages/polkawallet_plugin_karura/assets/images/logo.svg',
-                color: Theme.of(context).disabledColor,
-              ),
-              iconActive: SvgPicture.asset(
-                  'packages/polkawallet_plugin_karura/assets/images/logo.svg'),
-              content: AcalaEntry(this, keyring),
-            )
+      HomeNavItem(
+        text: 'Karura',
+        icon: SvgPicture.asset(
+            'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
+            color: Theme.of(context).disabledColor),
+        iconActive: Image.asset(
+            'packages/polkawallet_plugin_karura/assets/images/tokens/KAR.png'),
+        content: AcalaEntry(this, keyring),
+      )
     ];
   }
 

@@ -13,21 +13,34 @@ const acala_token_polka_btc = 'POLKABTC';
 const acala_token_polka_btc_view = 'polkaBTC';
 
 const relay_chain_name = 'kusama';
+const para_chain_name_bifrost = 'bifrost';
+const para_chain_ids = {
+  para_chain_name_bifrost: 2001,
+};
+
 const network_ss58_format = {
   plugin_name_karura: 8,
-  'kusama': 2,
+  relay_chain_name: 2,
+  para_chain_name_bifrost: 6,
 };
 const relay_chain_token_symbol = 'KSM';
-const relay_chain_xcm_fees = {
-  // todo: polkadot xcm not enabled
-  // 'polkadot': {
-  //   'fee': '3000000000',
-  //   'existentialDeposit': '1000000000',
-  // },
-  'kusama': {
-    'fee': '79999999',
-    'existentialDeposit': '33333333',
+const cross_chain_xcm_fees = {
+  relay_chain_name: {
+    relay_chain_token_symbol: {
+      'fee': '79999999',
+      'existentialDeposit': '33333333',
+    },
   },
+  para_chain_name_bifrost: {
+    relay_chain_token_symbol: {
+      'fee': '24240000000',
+      'existentialDeposit': '100000000',
+    },
+    karura_stable_coin: {
+      'fee': '96000000000',
+      'existentialDeposit': '100000000',
+    },
+  }
 };
 const xcm_dest_weight = '3000000000';
 
@@ -95,4 +108,10 @@ const module_icons_uri = {
   module_name_earn: '$image_assets_uri/earn.svg',
   module_name_homa: '$image_assets_uri/homa.svg',
   module_name_nft: '$image_assets_uri/nft.svg',
+};
+
+const cross_chain_icons = {
+  plugin_name_karura: '$image_assets_uri/tokens/KAR.png',
+  relay_chain_name: '$image_assets_uri/tokens/KSM.png',
+  para_chain_name_bifrost: '$image_assets_uri/bifrost.png',
 };
