@@ -24,6 +24,7 @@ const network_ss58_format = {
   para_chain_name_bifrost: 6,
 };
 const relay_chain_token_symbol = 'KSM';
+const para_chain_token_symbol_bifrost = 'BNC';
 const cross_chain_xcm_fees = {
   relay_chain_name: {
     relay_chain_token_symbol: {
@@ -33,21 +34,27 @@ const cross_chain_xcm_fees = {
   },
   para_chain_name_bifrost: {
     relay_chain_token_symbol: {
-      'fee': '24240000000',
+      'fee': '4848000000',
       'existentialDeposit': '100000000',
     },
     karura_stable_coin: {
-      'fee': '96000000000',
+      'fee': '19200000000',
+      'existentialDeposit': '100000000',
+    },
+    para_chain_token_symbol_bifrost: {
+      'fee': '3840000000',
       'existentialDeposit': '100000000',
     },
   }
 };
-const xcm_dest_weight = '3000000000';
+const xcm_dest_weight_kusama = '3000000000';
+const xcm_dest_weight_karura = '600000000';
 
 const existential_deposit = {
   'KSM': '100000000',
   'KUSD': '10000000000',
   'LKSM': '500000000',
+  'BNC': '8000000000',
 };
 
 const acala_token_ids = [
@@ -55,6 +62,7 @@ const acala_token_ids = [
   'KUSD',
   'KSM',
   'LKSM',
+  'BNC',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
@@ -113,5 +121,5 @@ const module_icons_uri = {
 const cross_chain_icons = {
   plugin_name_karura: '$image_assets_uri/tokens/KAR.png',
   relay_chain_name: '$image_assets_uri/tokens/KSM.png',
-  para_chain_name_bifrost: '$image_assets_uri/bifrost.png',
+  para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
 };

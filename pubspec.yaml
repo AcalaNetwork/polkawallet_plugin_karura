@@ -54,7 +54,6 @@ flutter:
     - assets/images/scan.svg
     - assets/images/homa.svg
     - assets/images/nft.svg
-    - assets/images/bifrost.png
     - assets/images/tokens/KAR.png
     - assets/images/tokens/KUSD.png
     - assets/images/tokens/KSM.png
@@ -64,6 +63,7 @@ flutter:
     - assets/images/tokens/POLKABTC.png
     - assets/images/tokens/PLM.png
     - assets/images/tokens/PHA.png
+    - assets/images/tokens/BNC.png
     - assets/images/logo_kar_gray.png
     - assets/images/logo_kar_empty.svg
     - assets/images/democracy.svg

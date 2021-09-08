@@ -47,6 +47,7 @@ const Map<String, String> enDex = {
   'loan.mint': 'Mint',
   'loan.payback': 'Payback',
   'loan.deposit': 'Deposit',
+  'loan.deposit.col': 'Deposit collateral',
   'loan.withdraw': 'Withdraw',
   'loan.withdraw.all': 'Withdraw all collateral in the meanwhile',
   'loan.create': 'Create Vault',

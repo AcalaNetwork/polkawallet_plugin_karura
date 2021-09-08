@@ -10,6 +10,7 @@ export const tokensForKarura = [
   AcalaToken("KUSD", "Karura Dollar", 12),
   AcalaToken("KSM", "Kusama", 12),
   AcalaToken("LKSM", "Liquid KSM", 12),
+  AcalaToken("BNC", "Bifrost", 12),
   //   AcalaToken("XBTC", "ChainX BTC", 8),
   //   AcalaToken("RENBTC", "Ren Protocol BTC", 8),
   //   AcalaToken("POLKABTC", "PolkaBTC", 8),

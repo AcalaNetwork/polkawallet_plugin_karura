@@ -24,8 +24,9 @@ class ServiceLoan {
     final relayToken = relay_chain_token_symbol;
     final exchangeRate = poolInfo.staked > BigInt.zero
         ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
-        : Fmt.balanceInt(
-            plugin.networkConst['homaLite']['defaultExchangeRate']);
+        : Fmt.balanceDouble(
+            plugin.networkConst['homaLite']['defaultExchangeRate'],
+            acala_price_decimals);
     prices['L$relayToken'] = Fmt.tokenInt(
         (Fmt.bigIntToDouble(
                     prices[relayToken], plugin.networkState.tokenDecimals[0]) /
@@ -83,12 +84,8 @@ class ServiceLoan {
   Future<void> queryLoanTypes(String address) async {
     if (address == null) return;
 
-    final res = await Future.wait([
-      api.loan.queryLoanTypes(),
-      plugin.basic.name == plugin_name_karura
-          ? api.loan.queryCollateralIncentives()
-          : api.loan.queryCollateralIncentivesTC6(),
-    ]);
+    final res = await Future.wait(
+        [api.loan.queryLoanTypes(), api.loan.queryCollateralIncentives()]);
     store.loan.setLoanTypes(res[0]);
     if (res[1] != null) {
       store.loan.setCollateralIncentives(_calcCollateralIncentiveRate(res[1]));

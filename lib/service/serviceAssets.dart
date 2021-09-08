@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/service/walletApi.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class ServiceAssets {
   ServiceAssets(this.plugin, this.keyring)
@@ -29,6 +30,17 @@ class ServiceAssets {
         prices[e['token']] = double.parse(e['price']);
       }
     });
+
+    if (prices[relay_chain_token_symbol] != null) {
+      final poolInfo = plugin.store.homa.poolInfo;
+      final exchangeRate = poolInfo.staked > BigInt.zero
+          ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
+          : Fmt.balanceDouble(
+              plugin.networkConst['homaLite']['defaultExchangeRate'],
+              acala_price_decimals);
+      prices['L$relay_chain_token_symbol'] =
+          prices[relay_chain_token_symbol] / exchangeRate;
+    }
 
     store.assets.setMarketPrices(prices);
   }

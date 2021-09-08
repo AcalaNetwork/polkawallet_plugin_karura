@@ -106,7 +106,7 @@ class _TransferPageState extends State<TransferPage> {
                   ]
                 },
                 // params.weight
-                xcm_dest_weight
+                xcm_dest_weight_kusama
               ]
             : [
                 widget.keyring.current.address,
@@ -152,6 +152,10 @@ class _TransferPageState extends State<TransferPage> {
         break;
       case karura_stable_coin:
         options.add(para_chain_name_bifrost);
+        break;
+      case para_chain_token_symbol_bifrost:
+        options.add(para_chain_name_bifrost);
+        break;
     }
 
     showCupertinoModalPopup(
@@ -181,8 +185,7 @@ class _TransferPageState extends State<TransferPage> {
               if (e != _chainTo) {
                 // set ss58 of _chainTo so we can get according address
                 // from AddressInputField
-                widget.keyring.setSS58(
-                    e == relay_chain_name ? 2 : widget.plugin.basic.ss58);
+                widget.keyring.setSS58(network_ss58_format[e]);
                 final options = widget.keyring.allWithContacts.toList();
                 widget.keyring.setSS58(widget.plugin.basic.ss58);
                 setState(() {
@@ -271,7 +274,7 @@ class _TransferPageState extends State<TransferPage> {
                     ]
                   },
             // params.weight
-            xcm_dest_weight
+            isToParent ? xcm_dest_weight_kusama : xcm_dest_weight_karura
           ],
         );
       }
@@ -364,8 +367,9 @@ class _TransferPageState extends State<TransferPage> {
         final token = _token ?? args;
         final tokenView = PluginFmt.tokenView(token);
 
-        final canCrossChain =
-            token == relay_chain_token_symbol || token == karura_stable_coin;
+        final canCrossChain = token == relay_chain_token_symbol ||
+            token == karura_stable_coin ||
+            token == para_chain_token_symbol_bifrost;
 
         final nativeToken = widget.plugin.networkState.tokenSymbol[0];
         final nativeTokenBalance =
@@ -628,19 +632,23 @@ class _TransferPageState extends State<TransferPage> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Text(dicAcala['cross.exist']),
-                                      ),
-                                    ),
-                                    Expanded(
                                       child: TapTooltip(
                                         message: dicAcala['cross.exist.msg'],
-                                        child: Icon(
-                                          Icons.info,
-                                          size: 16,
-                                          color: Theme.of(context)
-                                              .unselectedWidgetColor,
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 4),
+                                              child:
+                                                  Text(dicAcala['cross.exist']),
+                                            ),
+                                            Icon(
+                                              Icons.info,
+                                              size: 16,
+                                              color: Theme.of(context)
+                                                  .unselectedWidgetColor,
+                                            )
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -677,21 +685,24 @@ class _TransferPageState extends State<TransferPage> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 4),
-                                  child: Text(dicAcala['transfer.exist']),
+                                child: TapTooltip(
+                                  message: dicAcala['cross.exist.msg'],
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: Text(dicAcala['transfer.exist']),
+                                      ),
+                                      Icon(
+                                        Icons.info,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .unselectedWidgetColor,
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                              TapTooltip(
-                                message: dicAcala['cross.exist.msg'],
-                                child: Icon(
-                                  Icons.info,
-                                  size: 16,
-                                  color:
-                                      Theme.of(context).unselectedWidgetColor,
-                                ),
-                              ),
-                              Expanded(child: Container(width: 2)),
                               Text(
                                   '${Fmt.priceCeilBigInt(existDeposit, decimals, lengthMax: 6)} $tokenView'),
                             ],
