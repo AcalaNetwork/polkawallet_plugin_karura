@@ -113,13 +113,14 @@ class _MintPageState extends State<MintPage> {
       max = poolInfo.cap - poolInfo.staked;
     }
 
-    final amount = Fmt.bigIntToDouble(max, decimals).toStringAsFixed(6);
+    final amount = Fmt.bigIntToDouble(max, decimals);
     setState(() {
-      _amountPayCtrl.text = amount;
+      _amountPayCtrl.text = amount.toStringAsFixed(6);
       _maxInput = max;
       _error = null;
     });
-    _onSupplyAmountChange(amount, balance, minStake);
+
+    _updateReceiveAmount(amount);
   }
 
   Future<void> _onSubmit(int stakeDecimal) async {

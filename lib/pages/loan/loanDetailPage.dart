@@ -105,7 +105,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                         children: [
                                           LoanDonutChart(
                                             dataChartDebit,
-                                            title: Fmt.priceFloorBigInt(
+                                            title: Fmt.priceCeilBigInt(
                                                 loan.debits,
                                                 stableCoinDecimals),
                                             subtitle: dic['loan.borrowed'],
@@ -130,7 +130,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                         children: [
                                           LoanDonutChart(
                                             dataChartPrice,
-                                            title: Fmt.priceFloorBigInt(
+                                            title: Fmt.priceCeilBigInt(
                                                 loan.liquidationPrice, 18),
                                             subtitle: dic['liquid.price'],
                                             colorType: colorType,

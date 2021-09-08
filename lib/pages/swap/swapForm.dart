@@ -353,9 +353,12 @@ class _SwapFormState extends State<SwapForm> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _getTxFee();
 
-      setState(() {
-        _swapPair = PluginFmt.getAllDexTokens(widget.plugin).sublist(0, 2);
-      });
+      final tokens = PluginFmt.getAllDexTokens(widget.plugin);
+      if (tokens.length > 2) {
+        setState(() {
+          _swapPair = tokens.sublist(0, 2);
+        });
+      }
 
       _setUpdateTimer(init: true);
     });
@@ -385,9 +388,11 @@ class _SwapFormState extends State<SwapForm> {
 
         final currencyOptionsLeft = PluginFmt.getAllDexTokens(widget.plugin);
         final currencyOptionsRight = currencyOptionsLeft.toList();
-        final swapPair = _swapPair.length > 1
+        final List<String> swapPair = _swapPair.length > 1
             ? _swapPair
-            : currencyOptionsLeft.sublist(0, 2);
+            : currencyOptionsLeft.length > 2
+                ? currencyOptionsLeft.sublist(0, 2)
+                : [];
 
         if (swapPair.length > 1) {
           currencyOptionsLeft.retainWhere((i) => i != swapPair[0]);

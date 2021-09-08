@@ -421,6 +421,8 @@ class CollateralIncentiveList extends StatelessWidget {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final tokens = incentives.keys.toList();
+    // todo: do not show KSM incentive now
+    tokens.remove('KSM');
     return ListView.builder(
         itemCount: tokens.length,
         itemBuilder: (_, i) {
