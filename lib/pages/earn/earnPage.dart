@@ -34,6 +34,7 @@ class _EarnPageState extends State<EarnPage> {
   Future<void> _fetchData() async {
     await widget.plugin.service.earn.updateAllDexPoolInfo();
 
+    widget.plugin.service.gov.updateBestNumber();
     if (mounted) {
       setState(() {
         _loading = false;

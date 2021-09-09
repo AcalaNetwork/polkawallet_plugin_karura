@@ -123,3 +123,8 @@ const cross_chain_icons = {
   relay_chain_name: '$image_assets_uri/tokens/KSM.png',
   para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
 };
+
+const dex_incentive_loyalty_end_block = {
+  'KUSD-KSM': 1538140,
+  'KAR-KSM': 2799580,
+};

@@ -103,6 +103,7 @@ const Map<String, String> enDex = {
   'earn.incentive': 'Mining',
   'earn.saving': 'Interest',
   'earn.loyal': 'Loyalty Bonus',
+  'earn.loyal.end': 'loyalty program ends',
   'earn.loyal.info':
       '\nIf rewards are kept in the pool until the end of the program, there\'s an extra bonus.\n',
   'earn.withStake': 'with stake',

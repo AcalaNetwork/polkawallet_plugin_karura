@@ -97,6 +97,7 @@ const Map<String, String> zhDex = {
   'earn.incentive': '挖矿奖励',
   'earn.saving': '存款利息',
   'earn.loyal': '忠诚奖励',
+  'earn.loyal.end': '忠诚奖励结束时间',
   'earn.loyal.info': '\n如果等到挖矿活动结束后才领取奖励，将会获得额外奖励。\n',
   'earn.withStake': '同时质押',
   'earn.withStake.txt': '\n是否同时将获得的 LP Token 进行质押以赚取收益。\n',

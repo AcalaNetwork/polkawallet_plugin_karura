@@ -228,6 +228,7 @@ class EarnDetailPage extends StatelessWidget {
                             stableCoinDecimal:
                                 plugin.networkState.tokenDecimals[
                                     symbols.indexOf(karura_stable_coin)],
+                            bestNumber: plugin.store.gov.bestNumber,
                           )
                         ],
                       ),
@@ -364,6 +365,7 @@ class _UserCard extends StatelessWidget {
     this.incentiveCoinSymbol,
     this.stableCoinSymbol,
     this.stableCoinDecimal,
+    this.bestNumber,
   });
   final double share;
   final DexPoolInfoData poolInfo;
@@ -377,6 +379,7 @@ class _UserCard extends StatelessWidget {
   final String incentiveCoinSymbol;
   final String stableCoinSymbol;
   final int stableCoinDecimal;
+  final BigInt bestNumber;
 
   Future<void> _onClaim(BuildContext context) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
@@ -432,6 +435,9 @@ class _UserCard extends StatelessWidget {
     final savingRewardTokenMin = Fmt.balanceDouble(
         existential_deposit[stableCoinSymbol], stableCoinDecimal);
     final canClaim = reward > 0.0001 || rewardSaving > savingRewardTokenMin;
+
+    final blocksToEnd =
+        dex_incentive_loyalty_end_block[token] - bestNumber.toInt();
 
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -504,6 +510,13 @@ class _UserCard extends StatelessWidget {
                       titleToolTip: dic['earn.loyal.info'],
                     )
                   ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 8),
+                child: Text(
+                  '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
+                  style: TextStyle(fontSize: 10),
                 ),
               ),
               canClaim
