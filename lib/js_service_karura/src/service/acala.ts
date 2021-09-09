@@ -135,7 +135,8 @@ async function getBootstraps(api: ApiPromise) {
 }
 
 async function getAllTokenSymbols() {
-  return tokensForKarura;
+  const allTokens: any[] = (<any>window).api.registry.chainTokens;
+  return tokensForKarura.filter((e) => allTokens.indexOf(e.token) > -1);
 }
 
 /**
