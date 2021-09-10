@@ -18,6 +18,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/MainTabBar.dart';
 import 'package:polkawallet_ui/components/addressIcon.dart';
 import 'package:polkawallet_ui/components/infoItem.dart';
+import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
@@ -186,28 +187,30 @@ class _LoanPageState extends State<LoanPage> {
                         ? Container(
                             padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
                             child: _tab == 0
-                                ? RoundedButton(
-                                    text: '+ ${dic['loan.create']}',
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .pushNamed(LoanCreatePage.route);
-                                    },
-                                  )
-                                : RoundedButton(
-                                    text: dic['loan.deposit.col'],
-                                    onPressed: incentiveTokenOptions.length > 0
-                                        ? () {
-                                            Navigator.of(context).pushNamed(
-                                                LoanDepositPage.route,
-                                                arguments:
-                                                    LoanDepositPageParams(
-                                                        LoanDepositPage
-                                                            .actionTypeDeposit,
-                                                        incentiveTokenOptions[
-                                                            0]));
-                                          }
-                                        : null,
-                                  ),
+                                ? loans.length <
+                                        widget
+                                            .plugin.store.loan.loanTypes.length
+                                    ? RoundedButton(
+                                        text: '+ ${dic['loan.create']}',
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pushNamed(LoanCreatePage.route);
+                                        },
+                                      )
+                                    : Container()
+                                : incentiveTokenOptions.length > 0
+                                    ? RoundedButton(
+                                        text: dic['loan.deposit.col'],
+                                        onPressed: () {
+                                          Navigator.of(context).pushNamed(
+                                              LoanDepositPage.route,
+                                              arguments: LoanDepositPageParams(
+                                                  LoanDepositPage
+                                                      .actionTypeDeposit,
+                                                  incentiveTokenOptions[0]));
+                                        },
+                                      )
+                                    : Container(),
                           )
                         : Container(),
                   ],
@@ -452,30 +455,39 @@ class CollateralIncentiveList extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final tokens = incentives.keys.toList();
     // todo: do not show KSM incentive now
-    tokens.remove('KSM');
+    tokens.removeWhere((e) => e == 'KSM' || incentives[e] == 0);
+    if (tokens.length == 0) {
+      return ListTail(isEmpty: true, isLoading: false);
+    }
     return ListView.builder(
         itemCount: tokens.length,
         itemBuilder: (_, i) {
           final token = tokens[i];
           final collateralValue = Fmt.bigIntToDouble(
               loans[token].collateralInUSD, collateralDecimals);
-          final apy = marketPrices[incentiveTokenSymbol] *
-              incentives[token] /
-              Fmt.bigIntToDouble(
-                  totalCDPs[token].collateral, collateralDecimals) /
-              marketPrices[token];
+          double apy = 0;
+          if (totalCDPs[token].collateral > BigInt.zero &&
+              marketPrices[token] != null) {
+            apy = marketPrices[incentiveTokenSymbol] *
+                incentives[token] /
+                Fmt.bigIntToDouble(
+                    totalCDPs[token].collateral, collateralDecimals) /
+                marketPrices[token];
+          }
           final deposit =
               Fmt.priceCeilBigInt(loans[token].collaterals, collateralDecimals);
-          final loyaltyBonus = loyaltyBonusMap[token];
+          final loyaltyBonus = loyaltyBonusMap[token] ?? 0.3;
           final reward = rewards[token];
           final rewardView = reward != null
               ? Fmt.priceFloor(
-                  reward.reward > 0 ? (reward.reward * (1 - loyaltyBonus)) : 0,
+                  (reward?.reward ?? 0) > 0
+                      ? (reward.reward * (1 - loyaltyBonus))
+                      : 0,
                   lengthMax: 4)
               : '';
           final canClaim = reward != null && reward.reward > 0.0001;
 
-          final shouldActivate = reward.shares != loans[token].collaterals;
+          final shouldActivate = reward?.shares != loans[token].collaterals;
           return RoundedCard(
             padding: EdgeInsets.all(16),
             margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -534,7 +546,7 @@ class CollateralIncentiveList extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
-                shouldActivate
+                reward != null && shouldActivate
                     ? Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Row(
@@ -591,11 +603,14 @@ class CollateralIncentiveList extends StatelessWidget {
                         active: false,
                         padding: EdgeInsets.only(top: 8, bottom: 8),
                         margin: EdgeInsets.only(right: 8),
-                        onPressed: () => Navigator.of(context).pushNamed(
-                          LoanDepositPage.route,
-                          arguments: LoanDepositPageParams(
-                              LoanDepositPage.actionTypeWithdraw, token),
-                        ),
+                        onPressed: loans[token].collaterals > BigInt.zero
+                            ? () => Navigator.of(context).pushNamed(
+                                  LoanDepositPage.route,
+                                  arguments: LoanDepositPageParams(
+                                      LoanDepositPage.actionTypeWithdraw,
+                                      token),
+                                )
+                            : null,
                       ),
                     ),
                     Expanded(

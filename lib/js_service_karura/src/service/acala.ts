@@ -153,7 +153,7 @@ async function fetchCollateralRewards(api: ApiPromise, pool: any, address: strin
     ? await api.query.incentives?.pendingRewards({ LoansIncentive: pool }, address)
     : null) as any;
   let proportion = new FixedPointNumber(0);
-  if (res[0] && res[1]) {
+  if (res[0] && res[1] && FPNum(res[0].totalShares).gt(new FixedPointNumber(0))) {
     proportion = FPNum(res[1][0]).div(FPNum(res[0].totalShares));
   }
   const decimalsACA = 12;
@@ -191,7 +191,7 @@ async function fetchDexPoolInfo(api: ApiPromise, pool: any, address: string) {
       ])
     : [null, null]) as any;
   let proportion = new FixedPointNumber(0);
-  if (res[1] && res[3]) {
+  if (res[1] && res[3] && FPNum(res[1].totalShares).gt(new FixedPointNumber(0))) {
     proportion = FPNum(res[3][0]).div(FPNum(res[1].totalShares));
   }
   const decimalsACA = 12;
