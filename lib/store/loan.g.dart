@@ -86,6 +86,21 @@ mixin _$LoanStore on _LoanStore, Store {
     });
   }
 
+  final _$loyaltyBonusAtom = Atom(name: '_EarnStore.loyaltyBonus');
+
+  @override
+  Map<String, double> get loyaltyBonus {
+    _$loyaltyBonusAtom.reportRead();
+    return super.loyaltyBonus;
+  }
+
+  @override
+  set loyaltyBonus(Map<String, double> value) {
+    _$loyaltyBonusAtom.reportWrite(value, super.loyaltyBonus, () {
+      super.loyaltyBonus = value;
+    });
+  }
+
   final _$loansLoadingAtom = Atom(name: '_LoanStore.loansLoading');
 
   @override
@@ -126,11 +141,12 @@ mixin _$LoanStore on _LoanStore, Store {
   }
 
   @override
-  void setCollateralIncentives(Map<String, double> data) {
+  void setCollateralIncentives(
+      Map<String, double> data, Map<String, double> bonus) {
     final _$actionInfo = _$_LoanStoreActionController.startAction(
         name: '_LoanStore.setCollateralIncentives');
     try {
-      return super.setCollateralIncentives(data);
+      return super.setCollateralIncentives(data, bonus);
     } finally {
       _$_LoanStoreActionController.endAction(_$actionInfo);
     }
@@ -188,6 +204,7 @@ totalCDPs: ${totalCDPs},
 loans: ${loans},
 collateralIncentives: ${collateralIncentives},
 collateralRewards: ${collateralRewards},
+loyaltyBonus: ${loyaltyBonus},
 loansLoading: ${loansLoading}
     ''';
   }

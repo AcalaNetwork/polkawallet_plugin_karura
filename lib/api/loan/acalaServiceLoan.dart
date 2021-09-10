@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class AcalaServiceLoan {
   AcalaServiceLoan(this.plugin);
@@ -33,11 +36,17 @@ class AcalaServiceLoan {
     return pools;
   }
 
-  Future<List> queryCollateralIncentivesTC6() async {
-    final pools = await plugin.sdk.webView
-        .evalJavascript('api.query.incentives.loansIncentiveRewards.entries()'
-            '.then(ls => ls.map(i => ([i[0].toHuman(), i[1]])))');
-    return pools;
+  Future<Map<String, double>> queryCollateralLoyaltyBonus() async {
+    final loanTypes = plugin.store.loan.loanTypes;
+    final data = await plugin.sdk.webView.evalJavascript(
+        'Promise.all([${loanTypes.map((i) => 'api.query.incentives.payoutDeductionRates(${jsonEncode({
+                  'LoansIncentive': {'Token': i.token}
+                })})').join(',')}])');
+    final Map<String, double> res = {};
+    loanTypes.asMap().forEach((key, value) {
+      res[value.token] = Fmt.balanceDouble(data[key], acala_price_decimals);
+    });
+    return res;
   }
 
   Future<List> queryCollateralRewards(

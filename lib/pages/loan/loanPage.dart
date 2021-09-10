@@ -17,6 +17,7 @@ import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/MainTabBar.dart';
 import 'package:polkawallet_ui/components/addressIcon.dart';
+import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
@@ -93,6 +94,11 @@ class _LoanPageState extends State<LoanPage> {
         final isDataLoading =
             widget.plugin.store.loan.loansLoading && loans.length == 0;
 
+        final incentiveTokenOptions =
+            widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
+        incentiveTokenOptions.retainWhere(
+            (e) => widget.plugin.store.loan.collateralIncentives[e] > 0);
+
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
@@ -160,6 +166,8 @@ class _LoanPageState extends State<LoanPage> {
                                             .collateralIncentives,
                                         rewards: widget.plugin.store.loan
                                             .collateralRewards,
+                                        loyaltyBonusMap: widget
+                                            .plugin.store.loan.loyaltyBonus,
                                         marketPrices: widget
                                             .plugin.store.assets.marketPrices,
                                         collateralDecimals: stableCoinDecimals,
@@ -187,14 +195,18 @@ class _LoanPageState extends State<LoanPage> {
                                   )
                                 : RoundedButton(
                                     text: dic['loan.deposit.col'],
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          LoanDepositPage.route,
-                                          arguments: LoanDepositPageParams(
-                                              LoanDepositPage.actionTypeDeposit,
-                                              widget.plugin.store.loan
-                                                  .loanTypes[0].token));
-                                    },
+                                    onPressed: incentiveTokenOptions.length > 0
+                                        ? () {
+                                            Navigator.of(context).pushNamed(
+                                                LoanDepositPage.route,
+                                                arguments:
+                                                    LoanDepositPageParams(
+                                                        LoanDepositPage
+                                                            .actionTypeDeposit,
+                                                        incentiveTokenOptions[
+                                                            0]));
+                                          }
+                                        : null,
                                   ),
                           )
                         : Container(),
@@ -385,6 +397,7 @@ class CollateralIncentiveList extends StatelessWidget {
     this.loans,
     this.incentives,
     this.rewards,
+    this.loyaltyBonusMap,
     this.totalCDPs,
     this.tokenIcons,
     this.marketPrices,
@@ -395,6 +408,7 @@ class CollateralIncentiveList extends StatelessWidget {
   final Map<String, LoanData> loans;
   final Map<String, double> incentives;
   final Map<String, CollateralRewardData> rewards;
+  final Map<String, double> loyaltyBonusMap;
   final Map<String, TotalCDPData> totalCDPs;
   final Map<String, Widget> tokenIcons;
   final Map<String, double> marketPrices;
@@ -413,6 +427,22 @@ class CollateralIncentiveList extends StatelessWidget {
       txTitle: dic['earn.claim'],
       txDisplay: {'pool': pool, 'amount': '$rewardView $incentiveTokenSymbol'},
       params: [pool],
+    );
+    Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
+  }
+
+  Future<void> _activateRewards(BuildContext context, String token) async {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final params = TxConfirmParams(
+      module: 'honzon',
+      call: 'adjustLoan',
+      txTitle: dic['loan.activate'],
+      txDisplay: {'collateral': token},
+      params: [
+        {'token': token},
+        0,
+        0
+      ],
     );
     Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
   }
@@ -441,13 +471,10 @@ class CollateralIncentiveList extends StatelessWidget {
               ? Fmt.priceFloor(reward.reward > 0 ? reward.reward : 0,
                   lengthMax: 4)
               : '';
+          final loyaltyBonus = loyaltyBonusMap[token];
           final canClaim = reward != null && reward.reward > 0.0001;
-          final numStyle = const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            letterSpacing: -0.8,
-            color: Colors.black54,
-          );
+
+          final shouldActivate = reward.shares != loans[token].collaterals;
           return RoundedCard(
             padding: EdgeInsets.all(16),
             margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -486,41 +513,73 @@ class CollateralIncentiveList extends StatelessWidget {
                         onPressed: canClaim
                             ? () => _onClaimReward(context, token, rewardView)
                             : null,
-                      ),
+                      )
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            '${dic['earn.reward']} ($incentiveTokenSymbol)',
-                            style: TextStyle(fontSize: 12),
-                          ),
+                Container(
+                  margin: EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '${dic['earn.reward']} ($incentiveTokenSymbol)',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+                Text(
+                  rewardView,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.8,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                !shouldActivate
+                    ? Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              child: Text(
+                                dic['loan.activate.1'],
+                                style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              onTap: () => _activateRewards(context, token),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 4),
+                              child: Text(
+                                dic['loan.activate.2'],
+                                style: TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(rewardView, style: numStyle),
-                      ],
-                    )),
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            '${dic['earn.apy']} ($incentiveTokenSymbol)',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                        Text(Fmt.ratio(apy), style: numStyle),
-                      ],
-                    )),
-                  ],
+                      )
+                    : Container(),
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  child: Row(
+                    children: [
+                      InfoItem(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        title: '${dic['earn.apy']} ($incentiveTokenSymbol)',
+                        content: Fmt.ratio(apy),
+                      ),
+                      InfoItem(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        title: dic['earn.loyal'],
+                        content: Fmt.ratio(loyaltyBonus),
+                        titleToolTip: dic['earn.loyal.info'],
+                      )
+                    ],
+                  ),
                 ),
                 Divider(height: 24),
                 Row(

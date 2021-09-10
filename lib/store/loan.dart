@@ -30,6 +30,9 @@ abstract class _LoanStore with Store {
       Map<String, CollateralRewardData>();
 
   @observable
+  Map<String, double> loyaltyBonus = Map<String, double>();
+
+  @observable
   bool loansLoading = true;
 
   @action
@@ -47,8 +50,10 @@ abstract class _LoanStore with Store {
   }
 
   @action
-  void setCollateralIncentives(Map<String, double> data) {
+  void setCollateralIncentives(
+      Map<String, double> data, Map<String, double> bonus) {
     collateralIncentives = data;
+    loyaltyBonus = bonus;
   }
 
   @action

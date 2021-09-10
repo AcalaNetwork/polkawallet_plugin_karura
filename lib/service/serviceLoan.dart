@@ -84,11 +84,15 @@ class ServiceLoan {
   Future<void> queryLoanTypes(String address) async {
     if (address == null) return;
 
-    final res = await Future.wait(
-        [api.loan.queryLoanTypes(), api.loan.queryCollateralIncentives()]);
+    final res = await Future.wait([
+      api.loan.queryLoanTypes(),
+      api.loan.queryCollateralIncentives(),
+      api.loan.queryCollateralLoyaltyBonus(),
+    ]);
     store.loan.setLoanTypes(res[0]);
     if (res[1] != null) {
-      store.loan.setCollateralIncentives(_calcCollateralIncentiveRate(res[1]));
+      store.loan.setCollateralIncentives(
+          _calcCollateralIncentiveRate(res[1]), res[2]);
     }
 
     queryTotalCDPs();

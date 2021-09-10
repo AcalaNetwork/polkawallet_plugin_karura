@@ -170,8 +170,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     final symbol = _token ?? params.token;
     final collateralDecimals = decimals[symbols.indexOf(symbol)];
 
-    final loan = widget.plugin.store.loan.loans[symbol];
+    final tokenOptions =
+        widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
+    tokenOptions.retainWhere(
+        (e) => widget.plugin.store.loan.collateralIncentives[e] > 0);
 
+    final loan = widget.plugin.store.loan.loans[symbol];
     final price = widget.plugin.store.assets.prices[symbol];
 
     final symbolView = PluginFmt.tokenView(symbol);
@@ -203,9 +207,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           child: Column(
             children: <Widget>[
               CurrencySelector(
-                tokenOptions: widget.plugin.store.loan.loanTypes
-                    .map((e) => e.token)
-                    .toList(),
+                tokenOptions: tokenOptions,
                 tokenIcons: widget.plugin.tokenIcons,
                 token: symbol,
                 price: widget.plugin.store.assets.prices[symbol],
