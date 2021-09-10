@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
+import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCard.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanChart.dart';
@@ -9,8 +12,12 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/i18n.dart';
 
 class LoanDetailPage extends StatefulWidget {
   LoanDetailPage(this.plugin, this.keyring);
@@ -24,6 +31,85 @@ class LoanDetailPage extends StatefulWidget {
 }
 
 class _LoanDetailPageState extends State<LoanDetailPage> {
+  Future<SwapOutputData> _queryReceiveAmount(
+      BuildContext ctx, String collateral, double debit) async {
+    return widget.plugin.api.swap.queryTokenSwapAmount(
+      null,
+      debit.toStringAsFixed(2),
+      [collateral, karura_stable_coin],
+      '0.01',
+    );
+  }
+
+  Future<void> _closeVault(
+      LoanData loan, int collateralDecimal, double debit) async {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dicCommon = I18n.of(context).getDic(i18n_full_dic_ui, 'common');
+    SwapOutputData output;
+    final confirmed = await showCupertinoDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return CupertinoAlertDialog(
+          title: Text(dic['loan.close']),
+          content: Column(
+            children: [
+              Text(dic['loan.close.dex.info']),
+              Divider(),
+              FutureBuilder<SwapOutputData>(
+                future: _queryReceiveAmount(ctx, loan.token, debit),
+                builder: (_, AsyncSnapshot<SwapOutputData> snapshot) {
+                  if (snapshot.hasData) {
+                    output = snapshot.data;
+                    final left = Fmt.bigIntToDouble(
+                            loan.collaterals, collateralDecimal) -
+                        snapshot.data.amount;
+                    return InfoItemRow(dic['loan.close.receive'],
+                        Fmt.priceFloor(left) + loan.token);
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            CupertinoButton(
+              child: Text(dicCommon['cancel']),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            CupertinoButton(
+              child: Text(dicCommon['ok']),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed) {
+      final res = await Navigator.of(context).pushNamed(
+        TxConfirmPage.route,
+        arguments: TxConfirmParams(
+            module: 'honzon',
+            call: 'closeLoanHasDebitByDex',
+            txTitle: dic['loan.close'],
+            txDisplay: {
+              'collateral': loan.token,
+              'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
+            },
+            params: [
+              {'Token': loan.token},
+              loan.collaterals.toString(),
+              output != null
+                  ? output.path.map((e) => ({'Token': e['name']})).toList()
+                  : null
+            ]),
+      );
+      if (res != null) {
+        Navigator.of(context).pop(res);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
@@ -72,6 +158,8 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
             .plugin.store.assets.tokenBalanceMap[karura_stable_coin].amount);
         final tokenBalance = Fmt.balanceInt(
             widget.plugin.store.assets.tokenBalanceMap[token].amount);
+        final debitDouble = Fmt.bigIntToDouble(loan.debits, stableCoinDecimals);
+        final needSwap = aUSDBalance < loan.debits;
 
         final titleStyle = TextStyle(
           fontSize: 16,
@@ -158,6 +246,29 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                             stableCoinDecimals,
                             collateralDecimals,
                             widget.plugin.tokenIcons),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 16),
+                          child: needSwap
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      child: Text(
+                                        dic['loan.close.dex'],
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontStyle: FontStyle.italic,
+                                          decoration: TextDecoration.underline,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      onTap: () => _closeVault(loan,
+                                          collateralDecimals, debitDouble),
+                                    )
+                                  ],
+                                )
+                              : Container(),
+                        ),
                       ],
                     ),
                   ),

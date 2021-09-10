@@ -80,6 +80,11 @@ const Map<String, String> enDex = {
   'loan.activate': 'Activate Rewards',
   'loan.activate.1': 'Click Here',
   'loan.activate.2': 'to activate your rewards.',
+  'loan.close': 'Close Vault',
+  'loan.close.dex': 'Close Vault by Swapping Collateral',
+  'loan.close.dex.info':
+      'Part of your collateral will be sold on Swap to pay back all outstanding kUSD. The remaining collateral will be returned to your account. Are you sure to proceed?',
+  'loan.close.receive': 'Estimated Receive',
   'txs.action': 'Action',
   'payback.small': 'The remaining debt is too small',
   'earn.title': 'Earn',

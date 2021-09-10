@@ -493,7 +493,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   labelText:
                                       '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
                                   suffix: params.actionType ==
-                                          LoanAdjustPage.actionTypeDeposit
+                                              LoanAdjustPage
+                                                  .actionTypeDeposit ||
+                                          loan.debits == BigInt.zero
                                       ? GestureDetector(
                                           child: Text(
                                             dic['loan.max'],

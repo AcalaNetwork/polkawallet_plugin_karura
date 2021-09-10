@@ -77,6 +77,11 @@ const Map<String, String> zhDex = {
   'loan.activate': '激活奖励',
   'loan.activate.1': '点击这里',
   'loan.activate.2': '激活你的奖励',
+  'loan.close': '关闭债仓',
+  'loan.close.dex': '通过兑换质押物关闭债仓',
+  'loan.close.dex.info':
+      '你的一部分质押物会通过 Swap 卖掉，以归还全部 kUSD 债务，剩余的质押物将退回你的账户。确认继续吗？',
+  'loan.close.receive': '预估退回质押物',
   'txs.action': '操作类型',
   'payback.small': '剩余债务过小',
   'earn.title': '盈利',

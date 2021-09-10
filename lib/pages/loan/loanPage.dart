@@ -466,12 +466,13 @@ class CollateralIncentiveList extends StatelessWidget {
               marketPrices[token];
           final deposit =
               Fmt.priceCeilBigInt(loans[token].collaterals, collateralDecimals);
+          final loyaltyBonus = loyaltyBonusMap[token];
           final reward = rewards[token];
           final rewardView = reward != null
-              ? Fmt.priceFloor(reward.reward > 0 ? reward.reward : 0,
+              ? Fmt.priceFloor(
+                  reward.reward > 0 ? (reward.reward * (1 - loyaltyBonus)) : 0,
                   lengthMax: 4)
               : '';
-          final loyaltyBonus = loyaltyBonusMap[token];
           final canClaim = reward != null && reward.reward > 0.0001;
 
           final shouldActivate = reward.shares != loans[token].collaterals;
@@ -533,7 +534,7 @@ class CollateralIncentiveList extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
-                !shouldActivate
+                shouldActivate
                     ? Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Row(

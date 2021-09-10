@@ -29,7 +29,7 @@ class LoanDebtCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return RoundedCard(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 8),
       padding: EdgeInsets.all(16),
       child: Column(
         children: <Widget>[
