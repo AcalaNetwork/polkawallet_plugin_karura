@@ -98,7 +98,7 @@ class _LoanPageState extends State<LoanPage> {
         final incentiveTokenOptions =
             widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
         incentiveTokenOptions.retainWhere(
-            (e) => widget.plugin.store.loan.collateralIncentives[e] > 0);
+            (e) => (widget.plugin.store.loan.collateralIncentives[e] ?? 0) > 0);
 
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
@@ -455,7 +455,7 @@ class CollateralIncentiveList extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final tokens = incentives.keys.toList();
     // todo: do not show KSM incentive now
-    tokens.removeWhere((e) => e == 'KSM' || incentives[e] == 0);
+    tokens.removeWhere((e) => e == 'KSM' || (incentives[e] ?? 0) == 0);
     if (tokens.length == 0) {
       return ListTail(isEmpty: true, isLoading: false);
     }

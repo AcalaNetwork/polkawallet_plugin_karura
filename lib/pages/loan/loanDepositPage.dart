@@ -173,7 +173,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     final tokenOptions =
         widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
     tokenOptions.retainWhere(
-        (e) => widget.plugin.store.loan.collateralIncentives[e] > 0);
+        (e) => (widget.plugin.store.loan.collateralIncentives[e] ?? 0) > 0);
 
     final loan = widget.plugin.store.loan.loans[symbol];
     final price = widget.plugin.store.assets.prices[symbol];
