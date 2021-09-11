@@ -19,7 +19,7 @@ class TxSwapData extends _TxSwapData {
         } else {
           data.amountPay = jsonDecode(json['data'][2]['value'])[0].toString();
           data.amountReceive =
-              jsonDecode(json['data'][2]['value'])[1].toString();
+              jsonDecode(json['data'][2]['value'])[path.length - 1].toString();
         }
         break;
       case "addProvision":
