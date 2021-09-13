@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "22.0.0"
+  aes_ecb_pkcs5_flutter:
+    dependency: transitive
+    description:
+      name: aes_ecb_pkcs5_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   analyzer:
     dependency: transitive
     description:
@@ -119,14 +126,14 @@ packages:
       name: charts_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.0"
+    version: "0.11.0"
   charts_flutter:
     dependency: "direct main"
     description:
       name: charts_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.0"
+    version: "0.11.0"
   checked_yaml:
     dependency: transitive
     description:
@@ -300,13 +307,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_aes_ecb_pkcs5:
-    dependency: transitive
-    description:
-      name: flutter_aes_ecb_pkcs5
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.1"
   flutter_inappwebview:
     dependency: transitive
     description:
@@ -331,11 +331,9 @@ packages:
   flutter_qr_scan:
     dependency: transitive
     description:
-      path: "."
-      ref: a125851ca20038767ac4efa2e20d12116a390414
-      resolved-ref: a125851ca20038767ac4efa2e20d12116a390414
-      url: "https://github.com/polkawallet-io/flutter_qr_reader.git"
-    source: git
+      name: flutter_qr_scan
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "1.0.6"
   flutter_svg:
     dependency: "direct main"
@@ -745,16 +743,14 @@ packages:
       name: polkawallet_sdk
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1"
+    version: "0.3.2"
   polkawallet_ui:
     dependency: "direct main"
     description:
-      path: "."
-      ref: dec723c5c21849bb5629127ffbc4a84646c9b0bb
-      resolved-ref: dec723c5c21849bb5629127ffbc4a84646c9b0bb
-      url: "https://github.com/polkawallet-io/ui.git"
-    source: git
-    version: "0.3.1"
+      name: polkawallet_ui
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.2"
   pool:
     dependency: transitive
     description:
@@ -789,16 +785,14 @@ packages:
       name: qr
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0"
-  qr_flutter:
+    version: "2.1.0"
+  qr_flutter_fork:
     dependency: transitive
     description:
-      path: "."
-      ref: master
-      resolved-ref: "8e482e2d54636f1825c59f43de393b7bebbf2ba4"
-      url: "https://github.com/polkawallet-io/qr.flutter.git"
-    source: git
-    version: "3.2.1"
+      name: qr_flutter_fork
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.0"
   rxdart:
     dependency: transitive
     description:
