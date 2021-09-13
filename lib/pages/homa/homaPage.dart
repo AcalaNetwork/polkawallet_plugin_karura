@@ -174,7 +174,7 @@ class _HomaPageState extends State<HomaPage> {
             measureFn: (num i, _) => i,
             data: [
               staked.toDouble(),
-              amountLeft.toDouble(),
+              (amountLeft > BigInt.zero ? amountLeft : BigInt.zero).toDouble(),
             ],
           )
         ];
