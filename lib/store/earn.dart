@@ -1,4 +1,5 @@
 import 'package:mobx/mobx.dart';
+import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 
@@ -27,6 +28,9 @@ abstract class _EarnStore with Store {
   @observable
   ObservableMap<String, double> savingLoyaltyBonus =
       ObservableMap<String, double>();
+
+  @observable
+  IncentivesData incentives = IncentivesData();
 
   @observable
   List<DexPoolData> dexPools = [];
@@ -59,6 +63,11 @@ abstract class _EarnStore with Store {
     swapPoolSavingRewards.addAll(data['savingRates']);
     loyaltyBonus.addAll(data['deductionRates']);
     savingLoyaltyBonus.addAll(data['deductionSavingRates']);
+  }
+
+  @action
+  void setIncentives(IncentivesData data) {
+    incentives = data;
   }
 
   @action

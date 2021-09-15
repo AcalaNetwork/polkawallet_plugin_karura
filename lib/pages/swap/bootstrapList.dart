@@ -69,8 +69,15 @@ class _BootstrapListState extends State<BootstrapList> {
     ]);
 
     if (_userProvisions.keys.length > 0) {
-      await Future.wait(_userProvisions.keys
-          .map((e) => widget.plugin.service.earn.updateDexPoolInfo(poolId: e)));
+      final runtimeVersion =
+          widget.plugin.networkConst['system']['version']['specVersion'];
+
+      if (runtimeVersion > 1009) {
+        await widget.plugin.service.earn.queryIncentives();
+      } else {
+        await Future.wait(_userProvisions.keys.map(
+            (e) => widget.plugin.service.earn.updateDexPoolInfo(poolId: e)));
+      }
     }
   }
 

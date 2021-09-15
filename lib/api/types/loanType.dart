@@ -161,17 +161,9 @@ abstract class _LoanData {
   BigInt liquidationPrice = BigInt.zero;
 
   double calcStableFee(int seconds) {
-    // if we have new api data
-    if (type.globalInterestRatePerSec != null) {
-      final base = (type.globalInterestRatePerSec + type.interestRatePerSec) /
-          BigInt.from(pow(10, acala_price_decimals));
-      return base * seconds;
-    }
-    // else use the TC6 api data type
-    final blocks = seconds * 1000 ~/ type.expectedBlockTime;
-    final base = (type.globalStabilityFee + type.stabilityFee) /
+    final base = (type.globalInterestRatePerSec + type.interestRatePerSec) /
         BigInt.from(pow(10, acala_price_decimals));
-    return base * blocks;
+    return pow(base, seconds);
   }
 }
 

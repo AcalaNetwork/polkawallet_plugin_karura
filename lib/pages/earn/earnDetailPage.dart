@@ -152,9 +152,24 @@ class EarnDetailPage extends StatelessWidget {
                 '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
           }
 
-          final loyaltyBonus = plugin.store.earn.loyaltyBonus[poolId];
-          final savingLoyaltyBonus =
-              plugin.store.earn.savingLoyaltyBonus[poolId];
+          double rewardAPR = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
+          double savingRewardAPR =
+              plugin.store.earn.swapPoolSavingRewards[poolId] ?? 0;
+          double loyaltyBonus = plugin.store.earn.loyaltyBonus[poolId] ?? 0;
+          double savingLoyaltyBonus =
+              plugin.store.earn.savingLoyaltyBonus[poolId] ?? 0;
+          final runtimeVersion =
+              plugin.networkConst['system']['version']['specVersion'];
+          if (runtimeVersion > 1009) {
+            (plugin.store.earn.incentives.dex[poolId] ?? []).forEach((e) {
+              rewardAPR += e.apr;
+              loyaltyBonus += e.deduction;
+            });
+            (plugin.store.earn.incentives.dexSaving[poolId] ?? []).forEach((e) {
+              savingRewardAPR += e.apr;
+              savingLoyaltyBonus += e.deduction;
+            });
+          }
 
           final balance = Fmt.balanceInt(plugin
                   .store.assets.tokenBalanceMap[poolId.toUpperCase()]?.amount ??
@@ -210,11 +225,8 @@ class EarnDetailPage extends StatelessWidget {
                             share: stakeShare,
                             poolInfo: poolInfo,
                             token: poolId,
-                            rewardAPY:
-                                plugin.store.earn.swapPoolRewards[poolId] ?? 0,
-                            rewardSavingAPY: plugin
-                                    .store.earn.swapPoolSavingRewards[poolId] ??
-                                0,
+                            rewardAPY: rewardAPR,
+                            rewardSavingAPY: savingRewardAPR,
                             loyaltyBonus: loyaltyBonus,
                             savingLoyaltyBonus: savingLoyaltyBonus,
                             fee: plugin.service.earn.getSwapFee(),

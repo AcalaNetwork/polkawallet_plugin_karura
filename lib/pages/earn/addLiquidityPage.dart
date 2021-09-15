@@ -51,7 +51,13 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   Future<void> _refreshData() async {
     final String poolId = ModalRoute.of(context).settings.arguments;
 
-    await widget.plugin.service.earn.updateDexPoolInfo(poolId: poolId);
+    final runtimeVersion =
+        widget.plugin.networkConst['system']['version']['specVersion'];
+    if (runtimeVersion > 1009) {
+      await widget.plugin.service.earn.updateAllDexPoolInfo();
+    } else {
+      await widget.plugin.service.earn.updateDexPoolInfo(poolId: poolId);
+    }
 
     final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
     if (mounted) {
@@ -510,9 +516,20 @@ class StakeLPTips extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     return Observer(builder: (_) {
-      final rewardAPY = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
-      final savingRewardAPY =
+      double rewardAPY = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
+      double savingRewardAPY =
           plugin.store.earn.swapPoolSavingRewards[poolId] ?? 0;
+
+      final runtimeVersion =
+          plugin.networkConst['system']['version']['specVersion'];
+      if (runtimeVersion > 1009) {
+        (plugin.store.earn.incentives.dex[poolId] ?? []).forEach((e) {
+          rewardAPY += e.apr;
+        });
+        (plugin.store.earn.incentives.dexSaving[poolId] ?? []).forEach((e) {
+          savingRewardAPY += e.apr;
+        });
+      }
       final balanceInt =
           Fmt.balanceInt(plugin.store.assets.tokenBalanceMap[poolId].amount);
       final balance = Fmt.priceFloorBigInt(

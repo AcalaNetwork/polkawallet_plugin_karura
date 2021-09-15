@@ -7,10 +7,12 @@ import { nft_image_config, tokensForKarura } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 import axios from "axios";
+import { IncentiveResult } from "../types/acalaTypes";
 
 const decimalsDOT = 10;
 const ONE = FixedPointNumber.ONE;
 const ACA_SYS_BLOCK_TIME = new BN(12000);
+const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
 
 function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
   return ONE.minus(
@@ -477,6 +479,60 @@ async function checkExistentialDepositForTransfer(
   });
 }
 
+async function queryIncentives(api: ApiPromise) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+
+  const pools = await Promise.all([
+    api.query.incentives.incentiveRewardAmounts.entries(),
+    api.query.incentives.claimRewardDeductionRates.entries(),
+    api.query.incentives.dexSavingRewardRates.entries(),
+  ]);
+  const res: IncentiveResult = {
+    Dex: {},
+    DexSaving: {},
+    Loans: {},
+  };
+  const epoch = Number(api.consts.incentives.accumulatePeriod.toString());
+  const epochOfYear = SECONDS_OF_YEAR.mul(new BN(1000))
+    .div(ACA_SYS_BLOCK_TIME)
+    .div(new BN(epoch));
+  pools[0].forEach((e, i) => {
+    const poolId = e[0].args[0].toHuman();
+    const incentiveType = Object.keys(poolId)[0];
+    const id = poolId[incentiveType];
+    const idString = incentiveType === "Dex" ? id["DEXShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
+    const incentiveToken = e[0].args[1];
+    const incentiveTokenView = incentiveToken.toHuman()["Token"];
+    const incentiveTokenDecimal = walletPromise.getToken(incentiveToken).decimal;
+
+    if (!res[incentiveType][idString]) {
+      res[incentiveType][idString] = [];
+    }
+    res[incentiveType][idString].push({
+      token: incentiveTokenView,
+      amount: FPNum(epochOfYear.mul(new BN(e[1].toString())), incentiveTokenDecimal).toString(),
+      deduction: FPNum(pools[1][i][1], 18).toString(),
+    });
+  });
+  pools[2].forEach((e) => {
+    const poolId = e[0].args[0].toHuman();
+    const incentiveType = "DexSaving";
+    const id = poolId["Dex"]["DEXShare"].map((e: any) => e["Token"]).join("-");
+
+    if (!res[incentiveType][id]) {
+      res[incentiveType][id] = [];
+    }
+    res[incentiveType][id].push({
+      token: "KUSD",
+      amount: FPNum(epochOfYear.mul(new BN(e[1].toString())).div(new BN(2)), 18).toString(),
+      deduction: "0",
+    });
+  });
+  return res;
+}
+
 export default {
   calcTokenSwapAmount,
   queryLPTokens,
@@ -490,4 +546,5 @@ export default {
   queryHomaRedeemAmount,
   queryNFTs,
   checkExistentialDepositForTransfer,
+  queryIncentives,
 };

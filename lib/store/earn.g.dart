@@ -24,6 +24,21 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
+  final _$incentivesAtom = Atom(name: '_EarnStore.incentives');
+
+  @override
+  IncentivesData get incentives {
+    _$incentivesAtom.reportRead();
+    return super.incentives;
+  }
+
+  @override
+  set incentives(IncentivesData value) {
+    _$swapPoolRewardsAtom.reportWrite(value, super.incentives, () {
+      super.incentives = value;
+    });
+  }
+
   final _$swapPoolSavingRewardsAtom =
       Atom(name: '_EarnStore.swapPoolSavingRewards');
 
@@ -163,6 +178,17 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
+  void setIncentives(IncentivesData data) {
+    final _$actionInfo = _$_EarnStoreActionController.startAction(
+        name: '_EarnStore.setIncentives');
+    try {
+      return super.setIncentives(data);
+    } finally {
+      _$_EarnStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void loadCache(String pubKey) {
     final _$actionInfo =
         _$_EarnStoreActionController.startAction(name: '_EarnStore.loadCache');
@@ -180,6 +206,7 @@ swapPoolRewards: ${swapPoolRewards},
 swapPoolSavingRewards: ${swapPoolSavingRewards},
 loyaltyBonus: ${loyaltyBonus},
 savingLoyaltyBonus: ${savingLoyaltyBonus},
+incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},
 dexPoolInfoMap: ${dexPoolInfoMap}

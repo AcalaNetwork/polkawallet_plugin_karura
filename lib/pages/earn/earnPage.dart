@@ -94,11 +94,26 @@ class _EarnPageState extends State<EarnPage> {
                           dexPools[i].tokens.map((e) => e['token']).join('-');
                       final poolInfo =
                           widget.plugin.store.earn.dexPoolInfoMap[poolId];
-                      final rewards =
+                      double rewards =
                           widget.plugin.store.earn.swapPoolRewards[poolId];
-                      final savingRewards = widget
+                      double savingRewards = widget
                           .plugin.store.earn.swapPoolSavingRewards[poolId];
                       final rewardsEmpty = rewards == null;
+
+                      final runtimeVersion = widget.plugin
+                          .networkConst['system']['version']['specVersion'];
+                      if (runtimeVersion > 1009 && !rewardsEmpty) {
+                        (widget.plugin.store.earn.incentives.dex[poolId] ?? [])
+                            .forEach((e) {
+                          rewards += e.apr;
+                        });
+                        (widget.plugin.store.earn.incentives
+                                    .dexSaving[poolId] ??
+                                [])
+                            .forEach((e) {
+                          savingRewards += e.apr;
+                        });
+                      }
                       return GestureDetector(
                         child: RoundedCard(
                           margin: EdgeInsets.only(bottom: 16),

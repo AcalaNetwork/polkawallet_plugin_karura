@@ -1,4 +1,5 @@
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
+import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
@@ -17,6 +18,43 @@ class ServiceEarn {
   final Keyring keyring;
   final AcalaApi api;
   final PluginStore store;
+
+  IncentivesData _calcIncentivesAPR(IncentivesData data) {
+    final pools = plugin.store.earn.dexPools.toList();
+    data.dex.forEach((k, v) {
+      final pool = pools
+          .firstWhere((e) => e.tokens.map((t) => t['token']).join('-') == k);
+      final poolInfo = store.earn.dexPoolInfoMap[k];
+
+      /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
+      final stakingPoolValue = poolInfo.sharesTotal /
+          poolInfo.issuance *
+          (Fmt.bigIntToDouble(poolInfo.amountLeft, pool.pairDecimals[0]) *
+                  store
+                      .assets.marketPrices[pool.tokens[0]['token'].toString()] +
+              Fmt.bigIntToDouble(poolInfo.amountRight, pool.pairDecimals[1]) *
+                  store
+                      .assets.marketPrices[pool.tokens[1]['token'].toString()]);
+
+      v.forEach((e) {
+        /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
+        final rate =
+            e.amount * store.assets.marketPrices[e.token] / stakingPoolValue;
+        e.apr = rate > 0 ? rate : 0;
+      });
+    });
+
+    data.dexSaving.forEach((k, v) {
+      final poolInfo = store.earn.dexPoolInfoMap[k];
+      v.forEach((e) {
+        e.apr = e.amount > 0
+            ? e.amount / (poolInfo.sharesTotal / poolInfo.issuance)
+            : 0;
+      });
+    });
+
+    return data;
+  }
 
   Map<String, double> _calcIncentives(
       Map rewards, List<DexPoolData> pools, int epochOfYear) {
@@ -86,6 +124,11 @@ class ServiceEarn {
     return pools;
   }
 
+  Future<void> queryIncentives() async {
+    final res = await api.earn.queryIncentives();
+    store.earn.setIncentives(_calcIncentivesAPR(res));
+  }
+
   Future<void> queryDexPoolRewards(DexPoolData pool) async {
     final rewards = await api.swap.queryDexLiquidityPoolRewards([pool]);
 
@@ -150,6 +193,12 @@ class ServiceEarn {
     await Future.wait(store.earn.dexPools.map(
         (e) => queryDexPoolInfo(e.tokens.map((e) => e['token']).join('-'))));
 
-    store.earn.dexPools.forEach((e) => queryDexPoolRewards(e));
+    final runtimeVersion =
+        plugin.networkConst['system']['version']['specVersion'];
+    if (runtimeVersion > 1009) {
+      queryIncentives();
+    } else {
+      store.earn.dexPools.forEach((e) => queryDexPoolRewards(e));
+    }
   }
 }
