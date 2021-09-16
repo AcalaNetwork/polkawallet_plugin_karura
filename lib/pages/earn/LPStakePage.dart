@@ -87,7 +87,7 @@ class _LPStakePage extends State<LPStakePage> {
     try {
       final actionDisabled =
           isStake ? action_earn_deposit_lp : action_earn_withdraw_lp;
-      if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
+      if (widget.plugin.store.setting.liveModules['earn']['actionsDisabled']
               [actionDisabled] ??
           false) {
         UIUtils.showInvalidActionAlert(context, actionDisabled);

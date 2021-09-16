@@ -439,7 +439,7 @@ class CollateralIncentiveList extends StatelessWidget {
   Future<void> _onClaimReward(
       BuildContext context, String token, String rewardView) async {
     try {
-      if (plugin.store.setting.liveModules['loan']['actionsDisabled']
+      if (plugin.store.setting.liveModules['earn']['actionsDisabled']
               [action_earn_claim] ??
           false) {
         UIUtils.showInvalidActionAlert(context, action_earn_claim);
@@ -450,9 +450,15 @@ class CollateralIncentiveList extends StatelessWidget {
     }
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final pool = {
-      'LoansIncentive': {'Token': token}
-    };
+    final runtimeVersion =
+        plugin.networkConst['system']['version']['specVersion'];
+    final pool = runtimeVersion > 1009
+        ? {
+            'Loans': {'Token': token}
+          }
+        : {
+            'LoansIncentive': {'Token': token}
+          };
     final params = TxConfirmParams(
       module: 'incentives',
       call: 'claimRewards',

@@ -22,8 +22,13 @@ class ServiceEarn {
   IncentivesData _calcIncentivesAPR(IncentivesData data) {
     final pools = plugin.store.earn.dexPools.toList();
     data.dex.forEach((k, v) {
-      final pool = pools
-          .firstWhere((e) => e.tokens.map((t) => t['token']).join('-') == k);
+      final poolIndex = pools
+          .indexWhere((e) => e.tokens.map((t) => t['token']).join('-') == k);
+      if (poolIndex < 0) {
+        return;
+      }
+      final pool = pools[poolIndex];
+
       final poolInfo = store.earn.dexPoolInfoMapV2[k];
       final prices = store.assets.marketPrices;
 

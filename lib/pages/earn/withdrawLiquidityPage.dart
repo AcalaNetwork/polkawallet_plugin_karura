@@ -143,7 +143,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   Future<void> _onSubmit(int shareDecimals) async {
     if (_formKey.currentState.validate()) {
       try {
-        if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
+        if (widget.plugin.store.setting.liveModules['swap']['actionsDisabled']
                 [action_swap_remove_lp] ??
             false) {
           UIUtils.showInvalidActionAlert(context, action_swap_remove_lp);

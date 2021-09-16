@@ -42,13 +42,12 @@ class ServiceAssets {
           prices[relay_chain_token_symbol] / exchangeRate;
     }
     if (tokens.contains(para_chain_token_symbol_bifrost)) {
-      final priceBNC = await plugin.api.swap.queryTokenSwapAmount(
-        '1',
-        null,
-        [para_chain_token_symbol_bifrost, karura_stable_coin],
-        '0.1',
-      );
-      prices[para_chain_token_symbol_bifrost] = priceBNC.amount;
+      final dexPool = plugin.store.earn.dexPoolInfoMapV2[
+          '$karura_stable_coin-$para_chain_token_symbol_bifrost'];
+      if (dexPool != null) {
+        final priceBNC = dexPool.amountLeft / dexPool.amountRight;
+        prices[para_chain_token_symbol_bifrost] = priceBNC;
+      }
     }
 
     store.assets.setMarketPrices(prices);

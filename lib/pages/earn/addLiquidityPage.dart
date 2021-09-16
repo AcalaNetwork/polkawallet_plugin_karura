@@ -223,7 +223,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   Future<void> _onSubmit(int decimalsLeft, int decimalsRight) async {
     if (_onValidate()) {
       try {
-        if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
+        if (widget.plugin.store.setting.liveModules['swap']['actionsDisabled']
                 [action_swap_add_lp] ??
             false) {
           UIUtils.showInvalidActionAlert(context, action_swap_add_lp);

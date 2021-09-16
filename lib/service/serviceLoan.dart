@@ -87,7 +87,7 @@ class ServiceLoan {
     final runtimeVersion =
         plugin.networkConst['system']['version']['specVersion'];
     if (runtimeVersion > 1009) {
-      await plugin.service.earn.queryIncentives();
+      await plugin.service.earn.updateAllDexPoolInfo();
       final res = await api.loan.queryLoanTypes();
       store.loan.setLoanTypes(res);
     } else {

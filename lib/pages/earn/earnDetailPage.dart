@@ -394,7 +394,9 @@ class _UserCard extends StatelessWidget {
             "poolId": poolId,
           },
           params: [],
-          rawParams: '[{Dex: {DEXShare: $pool}}]',
+          rawParams: runtimeVersion > 1009
+              ? '[{Dex: {DEXShare: $pool}}]'
+              : '[{DexIncentive: {DEXShare: $pool}}]',
         ));
   }
 
