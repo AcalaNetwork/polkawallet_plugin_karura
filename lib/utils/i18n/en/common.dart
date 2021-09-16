@@ -64,4 +64,6 @@ const Map<String, String> enCommon = {
   'asset.lock': 'Locked',
   'asset.reserve': 'Reserved',
   'asset.transferable': 'Transferable',
+  'action.disable':
+      'action is disabled due to runtime upgrade, try again later.',
 };

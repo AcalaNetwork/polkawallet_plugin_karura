@@ -10,6 +10,7 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
@@ -43,6 +44,17 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
 
   Future<void> _closeVault(
       LoanData loan, int collateralDecimal, double debit) async {
+    try {
+      if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
+              [action_loan_close] ??
+          false) {
+        UIUtils.showInvalidActionAlert(context, action_loan_close);
+        return;
+      }
+    } catch (err) {
+      // ignore
+    }
+
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final dicCommon = I18n.of(context).getDic(i18n_full_dic_ui, 'common');
     SwapOutputData output;

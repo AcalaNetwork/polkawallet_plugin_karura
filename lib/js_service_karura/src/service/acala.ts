@@ -1,5 +1,5 @@
 import { StakingPool } from "@acala-network/sdk-homa";
-import { FixedPointNumber, Token, createLPCurrencyName } from "@acala-network/sdk-core";
+import { FixedPointNumber, Token, createLPCurrencyName, forceToCurrencyIdName } from "@acala-network/sdk-core";
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
@@ -13,6 +13,8 @@ const decimalsDOT = 10;
 const ONE = FixedPointNumber.ONE;
 const ACA_SYS_BLOCK_TIME = new BN(12000);
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
+
+let walletPromise: WalletPromise;
 
 function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
   return ONE.minus(
@@ -177,6 +179,62 @@ async function fetchCollateralRewards(api: ApiPromise, pool: any, address: strin
  * @param {String} poolId
  * @param {String} address
  */
+async function fetchCollateralRewardsV2(api: ApiPromise, pool: any, address: string, decimals: number) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+  const res = (await Promise.all([
+    api.query.rewards.poolInfos({ Loans: pool }),
+    api.query.rewards.sharesAndWithdrawnRewards({ Loans: pool }, address),
+  ])) as any;
+  const pendingRewards = (!!api.query.incentives.pendingMultiRewards
+    ? await api.query.incentives?.pendingMultiRewards({ Loans: pool }, address)
+    : null) as any;
+  let proportion = new FixedPointNumber(0);
+  if (res[0] && res[1] && FPNum(res[0].totalShares).gt(new FixedPointNumber(0))) {
+    proportion = FPNum(res[1][0]).div(FPNum(res[0].totalShares));
+  }
+  const withdrawns = Array.from(res[1][1].entries()).map((entry) => {
+    const currencyId = forceToCurrencyIdName(entry[0]);
+    const token = walletPromise.getToken(currencyId);
+    const amount = FPNum(entry[1].toString(), token.decimal);
+    return { token, amount };
+  });
+  const pendings = Array.from(pendingRewards.entries()).map((entry) => {
+    const currencyId = forceToCurrencyIdName(entry[0]);
+    const token = walletPromise.getToken(currencyId);
+    const amount = FPNum(entry[1].toString(), token.decimal);
+    return { token, amount };
+  });
+  const incentives = Array.from(res[0].rewards.entries()).map((e: any) => {
+    const currencyId = forceToCurrencyIdName(e[0]);
+    const token = walletPromise.getToken(currencyId);
+    const tokenString = e[0].toHuman()["Token"];
+    return {
+      token: tokenString,
+      amount: (
+        FPNum(e[1][0], token.decimal)
+          .times(proportion)
+          .minus(withdrawns.find((i) => forceToCurrencyIdName(i.token) === forceToCurrencyIdName(token))?.amount || new FixedPointNumber(0))
+          .plus(pendings.find((i) => forceToCurrencyIdName(i.token) === forceToCurrencyIdName(token))?.amount || new FixedPointNumber(0))
+          .toNumber() || 0
+      ).toString(),
+    };
+  });
+  return {
+    token: pool.Token,
+    sharesTotal: res[0].totalShares,
+    shares: res[1][0],
+    proportion: proportion.toNumber() || 0,
+    reward: incentives,
+  };
+}
+
+/**
+ * fetchDexPoolInfo
+ * @param {String} poolId
+ * @param {String} address
+ */
 async function fetchDexPoolInfo(api: ApiPromise, pool: any, address: string) {
   const res = (await Promise.all([
     api.query.dex.liquidityPool(pool.DEXShare),
@@ -221,6 +279,72 @@ async function fetchDexPoolInfo(api: ApiPromise, pool: any, address: string) {
       ).toString(),
     },
     issuance: res[5],
+  };
+}
+
+/**
+ * fetchDexPoolInfo
+ * @param {String} poolId
+ * @param {String} address
+ */
+async function fetchDexPoolInfoV2(api: ApiPromise, pool: any, address: string) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+  const res = (await Promise.all([
+    api.query.dex.liquidityPool(pool.DEXShare),
+    api.query.rewards.poolInfos({ Dex: pool }),
+    api.query.rewards.sharesAndWithdrawnRewards({ Dex: pool }, address),
+    api.query.tokens.totalIssuance(pool),
+  ])) as any;
+  const pendingRewards = (!!api.query.incentives.pendingMultiRewards
+    ? await api.query.incentives?.pendingMultiRewards({ Dex: pool }, address)
+    : null) as any;
+  let proportion = new FixedPointNumber(0);
+  if (res[1] && res[2] && FPNum(res[1].totalShares).gt(new FixedPointNumber(0))) {
+    proportion = FPNum(res[2][0]).div(FPNum(res[1].totalShares));
+  }
+  const withdrawns = Array.from(res[2][1].entries()).map((entry) => {
+    const currencyId = forceToCurrencyIdName(entry[0]);
+    const token = walletPromise.getToken(currencyId);
+    const amount = FPNum(entry[1].toString(), token.decimal);
+    return { token, amount };
+  });
+  const pendings = Array.from(pendingRewards.entries()).map((entry) => {
+    const currencyId = forceToCurrencyIdName(entry[0]);
+    const token = walletPromise.getToken(currencyId);
+    const amount = FPNum(entry[1].toString(), token.decimal);
+    return { token, amount };
+  });
+  let saving = "0";
+  const incentives = Array.from(res[1].rewards.entries()).map((e: any) => {
+    const currencyId = forceToCurrencyIdName(e[0]);
+    const token = walletPromise.getToken(currencyId);
+    const tokenString = e[0].toHuman()["Token"];
+    const data = {
+      token: tokenString,
+      amount: (
+        FPNum(e[1][0], token.decimal)
+          .times(proportion)
+          .minus(withdrawns.find((i) => forceToCurrencyIdName(i.token) === forceToCurrencyIdName(token))?.amount || new FixedPointNumber(0))
+          .plus(pendings.find((i) => forceToCurrencyIdName(i.token) === forceToCurrencyIdName(token))?.amount || new FixedPointNumber(0))
+          .toNumber() || 0
+      ).toString(),
+    };
+    if (tokenString === "KUSD") {
+      saving = data.amount;
+      return;
+    }
+    return data;
+  });
+  return {
+    token: pool.DEXShare.map((e) => e.Token).join("-"),
+    pool: res[0],
+    sharesTotal: res[1].totalShares,
+    shares: res[2][0],
+    proportion: proportion.toNumber() || 0,
+    reward: { incentive: incentives.filter((e) => !!e), saving },
+    issuance: res[3],
   };
 }
 
@@ -448,7 +572,6 @@ async function queryNFTs(api: ApiPromise, address: string) {
   return res.map((e, i) => ({ ...e, deposit: (deposits[i] as any).toJSON()["data"]["deposit"].toString() }));
 }
 
-let walletPromise: WalletPromise;
 async function checkExistentialDepositForTransfer(
   api: ApiPromise,
   address: string,
@@ -498,6 +621,14 @@ async function queryIncentives(api: ApiPromise) {
   const epochOfYear = SECONDS_OF_YEAR.mul(new BN(1000))
     .div(ACA_SYS_BLOCK_TIME)
     .div(new BN(epoch));
+  const deductions = pools[1].map((e) => {
+    const poolId = e[0].args[0].toHuman();
+    const incentiveType = Object.keys(poolId)[0];
+    const id = poolId[incentiveType];
+    const idString = incentiveType === "Dex" ? id["DEXShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
+
+    return { incentiveType, idString, value: FPNum(e[1], 18).toString() };
+  });
   pools[0].forEach((e, i) => {
     const poolId = e[0].args[0].toHuman();
     const incentiveType = Object.keys(poolId)[0];
@@ -513,7 +644,7 @@ async function queryIncentives(api: ApiPromise) {
     res[incentiveType][idString].push({
       token: incentiveTokenView,
       amount: FPNum(epochOfYear.mul(new BN(e[1].toString())), incentiveTokenDecimal).toString(),
-      deduction: FPNum(pools[1][i][1], 18).toString(),
+      deduction: deductions.find((e) => e.incentiveType === incentiveType && e.idString === idString)?.value || "0",
     });
   });
   pools[2].forEach((e) => {
@@ -527,7 +658,7 @@ async function queryIncentives(api: ApiPromise) {
     res[incentiveType][id].push({
       token: "KUSD",
       amount: FPNum(epochOfYear.mul(new BN(e[1].toString())).div(new BN(2)), 18).toString(),
-      deduction: "0",
+      deduction: deductions.find((e) => e.idString === id)?.value || "0",
     });
   });
   return res;
@@ -540,7 +671,9 @@ export default {
   getBootstraps,
   getAllTokenSymbols,
   fetchCollateralRewards,
+  fetchCollateralRewardsV2,
   fetchDexPoolInfo,
+  fetchDexPoolInfoV2,
   fetchHomaStakingPool,
   fetchHomaUserInfo,
   queryHomaRedeemAmount,

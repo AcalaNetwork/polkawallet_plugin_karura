@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -221,6 +222,17 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   Future<void> _onSubmit(int decimalsLeft, int decimalsRight) async {
     if (_onValidate()) {
+      try {
+        if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
+                [action_swap_add_lp] ??
+            false) {
+          UIUtils.showInvalidActionAlert(context, action_swap_add_lp);
+          return;
+        }
+      } catch (err) {
+        // ignore
+      }
+
       final String poolId = ModalRoute.of(context).settings.arguments;
       final pair = poolId.toUpperCase().split('-');
 
@@ -564,7 +576,7 @@ class StakeLPTips extends StatelessWidget {
 
       final runtimeVersion =
           plugin.networkConst['system']['version']['specVersion'];
-      if (runtimeVersion > 1009) {
+      if (runtimeVersion > 1009 && plugin.store.earn.incentives.dex != null) {
         (plugin.store.earn.incentives.dex[poolId] ?? []).forEach((e) {
           rewardAPY += e.apr;
         });

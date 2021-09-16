@@ -58,4 +58,5 @@ const Map<String, String> zhCommon = {
   'asset.lock': '锁定',
   'asset.reserve': '保留',
   'asset.transferable': '可转账',
+  'action.disable': '操作因网络升级，暂不可用，请稍后再试。',
 };

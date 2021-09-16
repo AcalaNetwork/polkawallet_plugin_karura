@@ -128,3 +128,11 @@ const dex_incentive_loyalty_end_block = {
   'KUSD-KSM': 1538140,
   'KAR-KSM': 2799580,
 };
+
+const action_loan_adjust = 'honzon.adjustLoan';
+const action_loan_close = 'honzon.closeLoanHasDebitByDex';
+const action_swap_add_lp = 'dex.addLiquidity';
+const action_swap_remove_lp = 'dex.removeLiquidity';
+const action_earn_claim = 'incentives.claimRewards';
+const action_earn_deposit_lp = 'incentives.depositDexShare';
+const action_earn_withdraw_lp = 'incentives.withdrawDexShare';
