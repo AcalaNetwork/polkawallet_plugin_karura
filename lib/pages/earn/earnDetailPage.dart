@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/LPStakePage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
@@ -38,71 +39,6 @@ class EarnDetailPage extends StatelessWidget {
     );
   }
 
-  void _onWithdrawReward(BuildContext context, LPRewardData reward,
-      double loyaltyBonus, double savingLoyaltyBonus) {
-    final String poolId = ModalRoute.of(context).settings.arguments;
-
-    final symbol = plugin.networkState.tokenSymbol[0];
-    final incentiveReward = Fmt.priceFloor(
-        reward.incentive * (1 - (loyaltyBonus ?? 0)),
-        lengthMax: 4);
-    final savingReward = Fmt.priceFloor(
-        reward.saving * (1 - (savingLoyaltyBonus ?? 0)),
-        lengthMax: 2);
-
-    final pool =
-        jsonEncode(poolId.split('-').map((e) => ({'Token': e})).toList());
-
-    if (reward.saving > 0 && reward.incentive > 0) {
-      final params = [
-        'api.tx.incentives.claimRewards({DexIncentive: {DEXShare: $pool}})',
-        'api.tx.incentives.claimRewards({DexSaving: {DEXShare: $pool}})',
-      ];
-      Navigator.of(context).pushNamed(TxConfirmPage.route,
-          arguments: TxConfirmParams(
-            module: 'utility',
-            call: 'batch',
-            txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
-            txDisplay: {
-              "poolId": poolId,
-              "incentiveReward": '$incentiveReward $symbol',
-              "savingReward": '$savingReward $karura_stable_coin_view',
-            },
-            params: [],
-            rawParams: '[[${params.join(',')}]]',
-          ));
-    } else if (reward.incentive > 0) {
-      Navigator.of(context).pushNamed(TxConfirmPage.route,
-          arguments: TxConfirmParams(
-            module: 'incentives',
-            call: 'claimRewards',
-            txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
-            txDisplay: {
-              "poolId": poolId,
-              "incentiveReward": '$incentiveReward $symbol',
-            },
-            params: [],
-            rawParams: '[{DexIncentive: {DEXShare: $pool}}]',
-          ));
-    } else if (reward.saving > 0) {
-      Navigator.of(context).pushNamed(TxConfirmPage.route,
-          arguments: TxConfirmParams(
-            module: 'incentives',
-            call: 'claimRewards',
-            txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
-            txDisplay: {
-              "poolId": poolId,
-              "savingReward": '$savingReward $karura_stable_coin_view',
-            },
-            params: [],
-            rawParams: '[{DexSaving: {DEXShare: $pool}}]',
-          ));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
@@ -125,6 +61,8 @@ class EarnDetailPage extends StatelessWidget {
       body: Observer(
         builder: (_) {
           final balancePair = PluginFmt.getBalancePair(plugin, pair);
+          final runtimeVersion =
+              plugin.networkConst['system']['version']['specVersion'];
 
           BigInt issuance = BigInt.zero;
           BigInt shareTotal = BigInt.zero;
@@ -135,21 +73,41 @@ class EarnDetailPage extends StatelessWidget {
           String lpAmountString = '~';
 
           final poolInfo = plugin.store.earn.dexPoolInfoMap[poolId];
-          if (poolInfo != null) {
-            issuance = poolInfo.issuance;
-            shareTotal = poolInfo.sharesTotal;
-            share = poolInfo.shares;
-            stakeShare = share / shareTotal;
-            poolShare = share / issuance;
+          final poolInfoV2 = plugin.store.earn.dexPoolInfoMapV2[poolId];
+          if (runtimeVersion <= 1009) {
+            if (poolInfo != null) {
+              issuance = poolInfo.issuance;
+              shareTotal = poolInfo.sharesTotal;
+              share = poolInfo.shares;
+              stakeShare = share / shareTotal;
+              poolShare = share / issuance;
 
-            final lpAmount = Fmt.bigIntToDouble(
-                    poolInfo.amountLeft, balancePair[0].decimals) *
-                poolShare;
-            final lpAmount2 = Fmt.bigIntToDouble(
-                    poolInfo.amountRight, balancePair[1].decimals) *
-                poolShare;
-            lpAmountString =
-                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
+              final lpAmount = Fmt.bigIntToDouble(
+                      poolInfo.amountLeft, balancePair[0].decimals) *
+                  poolShare;
+              final lpAmount2 = Fmt.bigIntToDouble(
+                      poolInfo.amountRight, balancePair[1].decimals) *
+                  poolShare;
+              lpAmountString =
+                  '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
+            }
+          } else {
+            if (poolInfoV2 != null) {
+              issuance = poolInfoV2.issuance;
+              shareTotal = poolInfoV2.sharesTotal;
+              share = poolInfoV2.shares;
+              stakeShare = share / shareTotal;
+              poolShare = share / issuance;
+
+              final lpAmount = Fmt.bigIntToDouble(
+                      poolInfoV2.amountLeft, balancePair[0].decimals) *
+                  poolShare;
+              final lpAmount2 = Fmt.bigIntToDouble(
+                      poolInfoV2.amountRight, balancePair[1].decimals) *
+                  poolShare;
+              lpAmountString =
+                  '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
+            }
           }
 
           double rewardAPR = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
@@ -158,16 +116,15 @@ class EarnDetailPage extends StatelessWidget {
           double loyaltyBonus = plugin.store.earn.loyaltyBonus[poolId] ?? 0;
           double savingLoyaltyBonus =
               plugin.store.earn.savingLoyaltyBonus[poolId] ?? 0;
-          final runtimeVersion =
-              plugin.networkConst['system']['version']['specVersion'];
-          if (runtimeVersion > 1009) {
-            (plugin.store.earn.incentives.dex[poolId] ?? []).forEach((e) {
+          final incentiveV2 = plugin.store.earn.incentives;
+          if (runtimeVersion > 1009 && incentiveV2.dex != null) {
+            (incentiveV2.dex[poolId] ?? []).forEach((e) {
               rewardAPR += e.apr;
-              loyaltyBonus += e.deduction;
+              loyaltyBonus = e.deduction;
             });
-            (plugin.store.earn.incentives.dexSaving[poolId] ?? []).forEach((e) {
+            (incentiveV2.dexSaving[poolId] ?? []).forEach((e) {
               savingRewardAPR += e.apr;
-              savingLoyaltyBonus += e.deduction;
+              savingLoyaltyBonus = e.deduction;
             });
           }
 
@@ -188,8 +145,8 @@ class EarnDetailPage extends StatelessWidget {
                         children: <Widget>[
                           _SystemCard(
                             token: poolId,
-                            total: poolInfo?.sharesTotal ?? BigInt.zero,
-                            userStaked: poolInfo?.shares ?? BigInt.zero,
+                            total: shareTotal,
+                            userStaked: share,
                             decimals: balancePair[0].decimals,
                             lpAmountString: lpAmountString,
                             actions: Row(
@@ -204,10 +161,10 @@ class EarnDetailPage extends StatelessWidget {
                                         : null,
                                   ),
                                 ),
-                                (poolInfo?.shares ?? BigInt.zero) > BigInt.zero
+                                share > BigInt.zero
                                     ? Container(width: 16)
                                     : Container(),
-                                (poolInfo?.shares ?? BigInt.zero) > BigInt.zero
+                                share > BigInt.zero
                                     ? Expanded(
                                         child: RoundedButton(
                                           text: dic['earn.unStake'],
@@ -224,17 +181,14 @@ class EarnDetailPage extends StatelessWidget {
                           _UserCard(
                             share: stakeShare,
                             poolInfo: poolInfo,
+                            poolInfoV2: poolInfoV2,
+                            runtimeVersion: runtimeVersion,
                             token: poolId,
                             rewardAPY: rewardAPR,
                             rewardSavingAPY: savingRewardAPR,
                             loyaltyBonus: loyaltyBonus,
                             savingLoyaltyBonus: savingLoyaltyBonus,
                             fee: plugin.service.earn.getSwapFee(),
-                            onWithdrawReward: () => _onWithdrawReward(
-                                context,
-                                poolInfo.reward,
-                                loyaltyBonus,
-                                savingLoyaltyBonus),
                             incentiveCoinSymbol: symbols[0],
                             stableCoinSymbol: karura_stable_coin,
                             stableCoinDecimal:
@@ -367,13 +321,14 @@ class _UserCard extends StatelessWidget {
   _UserCard({
     this.share,
     this.poolInfo,
+    this.poolInfoV2,
+    this.runtimeVersion,
     this.token,
     this.rewardAPY,
     this.rewardSavingAPY,
     this.loyaltyBonus,
     this.savingLoyaltyBonus,
     this.fee,
-    this.onWithdrawReward,
     this.incentiveCoinSymbol,
     this.stableCoinSymbol,
     this.stableCoinDecimal,
@@ -381,13 +336,14 @@ class _UserCard extends StatelessWidget {
   });
   final double share;
   final DexPoolInfoData poolInfo;
+  final DexPoolInfoDataV2 poolInfoV2;
+  final int runtimeVersion;
   final String token;
   final double rewardAPY;
   final double rewardSavingAPY;
   final double loyaltyBonus;
   final double savingLoyaltyBonus;
   final double fee;
-  final Function onWithdrawReward;
   final String incentiveCoinSymbol;
   final String stableCoinSymbol;
   final int stableCoinDecimal;
@@ -397,7 +353,7 @@ class _UserCard extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext ctx) {
         return CupertinoAlertDialog(
           title: Text(dic['earn.claim']),
           content: Text(dic['earn.claim.info']),
@@ -406,15 +362,15 @@ class _UserCard extends StatelessWidget {
               child: Text(I18n.of(context)
                   .getDic(i18n_full_dic_karura, 'common')['cancel']),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(ctx).pop();
               },
             ),
             CupertinoButton(
               child: Text(I18n.of(context)
                   .getDic(i18n_full_dic_karura, 'common')['ok']),
               onPressed: () {
-                Navigator.of(context).pop();
-                onWithdrawReward();
+                Navigator.of(ctx).pop();
+                _onWithdrawReward(context);
               },
             ),
           ],
@@ -423,12 +379,35 @@ class _UserCard extends StatelessWidget {
     );
   }
 
+  void _onWithdrawReward(BuildContext context) {
+    final String poolId = ModalRoute.of(context).settings.arguments;
+    final pool =
+        jsonEncode(poolId.split('-').map((e) => ({'Token': e})).toList());
+
+    Navigator.of(context).pushNamed(TxConfirmPage.route,
+        arguments: TxConfirmParams(
+          module: 'incentives',
+          call: 'claimRewards',
+          txTitle: I18n.of(context)
+              .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
+          txDisplay: {
+            "poolId": poolId,
+          },
+          params: [],
+          rawParams: '[{Dex: {DEXShare: $pool}}]',
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    bool canClaim = false;
+
     var reward = (poolInfo?.reward?.incentive ?? 0) * (1 - (loyaltyBonus ?? 0));
-    var rewardSaving =
-        (poolInfo?.reward?.saving ?? 0) * (1 - (savingLoyaltyBonus ?? 0));
+    var rewardSaving = (runtimeVersion > 1009
+            ? (poolInfoV2?.reward?.saving ?? 0)
+            : (poolInfo?.reward?.saving ?? 0)) *
+        (1 - (savingLoyaltyBonus ?? 0));
     if (reward < 0) {
       reward = 0;
     }
@@ -446,10 +425,56 @@ class _UserCard extends StatelessWidget {
 
     final savingRewardTokenMin = Fmt.balanceDouble(
         existential_deposit[stableCoinSymbol], stableCoinDecimal);
-    final canClaim = reward > 0.0001 || rewardSaving > savingRewardTokenMin;
+    canClaim = reward > 0.0001 || rewardSaving > savingRewardTokenMin;
+    final rewardV2 = poolInfoV2?.reward?.incentive?.map((e) {
+      final amount = double.parse(e['amount']);
+      if (amount > 0.001) {
+        canClaim = true;
+      }
+      return Fmt.priceFloor(amount * (1 - (loyaltyBonus ?? 0)), lengthMax: 4) +
+          ' ${e['token']}';
+    })?.join(' + ');
 
-    final blocksToEnd =
-        dex_incentive_loyalty_end_block[token] - bestNumber.toInt();
+    final blocksToEnd = dex_incentive_loyalty_end_block[token] != null
+        ? dex_incentive_loyalty_end_block[token] - bestNumber.toInt()
+        : null;
+
+    final rewardsRow = <Widget>[
+      Column(
+        children: <Widget>[
+          Text(
+            dic['earn.incentive'],
+            style: TextStyle(fontSize: 12),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 8, bottom: 8),
+            child: Text(
+                runtimeVersion > 1009
+                    ? rewardV2.isEmpty
+                        ? '0'
+                        : rewardV2
+                    : Fmt.priceFloor(reward, lengthMax: 4) +
+                        ' $incentiveCoinSymbol',
+                style: primaryText),
+          ),
+        ],
+      )
+    ];
+    if (rewardSaving > 0) {
+      rewardsRow.add(Column(
+        children: <Widget>[
+          Text(
+            '${dic['earn.saving']} ($stableCoinSymbol)',
+            style: TextStyle(fontSize: 12),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 8, bottom: 8),
+            child: Text(Fmt.priceFloor(rewardSaving, lengthMax: 2),
+                style: primaryText),
+          ),
+        ],
+      ));
+    }
 
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -466,44 +491,7 @@ class _UserCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        '${dic['earn.incentive']} ($incentiveCoinSymbol)',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 8, bottom: 8),
-                        child: Text(Fmt.priceFloor(reward, lengthMax: 4),
-                            style: primaryText),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        '${dic['earn.saving']} ($stableCoinSymbol)',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 8, bottom: 8),
-                        child: Text(Fmt.priceFloor(rewardSaving, lengthMax: 2),
-                            style: primaryText),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(dic['earn.apy'], style: TextStyle(fontSize: 12)),
-                      Padding(
-                        padding: EdgeInsets.only(top: 8, bottom: 8),
-                        child: Text(Fmt.ratio(rewardAPY + rewardSavingAPY),
-                            style: primaryText),
-                      ),
-                    ],
-                  )
-                ],
+                children: rewardsRow,
               ),
               Container(
                 margin: EdgeInsets.only(top: 8),
@@ -520,17 +508,24 @@ class _UserCard extends StatelessWidget {
                       title: dic['earn.loyal'],
                       content: Fmt.ratio(loyaltyBonus),
                       titleToolTip: dic['earn.loyal.info'],
-                    )
+                    ),
+                    InfoItem(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      title: 'APR',
+                      content: Fmt.ratio(rewardAPY + rewardSavingAPY),
+                    ),
                   ],
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(top: 8),
-                child: Text(
-                  '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
-                  style: TextStyle(fontSize: 10),
-                ),
-              ),
+              blocksToEnd != null
+                  ? Container(
+                      margin: EdgeInsets.only(top: 8),
+                      child: Text(
+                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    )
+                  : Container(),
               canClaim
                   ? Container(
                       margin: EdgeInsets.only(top: 16),

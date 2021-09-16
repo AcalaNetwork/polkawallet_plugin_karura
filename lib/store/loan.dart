@@ -30,6 +30,10 @@ abstract class _LoanStore with Store {
       Map<String, CollateralRewardData>();
 
   @observable
+  Map<String, CollateralRewardDataV2> collateralRewardsV2 =
+      Map<String, CollateralRewardDataV2>();
+
+  @observable
   Map<String, double> loyaltyBonus = Map<String, double>();
 
   @observable
@@ -63,6 +67,15 @@ abstract class _LoanStore with Store {
       dataMap[e.token] = e;
     });
     collateralRewards = dataMap;
+  }
+
+  @action
+  void setCollateralRewardsV2(List<CollateralRewardDataV2> data) {
+    final dataMap = Map<String, CollateralRewardDataV2>();
+    data.forEach((e) {
+      dataMap[e.token] = e;
+    });
+    collateralRewardsV2 = dataMap;
   }
 
   @action

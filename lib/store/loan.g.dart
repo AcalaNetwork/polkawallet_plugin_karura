@@ -86,6 +86,22 @@ mixin _$LoanStore on _LoanStore, Store {
     });
   }
 
+  final _$collateralRewardsV2Atom =
+      Atom(name: '_LoanStore.collateralRewardsV2');
+
+  @override
+  Map<String, CollateralRewardDataV2> get collateralRewardsV2 {
+    _$collateralRewardsV2Atom.reportRead();
+    return super.collateralRewardsV2;
+  }
+
+  @override
+  set collateralRewardsV2(Map<String, CollateralRewardDataV2> value) {
+    _$collateralRewardsV2Atom.reportWrite(value, super.collateralRewardsV2, () {
+      super.collateralRewardsV2 = value;
+    });
+  }
+
   final _$loyaltyBonusAtom = Atom(name: '_EarnStore.loyaltyBonus');
 
   @override
@@ -158,6 +174,17 @@ mixin _$LoanStore on _LoanStore, Store {
         name: '_LoanStore.setCollateralRewards');
     try {
       return super.setCollateralRewards(data);
+    } finally {
+      _$_LoanStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setCollateralRewardsV2(List<CollateralRewardDataV2> data) {
+    final _$actionInfo = _$_LoanStoreActionController.startAction(
+        name: '_LoanStore.setCollateralRewardsV2');
+    try {
+      return super.setCollateralRewardsV2(data);
     } finally {
       _$_LoanStoreActionController.endAction(_$actionInfo);
     }

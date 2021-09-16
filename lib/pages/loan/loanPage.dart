@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
@@ -86,6 +87,8 @@ class _LoanPageState extends State<LoanPage> {
     final stableCoinDecimals = widget.plugin.networkState.tokenDecimals[
         widget.plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
     final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol[0];
+    final runtimeVersion =
+        widget.plugin.networkConst['system']['version']['specVersion'];
     return Observer(
       builder: (_) {
         final loans = widget.plugin.store.loan.loans.values.toList();
@@ -165,8 +168,13 @@ class _LoanPageState extends State<LoanPage> {
                                             widget.plugin.store.loan.totalCDPs,
                                         incentives: widget.plugin.store.loan
                                             .collateralIncentives,
+                                        incentivesV2: widget
+                                            .plugin.store.earn.incentives.loans,
                                         rewards: widget.plugin.store.loan
                                             .collateralRewards,
+                                        rewardsV2: widget.plugin.store.loan
+                                            .collateralRewardsV2,
+                                        runtimeVersion: runtimeVersion,
                                         loyaltyBonusMap: widget
                                             .plugin.store.loan.loyaltyBonus,
                                         marketPrices: widget
@@ -399,7 +407,10 @@ class CollateralIncentiveList extends StatelessWidget {
   CollateralIncentiveList({
     this.loans,
     this.incentives,
+    this.incentivesV2,
     this.rewards,
+    this.rewardsV2,
+    this.runtimeVersion,
     this.loyaltyBonusMap,
     this.totalCDPs,
     this.tokenIcons,
@@ -410,7 +421,10 @@ class CollateralIncentiveList extends StatelessWidget {
 
   final Map<String, LoanData> loans;
   final Map<String, double> incentives;
+  final Map<String, List<IncentiveItemData>> incentivesV2;
   final Map<String, CollateralRewardData> rewards;
+  final Map<String, CollateralRewardDataV2> rewardsV2;
+  final int runtimeVersion;
   final Map<String, double> loyaltyBonusMap;
   final Map<String, TotalCDPData> totalCDPs;
   final Map<String, Widget> tokenIcons;
@@ -453,9 +467,16 @@ class CollateralIncentiveList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final tokens = incentives.keys.toList();
-    // todo: do not show KSM incentive now
-    tokens.removeWhere((e) => e == 'KSM' || (incentives[e] ?? 0) == 0);
+    List<String> tokens = [];
+    if (runtimeVersion <= 1009) {
+      tokens = incentives.keys.toList();
+      // todo: do not show KSM incentive now
+      tokens.removeWhere((e) => e == 'KSM' || (incentives[e] ?? 0) == 0);
+    } else {
+      tokens = incentivesV2.keys.toList();
+      // todo: do not show KSM incentive now
+      tokens.removeWhere((e) => e == 'KSM' || incentivesV2[e][0].amount == 0);
+    }
     if (tokens.length == 0) {
       return ListTail(isEmpty: true, isLoading: false);
     }
@@ -468,26 +489,54 @@ class CollateralIncentiveList extends StatelessWidget {
           double apy = 0;
           if (totalCDPs[token].collateral > BigInt.zero &&
               marketPrices[token] != null) {
-            apy = marketPrices[incentiveTokenSymbol] *
-                incentives[token] /
-                Fmt.bigIntToDouble(
-                    totalCDPs[token].collateral, collateralDecimals) /
-                marketPrices[token];
+            if (runtimeVersion > 1009) {
+              incentivesV2[token].forEach((e) {
+                apy += marketPrices[e.token] *
+                    e.amount /
+                    Fmt.bigIntToDouble(
+                        totalCDPs[token].collateral, collateralDecimals) /
+                    marketPrices[token];
+              });
+            } else {
+              apy = marketPrices[incentiveTokenSymbol] *
+                  incentives[token] /
+                  Fmt.bigIntToDouble(
+                      totalCDPs[token].collateral, collateralDecimals) /
+                  marketPrices[token];
+            }
           }
           final deposit =
               Fmt.priceCeilBigInt(loans[token].collaterals, collateralDecimals);
-          final loyaltyBonus = loyaltyBonusMap[token] ?? 0.3;
-          final reward = rewards[token];
-          final rewardView = reward != null
-              ? Fmt.priceFloor(
-                  (reward?.reward ?? 0) > 0
-                      ? (reward.reward * (1 - loyaltyBonus))
-                      : 0,
-                  lengthMax: 4)
-              : '';
-          final canClaim = reward != null && reward.reward > 0.0001;
 
-          final shouldActivate = reward?.shares != loans[token].collaterals;
+          String rewardView = '';
+          bool canClaim = false;
+          bool shouldActivate = false;
+          double loyaltyBonus = loyaltyBonusMap[token] ?? 0.3;
+          if (runtimeVersion > 1009) {
+            final reward = rewardsV2[token];
+            rewardView = reward != null
+                ? reward.reward.map((e) {
+                    final amount = double.parse(e['amount']);
+                    if (amount > 0.0001) {
+                      canClaim = true;
+                    }
+                    loyaltyBonus = incentivesV2[token][0].deduction;
+                    return '${Fmt.priceFloor(amount * (1 - loyaltyBonus))}';
+                  }).join(' + ')
+                : '';
+            shouldActivate = reward?.shares != loans[token].collaterals;
+          } else {
+            final reward = rewards[token];
+            rewardView = reward != null
+                ? Fmt.priceFloor(
+                    (reward?.reward ?? 0) > 0
+                        ? (reward.reward * (1 - loyaltyBonus))
+                        : 0,
+                    lengthMax: 4)
+                : '';
+            canClaim = reward != null && reward.reward > 0.0001;
+            shouldActivate = reward?.shares != loans[token].collaterals;
+          }
           return RoundedCard(
             padding: EdgeInsets.all(16),
             margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -546,7 +595,7 @@ class CollateralIncentiveList extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
-                reward != null && shouldActivate
+                rewardView.isNotEmpty && shouldActivate
                     ? Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Row(

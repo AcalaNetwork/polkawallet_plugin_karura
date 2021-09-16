@@ -217,3 +217,23 @@ abstract class _CollateralRewardData {
   double reward;
   double proportion;
 }
+
+class CollateralRewardDataV2 extends _CollateralRewardDataV2 {
+  static CollateralRewardDataV2 fromJson(Map json) {
+    final data = CollateralRewardDataV2();
+    data.token = json['token'];
+    data.sharesTotal = Fmt.balanceInt(json['sharesTotal'].toString());
+    data.shares = Fmt.balanceInt(json['shares'].toString());
+    data.proportion = double.parse(json['proportion'].toString());
+    data.reward = json['reward'];
+    return data;
+  }
+}
+
+abstract class _CollateralRewardDataV2 {
+  String token;
+  BigInt sharesTotal;
+  BigInt shares;
+  List reward;
+  double proportion;
+}

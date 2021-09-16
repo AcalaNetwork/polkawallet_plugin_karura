@@ -60,4 +60,16 @@ class AcalaServiceLoan {
         await plugin.sdk.webView.evalJavascript('Promise.all([$query])');
     return res;
   }
+
+  Future<List> queryCollateralRewardsV2(
+      List<String> collaterals, String address) async {
+    final decimals = plugin.networkState.tokenDecimals[0];
+    final query = collaterals
+        .map((e) =>
+            'acala.fetchCollateralRewardsV2(api, {Token: "$e"}, "$address", $decimals)')
+        .join(',');
+    final List res =
+        await plugin.sdk.webView.evalJavascript('Promise.all([$query])');
+    return res;
+  }
 }

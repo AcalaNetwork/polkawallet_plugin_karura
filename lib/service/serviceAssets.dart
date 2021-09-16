@@ -41,6 +41,15 @@ class ServiceAssets {
       prices['L$relay_chain_token_symbol'] =
           prices[relay_chain_token_symbol] / exchangeRate;
     }
+    if (tokens.contains(para_chain_token_symbol_bifrost)) {
+      final priceBNC = await plugin.api.swap.queryTokenSwapAmount(
+        '1',
+        null,
+        [para_chain_token_symbol_bifrost, karura_stable_coin],
+        '0.1',
+      );
+      prices[para_chain_token_symbol_bifrost] = priceBNC.amount;
+    }
 
     store.assets.setMarketPrices(prices);
   }

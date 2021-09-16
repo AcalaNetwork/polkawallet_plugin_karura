@@ -141,13 +141,22 @@ class _LPStakePage extends State<LPStakePage> {
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final poolInfo =
-                widget.plugin.store.earn.dexPoolInfoMap[args.poolId];
             final isStake = args.action == LPStakePage.actionStake;
+
+            final runtimeVersion =
+                widget.plugin.networkConst['system']['version']['specVersion'];
 
             BigInt balance = BigInt.zero;
             if (!isStake) {
-              balance = poolInfo.shares;
+              if (runtimeVersion > 1009) {
+                final poolInfo =
+                    widget.plugin.store.earn.dexPoolInfoMapV2[args.poolId];
+                balance = poolInfo.shares;
+              } else {
+                final poolInfo =
+                    widget.plugin.store.earn.dexPoolInfoMap[args.poolId];
+                balance = poolInfo.shares;
+              }
             } else {
               balance = Fmt.balanceInt(widget.plugin.store.assets
                       .tokenBalanceMap[args.poolId]?.amount ??

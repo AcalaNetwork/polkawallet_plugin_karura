@@ -1,5 +1,6 @@
 import 'package:polkawallet_plugin_karura/api/swap/acalaServiceSwap.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 
 class AcalaApiSwap {
@@ -37,5 +38,11 @@ class AcalaApiSwap {
       String pool, address) async {
     final Map info = await service.queryDexPoolInfo(pool, address);
     return {pool: DexPoolInfoData.fromJson(Map<String, dynamic>.of(info))};
+  }
+
+  Future<Map<String, DexPoolInfoDataV2>> queryDexPoolInfoV2(
+      String pool, address) async {
+    final Map info = await service.queryDexPoolInfoV2(pool, address);
+    return {pool: DexPoolInfoDataV2.fromJson(Map.of(info))};
   }
 }

@@ -40,6 +40,23 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
   bool _fromPool = false;
 
+  DEXPoolInfo _getPoolInfoData(String poolId) {
+    final runtimeVersion =
+        widget.plugin.networkConst['system']['version']['specVersion'];
+    if (runtimeVersion > 1009) {
+      final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+      return poolInfo != null
+          ? DEXPoolInfo(poolInfo.shares, poolInfo.issuance, poolInfo.amountLeft,
+              poolInfo.amountRight)
+          : null;
+    }
+    final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+    return poolInfo != null
+        ? DEXPoolInfo(poolInfo.shares, poolInfo.issuance, poolInfo.amountLeft,
+            poolInfo.amountRight)
+        : null;
+  }
+
   Future<void> _refreshData() async {
     final String poolId = ModalRoute.of(context).settings.arguments;
     await widget.plugin.service.earn.queryDexPoolInfo(poolId);
@@ -52,7 +69,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     }
   }
 
-  void _onAmountSelect(BigInt v, int decimals) {
+  void _onAmountSelect(BigInt v, int decimals, {bool isMax = false}) {
     setState(() {
       _amountCtrl.text =
           Fmt.bigIntToDouble(v, decimals).toStringAsFixed(decimals);
@@ -77,7 +94,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     final pair = poolId.toUpperCase().split('-');
     final balancePair = PluginFmt.getBalancePair(widget.plugin, pair);
 
-    final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+    final poolInfo = _getPoolInfoData(poolId);
 
     final shareInputInt = Fmt.tokenInt(v, balancePair[0].decimals);
     final shareFree = Fmt.balanceInt(widget
@@ -241,7 +258,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         double amountLeft = 0;
         double amountRight = 0;
 
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+        final poolInfo = _getPoolInfoData(poolId);
         if (poolInfo != null) {
           exchangeRate = poolInfo.amountLeft / poolInfo.amountRight;
 
@@ -426,7 +443,8 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               onPressed: shareEmpty
                                   ? null
                                   : () => _onAmountSelect(
-                                      shareFromInt, balancePair[0].decimals),
+                                      shareFromInt, balancePair[0].decimals,
+                                      isMax: true),
                             )
                           ],
                         ),
@@ -485,4 +503,13 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
       },
     );
   }
+}
+
+class DEXPoolInfo {
+  DEXPoolInfo(this.shares, this.issuance, this.amountLeft, this.amountRight);
+
+  final BigInt shares;
+  final BigInt issuance;
+  final BigInt amountLeft;
+  final BigInt amountRight;
 }

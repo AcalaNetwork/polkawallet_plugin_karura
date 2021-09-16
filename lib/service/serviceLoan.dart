@@ -84,15 +84,23 @@ class ServiceLoan {
   Future<void> queryLoanTypes(String address) async {
     if (address == null) return;
 
-    final res = await Future.wait([
-      api.loan.queryLoanTypes(),
-      api.loan.queryCollateralIncentives(),
-      api.loan.queryCollateralLoyaltyBonus(),
-    ]);
-    store.loan.setLoanTypes(res[0]);
-    if (res[1] != null) {
-      store.loan.setCollateralIncentives(
-          _calcCollateralIncentiveRate(res[1]), res[2]);
+    final runtimeVersion =
+        plugin.networkConst['system']['version']['specVersion'];
+    if (runtimeVersion > 1009) {
+      await plugin.service.earn.queryIncentives();
+      final res = await api.loan.queryLoanTypes();
+      store.loan.setLoanTypes(res);
+    } else {
+      final res = await Future.wait([
+        api.loan.queryLoanTypes(),
+        api.loan.queryCollateralIncentives(),
+        api.loan.queryCollateralLoyaltyBonus(),
+      ]);
+      store.loan.setLoanTypes(res[0]);
+      if (res[1] != null) {
+        store.loan.setCollateralIncentives(
+            _calcCollateralIncentiveRate(res[1]), res[2]);
+      }
     }
 
     queryTotalCDPs();
@@ -117,7 +125,13 @@ class ServiceLoan {
       store.assets.setPrices(prices);
 
       // 4. update collateral incentive rewards
-      queryCollateralRewards(address);
+      final runtimeVersion =
+          plugin.networkConst['system']['version']['specVersion'];
+      if (runtimeVersion > 1009) {
+        queryCollateralRewardsV2(address);
+      } else {
+        queryCollateralRewards(address);
+      }
 
       // 4. we need loanTypes & prices to get account loans
       final loans = await api.loan.queryAccountLoans(address);
@@ -144,6 +158,12 @@ class ServiceLoan {
     final res = await api.loan.queryCollateralRewards(
         store.loan.collateralIncentives.keys.toList(), address);
     store.loan.setCollateralRewards(res);
+  }
+
+  Future<void> queryCollateralRewardsV2(String address) async {
+    final res = await api.loan.queryCollateralRewardsV2(
+        store.earn.incentives.loans.keys.toList(), address);
+    store.loan.setCollateralRewardsV2(res);
   }
 
   void unsubscribeAccountLoans() {

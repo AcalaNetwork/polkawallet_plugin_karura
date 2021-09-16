@@ -131,6 +131,21 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
+  final _$dexPoolInfoMapV2Atom = Atom(name: '_EarnStore.dexPoolInfoMapV2');
+
+  @override
+  ObservableMap<String, DexPoolInfoDataV2> get dexPoolInfoMapV2 {
+    _$dexPoolInfoMapV2Atom.reportRead();
+    return super.dexPoolInfoMapV2;
+  }
+
+  @override
+  set dexPoolInfoMapV2(ObservableMap<String, DexPoolInfoDataV2> value) {
+    _$dexPoolInfoMapV2Atom.reportWrite(value, super.dexPoolInfoMapV2, () {
+      super.dexPoolInfoMapV2 = value;
+    });
+  }
+
   final _$_EarnStoreActionController = ActionController(name: '_EarnStore');
 
   @override
@@ -161,6 +176,17 @@ mixin _$EarnStore on _EarnStore, Store {
         name: '_EarnStore.setDexPoolInfo');
     try {
       return super.setDexPoolInfo(data);
+    } finally {
+      _$_EarnStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setDexPoolInfoV2(Map<String, DexPoolInfoDataV2> data) {
+    final _$actionInfo = _$_EarnStoreActionController.startAction(
+        name: '_EarnStore.setDexPoolInfoV2');
+    try {
+      return super.setDexPoolInfoV2(data);
     } finally {
       _$_EarnStoreActionController.endAction(_$actionInfo);
     }
@@ -209,7 +235,8 @@ savingLoyaltyBonus: ${savingLoyaltyBonus},
 incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},
-dexPoolInfoMap: ${dexPoolInfoMap}
+dexPoolInfoMap: ${dexPoolInfoMap},
+dexPoolInfoMapV2: ${dexPoolInfoMapV2},
     ''';
   }
 }

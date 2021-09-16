@@ -24,28 +24,26 @@ class ServiceEarn {
     data.dex.forEach((k, v) {
       final pool = pools
           .firstWhere((e) => e.tokens.map((t) => t['token']).join('-') == k);
-      final poolInfo = store.earn.dexPoolInfoMap[k];
+      final poolInfo = store.earn.dexPoolInfoMapV2[k];
+      final prices = store.assets.marketPrices;
 
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
       final stakingPoolValue = poolInfo.sharesTotal /
           poolInfo.issuance *
           (Fmt.bigIntToDouble(poolInfo.amountLeft, pool.pairDecimals[0]) *
-                  store
-                      .assets.marketPrices[pool.tokens[0]['token'].toString()] +
+                  (prices[pool.tokens[0]['token'].toString()] ?? 0) +
               Fmt.bigIntToDouble(poolInfo.amountRight, pool.pairDecimals[1]) *
-                  store
-                      .assets.marketPrices[pool.tokens[1]['token'].toString()]);
+                  (prices[pool.tokens[1]['token'].toString()] ?? 0));
 
       v.forEach((e) {
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
-        final rate =
-            e.amount * store.assets.marketPrices[e.token] / stakingPoolValue;
+        final rate = e.amount * (prices[e.token] ?? 0) / stakingPoolValue;
         e.apr = rate > 0 ? rate : 0;
       });
     });
 
     data.dexSaving.forEach((k, v) {
-      final poolInfo = store.earn.dexPoolInfoMap[k];
+      final poolInfo = store.earn.dexPoolInfoMapV2[k];
       v.forEach((e) {
         e.apr = e.amount > 0
             ? e.amount / (poolInfo.sharesTotal / poolInfo.issuance)
@@ -150,9 +148,17 @@ class ServiceEarn {
   }
 
   Future<void> queryDexPoolInfo(String poolId) async {
-    final info =
-        await api.swap.queryDexPoolInfo(poolId, keyring.current.address);
-    store.earn.setDexPoolInfo(info);
+    final runtimeVersion =
+        plugin.networkConst['system']['version']['specVersion'];
+    if (runtimeVersion > 1009) {
+      final info =
+          await api.swap.queryDexPoolInfoV2(poolId, keyring.current.address);
+      store.earn.setDexPoolInfoV2(info);
+    } else {
+      final info =
+          await api.swap.queryDexPoolInfo(poolId, keyring.current.address);
+      store.earn.setDexPoolInfo(info);
+    }
   }
 
   double getSwapFee() {

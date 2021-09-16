@@ -71,6 +71,8 @@ class _EarnPageState extends State<EarnPage> {
     return Observer(builder: (_) {
       final dexPools = widget.plugin.store.earn.dexPools.toList();
       dexPools.retainWhere((e) => e.provisioning == null);
+      final incentives = widget.plugin.store.earn.swapPoolRewards;
+      final incentivesV2 = widget.plugin.store.earn.incentives;
       return Scaffold(
           appBar: AppBar(title: Text(dic['earn.title']), centerTitle: true),
           body: SafeArea(
@@ -92,28 +94,35 @@ class _EarnPageState extends State<EarnPage> {
                     itemBuilder: (_, i) {
                       final poolId =
                           dexPools[i].tokens.map((e) => e['token']).join('-');
-                      final poolInfo =
-                          widget.plugin.store.earn.dexPoolInfoMap[poolId];
-                      double rewards =
-                          widget.plugin.store.earn.swapPoolRewards[poolId];
-                      double savingRewards = widget
-                          .plugin.store.earn.swapPoolSavingRewards[poolId];
-                      final rewardsEmpty = rewards == null;
+
+                      BigInt sharesTotal = BigInt.zero;
+                      double rewards = incentives[poolId] ?? 0;
+                      double savingRewards = widget.plugin.store.earn
+                              .swapPoolSavingRewards[poolId] ??
+                          0;
 
                       final runtimeVersion = widget.plugin
                           .networkConst['system']['version']['specVersion'];
-                      if (runtimeVersion > 1009 && !rewardsEmpty) {
-                        (widget.plugin.store.earn.incentives.dex[poolId] ?? [])
-                            .forEach((e) {
-                          rewards += e.apr;
-                        });
-                        (widget.plugin.store.earn.incentives
-                                    .dexSaving[poolId] ??
-                                [])
-                            .forEach((e) {
-                          savingRewards += e.apr;
-                        });
+                      if (runtimeVersion > 1009) {
+                        sharesTotal = widget.plugin.store.earn
+                                .dexPoolInfoMapV2[poolId]?.sharesTotal ??
+                            BigInt.zero;
+                        if (incentivesV2.dex != null) {
+                          (incentivesV2.dex[poolId] ?? []).forEach((e) {
+                            rewards += e.apr;
+                          });
+                          (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
+                            savingRewards += e.apr;
+                          });
+                        }
+                      } else {
+                        sharesTotal = widget.plugin.store.earn
+                                .dexPoolInfoMap[poolId]?.sharesTotal ??
+                            BigInt.zero;
                       }
+
+                      final rewardsEmpty = incentives[poolId] == null &&
+                          incentivesV2.dex == null;
                       return GestureDetector(
                         child: RoundedCard(
                           margin: EdgeInsets.only(bottom: 16),
@@ -129,8 +138,7 @@ class _EarnPageState extends State<EarnPage> {
                               ),
                               Divider(height: 24),
                               Text(
-                                Fmt.token(poolInfo?.sharesTotal ?? BigInt.zero,
-                                    dexPools[i].decimals),
+                                Fmt.token(sharesTotal, dexPools[i].decimals),
                                 style: Theme.of(context).textTheme.headline4,
                               ),
                               Container(
