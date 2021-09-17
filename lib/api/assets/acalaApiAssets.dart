@@ -23,6 +23,8 @@ class AcalaApiAssets {
       String chain, String address, Function(List<TokenBalanceData>) callback,
       {bool transferEnabled = true}) async {
     final tokens = await getAllTokenSymbols(chain);
+    await service.plugin.service.assets
+        .queryMarketPrices(tokens.map((e) => e['token'] as String).toList());
     _tokenBalances.clear();
 
     await service.subscribeTokenBalances(address, tokens, (Map data) {
@@ -40,6 +42,7 @@ class AcalaApiAssets {
                 amount: e['balance']['free'].toString(),
                 locked: e['balance']['frozen'].toString(),
                 reserved: e['balance']['reserved'].toString(),
+                price: service.plugin.store.assets.marketPrices[e['symbol']],
                 detailPageRoute: transferEnabled ? TokenDetailPage.route : null,
               ))
           .toList());

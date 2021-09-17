@@ -32,6 +32,7 @@ class ServiceAssets {
     });
 
     if (prices[relay_chain_token_symbol] != null) {
+      await plugin.service.homa.queryHomaLiteStakingPool();
       final poolInfo = plugin.store.homa.poolInfo;
       final exchangeRate = (poolInfo.staked ?? BigInt.zero) > BigInt.zero
           ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
