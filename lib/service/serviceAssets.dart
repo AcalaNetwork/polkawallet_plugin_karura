@@ -74,7 +74,7 @@ class ServiceAssets {
         locked: res['frozen'].toString(),
         reserved: res['reserved'].toString(),
         detailPageRoute: balances[tokenId].detailPageRoute,
-        price: balances[tokenId].price);
+        price: store.assets.marketPrices[tokenId]);
     balances[tokenId] = data;
 
     store.assets
