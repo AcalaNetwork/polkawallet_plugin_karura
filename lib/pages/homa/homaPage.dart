@@ -276,6 +276,10 @@ class _HomaPageState extends State<HomaPage> {
                                     ),
                                   ],
                                 ),
+                                Text(
+                                  '1 KSM ≈ ${Fmt.priceFloor(exchangeRate, lengthMax: 4)} LKSM',
+                                  style: TextStyle(fontSize: 12),
+                                ),
                                 Divider(height: 24),
                                 Row(
                                   children: <Widget>[

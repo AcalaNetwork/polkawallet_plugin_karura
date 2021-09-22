@@ -72,6 +72,12 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
             final reserved = Fmt.balanceInt(balance?.reserved ?? '0');
             final transferable = free - locked;
             final total = free + reserved;
+
+            final tokenPrice =
+                widget.plugin.store.assets.marketPrices[token.id];
+            final tokenValue = (tokenPrice ?? 0) > 0
+                ? tokenPrice * Fmt.bigIntToDouble(total, balance.decimals)
+                : 0;
             return RefreshIndicator(
               key: _refreshKey,
               onRefresh: () =>
@@ -92,7 +98,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                           child: Column(
                             children: [
                               Container(
-                                margin: EdgeInsets.only(bottom: 24),
+                                margin: EdgeInsets.only(
+                                    bottom: tokenValue > 0 ? 8 : 24),
                                 child: Text(
                                   Fmt.token(total, token.decimals, length: 8),
                                   style: TextStyle(
@@ -102,6 +109,17 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   ),
                                 ),
                               ),
+                              tokenValue > 0
+                                  ? Padding(
+                                      padding: EdgeInsets.only(bottom: 16),
+                                      child: Text(
+                                        '≈ \$ ${Fmt.priceFloor(tokenValue) ?? '--.--'}',
+                                        style: TextStyle(
+                                          color: Theme.of(context).cardColor,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
                               Row(
                                 children: [
                                   InfoItem(
