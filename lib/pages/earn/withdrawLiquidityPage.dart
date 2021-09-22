@@ -42,16 +42,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   bool _fromPool = false;
 
   DEXPoolInfo _getPoolInfoData(String poolId) {
-    final runtimeVersion =
-        widget.plugin.networkConst['system']['version']['specVersion'];
-    if (runtimeVersion > 1009) {
-      final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
-      return poolInfo != null
-          ? DEXPoolInfo(poolInfo.shares, poolInfo.issuance, poolInfo.amountLeft,
-              poolInfo.amountRight)
-          : null;
-    }
-    final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+    final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
     return poolInfo != null
         ? DEXPoolInfo(poolInfo.shares, poolInfo.issuance, poolInfo.amountLeft,
             poolInfo.amountRight)
@@ -296,9 +287,6 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
         final shareEmpty = shareFromInt == BigInt.zero;
 
-        final runtimeVersion =
-            widget.plugin.networkConst['system']['version']['specVersion'];
-
         return Scaffold(
           appBar: AppBar(title: Text(dic['earn.remove']), centerTitle: true),
           body: SafeArea(
@@ -350,8 +338,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TapTooltip(
-                                  message:
-                                      '${dic['earn.fromPool.txt']}${runtimeVersion < 1007 ? dic['earn.unStake.info'] : ''}\n',
+                                  message: '${dic['earn.fromPool.txt']}\n',
                                   child: Row(
                                     children: [
                                       Icon(Icons.info,

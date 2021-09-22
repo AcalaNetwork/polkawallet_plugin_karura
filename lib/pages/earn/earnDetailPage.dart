@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/LPStakePage.dart';
@@ -61,8 +60,6 @@ class EarnDetailPage extends StatelessWidget {
       body: Observer(
         builder: (_) {
           final balancePair = PluginFmt.getBalancePair(plugin, pair);
-          final runtimeVersion =
-              plugin.networkConst['system']['version']['specVersion'];
 
           BigInt issuance = BigInt.zero;
           BigInt shareTotal = BigInt.zero;
@@ -72,52 +69,30 @@ class EarnDetailPage extends StatelessWidget {
 
           String lpAmountString = '~';
 
-          final poolInfo = plugin.store.earn.dexPoolInfoMap[poolId];
-          final poolInfoV2 = plugin.store.earn.dexPoolInfoMapV2[poolId];
-          if (runtimeVersion <= 1009) {
-            if (poolInfo != null) {
-              issuance = poolInfo.issuance;
-              shareTotal = poolInfo.sharesTotal;
-              share = poolInfo.shares;
-              stakeShare = share / shareTotal;
-              poolShare = share / issuance;
+          final poolInfo = plugin.store.earn.dexPoolInfoMapV2[poolId];
+          if (poolInfo != null) {
+            issuance = poolInfo.issuance;
+            shareTotal = poolInfo.sharesTotal;
+            share = poolInfo.shares;
+            stakeShare = share / shareTotal;
+            poolShare = share / issuance;
 
-              final lpAmount = Fmt.bigIntToDouble(
-                      poolInfo.amountLeft, balancePair[0].decimals) *
-                  poolShare;
-              final lpAmount2 = Fmt.bigIntToDouble(
-                      poolInfo.amountRight, balancePair[1].decimals) *
-                  poolShare;
-              lpAmountString =
-                  '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
-            }
-          } else {
-            if (poolInfoV2 != null) {
-              issuance = poolInfoV2.issuance;
-              shareTotal = poolInfoV2.sharesTotal;
-              share = poolInfoV2.shares;
-              stakeShare = share / shareTotal;
-              poolShare = share / issuance;
-
-              final lpAmount = Fmt.bigIntToDouble(
-                      poolInfoV2.amountLeft, balancePair[0].decimals) *
-                  poolShare;
-              final lpAmount2 = Fmt.bigIntToDouble(
-                      poolInfoV2.amountRight, balancePair[1].decimals) *
-                  poolShare;
-              lpAmountString =
-                  '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
-            }
+            final lpAmount = Fmt.bigIntToDouble(
+                    poolInfo.amountLeft, balancePair[0].decimals) *
+                poolShare;
+            final lpAmount2 = Fmt.bigIntToDouble(
+                    poolInfo.amountRight, balancePair[1].decimals) *
+                poolShare;
+            lpAmountString =
+                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
           }
 
-          double rewardAPR = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
-          double savingRewardAPR =
-              plugin.store.earn.swapPoolSavingRewards[poolId] ?? 0;
-          double loyaltyBonus = plugin.store.earn.loyaltyBonus[poolId] ?? 0;
-          double savingLoyaltyBonus =
-              plugin.store.earn.savingLoyaltyBonus[poolId] ?? 0;
+          double rewardAPR = 0;
+          double savingRewardAPR = 0;
+          double loyaltyBonus = 0;
+          double savingLoyaltyBonus = 0;
           final incentiveV2 = plugin.store.earn.incentives;
-          if (runtimeVersion > 1009 && incentiveV2.dex != null) {
+          if (incentiveV2.dex != null) {
             (incentiveV2.dex[poolId] ?? []).forEach((e) {
               rewardAPR += e.apr;
               loyaltyBonus = e.deduction;
@@ -181,8 +156,6 @@ class EarnDetailPage extends StatelessWidget {
                           _UserCard(
                             share: stakeShare,
                             poolInfo: poolInfo,
-                            poolInfoV2: poolInfoV2,
-                            runtimeVersion: runtimeVersion,
                             token: poolId,
                             rewardAPY: rewardAPR,
                             rewardSavingAPY: savingRewardAPR,
@@ -321,8 +294,6 @@ class _UserCard extends StatelessWidget {
   _UserCard({
     this.share,
     this.poolInfo,
-    this.poolInfoV2,
-    this.runtimeVersion,
     this.token,
     this.rewardAPY,
     this.rewardSavingAPY,
@@ -335,9 +306,7 @@ class _UserCard extends StatelessWidget {
     this.bestNumber,
   });
   final double share;
-  final DexPoolInfoData poolInfo;
-  final DexPoolInfoDataV2 poolInfoV2;
-  final int runtimeVersion;
+  final DexPoolInfoDataV2 poolInfo;
   final String token;
   final double rewardAPY;
   final double rewardSavingAPY;
@@ -394,9 +363,7 @@ class _UserCard extends StatelessWidget {
             "poolId": poolId,
           },
           params: [],
-          rawParams: runtimeVersion > 1009
-              ? '[{Dex: {DEXShare: $pool}}]'
-              : '[{DexIncentive: {DEXShare: $pool}}]',
+          rawParams: '[{Dex: {DEXShare: $pool}}]',
         ));
   }
 
@@ -405,14 +372,8 @@ class _UserCard extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     bool canClaim = false;
 
-    var reward = (poolInfo?.reward?.incentive ?? 0) * (1 - (loyaltyBonus ?? 0));
-    var rewardSaving = (runtimeVersion > 1009
-            ? (poolInfoV2?.reward?.saving ?? 0)
-            : (poolInfo?.reward?.saving ?? 0)) *
-        (1 - (savingLoyaltyBonus ?? 0));
-    if (reward < 0) {
-      reward = 0;
-    }
+    var rewardSaving =
+        (poolInfo?.reward?.saving ?? 0) * (1 - (savingLoyaltyBonus ?? 0));
     if (rewardSaving < 0) {
       rewardSaving = 0;
     }
@@ -427,8 +388,8 @@ class _UserCard extends StatelessWidget {
 
     final savingRewardTokenMin = Fmt.balanceDouble(
         existential_deposit[stableCoinSymbol], stableCoinDecimal);
-    canClaim = reward > 0.0001 || rewardSaving > savingRewardTokenMin;
-    final rewardV2 = poolInfoV2?.reward?.incentive?.map((e) {
+    canClaim = rewardSaving > savingRewardTokenMin;
+    final rewardV2 = poolInfo?.reward?.incentive?.map((e) {
       final amount = double.parse(e['amount']);
       if (amount > 0.001) {
         canClaim = true;
@@ -450,14 +411,7 @@ class _UserCard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.only(top: 8, bottom: 8),
-            child: Text(
-                runtimeVersion > 1009
-                    ? rewardV2.isEmpty
-                        ? '0'
-                        : rewardV2
-                    : Fmt.priceFloor(reward, lengthMax: 4) +
-                        ' $incentiveCoinSymbol',
-                style: primaryText),
+            child: Text(rewardV2.isEmpty ? '0' : rewardV2, style: primaryText),
           ),
         ],
       )

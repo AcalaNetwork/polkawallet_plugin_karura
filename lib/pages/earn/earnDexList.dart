@@ -67,7 +67,7 @@ class _EarnDexListState extends State<EarnDexList> {
     return Observer(builder: (_) {
       final dexPools = widget.plugin.store.earn.dexPools.toList();
       dexPools.retainWhere((e) => e.provisioning == null);
-      final incentives = widget.plugin.store.earn.swapPoolRewards;
+
       final incentivesV2 = widget.plugin.store.earn.incentives;
       return dexPools.length == 0
           ? ListView(
@@ -89,32 +89,22 @@ class _EarnDexListState extends State<EarnDexList> {
                     dexPools[i].tokens.map((e) => e['token']).join('-');
 
                 BigInt sharesTotal = BigInt.zero;
-                double rewards = incentives[poolId] ?? 0;
-                double savingRewards =
-                    widget.plugin.store.earn.swapPoolSavingRewards[poolId] ?? 0;
+                double rewards = 0;
+                double savingRewards = 0;
 
-                final runtimeVersion = widget.plugin.networkConst['system']
-                    ['version']['specVersion'];
-                if (runtimeVersion > 1009) {
-                  sharesTotal = widget.plugin.store.earn
-                          .dexPoolInfoMapV2[poolId]?.sharesTotal ??
-                      BigInt.zero;
-                  if (incentivesV2.dex != null) {
-                    (incentivesV2.dex[poolId] ?? []).forEach((e) {
-                      rewards += e.apr;
-                    });
-                    (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
-                      savingRewards += e.apr;
-                    });
-                  }
-                } else {
-                  sharesTotal = widget.plugin.store.earn.dexPoolInfoMap[poolId]
-                          ?.sharesTotal ??
-                      BigInt.zero;
+                sharesTotal = widget.plugin.store.earn.dexPoolInfoMapV2[poolId]
+                        ?.sharesTotal ??
+                    BigInt.zero;
+                if (incentivesV2.dex != null) {
+                  (incentivesV2.dex[poolId] ?? []).forEach((e) {
+                    rewards += e.apr;
+                  });
+                  (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
+                    savingRewards += e.apr;
+                  });
                 }
 
-                final rewardsEmpty =
-                    incentives[poolId] == null && incentivesV2.dex == null;
+                final rewardsEmpty = incentivesV2.dex == null;
                 return GestureDetector(
                   child: RoundedCard(
                     margin: EdgeInsets.only(bottom: 16),

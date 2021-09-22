@@ -54,38 +54,6 @@ mixin _$LoanStore on _LoanStore, Store {
     });
   }
 
-  final _$collateralIncentivesAtom =
-      Atom(name: '_LoanStore.collateralIncentives');
-
-  @override
-  Map<String, double> get collateralIncentives {
-    _$collateralIncentivesAtom.reportRead();
-    return super.collateralIncentives;
-  }
-
-  @override
-  set collateralIncentives(Map<String, double> value) {
-    _$collateralIncentivesAtom.reportWrite(value, super.collateralIncentives,
-        () {
-      super.collateralIncentives = value;
-    });
-  }
-
-  final _$collateralRewardsAtom = Atom(name: '_LoanStore.collateralRewards');
-
-  @override
-  Map<String, CollateralRewardData> get collateralRewards {
-    _$collateralRewardsAtom.reportRead();
-    return super.collateralRewards;
-  }
-
-  @override
-  set collateralRewards(Map<String, CollateralRewardData> value) {
-    _$collateralRewardsAtom.reportWrite(value, super.collateralRewards, () {
-      super.collateralRewards = value;
-    });
-  }
-
   final _$collateralRewardsV2Atom =
       Atom(name: '_LoanStore.collateralRewardsV2');
 
@@ -99,21 +67,6 @@ mixin _$LoanStore on _LoanStore, Store {
   set collateralRewardsV2(Map<String, CollateralRewardDataV2> value) {
     _$collateralRewardsV2Atom.reportWrite(value, super.collateralRewardsV2, () {
       super.collateralRewardsV2 = value;
-    });
-  }
-
-  final _$loyaltyBonusAtom = Atom(name: '_EarnStore.loyaltyBonus');
-
-  @override
-  Map<String, double> get loyaltyBonus {
-    _$loyaltyBonusAtom.reportRead();
-    return super.loyaltyBonus;
-  }
-
-  @override
-  set loyaltyBonus(Map<String, double> value) {
-    _$loyaltyBonusAtom.reportWrite(value, super.loyaltyBonus, () {
-      super.loyaltyBonus = value;
     });
   }
 
@@ -151,29 +104,6 @@ mixin _$LoanStore on _LoanStore, Store {
         name: '_LoanStore.setTotalCDPs');
     try {
       return super.setTotalCDPs(list);
-    } finally {
-      _$_LoanStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setCollateralIncentives(
-      Map<String, double> data, Map<String, double> bonus) {
-    final _$actionInfo = _$_LoanStoreActionController.startAction(
-        name: '_LoanStore.setCollateralIncentives');
-    try {
-      return super.setCollateralIncentives(data, bonus);
-    } finally {
-      _$_LoanStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setCollateralRewards(List<CollateralRewardData> data) {
-    final _$actionInfo = _$_LoanStoreActionController.startAction(
-        name: '_LoanStore.setCollateralRewards');
-    try {
-      return super.setCollateralRewards(data);
     } finally {
       _$_LoanStoreActionController.endAction(_$actionInfo);
     }
@@ -229,9 +159,7 @@ mixin _$LoanStore on _LoanStore, Store {
 loanTypes: ${loanTypes},
 totalCDPs: ${totalCDPs},
 loans: ${loans},
-collateralIncentives: ${collateralIncentives},
-collateralRewards: ${collateralRewards},
-loyaltyBonus: ${loyaltyBonus},
+collateralRewardsV2: ${collateralRewardsV2},
 loansLoading: ${loansLoading}
     ''';
   }

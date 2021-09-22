@@ -52,29 +52,16 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   Future<void> _refreshData() async {
     final String poolId = ModalRoute.of(context).settings.arguments;
 
-    final runtimeVersion =
-        widget.plugin.networkConst['system']['version']['specVersion'];
-    if (runtimeVersion > 1009) {
-      await widget.plugin.service.earn.updateAllDexPoolInfo();
-    } else {
-      await widget.plugin.service.earn.updateDexPoolInfo(poolId: poolId);
-    }
+    await widget.plugin.service.earn.updateAllDexPoolInfo();
 
     if (mounted) {
       final tokenPair = poolId.toUpperCase().split('-');
       final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
       setState(() {
-        if (runtimeVersion > 1009) {
-          final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
-          _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[0].decimals) /
-              Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1].decimals);
-        } else {
-          final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
-          _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[0].decimals) /
-              Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1].decimals);
-        }
+        final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+        _price = Fmt.bigIntToDouble(
+                poolInfo.amountRight, balancePair[0].decimals) /
+            Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1].decimals);
       });
       _timer = Timer(Duration(seconds: 10), () {
         _refreshData();
@@ -145,25 +132,13 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         .plugin.store.assets.tokenBalanceMap[poolId.toUpperCase()]?.amount);
     if (error == null && index == 0 && balanceLP == BigInt.zero) {
       double min = 0;
-      final runtimeVersion =
-          widget.plugin.networkConst['system']['version']['specVersion'];
-      if (runtimeVersion > 1009) {
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
-        min = Fmt.balanceInt(tokenPair[0] ==
-                    widget.plugin.networkState.tokenSymbol[0]
-                ? widget.plugin.networkConst['balances']['existentialDeposit']
-                : existential_deposit[balance.id]) /
-            poolInfo.issuance *
-            Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
-      } else {
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
-        min = Fmt.balanceInt(tokenPair[0] ==
-                    widget.plugin.networkState.tokenSymbol[0]
-                ? widget.plugin.networkConst['balances']['existentialDeposit']
-                : existential_deposit[balance.id]) /
-            poolInfo.issuance *
-            Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
-      }
+      final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+      min = Fmt.balanceInt(
+              tokenPair[0] == widget.plugin.networkState.tokenSymbol[0]
+                  ? widget.plugin.networkConst['balances']['existentialDeposit']
+                  : existential_deposit[balance.id]) /
+          poolInfo.issuance *
+          Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
 
       final inputLeft = _inputIndex == 0
           ? double.parse(_amountLeftCtrl.text.trim())
@@ -341,41 +316,20 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         double amountLeft = 0;
         double amountRight = 0;
 
-        final runtimeVersion =
-            widget.plugin.networkConst['system']['version']['specVersion'];
-        if (runtimeVersion > 1009) {
-          final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
-          if (poolInfo != null) {
-            amountLeft = Fmt.bigIntToDouble(
-                poolInfo.amountLeft, balancePair[0].decimals);
-            amountRight = Fmt.bigIntToDouble(
-                poolInfo.amountRight, balancePair[1].decimals);
+        final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+        if (poolInfo != null) {
+          amountLeft =
+              Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
+          amountRight =
+              Fmt.bigIntToDouble(poolInfo.amountRight, balancePair[1].decimals);
 
-            String input = _amountLeftCtrl.text.trim();
-            try {
-              final double amountInput =
-                  double.parse(input.isEmpty ? '0' : input);
-              userShare = amountInput / (amountInput + amountLeft);
-            } catch (_) {
-              // parse double failed
-            }
-          }
-        } else {
-          final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
-          if (poolInfo != null) {
-            amountLeft = Fmt.bigIntToDouble(
-                poolInfo.amountLeft, balancePair[0].decimals);
-            amountRight = Fmt.bigIntToDouble(
-                poolInfo.amountRight, balancePair[1].decimals);
-
-            String input = _amountLeftCtrl.text.trim();
-            try {
-              final double amountInput =
-                  double.parse(input.isEmpty ? '0' : input);
-              userShare = amountInput / (amountInput + amountLeft);
-            } catch (_) {
-              // parse double failed
-            }
+          String input = _amountLeftCtrl.text.trim();
+          try {
+            final double amountInput =
+                double.parse(input.isEmpty ? '0' : input);
+            userShare = amountInput / (amountInput + amountLeft);
+          } catch (_) {
+            // parse double failed
           }
         }
 
@@ -570,13 +524,10 @@ class StakeLPTips extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     return Observer(builder: (_) {
-      double rewardAPY = plugin.store.earn.swapPoolRewards[poolId] ?? 0;
-      double savingRewardAPY =
-          plugin.store.earn.swapPoolSavingRewards[poolId] ?? 0;
+      double rewardAPY = 0;
+      double savingRewardAPY = 0;
 
-      final runtimeVersion =
-          plugin.networkConst['system']['version']['specVersion'];
-      if (runtimeVersion > 1009 && plugin.store.earn.incentives.dex != null) {
+      if (plugin.store.earn.incentives.dex != null) {
         (plugin.store.earn.incentives.dex[poolId] ?? []).forEach((e) {
           rewardAPY += e.apr;
         });

@@ -88,8 +88,6 @@ class _LoanPageState extends State<LoanPage> {
     final stableCoinDecimals = widget.plugin.networkState.tokenDecimals[
         widget.plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
     final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol[0];
-    final runtimeVersion =
-        widget.plugin.networkConst['system']['version']['specVersion'];
     return Observer(
       builder: (_) {
         final loans = widget.plugin.store.loan.loans.values.toList();
@@ -101,8 +99,12 @@ class _LoanPageState extends State<LoanPage> {
 
         final incentiveTokenOptions =
             widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
-        incentiveTokenOptions.retainWhere(
-            (e) => (widget.plugin.store.loan.collateralIncentives[e] ?? 0) > 0);
+        if (widget.plugin.store.earn.incentives.loans != null) {
+          incentiveTokenOptions.retainWhere((e) {
+            final incentive = widget.plugin.store.earn.incentives.loans[e];
+            return incentive != null && (incentive[0].amount ?? 0) > 0;
+          });
+        }
 
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
@@ -172,8 +174,6 @@ class _LoanPageState extends State<LoanPage> {
                                             .plugin.store.earn.incentives.loans,
                                         rewards: widget.plugin.store.loan
                                             .collateralRewardsV2,
-                                        loyaltyBonusMap: widget
-                                            .plugin.store.loan.loyaltyBonus,
                                         marketPrices: widget
                                             .plugin.store.assets.marketPrices,
                                         collateralDecimals: stableCoinDecimals,
@@ -406,7 +406,6 @@ class CollateralIncentiveList extends StatelessWidget {
     this.loans,
     this.incentives,
     this.rewards,
-    this.loyaltyBonusMap,
     this.totalCDPs,
     this.tokenIcons,
     this.marketPrices,
@@ -418,7 +417,6 @@ class CollateralIncentiveList extends StatelessWidget {
   final Map<String, LoanData> loans;
   final Map<String, List<IncentiveItemData>> incentives;
   final Map<String, CollateralRewardDataV2> rewards;
-  final Map<String, double> loyaltyBonusMap;
   final Map<String, TotalCDPData> totalCDPs;
   final Map<String, Widget> tokenIcons;
   final Map<String, double> marketPrices;
@@ -509,7 +507,7 @@ class CollateralIncentiveList extends StatelessWidget {
               loans[token].collaterals, collateralDecimals);
 
           bool canClaim = false;
-          double loyaltyBonus = loyaltyBonusMap[token] ?? 0.3;
+          double loyaltyBonus = 0.3;
 
           final reward = rewards[token];
           final rewardView = reward != null

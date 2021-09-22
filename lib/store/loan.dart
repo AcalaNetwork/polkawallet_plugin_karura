@@ -23,18 +23,8 @@ abstract class _LoanStore with Store {
   Map<String, LoanData> loans = Map<String, LoanData>();
 
   @observable
-  Map<String, double> collateralIncentives = Map<String, double>();
-
-  @observable
-  Map<String, CollateralRewardData> collateralRewards =
-      Map<String, CollateralRewardData>();
-
-  @observable
   Map<String, CollateralRewardDataV2> collateralRewardsV2 =
       Map<String, CollateralRewardDataV2>();
-
-  @observable
-  Map<String, double> loyaltyBonus = Map<String, double>();
 
   @observable
   bool loansLoading = true;
@@ -51,22 +41,6 @@ abstract class _LoanStore with Store {
       dataMap[e.token] = e;
     });
     totalCDPs = dataMap;
-  }
-
-  @action
-  void setCollateralIncentives(
-      Map<String, double> data, Map<String, double> bonus) {
-    collateralIncentives = data;
-    loyaltyBonus = bonus;
-  }
-
-  @action
-  void setCollateralRewards(List<CollateralRewardData> data) {
-    final dataMap = Map<String, CollateralRewardData>();
-    data.forEach((e) {
-      dataMap[e.token] = e;
-    });
-    collateralRewards = dataMap;
   }
 
   @action

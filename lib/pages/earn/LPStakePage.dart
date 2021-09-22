@@ -142,9 +142,6 @@ class _LPStakePage extends State<LPStakePage> {
         ? stableCoinDecimals
         : tokenDecimals;
 
-    final runtimeVersion =
-        widget.plugin.networkConst['system']['version']['specVersion'];
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -156,20 +153,11 @@ class _LPStakePage extends State<LPStakePage> {
           builder: (_) {
             final isStake = args.action == LPStakePage.actionStake;
 
-            final runtimeVersion =
-                widget.plugin.networkConst['system']['version']['specVersion'];
-
             BigInt balance = BigInt.zero;
             if (!isStake) {
-              if (runtimeVersion > 1009) {
-                final poolInfo =
-                    widget.plugin.store.earn.dexPoolInfoMapV2[args.poolId];
-                balance = poolInfo.shares;
-              } else {
-                final poolInfo =
-                    widget.plugin.store.earn.dexPoolInfoMap[args.poolId];
-                balance = poolInfo.shares;
-              }
+              final poolInfo =
+                  widget.plugin.store.earn.dexPoolInfoMapV2[args.poolId];
+              balance = poolInfo.shares;
             } else {
               balance = Fmt.balanceInt(widget.plugin.store.assets
                       .tokenBalanceMap[args.poolId]?.amount ??
@@ -217,20 +205,6 @@ class _LPStakePage extends State<LPStakePage> {
                             }
                           },
                         ),
-                        runtimeVersion < 1007 && !isStake
-                            ? Container(
-                                margin: EdgeInsets.only(top: 16, bottom: 32),
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: Colors.black12,
-                                    border: Border.all(
-                                        color: Colors.black26, width: 0.5),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(8))),
-                                child: Text(dic['earn.unStake.info'],
-                                    style: TextStyle(fontSize: 12)),
-                              )
-                            : Container(),
                       ],
                     ),
                   ),

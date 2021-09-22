@@ -84,24 +84,9 @@ class ServiceLoan {
   Future<void> queryLoanTypes(String address) async {
     if (address == null) return;
 
-    final runtimeVersion =
-        plugin.networkConst['system']['version']['specVersion'];
-    if (runtimeVersion > 1009) {
-      await plugin.service.earn.updateAllDexPoolInfo();
-      final res = await api.loan.queryLoanTypes();
-      store.loan.setLoanTypes(res);
-    } else {
-      final res = await Future.wait([
-        api.loan.queryLoanTypes(),
-        api.loan.queryCollateralIncentives(),
-        api.loan.queryCollateralLoyaltyBonus(),
-      ]);
-      store.loan.setLoanTypes(res[0]);
-      if (res[1] != null) {
-        store.loan.setCollateralIncentives(
-            _calcCollateralIncentiveRate(res[1]), res[2]);
-      }
-    }
+    await plugin.service.earn.updateAllDexPoolInfo();
+    final res = await api.loan.queryLoanTypes();
+    store.loan.setLoanTypes(res);
 
     queryTotalCDPs();
   }
@@ -125,13 +110,7 @@ class ServiceLoan {
       store.assets.setPrices(prices);
 
       // 4. update collateral incentive rewards
-      final runtimeVersion =
-          plugin.networkConst['system']['version']['specVersion'];
-      if (runtimeVersion > 1009) {
-        queryCollateralRewardsV2(address);
-      } else {
-        queryCollateralRewards(address);
-      }
+      queryCollateralRewardsV2(address);
 
       // 4. we need loanTypes & prices to get account loans
       final loans = await api.loan.queryAccountLoans(address);
@@ -152,12 +131,6 @@ class ServiceLoan {
     final res = await api.loan
         .queryTotalCDPs(store.loan.loanTypes.map((e) => e.token).toList());
     store.loan.setTotalCDPs(res);
-  }
-
-  Future<void> queryCollateralRewards(String address) async {
-    final res = await api.loan.queryCollateralRewards(
-        store.loan.collateralIncentives.keys.toList(), address);
-    store.loan.setCollateralRewards(res);
   }
 
   Future<void> queryCollateralRewardsV2(String address) async {

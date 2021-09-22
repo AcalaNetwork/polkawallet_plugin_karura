@@ -37,12 +37,6 @@ class AcalaApiLoan {
     return service.queryCollateralLoyaltyBonus();
   }
 
-  Future<List<CollateralRewardData>> queryCollateralRewards(
-      List<String> collaterals, String address) async {
-    final res = await service.queryCollateralRewards(collaterals, address);
-    return res.map((e) => CollateralRewardData.fromJson(e)).toList();
-  }
-
   Future<List<CollateralRewardDataV2>> queryCollateralRewardsV2(
       List<String> collaterals, String address) async {
     final res = await service.queryCollateralRewardsV2(collaterals, address);

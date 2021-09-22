@@ -9,21 +9,6 @@ part of 'earn.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$EarnStore on _EarnStore, Store {
-  final _$swapPoolRewardsAtom = Atom(name: '_EarnStore.swapPoolRewards');
-
-  @override
-  ObservableMap<String, double> get swapPoolRewards {
-    _$swapPoolRewardsAtom.reportRead();
-    return super.swapPoolRewards;
-  }
-
-  @override
-  set swapPoolRewards(ObservableMap<String, double> value) {
-    _$swapPoolRewardsAtom.reportWrite(value, super.swapPoolRewards, () {
-      super.swapPoolRewards = value;
-    });
-  }
-
   final _$incentivesAtom = Atom(name: '_EarnStore.incentives');
 
   @override
@@ -34,55 +19,8 @@ mixin _$EarnStore on _EarnStore, Store {
 
   @override
   set incentives(IncentivesData value) {
-    _$swapPoolRewardsAtom.reportWrite(value, super.incentives, () {
+    _$incentivesAtom.reportWrite(value, super.incentives, () {
       super.incentives = value;
-    });
-  }
-
-  final _$swapPoolSavingRewardsAtom =
-      Atom(name: '_EarnStore.swapPoolSavingRewards');
-
-  @override
-  ObservableMap<String, double> get swapPoolSavingRewards {
-    _$swapPoolSavingRewardsAtom.reportRead();
-    return super.swapPoolSavingRewards;
-  }
-
-  @override
-  set swapPoolSavingRewards(ObservableMap<String, double> value) {
-    _$swapPoolSavingRewardsAtom.reportWrite(value, super.swapPoolSavingRewards,
-        () {
-      super.swapPoolSavingRewards = value;
-    });
-  }
-
-  final _$loyaltyBonusAtom = Atom(name: '_EarnStore.loyaltyBonus');
-
-  @override
-  ObservableMap<String, double> get loyaltyBonus {
-    _$loyaltyBonusAtom.reportRead();
-    return super.loyaltyBonus;
-  }
-
-  @override
-  set loyaltyBonus(ObservableMap<String, double> value) {
-    _$loyaltyBonusAtom.reportWrite(value, super.loyaltyBonus, () {
-      super.loyaltyBonus = value;
-    });
-  }
-
-  final _$savingLoyaltyBonusAtom = Atom(name: '_EarnStore.savingLoyaltyBonus');
-
-  @override
-  ObservableMap<String, double> get savingLoyaltyBonus {
-    _$savingLoyaltyBonusAtom.reportRead();
-    return super.savingLoyaltyBonus;
-  }
-
-  @override
-  set savingLoyaltyBonus(ObservableMap<String, double> value) {
-    _$savingLoyaltyBonusAtom.reportWrite(value, super.savingLoyaltyBonus, () {
-      super.savingLoyaltyBonus = value;
     });
   }
 
@@ -193,17 +131,6 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexPoolRewards(Map<String, Map<String, double>> data) {
-    final _$actionInfo = _$_EarnStoreActionController.startAction(
-        name: '_EarnStore.setDexPoolRewards');
-    try {
-      return super.setDexPoolRewards(data);
-    } finally {
-      _$_EarnStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setIncentives(IncentivesData data) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setIncentives');
@@ -228,10 +155,6 @@ mixin _$EarnStore on _EarnStore, Store {
   @override
   String toString() {
     return '''
-swapPoolRewards: ${swapPoolRewards},
-swapPoolSavingRewards: ${swapPoolSavingRewards},
-loyaltyBonus: ${loyaltyBonus},
-savingLoyaltyBonus: ${savingLoyaltyBonus},
 incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},

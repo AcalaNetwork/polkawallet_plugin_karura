@@ -80,7 +80,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
                 totalCDPs: widget.plugin.store.loan.totalCDPs,
                 incentives: widget.plugin.store.earn.incentives.loans,
                 rewards: widget.plugin.store.loan.collateralRewardsV2,
-                loyaltyBonusMap: widget.plugin.store.loan.loyaltyBonus,
                 marketPrices: widget.plugin.store.assets.marketPrices,
                 collateralDecimals: stableCoinDecimals,
                 incentiveTokenSymbol: incentiveTokenSymbol,
