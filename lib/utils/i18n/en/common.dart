@@ -37,7 +37,7 @@ const Map<String, String> enCommon = {
       'Lock your digital assets(i.e. DOT) in Acala platform to borrow equivalent aUSD.',
   'loanKSM.title': 'Mint kUSD',
   'loanKSM.brief':
-      'Lock your digital assets(i.e. KSM) in Acala platform to borrow equivalent kUSD.',
+      'Lock your digital assets(i.e. KSM) in Karura platform to borrow equivalent kUSD.',
   'swap.title': 'Swap',
   'swap.brief':
       'Decentralized token exchange with the liquid pool of the Acala platform.',
