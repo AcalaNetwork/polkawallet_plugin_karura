@@ -54,7 +54,7 @@ class LoanDebtCard extends StatelessWidget {
                             Fmt.priceCeilBigInt(
                                 loan.debits, stableCoinDecimals),
                             style: TextStyle(
-                              fontSize: 30,
+                              fontSize: 26,
                               letterSpacing: -0.8,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -166,7 +166,7 @@ class LoanCollateralCard extends StatelessWidget {
                             Fmt.priceFloorBigInt(
                                 loan.collaterals, collateralDecimals),
                             style: TextStyle(
-                              fontSize: 30,
+                              fontSize: 26,
                               letterSpacing: -0.8,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,

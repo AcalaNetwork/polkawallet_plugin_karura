@@ -284,7 +284,7 @@ class LoanOverviewCard extends StatelessWidget {
                     Fmt.priceFloorBigInt(loan.collaterals, collateralDecimals,
                         lengthMax: 4),
                     style: TextStyle(
-                      fontSize: 30,
+                      fontSize: 26,
                       letterSpacing: -0.8,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -484,7 +484,7 @@ class CollateralIncentiveList extends StatelessWidget {
               apy += marketPrices[e.token] *
                   e.amount /
                   Fmt.bigIntToDouble(
-                      totalCDPs[token].collateral, collateralDecimals) /
+                      rewards[token].sharesTotal, collateralDecimals) /
                   marketPrices[token];
             });
           }
