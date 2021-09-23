@@ -188,34 +188,19 @@ class _LoanPageState extends State<LoanPage> {
                                     'packages/polkawallet_plugin_karura/assets/images/loan-start.svg',
                                     color: Theme.of(context).primaryColor),
                               ),
-                    !isDataLoading
+                    _tab == 0 &&
+                            !isDataLoading &&
+                            loans.length <
+                                widget.plugin.store.loan.loanTypes.length
                         ? Container(
                             padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            child: _tab == 0
-                                ? loans.length <
-                                        widget
-                                            .plugin.store.loan.loanTypes.length
-                                    ? RoundedButton(
-                                        text: '+ ${dic['loan.create']}',
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pushNamed(LoanCreatePage.route);
-                                        },
-                                      )
-                                    : Container()
-                                : incentiveTokenOptions.length > 0
-                                    ? RoundedButton(
-                                        text: dic['loan.deposit.col'],
-                                        onPressed: () {
-                                          Navigator.of(context).pushNamed(
-                                              LoanDepositPage.route,
-                                              arguments: LoanDepositPageParams(
-                                                  LoanDepositPage
-                                                      .actionTypeDeposit,
-                                                  incentiveTokenOptions[0]));
-                                        },
-                                      )
-                                    : Container(),
+                            child: RoundedButton(
+                              text: '+ ${dic['loan.create']}',
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pushNamed(LoanCreatePage.route);
+                              },
+                            ),
                           )
                         : Container(),
                   ],
@@ -480,13 +465,13 @@ class CollateralIncentiveList extends StatelessWidget {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     List<String> tokens = incentives.keys.toList();
-    // todo: do not show KSM incentive now
-    tokens.removeWhere((e) => e == 'KSM' || incentives[e][0].amount == 0);
+    tokens.removeWhere((e) => incentives[e][0].amount == 0);
 
     if (tokens.length == 0) {
       return ListTail(isEmpty: true, isLoading: false);
     }
     return ListView.builder(
+        padding: EdgeInsets.only(bottom: 32),
         itemCount: tokens.length,
         itemBuilder: (_, i) {
           final token = tokens[i];

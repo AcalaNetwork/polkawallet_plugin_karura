@@ -221,6 +221,14 @@ async function fetchCollateralRewardsV2(api: ApiPromise, pool: any, address: str
       ).toString(),
     };
   });
+  pendings.forEach((e) => {
+    if (!incentives.find((i) => i.token === forceToCurrencyIdName(e.token))) {
+      incentives.push({
+        token: forceToCurrencyIdName(e.token),
+        amount: e.amount.toNumber().toString(),
+      });
+    }
+  });
   return {
     token: pool.Token,
     sharesTotal: res[0].totalShares,

@@ -14,10 +14,6 @@ class LoanType extends _LoanType {
     data.liquidationRatio = BigInt.parse(json['liquidationRatio'].toString());
     data.requiredCollateralRatio =
         BigInt.parse((json['requiredCollateralRatio'] ?? 0).toString());
-    data.stabilityFee = BigInt.parse((json['stabilityFee'] ?? 0).toString());
-    data.globalStabilityFee = json['globalStabilityFee'] == null
-        ? null
-        : BigInt.parse(json['globalStabilityFee'].toString());
     data.interestRatePerSec =
         BigInt.parse((json['interestRatePerSec'] ?? 0).toString());
     data.globalInterestRatePerSec = json['globalInterestRatePerSec'] == null
@@ -96,8 +92,6 @@ abstract class _LoanType {
   BigInt liquidationPenalty = BigInt.zero;
   BigInt liquidationRatio = BigInt.zero;
   BigInt requiredCollateralRatio = BigInt.zero;
-  BigInt stabilityFee = BigInt.zero;
-  BigInt globalStabilityFee = BigInt.zero;
   BigInt interestRatePerSec = BigInt.zero;
   BigInt globalInterestRatePerSec = BigInt.zero;
   BigInt maximumTotalDebitValue = BigInt.zero;
@@ -131,7 +125,6 @@ class LoanData extends _LoanData {
     data.maxToBorrow = type.calcMaxToBorrow(data.collaterals, tokenPrice,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
-    data.stableFeeDay = data.calcStableFee(SECONDS_OF_DAY);
     data.stableFeeYear = data.calcStableFee(SECONDS_OF_YEAR);
     data.liquidationPrice = type.calcLiquidationPrice(
         data.debitInUSD, data.collaterals,
@@ -156,14 +149,13 @@ abstract class _LoanData {
   double collateralRatio = 0;
   BigInt requiredCollateral = BigInt.zero;
   BigInt maxToBorrow = BigInt.zero;
-  double stableFeeDay = 0;
   double stableFeeYear = 0;
   BigInt liquidationPrice = BigInt.zero;
 
   double calcStableFee(int seconds) {
     final base = (type.globalInterestRatePerSec + type.interestRatePerSec) /
         BigInt.from(pow(10, acala_price_decimals));
-    return pow(base, seconds);
+    return pow((1 + base), seconds) - 1;
   }
 }
 

@@ -58,45 +58,19 @@ class _MintPageState extends State<MintPage> {
               acala_price_decimals);
       final receive = (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
 
-      String error;
-      if (Fmt.tokenInt(input.toString(), stakeDecimal) + poolInfo.staked >
-          poolInfo.cap) {
-        error = I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
-      }
-
       setState(() {
-        _error = error;
         _amountReceive = Fmt.priceFloor(receive, lengthFixed: 3);
       });
     }
   }
 
   void _onSupplyAmountChange(String v, double balance, double minStake) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-
     final supply = v.trim();
     setState(() {
       _maxInput = null;
     });
 
-    String error;
-    if (supply.isEmpty) {
-      error = dic['amount.error'];
-    }
-    try {
-      final pay = double.parse(supply);
-      if (pay > balance) {
-        error = dic['amount.low'];
-      }
-      if (pay <= minStake) {
-        final minLabel = I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.min'];
-        error = '$minLabel > ${minStake.toStringAsFixed(4)}';
-      }
-    } catch (err) {
-      error = dic['amount.error'];
-    }
+    final error = _validateInput(supply, balance, minStake);
     if (error != null) {
       setState(() {
         _error = error;
@@ -105,6 +79,38 @@ class _MintPageState extends State<MintPage> {
       return;
     }
     _updateReceiveAmount(double.parse(supply));
+  }
+
+  String _validateInput(String supply, double balance, double minStake) {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    String error;
+    if (supply.isEmpty) {
+      return dic['amount.error'];
+    }
+    try {
+      final pay = double.parse(supply);
+      if (_maxInput == null && pay > balance) {
+        return dic['amount.low'];
+      }
+
+      if (pay <= minStake) {
+        final minLabel = I18n.of(context)
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.min'];
+        return '$minLabel > ${minStake.toStringAsFixed(4)}';
+      }
+
+      final symbols = widget.plugin.networkState.tokenSymbol;
+      final decimals = widget.plugin.networkState.tokenDecimals;
+      final stakeDecimal = decimals[symbols.indexOf(relay_chain_token_symbol)];
+      final poolInfo = widget.plugin.store.homa.poolInfo;
+      if (Fmt.tokenInt(supply, stakeDecimal) + poolInfo.staked > poolInfo.cap) {
+        return I18n.of(context)
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
+      }
+    } catch (err) {
+      error = dic['amount.error'];
+    }
+    return error;
   }
 
   void _onSetMax(BigInt max, int decimals, double balance, double minStake) {
@@ -117,7 +123,7 @@ class _MintPageState extends State<MintPage> {
     setState(() {
       _amountPayCtrl.text = amount.toStringAsFixed(6);
       _maxInput = max;
-      _error = null;
+      _error = _validateInput(amount.toString(), balance, minStake);
     });
 
     _updateReceiveAmount(amount);
