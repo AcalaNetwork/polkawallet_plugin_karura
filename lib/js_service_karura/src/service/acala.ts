@@ -655,6 +655,17 @@ async function queryIncentives(api: ApiPromise) {
       deduction: deductions.find((e) => e.incentiveType === incentiveType && e.idString === idString)?.value || "0",
     });
   });
+  deductions.forEach((e) => {
+    if (!res[e.incentiveType][e.idString]) {
+      res[e.incentiveType][e.idString] = [
+        {
+          token: "Any",
+          amount: "0",
+          deduction: e.value,
+        },
+      ];
+    }
+  });
   pools[2].forEach((e) => {
     const poolId = e[0].args[0].toHuman();
     const incentiveType = "DexSaving";

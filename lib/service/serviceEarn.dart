@@ -75,9 +75,9 @@ class ServiceEarn {
     store.earn.setIncentives(_calcIncentivesAPR(res));
   }
 
-  Future<void> queryDexPoolInfo(String poolId) async {
+  Future<void> queryDexPoolInfo(List<String> poolIds) async {
     final info =
-        await api.swap.queryDexPoolInfoV2(poolId, keyring.current.address);
+        await api.swap.queryDexPoolInfoV2(poolIds, keyring.current.address);
     store.earn.setDexPoolInfoV2(info);
   }
 
@@ -100,7 +100,7 @@ class ServiceEarn {
                 : 'ACA-AUSD'));
     // 3. query mining pool info
     await Future.wait([
-      queryDexPoolInfo(tabNow),
+      queryDexPoolInfo([tabNow]),
       plugin.service.assets.queryMarketPrices(PluginFmt.getAllDexTokens(plugin))
     ]);
   }
@@ -112,8 +112,9 @@ class ServiceEarn {
 
     plugin.service.assets.queryMarketPrices(PluginFmt.getAllDexTokens(plugin));
 
-    await Future.wait(store.earn.dexPools.map(
-        (e) => queryDexPoolInfo(e.tokens.map((e) => e['token']).join('-'))));
+    await queryDexPoolInfo((store.earn.dexPools
+        .map((e) => e.tokens.map((e) => e['token']).join('-'))
+        .toList()));
 
     queryIncentives();
   }

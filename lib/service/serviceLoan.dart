@@ -135,7 +135,7 @@ class ServiceLoan {
 
   Future<void> queryCollateralRewardsV2(String address) async {
     final res = await api.loan.queryCollateralRewardsV2(
-        store.earn.incentives.loans.keys.toList(), address);
+        store.loan.loanTypes.map((e) => e.token).toList(), address);
     store.loan.setCollateralRewardsV2(res);
   }
 

@@ -80,21 +80,17 @@ class AcalaServiceSwap {
     };
   }
 
-  Future<Map> queryDexPoolInfo(String pool, address) async {
-    final Map info = await plugin.sdk.webView
-        .evalJavascript('acala.fetchDexPoolInfo(api, ${jsonEncode({
-          'DEXShare':
-              pool.split('-').map((e) => ({'Token': e.toUpperCase()})).toList()
-        })}, "$address")');
-    return info;
-  }
-
-  Future<Map> queryDexPoolInfoV2(String pool, address) async {
-    final Map info = await plugin.sdk.webView
-        .evalJavascript('acala.fetchDexPoolInfoV2(api, ${jsonEncode({
-          'DEXShare':
-              pool.split('-').map((e) => ({'Token': e.toUpperCase()})).toList()
-        })}, "$address")');
+  Future<List> queryDexPoolInfoV2(List<String> pools, address) async {
+    final query = pools
+        .map((e) => 'acala.fetchDexPoolInfoV2(api, ${jsonEncode({
+                  'DEXShare': e
+                      .split('-')
+                      .map((e) => ({'Token': e.toUpperCase()}))
+                      .toList()
+                })}, "$address")')
+        .join(',');
+    final List info =
+        await plugin.sdk.webView.evalJavascript('Promise.all([$query])');
     return info;
   }
 }

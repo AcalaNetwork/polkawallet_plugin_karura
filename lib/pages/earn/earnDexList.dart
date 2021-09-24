@@ -36,7 +36,7 @@ class _EarnDexListState extends State<EarnDexList> {
         _loading = false;
       });
 
-      _timer = Timer(Duration(seconds: 10), () {
+      _timer = Timer(Duration(seconds: 30), () {
         _fetchData();
       });
     }

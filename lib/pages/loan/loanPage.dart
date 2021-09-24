@@ -464,8 +464,12 @@ class CollateralIncentiveList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    List<String> tokens = incentives.keys.toList();
-    tokens.removeWhere((e) => incentives[e][0].amount == 0);
+    final List<String> tokensAll = incentives.keys.toList();
+    tokensAll.addAll(rewards.keys.toList());
+    final tokens = tokensAll.toSet().toList();
+    tokens.retainWhere((e) =>
+        incentives[e] != null ||
+        (rewards[e]?.reward != null && rewards[e].reward.length > 0));
 
     if (tokens.length == 0) {
       return ListTail(isEmpty: true, isLoading: false);
@@ -479,12 +483,13 @@ class CollateralIncentiveList extends StatelessWidget {
               loans[token].collateralInUSD, collateralDecimals);
           double apy = 0;
           if (totalCDPs[token].collateral > BigInt.zero &&
-              marketPrices[token] != null) {
+              marketPrices[token] != null &&
+              incentives[token] != null) {
             incentives[token].forEach((e) {
               apy += marketPrices[e.token] *
                   e.amount /
                   Fmt.bigIntToDouble(
-                      rewards[token].sharesTotal, collateralDecimals) /
+                      rewards[token]?.sharesTotal, collateralDecimals) /
                   marketPrices[token];
             });
           }
@@ -492,7 +497,7 @@ class CollateralIncentiveList extends StatelessWidget {
               loans[token].collaterals, collateralDecimals);
 
           bool canClaim = false;
-          double loyaltyBonus = 0.3;
+          double loyaltyBonus = 0;
 
           final reward = rewards[token];
           final rewardView = reward != null
@@ -501,7 +506,9 @@ class CollateralIncentiveList extends StatelessWidget {
                   if (amount > 0.0001) {
                     canClaim = true;
                   }
-                  loyaltyBonus = incentives[token][0].deduction;
+                  if (incentives[token] != null) {
+                    loyaltyBonus = incentives[token][0].deduction;
+                  }
                   return '${Fmt.priceFloor(amount * (1 - loyaltyBonus))}';
                 }).join(' + ')
               : '';
