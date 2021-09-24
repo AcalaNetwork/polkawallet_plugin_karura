@@ -470,6 +470,7 @@ class CollateralIncentiveList extends StatelessWidget {
     tokens.retainWhere((e) =>
         incentives[e] != null ||
         (rewards[e]?.reward != null && rewards[e].reward.length > 0));
+    tokens.removeWhere((e) => e == 'KSM');
 
     if (tokens.length == 0) {
       return ListTail(isEmpty: true, isLoading: false);
