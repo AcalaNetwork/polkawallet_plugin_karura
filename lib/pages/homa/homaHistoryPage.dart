@@ -88,6 +88,7 @@ class HomaHistoryPage extends StatelessWidget {
                         bottom: BorderSide(width: 0.5, color: Colors.black12)),
                   ),
                   child: ListTile(
+                    dense: true,
                     title: Text('${detail.action} $amountReceive'),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")

@@ -72,6 +72,7 @@ class SwapHistoryPage extends StatelessWidget {
                         bottom: BorderSide(width: 0.5, color: Colors.black12)),
                   ),
                   child: ListTile(
+                    dense: true,
                     title: Text(detail.action, style: TextStyle(fontSize: 14)),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")

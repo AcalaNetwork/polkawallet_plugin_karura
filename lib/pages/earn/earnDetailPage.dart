@@ -8,7 +8,6 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/LPStakePage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
-import 'package:polkawallet_plugin_karura/pages/earn/earnHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -46,17 +45,7 @@ class EarnDetailPage extends StatelessWidget {
     final String poolId = ModalRoute.of(context).settings.arguments;
     final pair = poolId.split('-');
     return Scaffold(
-      appBar: AppBar(
-        title: Text(dic['earn.title']),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.history, color: Theme.of(context).cardColor),
-            onPressed: () => Navigator.of(context)
-                .pushNamed(EarnHistoryPage.route, arguments: poolId),
-          )
-        ],
-      ),
+      appBar: AppBar(title: Text(dic['earn.title']), centerTitle: true),
       body: Observer(
         builder: (_) {
           final balancePair = PluginFmt.getBalancePair(plugin, pair);

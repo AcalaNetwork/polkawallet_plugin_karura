@@ -93,6 +93,7 @@ class EarnHistoryPage extends StatelessWidget {
                         bottom: BorderSide(width: 0.5, color: Colors.black12)),
                   ),
                   child: ListTile(
+                    dense: true,
                     title: Text(amount, style: TextStyle(fontSize: 14)),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
@@ -102,7 +103,7 @@ class EarnHistoryPage extends StatelessWidget {
                         width: 32),
                     trailing: Text(
                       detail.event,
-                      style: Theme.of(context).textTheme.headline4,
+                      style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
                     ),
                     onTap: () {

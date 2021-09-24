@@ -6,7 +6,7 @@ import 'package:polkawallet_ui/utils/format.dart';
 class TxDexIncentiveData extends _TxDexIncentiveData {
   static const String actionStake = 'DepositDexShare';
   static const String actionUnStake = 'WithdrawDexShare';
-  static const String actionClaimRewards = 'PayoutRewards';
+  static const String actionClaimRewards = 'ClaimRewards';
   static TxDexIncentiveData fromJson(Map<String, dynamic> json,
       String stableCoinSymbol, List<String> symbols, List<int> decimals) {
     final data = TxDexIncentiveData();
@@ -15,10 +15,10 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
 
     switch (data.event) {
       case actionClaimRewards:
-        final pair = (jsonDecode(json['data'][1]['value'])['dexIncentive']
-                ['dexShare'] as List)
-            .map((e) => e['token'])
-            .toList();
+        final pair =
+            (jsonDecode(json['data'][1]['value'])['dex']['dexShare'] as List)
+                .map((e) => e['token'])
+                .toList();
         final poolId = pair.join('-');
         final rewardToken = jsonDecode(json['data'][2]['value'])['token'];
         data.poolId = poolId;
