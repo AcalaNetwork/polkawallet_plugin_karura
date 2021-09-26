@@ -467,9 +467,9 @@ class CollateralIncentiveList extends StatelessWidget {
     final List<String> tokensAll = incentives.keys.toList();
     tokensAll.addAll(rewards.keys.toList());
     final tokens = tokensAll.toSet().toList();
-    tokens.retainWhere((e) =>
-        incentives[e] != null ||
-        (rewards[e]?.reward != null && rewards[e].reward.length > 0));
+    // tokens.retainWhere((e) =>
+    //     incentives[e] != null ||
+    //     (rewards[e]?.reward != null && rewards[e].reward.length > 0));
     tokens.removeWhere((e) => e == 'KSM');
 
     if (tokens.length == 0) {
@@ -501,7 +501,7 @@ class CollateralIncentiveList extends StatelessWidget {
           double loyaltyBonus = 0;
 
           final reward = rewards[token];
-          final rewardView = reward != null
+          final rewardView = reward != null && reward.reward.length > 0
               ? reward.reward.map((e) {
                   final amount = double.parse(e['amount']);
                   if (amount > 0.0001) {
@@ -512,7 +512,7 @@ class CollateralIncentiveList extends StatelessWidget {
                   }
                   return '${Fmt.priceFloor(amount * (1 - loyaltyBonus))}';
                 }).join(' + ')
-              : '';
+              : '0.00';
           final shouldActivate = reward?.shares != loans[token].collaterals;
 
           return RoundedCard(
