@@ -143,9 +143,9 @@ class _LoanPageState extends State<LoanPage> {
                             height: MediaQuery.of(context).size.width / 2,
                             child: CupertinoActivityIndicator(),
                           )
-                        : loans.length > 0
-                            ? Expanded(
-                                child: _tab == 0
+                        : Expanded(
+                            child: _tab == 0
+                                ? loans.length > 0
                                     ? ListView(
                                         padding: EdgeInsets.all(16),
                                         children: loans.map((loan) {
@@ -164,30 +164,31 @@ class _LoanPageState extends State<LoanPage> {
                                           );
                                         }).toList(),
                                       )
-                                    : CollateralIncentiveList(
-                                        plugin: widget.plugin,
-                                        loans: widget.plugin.store.loan.loans,
-                                        tokenIcons: widget.plugin.tokenIcons,
-                                        totalCDPs:
-                                            widget.plugin.store.loan.totalCDPs,
-                                        incentives: widget
-                                            .plugin.store.earn.incentives.loans,
-                                        rewards: widget.plugin.store.loan
-                                            .collateralRewardsV2,
-                                        marketPrices: widget
-                                            .plugin.store.assets.marketPrices,
-                                        collateralDecimals: stableCoinDecimals,
-                                        incentiveTokenSymbol:
-                                            incentiveTokenSymbol,
-                                      ),
-                              )
-                            : RoundedCard(
-                                margin: EdgeInsets.all(16),
-                                padding: EdgeInsets.fromLTRB(80, 24, 80, 24),
-                                child: SvgPicture.asset(
-                                    'packages/polkawallet_plugin_karura/assets/images/loan-start.svg',
-                                    color: Theme.of(context).primaryColor),
-                              ),
+                                    : RoundedCard(
+                                        margin: EdgeInsets.all(16),
+                                        padding:
+                                            EdgeInsets.fromLTRB(80, 24, 80, 24),
+                                        child: SvgPicture.asset(
+                                            'packages/polkawallet_plugin_karura/assets/images/loan-start.svg',
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                      )
+                                : CollateralIncentiveList(
+                                    plugin: widget.plugin,
+                                    loans: widget.plugin.store.loan.loans,
+                                    tokenIcons: widget.plugin.tokenIcons,
+                                    totalCDPs:
+                                        widget.plugin.store.loan.totalCDPs,
+                                    incentives: widget
+                                        .plugin.store.earn.incentives.loans,
+                                    rewards: widget
+                                        .plugin.store.loan.collateralRewardsV2,
+                                    marketPrices:
+                                        widget.plugin.store.assets.marketPrices,
+                                    collateralDecimals: stableCoinDecimals,
+                                    incentiveTokenSymbol: incentiveTokenSymbol,
+                                  ),
+                          ),
                     _tab == 0 &&
                             !isDataLoading &&
                             loans.length <
@@ -481,13 +482,13 @@ class CollateralIncentiveList extends StatelessWidget {
         itemBuilder: (_, i) {
           final token = tokens[i];
           final collateralValue = Fmt.bigIntToDouble(
-              loans[token].collateralInUSD, collateralDecimals);
+              loans[token]?.collateralInUSD, collateralDecimals);
           double apy = 0;
           if (totalCDPs[token].collateral > BigInt.zero &&
               marketPrices[token] != null &&
               incentives[token] != null) {
             incentives[token].forEach((e) {
-              apy += marketPrices[e.token] *
+              apy += (marketPrices[e.token] ?? 0) *
                   e.amount /
                   Fmt.bigIntToDouble(
                       rewards[token]?.sharesTotal, collateralDecimals) /
@@ -495,10 +496,13 @@ class CollateralIncentiveList extends StatelessWidget {
             });
           }
           final deposit = Fmt.priceFloorBigInt(
-              loans[token].collaterals, collateralDecimals);
+              loans[token]?.collaterals, collateralDecimals);
 
           bool canClaim = false;
           double loyaltyBonus = 0;
+          if (incentives[token] != null) {
+            loyaltyBonus = incentives[token][0].deduction;
+          }
 
           final reward = rewards[token];
           final rewardView = reward != null && reward.reward.length > 0
@@ -507,13 +511,10 @@ class CollateralIncentiveList extends StatelessWidget {
                   if (amount > 0.0001) {
                     canClaim = true;
                   }
-                  if (incentives[token] != null) {
-                    loyaltyBonus = incentives[token][0].deduction;
-                  }
                   return '${Fmt.priceFloor(amount * (1 - loyaltyBonus))}';
                 }).join(' + ')
               : '0.00';
-          final shouldActivate = reward?.shares != loans[token].collaterals;
+          final shouldActivate = reward?.shares != loans[token]?.collaterals;
 
           return RoundedCard(
             padding: EdgeInsets.all(16),
