@@ -15,9 +15,6 @@ abstract class _HomaStore with Store {
   final StoreCache cache;
 
   @observable
-  StakingPoolInfoData stakingPoolInfo = StakingPoolInfoData();
-
-  @observable
   HomaLitePoolInfoData poolInfo = HomaLitePoolInfoData();
 
   @observable
@@ -25,11 +22,6 @@ abstract class _HomaStore with Store {
 
   @observable
   ObservableList<TxHomaData> txs = ObservableList<TxHomaData>();
-
-  @action
-  void setStakingPoolInfoData(StakingPoolInfoData data) {
-    stakingPoolInfo = data;
-  }
 
   @action
   void setHomaLitePoolInfoData(HomaLitePoolInfoData data) {

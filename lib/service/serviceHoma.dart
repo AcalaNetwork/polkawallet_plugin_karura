@@ -14,12 +14,6 @@ class ServiceHoma {
   final AcalaApi api;
   final PluginStore store;
 
-  Future<StakingPoolInfoData> queryHomaStakingPool() async {
-    final res = await api.homa.queryHomaStakingPool();
-    store.homa.setStakingPoolInfoData(res);
-    return res;
-  }
-
   Future<HomaLitePoolInfoData> queryHomaLiteStakingPool() async {
     final res = await api.homa.queryHomaLiteStakingPool();
     store.homa.setHomaLitePoolInfoData(res);

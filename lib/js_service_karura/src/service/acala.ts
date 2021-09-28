@@ -1,4 +1,3 @@
-import { StakingPool } from "@acala-network/sdk-homa";
 import { FixedPointNumber, Token, createLPCurrencyName, forceToCurrencyIdName } from "@acala-network/sdk-core";
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
@@ -9,7 +8,6 @@ import { WalletPromise } from "@acala-network/sdk-wallet";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
 
-const decimalsDOT = 10;
 const ONE = FixedPointNumber.ONE;
 const ACA_SYS_BLOCK_TIME = new BN(12000);
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
@@ -373,57 +371,6 @@ async function _calacFreeList(api: ApiPromise, start: number, duration: number, 
   return list.filter((item) => item.free);
 }
 
-let homaStakingPool;
-
-async function fetchHomaStakingPool(api: ApiPromise) {
-  const [stakingPool, { mockRewardRate }] = (await Promise.all([
-    (api.derive as any).homa.stakingPool(),
-    api.query.polkadotBridge.subAccounts(1),
-  ])) as any;
-
-  const poolInfo = new StakingPool({
-    decimal: decimalsDOT,
-    params: {
-      baseFeeRate: FPNum(stakingPool.params.baseFeeRate),
-      targetMaxFreeUnbondedRatio: FPNum(stakingPool.params.targetMaxFreeUnbondedRatio),
-      targetMinFreeUnbondedRatio: FPNum(stakingPool.params.targetMinFreeUnbondedRatio),
-      targetUnbondingToFreeRatio: FPNum(stakingPool.params.targetUnbondingToFreeRatio),
-    },
-    defaultExchangeRate: FPNum(stakingPool.defaultExchangeRate),
-    liquidTotalIssuance: FPNum(stakingPool.liquidIssuance, decimalsDOT),
-    currentEra: stakingPool.currentEra.toNumber(),
-    bondingDuration: stakingPool.bondingDuration.toNumber(),
-    ledger: {
-      toUnbondNextEra: stakingPool.ledger.toUnbondNextEra.map((e: any) => FPNum(e, decimalsDOT)),
-      bonded: FPNum(stakingPool.ledger.bonded, decimalsDOT),
-      unbondingToFree: FPNum(stakingPool.ledger.unbondingToFree, decimalsDOT),
-      freePool: FPNum(stakingPool.ledger.freePool, decimalsDOT),
-    },
-  });
-  homaStakingPool = poolInfo;
-
-  const freeList = await _calacFreeList(api, stakingPool.currentEra.toNumber() + 1, stakingPool.bondingDuration.toNumber(), decimalsDOT);
-  const eraLength = api.consts.polkadotBridge.eraLength as any;
-  const expectedBlockTime = api.consts.babe?.expectedBlockTime || ACA_SYS_BLOCK_TIME;
-  const unbondingDuration = expectedBlockTime.toNumber() * eraLength.toNumber() * stakingPool.bondingDuration.toNumber();
-  return {
-    // ...stakingPoolHelper,
-    rewardRate: mockRewardRate.toString(),
-    freeList,
-    unbondingDuration,
-    liquidTokenIssuance: stakingPool.liquidIssuance.toString(),
-    defaultExchangeRate: FPNum(stakingPool.defaultExchangeRate).toNumber(),
-    bondingDuration: stakingPool.bondingDuration.toNumber(),
-    currentEra: stakingPool.currentEra.toNumber(),
-    communalBonded: poolInfo.bondedBelongToLiquidHolders.toNumber(),
-    communalTotal: poolInfo.totalBelongToLiquidHolders.toNumber(),
-    freePool: poolInfo.freePool.toNumber(),
-    unbondingToFree: poolInfo.unbondingToFree.toNumber(),
-    communalBondedRatio: poolInfo.bondedBelongToLiquidHolders.div(poolInfo.total).toNumber(),
-    liquidExchangeRate: poolInfo.liquidExchangeRate().toNumber(),
-  };
-}
-
 async function fetchHomaUserInfo(api: ApiPromise, address: string) {
   const stakingPool = await (api.derive as any).homa.stakingPool();
   const start = stakingPool.currentEra.toNumber() + 1;
@@ -456,36 +403,6 @@ async function fetchHomaUserInfo(api: ApiPromise, address: string) {
     unbonded: unbonded.amount || 0,
     claims,
   };
-}
-
-async function queryHomaRedeemAmount(api: ApiPromise, amount: number, redeemType: number, targetEra: number) {
-  if (redeemType == 0) {
-    const res = await homaStakingPool.getStakingAmountInRedeemByFreeUnbonded(new FixedPointNumber(amount, decimalsDOT));
-    return {
-      demand: res.demand.toNumber(),
-      fee: res.fee.toNumber(),
-      received: res.received.toNumber(),
-    };
-  } else if (redeemType == 1) {
-    const unbonding = await api.query.stakingPool.unbonding(targetEra);
-    const res = await homaStakingPool.getStakingAmountInClaimUnbonding(new FixedPointNumber(amount, decimalsDOT), targetEra, {
-      unbonding: FPNum(unbonding[0], decimalsDOT),
-      claimedUnbonding: FPNum(unbonding[1], decimalsDOT),
-      initialClaimedUnbonding: FPNum(unbonding[2], decimalsDOT),
-    });
-    return {
-      atEra: res.atEra,
-      demand: res.demand.toNumber(),
-      fee: res.fee.toNumber(),
-      received: res.received.toNumber(),
-    };
-  } else if (redeemType == 2) {
-    const res = await homaStakingPool.getStakingAmountInRedeemByUnbond(new FixedPointNumber(amount, decimalsDOT));
-    return {
-      atEra: res.atEra,
-      amount: res.amount.toNumber(),
-    };
-  }
 }
 
 const NFT_CLASS_ALL = [0, 1, 2, 3, 4, 5];
@@ -693,9 +610,7 @@ export default {
   fetchCollateralRewardsV2,
   fetchDexPoolInfo,
   fetchDexPoolInfoV2,
-  fetchHomaStakingPool,
   fetchHomaUserInfo,
-  queryHomaRedeemAmount,
   queryNFTs,
   checkExistentialDepositForTransfer,
   queryIncentives,

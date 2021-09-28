@@ -8,7 +8,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
-import 'package:polkawallet_plugin_karura/pages/homa/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -391,10 +390,10 @@ class _HomaPageState extends State<HomaPage> {
                                       '${dic['homa.redeem']} $stakeSymbol',
                                       style: TextStyle(color: white),
                                     ),
-                                    onPressed: false
-                                        ? () => Navigator.of(context)
-                                            .pushNamed(HomaRedeemPage.route)
-                                        : null,
+                                    // onPressed: false
+                                    //     ? () => Navigator.of(context)
+                                    //         .pushNamed(HomaRedeemPage.route)
+                                    //     : null,
                                   ),
                                 ),
                               ),

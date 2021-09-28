@@ -44,28 +44,5 @@ dev_dependencies:
 flutter:
   assets:
     - lib/js_service_karura/dist/main.js
-    - assets/images/bg.png
-    - assets/images/assets_up.svg
-    - assets/images/assets_down.svg
-    - assets/images/assets_send.png
-    - assets/images/tx_failed.svg
-    - assets/images/swap.svg
-    - assets/images/loan.svg
-    - assets/images/loan-start.svg
-    - assets/images/earn.svg
-    - assets/images/scan.svg
-    - assets/images/homa.svg
-    - assets/images/nft.svg
-    - assets/images/tokens/KAR.png
-    - assets/images/tokens/KUSD.png
-    - assets/images/tokens/KSM.png
-    - assets/images/tokens/LKSM.png
-    - assets/images/tokens/RENBTC.png
-    - assets/images/tokens/XBTC.png
-    - assets/images/tokens/POLKABTC.png
-    - assets/images/tokens/PLM.png
-    - assets/images/tokens/PHA.png
-    - assets/images/tokens/BNC.png
-    - assets/images/logo_kar_gray.png
-    - assets/images/logo_kar_empty.svg
-    - assets/images/democracy.svg
+    - assets/images/
+    - assets/images/tokens/

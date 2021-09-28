@@ -32,7 +32,6 @@ import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
-import 'package:polkawallet_plugin_karura/pages/homa/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanAdjustPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
@@ -190,7 +189,6 @@ class PluginKarura extends PolkawalletPlugin {
       // homa pages
       HomaPage.route: (_) => HomaPage(this, keyring),
       MintPage.route: (_) => MintPage(this, keyring),
-      HomaRedeemPage.route: (_) => HomaRedeemPage(this, keyring),
       HomaHistoryPage.route: (_) => ClientProvider(
             child: Builder(
               builder: (_) => HomaHistoryPage(this, keyring),

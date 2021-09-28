@@ -8,11 +8,6 @@ class AcalaApiHoma {
 
   final AcalaServiceHoma service;
 
-  Future<StakingPoolInfoData> queryHomaStakingPool() async {
-    final Map res = await service.queryHomaStakingPool();
-    return StakingPoolInfoData.fromJson(Map<String, dynamic>.of(res));
-  }
-
   Future<HomaLitePoolInfoData> queryHomaLiteStakingPool() async {
     final List res = await service.queryHomaLiteStakingPool();
     return HomaLitePoolInfoData(

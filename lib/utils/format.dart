@@ -13,6 +13,9 @@ class PluginFmt {
     if (token == acala_token_polka_btc) {
       return acala_token_polka_btc_view;
     }
+    if (token == 'VSKSM') {
+      return 'vsKSM';
+    }
     if (token.contains('-')) {
       return '${token.split('-').map((e) => PluginFmt.tokenView(e)).join('-')} LP';
     }

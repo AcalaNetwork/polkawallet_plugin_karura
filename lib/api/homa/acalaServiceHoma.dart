@@ -8,12 +8,6 @@ class AcalaServiceHoma {
 
   final PluginKarura plugin;
 
-  Future<Map> queryHomaStakingPool() async {
-    final Map res = await plugin.sdk.webView
-        .evalJavascript('acala.fetchHomaStakingPool(api)');
-    return res;
-  }
-
   Future<List> queryHomaLiteStakingPool() async {
     final List res = await plugin.sdk.webView.evalJavascript('Promise.all(['
         'api.query.homaLite.stakingCurrencyMintCap(),'
