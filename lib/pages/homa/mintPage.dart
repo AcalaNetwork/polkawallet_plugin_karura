@@ -71,11 +71,13 @@ class _MintPageState extends State<MintPage> {
     });
 
     final error = _validateInput(supply, balance, minStake);
-    if (error != null) {
-      setState(() {
-        _error = error;
+    setState(() {
+      _error = error;
+      if (error != null) {
         _amountReceive = '';
-      });
+      }
+    });
+    if (error != null) {
       return;
     }
     _updateReceiveAmount(double.parse(supply));
