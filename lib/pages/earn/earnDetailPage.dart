@@ -445,12 +445,6 @@ class _UserCard extends StatelessWidget {
                   children: [
                     InfoItem(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      title: dic['earn.fee'],
-                      content: Fmt.ratio(fee),
-                      titleToolTip: dic['earn.fee.info'],
-                    ),
-                    InfoItem(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       title: 'APR',
                       content: Fmt.ratio(rewardAPY + rewardSavingAPY),
                     ),
@@ -465,6 +459,44 @@ class _UserCard extends StatelessWidget {
               ),
               Container(
                 margin: EdgeInsets.only(top: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TapTooltip(
+                      message: dic['earn.fee.info'],
+                      child: Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.info,
+                            color: Theme.of(context).disabledColor,
+                            size: 14,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 4),
+                            child: Text(dic['earn.fee'] + ':',
+                                style: TextStyle(fontSize: 12)),
+                          )
+                        ],
+                      )),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 8),
+                      child: Text(
+                        Fmt.ratio(fee),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).unselectedWidgetColor,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -492,7 +524,10 @@ class _UserCard extends StatelessWidget {
                       child: Text(
                         Fmt.ratio(loyaltyBonus),
                         style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).unselectedWidgetColor,
+                        ),
                       ),
                     )
                   ],
