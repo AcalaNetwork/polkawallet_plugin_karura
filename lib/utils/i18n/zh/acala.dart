@@ -104,7 +104,7 @@ const Map<String, String> zhDex = {
   'earn.claim': '领取收益',
   'earn.claim.info': '提示: 现在领取将会损失你的忠诚奖励。确认现在领取吗？',
   'earn.apy': 'APR',
-  'earn.apy.0': '不计忠诚奖励 APR',
+  'earn.apy.0': ' APR w/o Loyalty',
   'earn.incentive': '挖矿奖励',
   'earn.saving': '存款利息',
   'earn.loyal': '忠诚奖励',

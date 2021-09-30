@@ -63,7 +63,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                 poolInfo.amountRight, balancePair[0].decimals) /
             Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1].decimals);
       });
-      _timer = Timer(Duration(seconds: 10), () {
+      _timer = Timer(Duration(seconds: 30), () {
         _refreshData();
       });
     }

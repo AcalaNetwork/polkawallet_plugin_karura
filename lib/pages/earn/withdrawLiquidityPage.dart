@@ -53,7 +53,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     final String poolId = ModalRoute.of(context).settings.arguments;
     await widget.plugin.service.earn.queryDexPoolInfo([poolId]);
     if (mounted) {
-      _timer = Timer(Duration(seconds: 10), () {
+      _timer = Timer(Duration(seconds: 30), () {
         if (mounted) {
           _refreshData();
         }
