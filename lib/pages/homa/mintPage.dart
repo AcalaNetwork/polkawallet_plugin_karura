@@ -59,7 +59,8 @@ class _MintPageState extends State<MintPage> {
       final receive = (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
 
       setState(() {
-        _amountReceive = Fmt.priceFloor(receive, lengthFixed: 3);
+        _amountReceive =
+            Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
       });
     }
   }
@@ -183,6 +184,9 @@ class _MintPageState extends State<MintPage> {
         final stakeToken = relay_chain_token_symbol;
         final decimals = widget.plugin.networkState.tokenDecimals;
 
+        final karBalance = Fmt.balanceDouble(
+            widget.plugin.balances.native.availableBalance.toString(),
+            decimals[0]);
         final balanceData =
             widget.plugin.store.assets.tokenBalanceMap[stakeToken];
 
@@ -227,8 +231,10 @@ class _MintPageState extends State<MintPage> {
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) =>
                             _onSupplyAmountChange(v, balanceDouble, minStake),
-                        onSetMax: (v) =>
-                            _onSetMax(v, stakeDecimal, balanceDouble, minStake),
+                        onSetMax: karBalance > 0.1
+                            ? (v) => _onSetMax(
+                                v, stakeDecimal, balanceDouble, minStake)
+                            : null,
                         onClear: () {
                           setState(() {
                             _amountPayCtrl.text = '';

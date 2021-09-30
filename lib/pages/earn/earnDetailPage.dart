@@ -18,6 +18,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -450,15 +451,50 @@ class _UserCard extends StatelessWidget {
                     ),
                     InfoItem(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      title: dic['earn.loyal'],
-                      content: Fmt.ratio(loyaltyBonus),
-                      titleToolTip: dic['earn.loyal.info'],
-                    ),
-                    InfoItem(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       title: 'APR',
                       content: Fmt.ratio(rewardAPY + rewardSavingAPY),
                     ),
+                    InfoItem(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      title: dic['earn.apy.0'],
+                      content: Fmt.ratio(rewardAPY * (1 - loyaltyBonus) +
+                          rewardSavingAPY * (1 - savingLoyaltyBonus)),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TapTooltip(
+                      message: dic['earn.loyal.info'],
+                      child: Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.info,
+                            color: Theme.of(context).disabledColor,
+                            size: 14,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 4),
+                            child: Text(dic['earn.loyal'] + ':',
+                                style: TextStyle(fontSize: 12)),
+                          )
+                        ],
+                      )),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 8),
+                      child: Text(
+                        Fmt.ratio(loyaltyBonus),
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    )
                   ],
                 ),
               ),

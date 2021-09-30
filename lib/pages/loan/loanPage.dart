@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
@@ -24,6 +25,7 @@ import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
@@ -44,6 +46,7 @@ class _LoanPageState extends State<LoanPage> {
   int _tab = 0;
 
   Future<void> _fetchData() async {
+    widget.plugin.service.gov.updateBestNumber();
     await widget.plugin.service.loan
         .queryLoanTypes(widget.keyring.current.address);
 
@@ -516,6 +519,11 @@ class CollateralIncentiveList extends StatelessWidget {
               : '0.00';
           final shouldActivate = reward?.shares != loans[token]?.collaterals;
 
+          final bestNumber = plugin.store.gov.bestNumber;
+          final blocksToEnd = dex_incentive_loyalty_end_block[token] != null
+              ? dex_incentive_loyalty_end_block[token] - bestNumber.toInt()
+              : null;
+
           return RoundedCard(
             padding: EdgeInsets.all(16),
             margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -605,23 +613,68 @@ class CollateralIncentiveList extends StatelessWidget {
                       )
                     : Container(),
                 Container(
-                  margin: EdgeInsets.only(top: 16),
+                  margin: EdgeInsets.only(top: 8),
                   child: Row(
                     children: [
                       InfoItem(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         title: '${dic['earn.apy']} ($incentiveTokenSymbol)',
                         content: Fmt.ratio(apy),
+                        color: Theme.of(context).primaryColor,
                       ),
                       InfoItem(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        title: dic['earn.loyal'],
-                        content: Fmt.ratio(loyaltyBonus),
-                        titleToolTip: dic['earn.loyal.info'],
+                        title: '${dic['earn.apy.0']} ($incentiveTokenSymbol)',
+                        content: Fmt.ratio(apy * (1 - loyaltyBonus)),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TapTooltip(
+                        message: dic['earn.loyal.info'],
+                        child: Center(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.info,
+                              color: Theme.of(context).disabledColor,
+                              size: 14,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 4),
+                              child: Text(dic['earn.loyal'] + ':',
+                                  style: TextStyle(fontSize: 12)),
+                            )
+                          ],
+                        )),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 8),
+                        child: Text(
+                          Fmt.ratio(loyaltyBonus),
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
                       )
                     ],
                   ),
                 ),
+                blocksToEnd != null
+                    ? Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Text(
+                          '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      )
+                    : Container(),
                 Divider(height: 24),
                 Row(
                   children: [

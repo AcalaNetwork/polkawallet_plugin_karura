@@ -45,6 +45,10 @@ const cross_chain_xcm_fees = {
       'fee': '3840000000',
       'existentialDeposit': '100000000',
     },
+    'VSKSM': {
+      'fee': '48000000',
+      'existentialDeposit': '100000000',
+    }
   }
 };
 const xcm_dest_weight_kusama = '3000000000';
@@ -55,6 +59,7 @@ const existential_deposit = {
   'KUSD': '10000000000',
   'LKSM': '500000000',
   'BNC': '8000000000',
+  'VSKSM': '100000000',
 };
 
 const acala_token_ids = [
@@ -63,17 +68,10 @@ const acala_token_ids = [
   'KSM',
   'LKSM',
   'BNC',
+  'VSKSM',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
-];
-const acala_lp_token_ids = [
-  'KAR-KSM',
-  'KUSD-LKSM',
-  // 'KUSD-XBTC',
-  // 'KUSD-RENBTC',
-  // 'KUSD-POLKABTC',
-  'KAR-KUSD',
 ];
 
 const module_name_assets = 'assets';
@@ -127,6 +125,8 @@ const cross_chain_icons = {
 const dex_incentive_loyalty_end_block = {
   'KUSD-KSM': 1538140,
   'KAR-KSM': 2799580,
+  'KSM-LKSM': 1503600,
+  'LKSM': 1503600,
 };
 
 const action_loan_adjust = 'honzon.adjustLoan';

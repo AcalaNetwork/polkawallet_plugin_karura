@@ -110,6 +110,7 @@ const Map<String, String> enDex = {
   'earn.claim.info':
       'Note: Claim now will forego your Loyalty Bonus. Are you sure to continue?',
   'earn.apy': 'APR',
+  'earn.apy.0': 'APR w/o Loyalty',
   'earn.incentive': 'Mining',
   'earn.saving': 'Interest',
   'earn.loyal': 'Loyalty Bonus',

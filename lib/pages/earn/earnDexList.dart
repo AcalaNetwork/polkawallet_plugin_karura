@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/currencyWithIcon.dart';
+import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
@@ -91,6 +92,8 @@ class _EarnDexListState extends State<EarnDexList> {
                 BigInt sharesTotal = BigInt.zero;
                 double rewards = 0;
                 double savingRewards = 0;
+                double loyaltyBonus = 0;
+                double savingLoyaltyBonus = 0;
 
                 sharesTotal = widget.plugin.store.earn.dexPoolInfoMapV2[poolId]
                         ?.sharesTotal ??
@@ -98,9 +101,11 @@ class _EarnDexListState extends State<EarnDexList> {
                 if (incentivesV2.dex != null) {
                   (incentivesV2.dex[poolId] ?? []).forEach((e) {
                     rewards += e.apr;
+                    loyaltyBonus = e.deduction;
                   });
                   (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
                     savingRewards += e.apr;
+                    savingLoyaltyBonus = e.deduction;
                   });
                 }
 
@@ -127,14 +132,30 @@ class _EarnDexListState extends State<EarnDexList> {
                           child: Text('staked'),
                         ),
                         Container(
-                          margin: EdgeInsets.only(top: 16),
-                          child: Text(
-                            '${dic['earn.apy']}: ${rewardsEmpty ? '--.--%' : Fmt.ratio(rewards + savingRewards)}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor),
+                          margin: EdgeInsets.only(top: 8),
+                          child: Row(
+                            children: [
+                              InfoItem(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                title: dic['earn.apy'],
+                                content: rewardsEmpty
+                                    ? '--.--%'
+                                    : Fmt.ratio(rewards + savingRewards),
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              InfoItem(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                title: dic['earn.apy.0'],
+                                content: rewardsEmpty
+                                    ? '--.--%'
+                                    : Fmt.ratio(rewards * (1 - loyaltyBonus) +
+                                        savingRewards *
+                                            (1 - savingLoyaltyBonus)),
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),

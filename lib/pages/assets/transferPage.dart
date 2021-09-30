@@ -151,9 +151,8 @@ class _TransferPageState extends State<TransferPage> {
     //     options.addAll([relay_chain_name, para_chain_name_bifrost]);
     //     break;
     //   case karura_stable_coin:
-    //     options.add(para_chain_name_bifrost);
-    //     break;
     //   case para_chain_token_symbol_bifrost:
+    //   case 'VSKSM':
     //     options.add(para_chain_name_bifrost);
     //     break;
     // }
@@ -371,6 +370,7 @@ class _TransferPageState extends State<TransferPage> {
 
         // final canCrossChain = token == relay_chain_token_symbol ||
         //     token == karura_stable_coin ||
+        //     token == 'VSKSM' ||
         //     token == para_chain_token_symbol_bifrost;
         // todo: xcm transfer to bifrost is not opened
         final canCrossChain = token == relay_chain_token_symbol;
