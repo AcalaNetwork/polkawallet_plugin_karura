@@ -94,17 +94,17 @@ class _TransferPageState extends State<TransferPage> {
             ? [
                 {'Token': _token},
                 '1000000000',
-                {
-                  'X2': [
-                    'Parent',
-                    {
+                [
+                  1,
+                  {
+                    'X1': {
                       'AccountId32': {
                         'id': _accountTo.address,
                         'network': 'Any'
                       }
                     }
-                  ]
-                },
+                  }
+                ],
                 // params.weight
                 xcm_dest_weight_kusama
               ]
@@ -250,30 +250,29 @@ class _TransferPageState extends State<TransferPage> {
             (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
                 .toString(),
             // params.dest
-            isToParent
-                ? {
-                    'X2': [
-                      'Parent',
-                      {
+            [
+              1,
+              isToParent
+                  ? {
+                      'X1': {
                         'AccountId32': {
                           'id': _accountTo.address,
                           'network': 'Any'
                         }
                       }
-                    ]
-                  }
-                : {
-                    'X3': [
-                      'Parent',
-                      {'Parachain': para_chain_ids[_chainTo]},
-                      {
-                        'AccountId32': {
-                          'id': _accountTo.address,
-                          'network': 'Any'
+                    }
+                  : {
+                      'X2': [
+                        {'Parachain': para_chain_ids[_chainTo]},
+                        {
+                          'AccountId32': {
+                            'id': _accountTo.address,
+                            'network': 'Any'
+                          }
                         }
-                      }
-                    ]
-                  },
+                      ]
+                    }
+            ],
             // params.weight
             isToParent ? xcm_dest_weight_kusama : xcm_dest_weight_karura
           ],
