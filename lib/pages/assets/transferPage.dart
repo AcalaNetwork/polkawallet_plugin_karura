@@ -94,17 +94,29 @@ class _TransferPageState extends State<TransferPage> {
             ? [
                 {'Token': _token},
                 '1000000000',
-                [
-                  1,
-                  {
-                    'X1': {
+                {
+                  'X2': [
+                    'Parent',
+                    {
                       'AccountId32': {
                         'id': _accountTo.address,
                         'network': 'Any'
                       }
                     }
-                  }
-                ],
+                  ]
+                },
+                // todo: new params for runtime 1.5.0
+                // [
+                //   1,
+                //   {
+                //     'X1': {
+                //       'AccountId32': {
+                //         'id': _accountTo.address,
+                //         'network': 'Any'
+                //       }
+                //     }
+                //   }
+                // ],
                 // params.weight
                 xcm_dest_weight_kusama
               ]
@@ -232,6 +244,45 @@ class _TransferPageState extends State<TransferPage> {
       if (chainTo != widget.plugin.basic.name) {
         final dicAcala = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         final isToParent = _chainTo == relay_chain_name;
+        final dest = isToParent
+            ? {
+                'X2': [
+                  'Parent',
+                  {
+                    'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
+                  }
+                ]
+              }
+            : {
+                'X3': [
+                  'Parent',
+                  {'Parachain': para_chain_ids[_chainTo]},
+                  {
+                    'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
+                  }
+                ]
+              };
+        // todo: new params for runtime 1.5.0
+        // final dest = [
+        //   1,
+        //   isToParent
+        //       ? {
+        //           'X1': {
+        //             'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
+        //           }
+        //         }
+        //       : {
+        //           'X2': [
+        //             {'Parachain': para_chain_ids[_chainTo]},
+        //             {
+        //               'AccountId32': {
+        //                 'id': _accountTo.address,
+        //                 'network': 'Any'
+        //               }
+        //             }
+        //           ]
+        //         }
+        // ];
         return TxConfirmParams(
           txTitle:
               '${dicAcala['transfer']} $tokenView (${dicAcala['cross.xcm']})',
@@ -250,29 +301,7 @@ class _TransferPageState extends State<TransferPage> {
             (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
                 .toString(),
             // params.dest
-            [
-              1,
-              isToParent
-                  ? {
-                      'X1': {
-                        'AccountId32': {
-                          'id': _accountTo.address,
-                          'network': 'Any'
-                        }
-                      }
-                    }
-                  : {
-                      'X2': [
-                        {'Parachain': para_chain_ids[_chainTo]},
-                        {
-                          'AccountId32': {
-                            'id': _accountTo.address,
-                            'network': 'Any'
-                          }
-                        }
-                      ]
-                    }
-            ],
+            dest,
             // params.weight
             isToParent ? xcm_dest_weight_kusama : xcm_dest_weight_karura
           ],

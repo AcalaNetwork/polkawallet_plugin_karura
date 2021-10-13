@@ -21,10 +21,10 @@
     "@polkadot/api": "^5.8.3"
   },
   "dependencies": {
-    "@acala-network/api": "^2.3.2-11",
-    "@acala-network/sdk-core": "^2.3.2-11",
-    "@acala-network/sdk-swap": "^2.3.2-11",
-    "@acala-network/sdk-wallet": "^2.3.2-11",
+    "@acala-network/api": "^2.3.2-12",
+    "@acala-network/sdk-core": "^2.3.2-12",
+    "@acala-network/sdk-swap": "^2.3.2-12",
+    "@acala-network/sdk-wallet": "^2.3.2-12",
     "@babel/polyfill": "^7.8.3",
     "@polkadot/api": "^5.9.1",
     "@polkadot/keyring": "^7.3.1",

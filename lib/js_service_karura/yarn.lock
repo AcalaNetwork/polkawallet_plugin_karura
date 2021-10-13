@@ -2,35 +2,35 @@
 # yarn lockfile v1
 
 
-"@acala-network/api-derive@2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/api-derive/-/api-derive-2.3.2-11.tgz#cd8643a580171837bbae439ef3599d514468d888"
-  integrity sha512-bRAljgd/s5H2mMvmoIkrX6wMQMEhySsbrYC9IWyj+4qu4tdOvGVBd5ayDp/+UXzVGxb+dk1FWbu+zOJqJtXgAw==
+"@acala-network/api-derive@2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/api-derive/-/api-derive-2.3.2-12.tgz#0fec267d53206bd22f96fe7422272028b81239cb"
+  integrity sha512-nrKmKCQMYPi2yIfEz8CXRGnAQcWNQ1boxp3xjf+jtnC2L/xPyKTKeRI8/rezcvLvA384vaYBkO2Yv54w3gvpgA==
   dependencies:
-    "@acala-network/types" "2.3.2-11"
+    "@acala-network/types" "2.3.2-12"
     "@babel/runtime" "^7.10.2"
     "@open-web3/orml-types" "^0.9.4-38"
     "@polkadot/api-derive" "^5.9.1"
 
-"@acala-network/api@2.3.2-11", "@acala-network/api@^2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/api/-/api-2.3.2-11.tgz#03e74e8bd250df170179aa80ba4165e609027870"
-  integrity sha512-/orOC+N/qaAh+lJpMA8lncBibqkjaeb5NAIMoQuB426hOFK+howNe8iUiFnnhZYzofmM9ObbS4HuShufJp57rA==
+"@acala-network/api@2.3.2-12", "@acala-network/api@^2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/api/-/api-2.3.2-12.tgz#188d3429a6a7d9e969f1d0ac89df25a57dc8cb30"
+  integrity sha512-MIeqpGGefUwZ7U86qnfwhHai5iw5fzQPI8EtCmN5uYXEtt+eoDNZ8pahDbtJxTuyGfDTF706jx0CcfotBF/tfw==
   dependencies:
-    "@acala-network/api-derive" "2.3.2-11"
-    "@acala-network/types" "2.3.2-11"
+    "@acala-network/api-derive" "2.3.2-12"
+    "@acala-network/types" "2.3.2-12"
     "@babel/runtime" "^7.10.2"
     "@open-web3/orml-api-derive" "^0.9.4-38"
     "@polkadot/api" "^5.9.1"
     "@polkadot/rpc-core" "^5.9.1"
 
-"@acala-network/sdk-core@2.3.2-11", "@acala-network/sdk-core@^2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk-core/-/sdk-core-2.3.2-11.tgz#d19c5a3b469facba42f9d25e1a32def2b320955c"
-  integrity sha512-PQyxLGd+UK4dMDrbRX3YbA5IbLBULNRvCgvS6nJUNNgPPGWNtfZk8vo70BtbAOnV8bOjaPipJEkof7Pz89mQBg==
+"@acala-network/sdk-core@2.3.2-12", "@acala-network/sdk-core@^2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk-core/-/sdk-core-2.3.2-12.tgz#7d0f0dae9ad6c8cf3c57c55b38a6f54f47b3f968"
+  integrity sha512-+o+3NvVBxWcABEXZ8IsAv3oJsiK947cO9hAqnIOhQCuU0gm5sJdRFY7wjlYLclC2RdMP5ggbssz7QU83j2xM6Q==
   dependencies:
-    "@acala-network/api" "2.3.2-11"
-    "@acala-network/type-definitions" "2.3.2-11"
+    "@acala-network/api" "2.3.2-12"
+    "@acala-network/type-definitions" "2.3.2-12"
     "@polkadot/api" "^5.9.1"
     "@polkadot/types" "^5.9.1"
     "@types/events" "^3.0.0"
@@ -38,41 +38,41 @@
     events "^3.2.0"
     lodash "^4.17.20"
 
-"@acala-network/sdk-swap@^2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk-swap/-/sdk-swap-2.3.2-11.tgz#20eacd5ee5798fde06e385c9e655322c95a71634"
-  integrity sha512-UUMhhettalW95Jk8EWnQ5rbTfveT3o2OF0zXbAcnYsI+cLoFDVOsu0Ekx0unSLV9IoQkdYbJDJ5PLIJ8N6FEAA==
+"@acala-network/sdk-swap@^2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk-swap/-/sdk-swap-2.3.2-12.tgz#8761cc3f5a3adf479a407bc7a179290d071b4b17"
+  integrity sha512-k4H+vgkUM5NyHHlN0GwNi8RELZFsoL8tCc5IOAjg7kOqkImWJyCBCKpf1PIDGLcHP1pIVt81uNPS1yUxvMJYUQ==
   dependencies:
-    "@acala-network/sdk-core" "2.3.2-11"
+    "@acala-network/sdk-core" "2.3.2-12"
     "@polkadot/api" "^5.9.1"
     "@polkadot/types" "^5.9.1"
     lodash "^4.17.20"
     rxjs "^7.3.0"
 
-"@acala-network/sdk-wallet@^2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk-wallet/-/sdk-wallet-2.3.2-11.tgz#64007eaeeb48c63bca291a0160de9a0776568468"
-  integrity sha512-O2ESHXfBsxeRm5hgLsJv492m8eAH77X5vx8XacOtJEfOSyOxqFaYjsP3njOj6Y02P93EF9mHQBX0wpfFlRrRxg==
+"@acala-network/sdk-wallet@^2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk-wallet/-/sdk-wallet-2.3.2-12.tgz#d6cefddbd6c7afa3b5d8374edc5c51cf101f4da9"
+  integrity sha512-3+FG8ubk4jCPNQRRbL9d3nkrRF/hO9I2YoFFSD4pTRpGHaEttzYy3p94roDkrosQXcwXIvqmSncTMi+nIYoNrQ==
   dependencies:
-    "@acala-network/sdk-core" "2.3.2-11"
+    "@acala-network/sdk-core" "2.3.2-12"
     "@polkadot/api" "^5.9.1"
     "@polkadot/types" "^5.9.1"
     lodash "^4.17.20"
     rxjs "^7.3.0"
 
-"@acala-network/type-definitions@2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/type-definitions/-/type-definitions-2.3.2-11.tgz#6102ee34b9646f6388e369f75b7af735039a328c"
-  integrity sha512-ww5hm7lEICtQAVpNOtvH/sQA+9zkG4ghL4JAZIH4eXZkiHVatAQwbxg3pH96loB2ciAIOI4yQlSP+jpaqo3lEQ==
+"@acala-network/type-definitions@2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/type-definitions/-/type-definitions-2.3.2-12.tgz#5824b3dbddc83748f1ed6165e9002f7b3d356a8f"
+  integrity sha512-7p6I0pHlKqUM/Q76ZXXeg3D1eNGVyRr4xZIL3U7lCNZSetP3qZE52rKGofCAegmETFexZn7/ne4RgbfVZ6sPBQ==
   dependencies:
     "@open-web3/orml-type-definitions" "^0.9.4-38"
 
-"@acala-network/types@2.3.2-11":
-  version "2.3.2-11"
-  resolved "https://registry.yarnpkg.com/@acala-network/types/-/types-2.3.2-11.tgz#3c0a84c3f61c9d3aa1dbdfc59a2209a79c0c9598"
-  integrity sha512-ij1BPLisk2vekYX/3DMR9kqtvWvVvz//4Tn64KHivq191ctoeIkooSxZTtkRpUO5Agf6yvtOcpPeAX8Nmi0Jcw==
+"@acala-network/types@2.3.2-12":
+  version "2.3.2-12"
+  resolved "https://registry.yarnpkg.com/@acala-network/types/-/types-2.3.2-12.tgz#182a35ce76d8f1f530c221db9435aca6da6b4890"
+  integrity sha512-bF0bqCiWMQ+rv40mys5IqcNPc9A3JsE+/ER/WiecieXBdHsi3cMK0MNq9fk0fSJisuKmSQPQFh3vpuWpkXwgKA==
   dependencies:
-    "@acala-network/type-definitions" "2.3.2-11"
+    "@acala-network/type-definitions" "2.3.2-12"
     "@babel/runtime" "^7.10.2"
     "@open-web3/api-mobx" "^0.9.4-38"
     "@open-web3/orml-types" "^0.9.4-38"
