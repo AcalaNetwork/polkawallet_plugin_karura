@@ -147,6 +147,8 @@ const Map<String, String> zhDex = {
   'homa.redeem.period': '解锁周期',
   'homa.redeem.day': '天',
   'homa.redeem.free': '资金池',
+  'homa.redeem.unbonding': '最长解封期',
+  'homa.redeem.receive': '将收到',
   'tx.fee.or': '或等额其他代币',
   'nft.title': 'NFTs',
   'nft.testnet': 'Mandala 测试网徽章',

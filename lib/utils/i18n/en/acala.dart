@@ -157,6 +157,8 @@ const Map<String, String> enDex = {
   'homa.redeem.period': 'Unbonding Period',
   'homa.redeem.day': 'Days',
   'homa.redeem.free': 'Pool',
+  'homa.redeem.unbonding': 'Max Unbonding Period',
+  'homa.redeem.receive': 'Expected to receive',
   'tx.fee.or': 'or equivalent in other tokens',
   'nft.title': 'NFTs',
   'nft.testnet': 'Mandala testnet badge',

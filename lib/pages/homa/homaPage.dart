@@ -8,6 +8,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
+import 'package:polkawallet_plugin_karura/pages/homa/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -39,12 +40,11 @@ class _HomaPageState extends State<HomaPage> {
     widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
     await widget.plugin.service.homa.queryHomaLiteStakingPool();
 
-    if (_timer != null) {
-      _timer.cancel();
+    if (_timer == null) {
+      _timer = Timer.periodic(Duration(seconds: 20), (timer) {
+        _refreshData();
+      });
     }
-    _timer = Timer(Duration(seconds: 20), () {
-      _refreshData();
-    });
   }
 
   Future<void> _onSubmitWithdraw(int liquidDecimal) async {
@@ -377,50 +377,50 @@ class _HomaPageState extends State<HomaPage> {
                         ],
                       ),
                     ),
-                    liquidTokenIssuance >= BigInt.zero
-                        ? Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                  color: false
-                                      ? primary
-                                      : Theme.of(context).disabledColor,
-                                  child: TextButton(
-                                    child: Text(
-                                      '${dic['homa.redeem']} $stakeSymbol',
-                                      style: TextStyle(color: white),
-                                    ),
-                                    // onPressed: false
-                                    //     ? () => Navigator.of(context)
-                                    //         .pushNamed(HomaRedeemPage.route)
-                                    //     : null,
+                    Visibility(
+                        visible: liquidTokenIssuance >= BigInt.zero,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                color: true
+                                    ? primary
+                                    : Theme.of(context).disabledColor,
+                                child: TextButton(
+                                  child: Text(
+                                    '${dic['homa.redeem']} $stakeSymbol',
+                                    style: TextStyle(color: white),
                                   ),
+                                  onPressed: true
+                                      ? () => Navigator.of(context)
+                                          .pushNamed(RedeemPage.route)
+                                      : null,
                                 ),
                               ),
-                              Expanded(
-                                child: Container(
-                                  color: staked < cap
-                                      ? Theme.of(context).accentColor
-                                      : Theme.of(context).disabledColor,
-                                  child: TextButton(
-                                    child: Text(
-                                      '${dic['homa.mint']} L$stakeSymbol',
-                                      style: TextStyle(color: white),
-                                    ),
-                                    onPressed: staked < cap
-                                        ? () async {
-                                            if (!(await _confirmMint())) return;
+                            ),
+                            Expanded(
+                              child: Container(
+                                color: staked < cap
+                                    ? Theme.of(context).accentColor
+                                    : Theme.of(context).disabledColor,
+                                child: TextButton(
+                                  child: Text(
+                                    '${dic['homa.mint']} L$stakeSymbol',
+                                    style: TextStyle(color: white),
+                                  ),
+                                  onPressed: staked < cap
+                                      ? () async {
+                                          if (!(await _confirmMint())) return;
 
-                                            Navigator.of(context)
-                                                .pushNamed(MintPage.route);
-                                          }
-                                        : null,
-                                  ),
+                                          Navigator.of(context)
+                                              .pushNamed(MintPage.route);
+                                        }
+                                      : null,
                                 ),
                               ),
-                            ],
-                          )
-                        : Container(),
+                            ),
+                          ],
+                        )),
                   ],
                 ),
               )

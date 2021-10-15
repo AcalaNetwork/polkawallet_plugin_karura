@@ -1,0 +1,349 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
+import 'package:polkawallet_sdk/storage/keyring.dart';
+import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/roundedButton.dart';
+import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/format.dart';
+
+class RedeemPage extends StatefulWidget {
+  RedeemPage(this.plugin, this.keyring);
+  final PluginKarura plugin;
+  final Keyring keyring;
+
+  static const String route = '/karura/homa/redeem';
+
+  @override
+  _RedeemPageState createState() => _RedeemPageState();
+}
+
+class _RedeemPageState extends State<RedeemPage> {
+  final TextEditingController _amountPayCtrl = new TextEditingController();
+
+  bool homaNow = false;
+
+  final _payFocusNode = FocusNode();
+
+  String _error;
+  String _amountReceive = '';
+  BigInt _maxInput;
+
+  List<String> symbols;
+  final stakeToken = relay_chain_token_symbol;
+  List<int> decimals;
+
+  double karBalance;
+  TokenBalanceData balanceData;
+
+  int stakeDecimal;
+  double balanceDouble;
+
+  double minStake;
+
+  @override
+  void initState() {
+    super.initState();
+
+    symbols = widget.plugin.networkState.tokenSymbol;
+    decimals = widget.plugin.networkState.tokenDecimals;
+
+    karBalance = Fmt.balanceDouble(
+        widget.plugin.balances.native.availableBalance.toString(),
+        decimals[symbols.indexOf("L$stakeToken")]);
+    balanceData = widget.plugin.store.assets.tokenBalanceMap["L$stakeToken"];
+
+    stakeDecimal = decimals[symbols.indexOf("L$stakeToken")];
+    balanceDouble = Fmt.balanceDouble(balanceData.amount, stakeDecimal);
+
+    minStake = Fmt.balanceDouble(
+            widget.plugin.networkConst['homaLite']['minimumMintThreshold']
+                .toString(),
+            stakeDecimal) +
+        Fmt.balanceDouble(
+            widget.plugin.networkConst['homaLite']['mintFee'].toString(),
+            stakeDecimal);
+  }
+
+  Future<void> _updateReceiveAmount(double input) async {
+    if (mounted) {
+      if (homaNow) {
+      } else {
+        final poolInfo = widget.plugin.store.homa.poolInfo;
+        final mintFee = Fmt.balanceDouble(
+            widget.plugin.networkConst['homaLite']['mintFee'].toString(),
+            stakeDecimal);
+        final maxRewardPerEra = int.parse(widget
+                .plugin.networkConst['homaLite']['maxRewardPerEra']
+                .toString()) /
+            1000000; // type of maxRewardPerEra is PerMill
+        final exchangeRate = poolInfo.staked > BigInt.zero
+            ? (poolInfo.staked / poolInfo.liquidTokenIssuance)
+            : Fmt.balanceDouble(
+                widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
+                acala_price_decimals);
+        final receive =
+            (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
+
+        setState(() {
+          _amountReceive =
+              Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
+        });
+      }
+    }
+  }
+
+  void _onSupplyAmountChange(String v) {
+    final supply = v.trim();
+    setState(() {
+      _maxInput = null;
+    });
+
+    final error = _validateInput(supply);
+    setState(() {
+      _error = error;
+      if (error != null) {
+        _amountReceive = '';
+      }
+    });
+    // if (error != null) {
+    //   return;
+    // }
+    _updateReceiveAmount(double.parse(supply));
+  }
+
+  String _validateInput(String supply) {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    String error;
+    if (supply.isEmpty) {
+      return dic['amount.error'];
+    }
+    try {
+      final pay = double.parse(supply);
+      if (_maxInput == null && pay > balanceDouble) {
+        return dic['amount.low'];
+      }
+
+      if (pay <= minStake) {
+        final minLabel = I18n.of(context)
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.min'];
+        return '$minLabel > ${minStake.toStringAsFixed(4)}';
+      }
+
+      final symbols = widget.plugin.networkState.tokenSymbol;
+      final decimals = widget.plugin.networkState.tokenDecimals;
+      final stakeDecimal = decimals[symbols.indexOf(relay_chain_token_symbol)];
+      final poolInfo = widget.plugin.store.homa.poolInfo;
+      if (Fmt.tokenInt(supply, stakeDecimal) + poolInfo.staked > poolInfo.cap) {
+        return I18n.of(context)
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
+      }
+    } catch (err) {
+      error = dic['amount.error'];
+    }
+    return error;
+  }
+
+  void _onSetMax(BigInt max) {
+    final poolInfo = widget.plugin.store.homa.poolInfo;
+    if (poolInfo.staked + max > poolInfo.cap) {
+      max = poolInfo.cap - poolInfo.staked;
+    }
+
+    final amount = Fmt.bigIntToDouble(max, stakeDecimal);
+    setState(() {
+      _amountPayCtrl.text = amount.toStringAsFixed(6);
+      _maxInput = max;
+      _error = _validateInput(amount.toString());
+    });
+
+    _updateReceiveAmount(amount);
+  }
+
+  Future<void> _onSubmit() async {
+    final pay = _amountPayCtrl.text.trim();
+
+    if (_error != null || pay.isEmpty) return;
+
+    final params = [
+      _maxInput != null
+          ? _maxInput.toString()
+          : Fmt.tokenInt(pay, stakeDecimal).toString()
+    ];
+    final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
+        arguments: TxConfirmParams(
+          module: 'homaLite',
+          call: 'mint',
+          txTitle: I18n.of(context)
+              .getDic(i18n_full_dic_karura, 'acala')['homa.mint'],
+          txDisplay: {
+            "amountPay": pay,
+            "amountReceive": _amountReceive,
+          },
+          params: params,
+        ))) as Map;
+
+    if (res != null) {
+      // res['time'] = DateTime.now().millisecondsSinceEpoch;
+      // res['action'] = TxHomaData.actionMint;
+      // res['amountPay'] = pay;
+      // res['amountReceive'] = receive;
+      // res['params'] = params;
+      // widget.plugin.store.homa.addHomaTx(res, widget.keyring.current.pubKey);
+      // Navigator.of(context).pushNamed(HomaHistoryPage.route);
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _switchActon(bool value) {
+    setState(() {
+      homaNow = value;
+    });
+    if (_amountPayCtrl.text.length > 0) {
+      _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountPayCtrl.dispose();
+    _payFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(_) {
+    final grey = Theme.of(context).unselectedWidgetColor;
+    final labelStyle = TextStyle(color: grey, fontSize: 13);
+    return Observer(
+      builder: (BuildContext context) {
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('${dic['homa.redeem']} $stakeToken'),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
+                  icon: Icon(Icons.history))
+            ],
+          ),
+          body: SafeArea(
+            child: ListView(
+              padding: EdgeInsets.all(16),
+              children: <Widget>[
+                RoundedCard(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SwapTokenInput(
+                        title: dic['dex.pay'],
+                        inputCtrl: _amountPayCtrl,
+                        focusNode: _payFocusNode,
+                        balance: widget.plugin.store.assets
+                            .tokenBalanceMap["L$stakeToken"],
+                        tokenIconsMap: widget.plugin.tokenIcons,
+                        onInputChange: (v) => _onSupplyAmountChange(v),
+                        onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,
+                        onClear: () {
+                          setState(() {
+                            _amountPayCtrl.text = '';
+                          });
+                          _onSupplyAmountChange('');
+                        },
+                      ),
+                      ErrorMessage(_error),
+                      // Visibility(
+                      //     visible: _amountReceive.isNotEmpty,
+                      //     child: Container(
+                      //       margin: EdgeInsets.only(top: 16),
+                      //       child: InfoItemRow(dic['dex.receive'],
+                      //           '$_amountReceive L$stakeToken'),
+                      //     )),
+                      Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(dic['homa.now'],
+                                style: TextStyle(fontSize: 13)),
+                            Container(
+                              margin: EdgeInsets.only(left: 5),
+                              child: CupertinoSwitch(
+                                value: homaNow,
+                                onChanged: (res) => _switchActon(res),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 5),
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          border: Border.all(
+                              color: Theme.of(context).disabledColor,
+                              width: 0.5),
+                        ),
+                        child: Column(
+                          children: [
+                            Visibility(
+                                visible: !homaNow,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(dic['homa.redeem.unbonding'],
+                                        style: labelStyle),
+                                    Text("9 ${dic['homa.redeem.day']}")
+                                  ],
+                                )),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(dic['homa.redeem.receive'],
+                                    style: labelStyle),
+                                Text(
+                                    "${_amountReceive.isNotEmpty ? _amountReceive : 0} $stakeToken")
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(dic['homa.redeem.fee'], style: labelStyle),
+                                Text("0 $stakeToken")
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: RoundedButton(
+                    text: dic['homa.mint'],
+                    onPressed: () => _onSubmit(),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
