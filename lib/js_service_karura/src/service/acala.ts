@@ -5,14 +5,18 @@ import { hexToString } from "@polkadot/util";
 import { nft_image_config, tokensForKarura } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
+import { HomaLite } from "./homaLite";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
+import { HomaLiteMintResult, HomaLiteRedeemResult } from "./homaLite/types";
 
 const ONE = FixedPointNumber.ONE;
 const ACA_SYS_BLOCK_TIME = new BN(12000);
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
+const KSM_DECIMAL = 12;
 
 let walletPromise: WalletPromise;
+let homaApi: HomaLite;
 
 function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
   return ONE.minus(
@@ -425,7 +429,7 @@ async function _transformClassInfo(id: number, data: any): Promise<Omit<any, "to
       throw new Error("fetch metadata error");
     }
 
-    const data = metadataResult.data;
+    const data: any = metadataResult.data;
 
     name = data.name as string;
     description = data.description as string;
@@ -600,6 +604,45 @@ async function queryIncentives(api: ApiPromise) {
   return res;
 }
 
+async function calcHomaMintAmount(api: ApiPromise, amount: number) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+    homaApi = new HomaLite(api, walletPromise);
+  }
+
+  const res: HomaLiteMintResult = await homaApi.mint(new FixedPointNumber(amount, KSM_DECIMAL));
+  return {
+    fee: res.fee.toNumber().toFixed(8),
+    received: res.received.toNumber().toFixed(8),
+  };
+}
+
+async function calcHomaRedeemAmount(api: ApiPromise, amount: number, isByDex: boolean) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+    homaApi = new HomaLite(api, walletPromise);
+  }
+
+  if (isByDex) {
+    const swapper = new SwapPromise(api);
+    const res: HomaLiteRedeemResult = await homaApi.redeemFromDex(
+      swapper,
+      new FixedPointNumber(amount, KSM_DECIMAL),
+      new FixedPointNumber(0.005)
+    );
+    return {
+      fee: res.fee.toNumber().toFixed(8),
+      expected: res.expected.toNumber().toFixed(8),
+    };
+  }
+
+  const res: HomaLiteRedeemResult = await homaApi.redeem(new FixedPointNumber(amount, KSM_DECIMAL));
+  return {
+    fee: res.fee.toNumber().toFixed(8),
+    expected: res.expected.toNumber().toFixed(8),
+  };
+}
+
 export default {
   calcTokenSwapAmount,
   queryLPTokens,
@@ -614,4 +657,8 @@ export default {
   queryNFTs,
   checkExistentialDepositForTransfer,
   queryIncentives,
+
+  // homaLite
+  calcHomaMintAmount,
+  calcHomaRedeemAmount,
 };
