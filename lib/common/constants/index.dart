@@ -129,6 +129,7 @@ const dex_incentive_loyalty_end_block = {
   'LKSM': 1503600,
 };
 
+// todo: remove this, tx control config has been built in UI.TxConfirmPage.dart
 const action_loan_adjust = 'honzon.adjustLoan';
 const action_loan_close = 'honzon.closeLoanHasDebitByDex';
 const action_swap_add_lp = 'dex.addLiquidity';

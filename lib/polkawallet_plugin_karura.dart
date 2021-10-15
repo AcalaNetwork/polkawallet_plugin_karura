@@ -273,6 +273,7 @@ class PluginKarura extends PolkawalletPlugin {
     _service = PluginService(this, keyring);
 
     _service.fetchLiveModules();
+    _service.fetchXcmTokensConfig();
   }
 
   @override

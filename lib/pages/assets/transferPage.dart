@@ -157,19 +157,10 @@ class _TransferPageState extends State<TransferPage> {
   /// XCM only support KSM transfer back to Kusama.
   void _onSelectChain(Map<String, Widget> crossChainIcons) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    // final options = [widget.plugin.basic.name];
-    // switch (_token) {
-    //   case relay_chain_token_symbol:
-    //     options.addAll([relay_chain_name, para_chain_name_bifrost]);
-    //     break;
-    //   case karura_stable_coin:
-    //   case para_chain_token_symbol_bifrost:
-    //   case 'VSKSM':
-    //     options.add(para_chain_name_bifrost);
-    //     break;
-    // }
-    // todo: xcm transfer to bifrost is not opened
-    final options = [widget.plugin.basic.name, relay_chain_name];
+
+    final List tokenXcmConfig =
+        widget.plugin.store.setting.xcmTokensConfig[_token];
+    final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
     showCupertinoModalPopup(
       context: context,
@@ -396,12 +387,10 @@ class _TransferPageState extends State<TransferPage> {
         final token = _token ?? args;
         final tokenView = PluginFmt.tokenView(token);
 
-        // final canCrossChain = token == relay_chain_token_symbol ||
-        //     token == karura_stable_coin ||
-        //     token == 'VSKSM' ||
-        //     token == para_chain_token_symbol_bifrost;
-        // todo: xcm transfer to bifrost is not opened
-        final canCrossChain = token == relay_chain_token_symbol;
+        final List tokenXcmConfig =
+            widget.plugin.store.setting.xcmTokensConfig[token];
+        final canCrossChain =
+            tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
         final nativeToken = widget.plugin.networkState.tokenSymbol[0];
         final nativeTokenBalance =

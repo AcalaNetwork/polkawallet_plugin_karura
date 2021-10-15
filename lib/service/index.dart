@@ -57,4 +57,11 @@ class PluginService {
       plugin.store.setting.setLiveModules(config_modules);
     }
   }
+
+  Future<void> fetchXcmTokensConfig() async {
+    final res = await WalletApi.getXcmTokensConfig();
+    if (res != null) {
+      plugin.store.setting.setXcmTokensConfig(res);
+    }
+  }
 }
