@@ -35,7 +35,7 @@ class HomaPage extends StatefulWidget {
 
 class _HomaPageState extends State<HomaPage> {
   Timer _timer;
-  BigInt unlockingKsm;
+  String unlockingKsm;
 
   Future<void> _refreshData() async {
     widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
@@ -45,7 +45,7 @@ class _HomaPageState extends State<HomaPage> {
         .redeemRequested(widget.keyring.current.address);
     if (data != null && data.length > 0) {
       setState(() {
-        unlockingKsm = Fmt.balanceInt('${data[0]}');
+        unlockingKsm = data;
       });
     } else if (unlockingKsm != null) {
       setState(() {
@@ -348,10 +348,8 @@ class _HomaPageState extends State<HomaPage> {
                                               ),
                                               InfoItem(
                                                 title:
-                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-                                                content: Fmt.priceFloor(
-                                                    balanceStakeToken,
-                                                    lengthMax: 4),
+                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'))}',
+                                                content: unlockingKsm ?? '0',
                                                 lowTitle: true,
                                               ),
                                             ],

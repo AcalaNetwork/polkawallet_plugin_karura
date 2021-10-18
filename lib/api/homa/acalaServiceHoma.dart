@@ -43,7 +43,7 @@ class AcalaServiceHoma {
 
   Future<dynamic> redeemRequested(String address) async {
     final dynamic res = await plugin.sdk.webView
-        .evalJavascript('api.query.homaLite.redeemRequests("$address")');
+        .evalJavascript('acala.queryRedeemRequest(api,"$address")');
     return res;
   }
 }
