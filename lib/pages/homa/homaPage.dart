@@ -35,10 +35,23 @@ class HomaPage extends StatefulWidget {
 
 class _HomaPageState extends State<HomaPage> {
   Timer _timer;
+  BigInt unlockingKsm;
 
   Future<void> _refreshData() async {
     widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
     await widget.plugin.service.homa.queryHomaLiteStakingPool();
+
+    var data = await widget.plugin.api.homa
+        .redeemRequested(widget.keyring.current.address);
+    if (data != null && data.length > 0) {
+      setState(() {
+        unlockingKsm = Fmt.balanceInt('${data[0]}');
+      });
+    } else if (unlockingKsm != null) {
+      setState(() {
+        unlockingKsm = null;
+      });
+    }
 
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
@@ -309,41 +322,46 @@ class _HomaPageState extends State<HomaPage> {
                                   margin: EdgeInsets.only(bottom: 24),
                                   child: Text(dic['homa.user.stats']),
                                 ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                        child: Container(
-                                      padding: EdgeInsets.only(left: 50),
-                                      child: Text(
-                                        dic['homa.user.unlocking'],
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400),
+                                Visibility(
+                                    visible: unlockingKsm != null,
+                                    child: Column(children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                              child: Container(
+                                            padding: EdgeInsets.only(left: 50),
+                                            child: Text(
+                                              dic['homa.user.unlocking'],
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w400),
+                                            ),
+                                          )),
+                                          Expanded(
+                                              child: Row(
+                                            children: [
+                                              Container(
+                                                margin:
+                                                    EdgeInsets.only(right: 8),
+                                                child: TokenIcon(stakeSymbol,
+                                                    widget.plugin.tokenIcons),
+                                              ),
+                                              InfoItem(
+                                                title:
+                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                                content: Fmt.priceFloor(
+                                                    balanceStakeToken,
+                                                    lengthMax: 4),
+                                                lowTitle: true,
+                                              ),
+                                            ],
+                                          ))
+                                        ],
                                       ),
-                                    )),
-                                    Expanded(
-                                        child: Row(
-                                      children: [
-                                        Container(
-                                          margin: EdgeInsets.only(right: 8),
-                                          child: TokenIcon(stakeSymbol,
-                                              widget.plugin.tokenIcons),
-                                        ),
-                                        InfoItem(
-                                          title:
-                                              '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-                                          content: Fmt.priceFloor(
-                                              balanceStakeToken,
-                                              lengthMax: 4),
-                                          lowTitle: true,
-                                        ),
-                                      ],
-                                    ))
-                                  ],
-                                ),
-                                Container(
-                                  child: Divider(height: 24),
-                                ),
+                                      Container(
+                                        child: Divider(height: 24),
+                                      )
+                                    ])),
                                 Row(
                                   children: [
                                     Expanded(
@@ -385,7 +403,7 @@ class _HomaPageState extends State<HomaPage> {
                                         child: Container(
                                       padding: EdgeInsets.only(left: 50),
                                       child: Text(
-                                        'L$stakeSymbol',
+                                        dic['homa.user.lksm'],
                                         style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w400),
@@ -425,7 +443,7 @@ class _HomaPageState extends State<HomaPage> {
                           children: <Widget>[
                             Expanded(
                               child: Container(
-                                color: true
+                                color: false
                                     ? primary
                                     : Theme.of(context).disabledColor,
                                 child: TextButton(
@@ -433,7 +451,7 @@ class _HomaPageState extends State<HomaPage> {
                                     '${dic['homa.redeem']} $stakeSymbol',
                                     style: TextStyle(color: white),
                                   ),
-                                  onPressed: true
+                                  onPressed: false
                                       ? () => Navigator.of(context)
                                           .pushNamed(RedeemPage.route)
                                       : null,

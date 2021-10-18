@@ -40,4 +40,10 @@ class AcalaServiceHoma {
         .evalJavascript('acala.calcHomaRedeemAmount(api, $input,$isByDex)');
     return res;
   }
+
+  Future<dynamic> redeemRequested(String address) async {
+    final dynamic res = await plugin.sdk.webView
+        .evalJavascript('api.query.homaLite.redeemRequests("$address")');
+    return res;
+  }
 }

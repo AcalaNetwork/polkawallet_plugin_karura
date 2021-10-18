@@ -341,7 +341,7 @@ packages:
       name: flutter_svg
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.22.0"
+    version: "0.23.0+1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -740,17 +740,17 @@ packages:
   polkawallet_sdk:
     dependency: "direct main"
     description:
-      name: polkawallet_sdk
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "../sdk"
+      relative: true
+    source: path
     version: "0.3.4"
   polkawallet_ui:
     dependency: "direct main"
     description:
-      name: polkawallet_ui
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.3.3"
+      path: "../ui"
+      relative: true
+    source: path
+    version: "0.3.4"
   pool:
     dependency: transitive
     description:

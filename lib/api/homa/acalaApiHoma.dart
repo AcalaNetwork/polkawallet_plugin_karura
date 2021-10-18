@@ -40,4 +40,9 @@ class AcalaApiHoma {
     final Map res = await service.calcHomaRedeemAmount(input, isByDex);
     return CalcHomaRedeemAmount.fromJson(res);
   }
+
+  Future<dynamic> redeemRequested(String address) async {
+    final dynamic res = await service.redeemRequested(address);
+    return res;
+  }
 }
