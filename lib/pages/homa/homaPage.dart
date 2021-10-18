@@ -323,7 +323,9 @@ class _HomaPageState extends State<HomaPage> {
                                   child: Text(dic['homa.user.stats']),
                                 ),
                                 Visibility(
-                                    visible: unlockingKsm != null,
+                                    visible: unlockingKsm != null &&
+                                        double.tryParse(unlockingKsm ?? '0') !=
+                                            0,
                                     child: Column(children: [
                                       Row(
                                         children: [
