@@ -43,7 +43,7 @@ const cross_chain_xcm_fees = {
     },
     para_chain_token_symbol_bifrost: {
       'fee': '3840000000',
-      'existentialDeposit': '100000000',
+      'existentialDeposit': '10000000000',
     },
     'VSKSM': {
       'fee': '48000000',
