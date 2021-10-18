@@ -159,7 +159,7 @@ incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},
 dexPoolInfoMap: ${dexPoolInfoMap},
-dexPoolInfoMapV2: ${dexPoolInfoMapV2},
+dexPoolInfoMapV2: ${dexPoolInfoMapV2}
     ''';
   }
 }

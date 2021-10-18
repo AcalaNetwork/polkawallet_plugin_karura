@@ -147,6 +147,7 @@ const Map<String, String> enDex = {
   'homa.user.redeemable': 'Redeemable',
   'homa.user.stats': 'My Stats',
   'homa.user.ksm': 'Free KSM',
+  'homa.user.unlocking': 'Unlocking KSM',
   'homa.user.lksm': 'Liquid KSM',
   'homa.mint.profit': 'Estimated Profit / Era',
   'homa.mint.warn':

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
@@ -35,8 +38,9 @@ class _RedeemPageState extends State<RedeemPage> {
   final _payFocusNode = FocusNode();
 
   String _error;
-  String _amountReceive = '';
   BigInt _maxInput;
+
+  CalcHomaRedeemAmount _data;
 
   List<String> symbols;
   final stakeToken = relay_chain_token_symbol;
@@ -49,6 +53,8 @@ class _RedeemPageState extends State<RedeemPage> {
   double balanceDouble;
 
   double minStake;
+
+  Timer _timer;
 
   @override
   void initState() {
@@ -76,29 +82,34 @@ class _RedeemPageState extends State<RedeemPage> {
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
-      if (homaNow) {
-      } else {
-        final poolInfo = widget.plugin.store.homa.poolInfo;
-        final mintFee = Fmt.balanceDouble(
-            widget.plugin.networkConst['homaLite']['mintFee'].toString(),
-            stakeDecimal);
-        final maxRewardPerEra = int.parse(widget
-                .plugin.networkConst['homaLite']['maxRewardPerEra']
-                .toString()) /
-            1000000; // type of maxRewardPerEra is PerMill
-        final exchangeRate = poolInfo.staked > BigInt.zero
-            ? (poolInfo.staked / poolInfo.liquidTokenIssuance)
-            : Fmt.balanceDouble(
-                widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
-                acala_price_decimals);
-        final receive =
-            (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
+      var data =
+          await widget.plugin.api.homa.calcHomaRedeemAmount(input, homaNow);
+      setState(() {
+        _data = data;
+      });
+      //   if (homaNow) {
+      //   } else {
+      //     final poolInfo = widget.plugin.store.homa.poolInfo;
+      //     final mintFee = Fmt.balanceDouble(
+      //         widget.plugin.networkConst['homaLite']['mintFee'].toString(),
+      //         stakeDecimal);
+      //     final maxRewardPerEra = int.parse(widget
+      //             .plugin.networkConst['homaLite']['maxRewardPerEra']
+      //             .toString()) /
+      //         1000000; // type of maxRewardPerEra is PerMill
+      //     final exchangeRate = poolInfo.staked > BigInt.zero
+      //         ? (poolInfo.staked / poolInfo.liquidTokenIssuance)
+      //         : Fmt.balanceDouble(
+      //             widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
+      //             acala_price_decimals);
+      //     final receive =
+      //         (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
 
-        setState(() {
-          _amountReceive =
-              Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
-        });
-      }
+      //     setState(() {
+      //       _amountReceive =
+      //           Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
+      //     });
+      //   }
     }
   }
 
@@ -112,12 +123,13 @@ class _RedeemPageState extends State<RedeemPage> {
     setState(() {
       _error = error;
       if (error != null) {
-        _amountReceive = '';
+        _data = null;
       }
     });
-    // if (error != null) {
-    //   return;
-    // }
+
+    if (error != null) {
+      return;
+    }
     _updateReceiveAmount(double.parse(supply));
   }
 
@@ -174,32 +186,47 @@ class _RedeemPageState extends State<RedeemPage> {
 
     if (_error != null || pay.isEmpty) return;
 
-    final params = [
+    var params = [
       _maxInput != null
           ? _maxInput.toString()
-          : Fmt.tokenInt(pay, stakeDecimal).toString()
+          : Fmt.tokenInt(pay, stakeDecimal).toString(),
+      0
     ];
+    var module = 'homaLite';
+    var call = 'requestRedeem';
+    var txDisplay = {
+      "amountPay": pay,
+      "amountReceive": _data.expected,
+    };
+    if (homaNow) {
+      module = 'dex';
+      call = 'swapWithExactSupply';
+      txDisplay = {
+        "currencyPay": 'L$stakeToken',
+        "amountPay": pay,
+        "currencyReceive": stakeToken,
+        "amountReceive": _data.expected,
+      };
+      params = [
+        [
+          {'Token': 'L$stakeToken'},
+          {'Token': stakeToken}
+        ],
+        Fmt.tokenInt(pay, decimals[symbols.indexOf("L$stakeToken")]).toString(),
+        "0",
+      ];
+    }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: 'homaLite',
-          call: 'mint',
+          module: module,
+          call: call,
           txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_karura, 'acala')['homa.mint'],
-          txDisplay: {
-            "amountPay": pay,
-            "amountReceive": _amountReceive,
-          },
+              .getDic(i18n_full_dic_karura, 'acala')['homa.redeem'],
+          txDisplay: txDisplay,
           params: params,
         ))) as Map;
 
     if (res != null) {
-      // res['time'] = DateTime.now().millisecondsSinceEpoch;
-      // res['action'] = TxHomaData.actionMint;
-      // res['amountPay'] = pay;
-      // res['amountReceive'] = receive;
-      // res['params'] = params;
-      // widget.plugin.store.homa.addHomaTx(res, widget.keyring.current.pubKey);
-      // Navigator.of(context).pushNamed(HomaHistoryPage.route);
       Navigator.of(context).pop();
     }
   }
@@ -211,12 +238,29 @@ class _RedeemPageState extends State<RedeemPage> {
     if (_amountPayCtrl.text.length > 0) {
       _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
     }
+
+    if (homaNow) {
+      if (_timer == null) {
+        _timer = Timer.periodic(Duration(seconds: 20), (timer) {
+          _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
+        });
+      }
+    } else {
+      if (_timer != null) {
+        _timer.cancel();
+        _timer = null;
+      }
+    }
   }
 
   @override
   void dispose() {
     _amountPayCtrl.dispose();
     _payFocusNode.dispose();
+    if (_timer != null) {
+      _timer.cancel();
+      _timer = null;
+    }
     super.dispose();
   }
 
@@ -316,14 +360,15 @@ class _RedeemPageState extends State<RedeemPage> {
                                 Text(dic['homa.redeem.receive'],
                                     style: labelStyle),
                                 Text(
-                                    "${_amountReceive.isNotEmpty ? _amountReceive : 0} $stakeToken")
+                                    "${_data != null ? _data.expected : 0} $stakeToken")
                               ],
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(dic['homa.redeem.fee'], style: labelStyle),
-                                Text("0 $stakeToken")
+                                Text(
+                                    "${_data != null ? _data.fee : 0} $stakeToken")
                               ],
                             ),
                           ],

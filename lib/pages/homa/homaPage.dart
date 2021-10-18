@@ -312,65 +312,107 @@ class _HomaPageState extends State<HomaPage> {
                                 Row(
                                   children: [
                                     Expanded(
-                                        child: Column(
-                                      children: [
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 8),
-                                          child: Text(
-                                            'L$stakeSymbol',
-                                            style: TextStyle(fontSize: 12),
-                                          ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              margin: EdgeInsets.only(right: 8),
-                                              child: TokenIcon('L$stakeSymbol',
-                                                  widget.plugin.tokenIcons),
-                                            ),
-                                            InfoItem(
-                                              title:
-                                                  '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
-                                              content: Fmt.priceFloor(
-                                                  balanceLiquidToken,
-                                                  lengthMax: 4),
-                                              lowTitle: true,
-                                            ),
-                                          ],
-                                        )
-                                      ],
+                                        child: Container(
+                                      padding: EdgeInsets.only(left: 50),
+                                      child: Text(
+                                        dic['homa.user.unlocking'],
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
                                     )),
                                     Expanded(
-                                        child: Column(
+                                        child: Row(
                                       children: [
                                         Container(
-                                          margin: EdgeInsets.only(bottom: 8),
-                                          child: Text(
-                                            dic['homa.user.ksm'],
-                                            style: TextStyle(fontSize: 12),
-                                          ),
+                                          margin: EdgeInsets.only(right: 8),
+                                          child: TokenIcon(stakeSymbol,
+                                              widget.plugin.tokenIcons),
                                         ),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              margin: EdgeInsets.only(right: 8),
-                                              child: TokenIcon(stakeSymbol,
-                                                  widget.plugin.tokenIcons),
-                                            ),
-                                            InfoItem(
-                                              title:
-                                                  '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-                                              content: Fmt.priceFloor(
-                                                  balanceStakeToken,
-                                                  lengthMax: 4),
-                                              lowTitle: true,
-                                            ),
-                                          ],
-                                        )
+                                        InfoItem(
+                                          title:
+                                              '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                          content: Fmt.priceFloor(
+                                              balanceStakeToken,
+                                              lengthMax: 4),
+                                          lowTitle: true,
+                                        ),
                                       ],
                                     ))
                                   ],
-                                )
+                                ),
+                                Container(
+                                  child: Divider(height: 24),
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Container(
+                                      padding: EdgeInsets.only(left: 50),
+                                      child: Text(
+                                        dic['homa.user.ksm'],
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    )),
+                                    Expanded(
+                                        child: Row(
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(right: 8),
+                                          child: TokenIcon(stakeSymbol,
+                                              widget.plugin.tokenIcons),
+                                        ),
+                                        InfoItem(
+                                          title:
+                                              '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                          content: Fmt.priceFloor(
+                                              balanceStakeToken,
+                                              lengthMax: 4),
+                                          lowTitle: true,
+                                        ),
+                                      ],
+                                    ))
+                                  ],
+                                ),
+                                Container(
+                                  child: Divider(height: 24),
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Container(
+                                      padding: EdgeInsets.only(left: 50),
+                                      child: Text(
+                                        'L$stakeSymbol',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    )),
+                                    Expanded(
+                                        child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(right: 8),
+                                          child: TokenIcon('L$stakeSymbol',
+                                              widget.plugin.tokenIcons),
+                                        ),
+                                        InfoItem(
+                                          title:
+                                              '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                          content: Fmt.priceFloor(
+                                              balanceLiquidToken,
+                                              lengthMax: 4),
+                                          lowTitle: true,
+                                        ),
+                                      ],
+                                    ))
+                                  ],
+                                ),
                               ],
                             ),
                           ),

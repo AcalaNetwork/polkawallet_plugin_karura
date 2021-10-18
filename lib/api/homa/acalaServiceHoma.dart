@@ -28,4 +28,16 @@ class AcalaServiceHoma {
         'acala.queryHomaRedeemAmount(api, $input, $redeemType, $era)');
     return res;
   }
+
+  Future<Map> calcHomaMintAmount(double input) async {
+    final Map res = await plugin.sdk.webView
+        .evalJavascript('acala.calcHomaMintAmount(api, $input)');
+    return res;
+  }
+
+  Future<Map> calcHomaRedeemAmount(double input, bool isByDex) async {
+    final Map res = await plugin.sdk.webView
+        .evalJavascript('acala.calcHomaRedeemAmount(api, $input,$isByDex)');
+    return res;
+  }
 }

@@ -11,9 +11,9 @@ export function getExchangeRate(totalStaking: FN, totalLiquid: FN, defaultExchan
 }
 
 export function convertLiquidToStaking(exchangeRate: FN, liquidAmount: FN) {
-  return exchangeRate.mul(liquidAmount);
+  return exchangeRate.reciprocal().mul(liquidAmount);
 }
 
 export function convertStakingToLiquid(exchangeRate: FN, stakingAmount: FN) {
-  return exchangeRate.reciprocal().mul(stakingAmount);
+  return exchangeRate.mul(stakingAmount);
 }

@@ -1,4 +1,6 @@
 import 'package:polkawallet_plugin_karura/api/homa/acalaServiceHoma.dart';
+import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart';
+import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaRedeemAmountData.dart';
 import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -26,5 +28,16 @@ class AcalaApiHoma {
       double input, int redeemType, era) async {
     final Map res = await service.queryHomaRedeemAmount(input, redeemType, era);
     return HomaRedeemAmountData.fromJson(res);
+  }
+
+  Future<CalcHomaMintAmountData> calcHomaMintAmount(double input) async {
+    final Map res = await service.calcHomaMintAmount(input);
+    return CalcHomaMintAmountData.fromJson(res);
+  }
+
+  Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
+      double input, bool isByDex) async {
+    final Map res = await service.calcHomaRedeemAmount(input, isByDex);
+    return CalcHomaRedeemAmount.fromJson(res);
   }
 }
