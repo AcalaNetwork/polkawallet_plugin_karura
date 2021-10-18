@@ -78,6 +78,13 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
             final tokenValue = (tokenPrice ?? 0) > 0
                 ? tokenPrice * Fmt.bigIntToDouble(total, balance.decimals)
                 : 0;
+
+            final disabledTokens =
+                widget.plugin.store.setting.tokensConfig['disabled'];
+            bool transferDisabled = false;
+            if (disabledTokens != null) {
+              transferDisabled = List.of(disabledTokens).contains(token.id);
+            }
             return RefreshIndicator(
               key: _refreshKey,
               onRefresh: () =>
@@ -222,45 +229,48 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                   ),
                   Container(
                     color: titleColor,
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.fromLTRB(16, 8, 8, 8),
-                            child: RoundedButton(
-                              icon: Icon(Icons.qr_code,
-                                  color: titleColor, size: 24),
-                              text: dic['receive'],
-                              color: colorIn,
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                    context, AccountQrCodePage.route);
-                              },
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.fromLTRB(8, 8, 16, 8),
-                            child: RoundedButton(
-                              icon: SizedBox(
-                                height: 20,
-                                child: Image.asset(
-                                    'packages/polkawallet_plugin_karura/assets/images/assets_send.png'),
+                    child: Visibility(
+                      visible: !transferDisabled,
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(16, 8, 8, 8),
+                              child: RoundedButton(
+                                icon: Icon(Icons.qr_code,
+                                    color: titleColor, size: 24),
+                                text: dic['receive'],
+                                color: colorIn,
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, AccountQrCodePage.route);
+                                },
                               ),
-                              text: dic['transfer'],
-                              color: colorOut,
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  TransferPage.route,
-                                  arguments: token.id,
-                                );
-                              },
                             ),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(8, 8, 16, 8),
+                              child: RoundedButton(
+                                icon: SizedBox(
+                                  height: 20,
+                                  child: Image.asset(
+                                      'packages/polkawallet_plugin_karura/assets/images/assets_send.png'),
+                                ),
+                                text: dic['transfer'],
+                                color: colorOut,
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    TransferPage.route,
+                                    arguments: token.id,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

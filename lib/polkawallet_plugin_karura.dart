@@ -249,8 +249,11 @@ class PluginKarura extends PolkawalletPlugin {
       loadBalances(acc);
 
       _store.assets.loadCache(acc.pubKey);
-      balances.setTokens(_store.assets.tokenBalanceMap.values.toList(),
-          isFromCache: true);
+      final tokens = _store.assets.tokenBalanceMap.values.toList();
+      tokens.removeWhere((token) =>
+          List.of(service.plugin.store.setting.tokensConfig['invisible'])
+              .contains(token.id));
+      balances.setTokens(tokens, isFromCache: true);
 
       _store.loan.loadCache(acc.pubKey);
       _store.earn.loadCache(acc.pubKey);
@@ -275,7 +278,9 @@ class PluginKarura extends PolkawalletPlugin {
     _service = PluginService(this, keyring);
 
     _service.fetchLiveModules();
-    _service.fetchXcmTokensConfig();
+
+    // wait tokens config here for subscribe all tokens balances
+    await _service.fetchTokensConfig();
   }
 
   @override

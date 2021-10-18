@@ -643,6 +643,15 @@ async function calcHomaRedeemAmount(api: ApiPromise, amount: number, isByDex: bo
   };
 }
 
+async function queryRedeemRequest(api: ApiPromise, address: string) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+    homaApi = new HomaLite(api, walletPromise);
+  }
+
+  return homaApi.queryUserRedeemRequest(address);
+}
+
 export default {
   calcTokenSwapAmount,
   queryLPTokens,
@@ -661,4 +670,5 @@ export default {
   // homaLite
   calcHomaMintAmount,
   calcHomaRedeemAmount,
+  queryRedeemRequest,
 };

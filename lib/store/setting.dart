@@ -15,14 +15,14 @@ abstract class _SettingStore with Store {
   @observable
   Map liveModules = Map();
 
-  Map xcmTokensConfig = Map();
+  Map tokensConfig = Map();
 
   @action
   void setLiveModules(Map value) {
     liveModules = value;
   }
 
-  void setXcmTokensConfig(Map value) {
-    xcmTokensConfig = value;
+  void setTokensConfig(Map config) {
+    tokensConfig = config;
   }
 }

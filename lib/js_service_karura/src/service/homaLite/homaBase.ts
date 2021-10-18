@@ -141,7 +141,7 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     if (convertLiquidToStaking(actualLiquidAmount).gt(xcmUnbondFee)) {
       const actualStakingAmount = convertLiquidToStaking(actualLiquidAmount);
 
-      expected = expected.add(actualStakingAmount);
+      expected = expected.add(actualStakingAmount).minus(xcmUnbondFee);
       fee = fee.add(xcmUnbondFee);
       liquidRemaining = liquidRemaining.sub(actualLiquidAmount);
     }

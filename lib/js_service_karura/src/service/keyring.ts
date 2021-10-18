@@ -1,4 +1,4 @@
-import { keyExtractSuri, mnemonicGenerate, cryptoWaitReady, signatureVerify } from "@polkadot/util-crypto";
+import { keyExtractSuri, mnemonicGenerate, mnemonicValidate, cryptoWaitReady, signatureVerify, encodeAddress } from "@polkadot/util-crypto";
 import { hexToU8a, u8aToHex, isHex, stringToU8a } from "@polkadot/util";
 import BN from "bn.js";
 import { parseQrCode, getSigner, makeTx, getSubmittable } from "../utils/QrSigner";
@@ -12,16 +12,67 @@ import { ApiPromise, SubmittableResult } from "@polkadot/api";
 import { SubmittableExtrinsic } from "@polkadot/api/types";
 import { ITuple } from "@polkadot/types/types";
 import { DispatchError } from "@polkadot/types/interfaces";
+import account from "./account";
 let keyring = new Keyring({ ss58Format: 0, type: "sr25519" });
 
 /**
  * Generate a set of new mnemonic.
  */
-async function gen() {
-  const mnemonic = mnemonicGenerate();
+async function gen(mnemonic: string, ss58Format: number, cryptoType: KeypairType, derivePath: string) {
+  const key = mnemonic || mnemonicGenerate();
+  if (!mnemonicValidate(key)) return null;
+
+  const keyPair = keyring.addFromMnemonic(key + (derivePath || ""), {}, cryptoType || "sr25519");
+  const address = encodeAddress(keyPair.publicKey, ss58Format || 0);
+  const icons = await account.genIcons([address]);
   return {
-    mnemonic,
+    mnemonic: key,
+    address,
+    svg: icons[0][1],
   };
+}
+
+/**
+ * mnemonic validate.
+ */
+async function checkMnemonicValid(mnemonic: string) {
+  return mnemonicValidate(mnemonic);
+}
+
+/**
+ * get address and avatar from mnemonic.
+ */
+async function addressFromMnemonic(mnemonic: string, ss58Format: number, cryptoType: KeypairType, derivePath: string) {
+  let keyPair: KeyringPair;
+  try {
+    keyPair = keyring.addFromMnemonic(mnemonic + (derivePath || ""), {}, cryptoType);
+    const address = encodeAddress(keyPair.publicKey, ss58Format);
+    const icons = await account.genIcons([address]);
+    return {
+      address,
+      svg: icons[0][1],
+    };
+  } catch (err) {
+    return { error: err.message };
+  }
+}
+
+/**
+ * get address and avatar from rawSeed.
+ */
+async function addressFromRawSeed(rawSeed: string, ss58Format: number, cryptoType: KeypairType, derivePath: string) {
+  let keyPair: KeyringPair;
+  try {
+    keyPair = keyring.addFromUri(rawSeed + (derivePath || ""), {}, cryptoType);
+    const address = encodeAddress(keyPair.publicKey, ss58Format);
+    const icons = await account.genIcons([address]);
+    return {
+      address,
+      svg: icons[0][1],
+    };
+  } catch (err) {
+    return { error: err.message };
+  }
 }
 
 /**
@@ -35,6 +86,9 @@ function recover(keyType: string, cryptoType: KeypairType, key: string, password
     try {
       switch (keyType) {
         case "mnemonic":
+          if (!mnemonicValidate(key.split("/")[0])) {
+            throw new Error(`invalid mnemonic ${key}`);
+          }
           keyPair = keyring.addFromMnemonic(key, {}, cryptoType);
           mnemonic = key;
           break;
@@ -408,6 +462,9 @@ async function verifySignature(message: string, signature: string, address: stri
 export default {
   initKeys,
   gen,
+  checkMnemonicValid,
+  addressFromMnemonic,
+  addressFromRawSeed,
   recover,
   txFeeEstimate,
   sendTx,

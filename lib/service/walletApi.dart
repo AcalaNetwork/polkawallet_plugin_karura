@@ -36,8 +36,8 @@ class WalletApi {
     }
   }
 
-  static Future<Map> getXcmTokensConfig() async {
-    final url = '$_endpoint/config/karuraXcmTokens.json';
+  static Future<Map> getTokensConfig() async {
+    final url = '$_endpoint/config/karuraTokens.json';
     try {
       Response res = await get(Uri.parse(url));
       if (res == null) {

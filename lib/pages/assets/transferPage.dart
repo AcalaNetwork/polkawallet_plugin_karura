@@ -51,6 +51,8 @@ class _TransferPageState extends State<TransferPage> {
   TxFeeEstimateResult _fee;
   BigInt _amountMax;
 
+  bool _submitting = false;
+
   Future<String> _checkAccountTo(KeyPairData acc) async {
     if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc.pubKey) >=
         0) {
@@ -159,7 +161,7 @@ class _TransferPageState extends State<TransferPage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     final List tokenXcmConfig =
-        widget.plugin.store.setting.xcmTokensConfig[_token];
+        widget.plugin.store.setting.tokensConfig['xcm'][_token];
     final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
     showCupertinoModalPopup(
@@ -225,8 +227,10 @@ class _TransferPageState extends State<TransferPage> {
     );
   }
 
-  TxConfirmParams _getTxParams(String chainTo) {
-    if (_accountToError == null && _formKey.currentState.validate()) {
+  Future<TxConfirmParams> _getTxParams(String chainTo) async {
+    if (_accountToError == null &&
+        _formKey.currentState.validate() &&
+        !_submitting) {
       final decimals =
           widget.plugin.store.assets.tokenBalanceMap[_token].decimals;
       final tokenView = PluginFmt.tokenView(_token);
@@ -235,45 +239,40 @@ class _TransferPageState extends State<TransferPage> {
       if (chainTo != widget.plugin.basic.name) {
         final dicAcala = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
         final isToParent = _chainTo == relay_chain_name;
-        final dest = isToParent
-            ? {
-                'X2': [
-                  'Parent',
-                  {
-                    'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
+
+        String destPubKey = _accountTo.pubKey;
+        // we need to decode address for the pubKey here
+        if (destPubKey == null || destPubKey.isEmpty) {
+          setState(() {
+            _submitting = true;
+          });
+          final pk = await widget.plugin.sdk.api.account
+              .decodeAddress([_accountTo.address]);
+          setState(() {
+            _submitting = false;
+          });
+          if (pk == null) return null;
+
+          destPubKey = pk.keys.toList()[0];
+        }
+
+        final dest = [
+          1,
+          isToParent
+              ? {
+                  'X1': {
+                    'AccountId32': {'id': destPubKey, 'network': 'Any'}
                   }
-                ]
-              }
-            : {
-                'X3': [
-                  'Parent',
-                  {'Parachain': para_chain_ids[_chainTo]},
-                  {
-                    'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
-                  }
-                ]
-              };
-        // todo: new params for runtime 1.5.0
-        // final dest = [
-        //   1,
-        //   isToParent
-        //       ? {
-        //           'X1': {
-        //             'AccountId32': {'id': _accountTo.address, 'network': 'Any'}
-        //           }
-        //         }
-        //       : {
-        //           'X2': [
-        //             {'Parachain': para_chain_ids[_chainTo]},
-        //             {
-        //               'AccountId32': {
-        //                 'id': _accountTo.address,
-        //                 'network': 'Any'
-        //               }
-        //             }
-        //           ]
-        //         }
-        // ];
+                }
+              : {
+                  'X2': [
+                    {'Parachain': para_chain_ids[_chainTo]},
+                    {
+                      'AccountId32': {'id': destPubKey, 'network': 'Any'}
+                    }
+                  ]
+                }
+        ];
         return TxConfirmParams(
           txTitle:
               '${dicAcala['transfer']} $tokenView (${dicAcala['cross.xcm']})',
@@ -388,7 +387,7 @@ class _TransferPageState extends State<TransferPage> {
         final tokenView = PluginFmt.tokenView(token);
 
         final List tokenXcmConfig =
-            widget.plugin.store.setting.xcmTokensConfig[token];
+            widget.plugin.store.setting.tokensConfig['xcm'][token];
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
@@ -444,10 +443,10 @@ class _TransferPageState extends State<TransferPage> {
             child: Column(
               children: <Widget>[
                 Expanded(
-                  child: Form(
-                    key: _formKey,
-                    child: ListView(
-                      padding: EdgeInsets.all(16),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         AddressInputField(
                           widget.plugin.sdk.api,
@@ -471,56 +470,61 @@ class _TransferPageState extends State<TransferPage> {
                                         fontSize: 12, color: Colors.red)),
                               )
                             : Container(),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            hintText: dic['amount'],
-                            labelText:
-                                '${dic['amount']} (${dic['asset.transferable']}: ${Fmt.priceFloorBigInt(
-                              available,
-                              decimals,
-                              lengthMax: 6,
-                            )})',
-                            suffix: _fee?.partialFee != null &&
-                                    nativeTokenBalance >
-                                        Fmt.balanceInt(
-                                            _fee?.partialFee.toString())
-                                ? GestureDetector(
-                                    child: Text(dic['amount.max'],
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .primaryColor)),
-                                    onTap: () {
-                                      setState(() {
-                                        _amountMax = available;
-                                        _amountCtrl.text = Fmt.bigIntToDouble(
-                                                available, decimals)
-                                            .toStringAsFixed(8);
-                                      });
-                                    },
-                                  )
-                                : Container(),
+                        Form(
+                          key: _formKey,
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              hintText: dic['amount'],
+                              labelText:
+                                  '${dic['amount']} (${dic['asset.transferable']}: ${Fmt.priceFloorBigInt(
+                                available,
+                                decimals,
+                                lengthMax: 6,
+                              )})',
+                              suffix: _fee?.partialFee != null &&
+                                      nativeTokenBalance >
+                                          Fmt.balanceInt(
+                                              _fee?.partialFee.toString())
+                                  ? GestureDetector(
+                                      child: Text(dic['amount.max'],
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColor)),
+                                      onTap: () {
+                                        setState(() {
+                                          _amountMax = available;
+                                          _amountCtrl.text = Fmt.bigIntToDouble(
+                                                  available, decimals)
+                                              .toStringAsFixed(8);
+                                        });
+                                      },
+                                    )
+                                  : Container(),
+                            ),
+                            inputFormatters: [
+                              UI.decimalInputFormatter(decimals)
+                            ],
+                            controller: _amountCtrl,
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                            onChanged: (_) {
+                              setState(() {
+                                _amountMax = null;
+                              });
+                            },
+                            validator: (v) {
+                              if (v.isEmpty) {
+                                return dic['amount.error'];
+                              }
+                              if (_amountMax == null &&
+                                  double.parse(v.trim()) >
+                                      available /
+                                          BigInt.from(pow(10, decimals))) {
+                                return dic['amount.low'];
+                              }
+                              return null;
+                            },
                           ),
-                          inputFormatters: [UI.decimalInputFormatter(decimals)],
-                          controller: _amountCtrl,
-                          keyboardType:
-                              TextInputType.numberWithOptions(decimal: true),
-                          onChanged: (_) {
-                            setState(() {
-                              _amountMax = null;
-                            });
-                          },
-                          validator: (v) {
-                            if (v.isEmpty) {
-                              return dic['amount.error'];
-                            }
-                            if (_amountMax == null &&
-                                double.parse(v.trim()) >
-                                    available /
-                                        BigInt.from(pow(10, decimals))) {
-                              return dic['amount.low'];
-                            }
-                            return null;
-                          },
                         ),
                         Container(
                           color: Theme.of(context).canvasColor,

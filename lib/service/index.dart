@@ -58,10 +58,10 @@ class PluginService {
     }
   }
 
-  Future<void> fetchXcmTokensConfig() async {
-    final res = await WalletApi.getXcmTokensConfig();
+  Future<void> fetchTokensConfig() async {
+    final res = await WalletApi.getTokensConfig();
     if (res != null) {
-      plugin.store.setting.setXcmTokensConfig(res);
+      plugin.store.setting.setTokensConfig(res);
     }
   }
 }

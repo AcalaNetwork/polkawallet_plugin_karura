@@ -1,4 +1,4 @@
-import { FixedPointNumber as FN } from "@acala-network/sdk-core";
+import { FixedPointNumber as FN, MaybeAccount } from "@acala-network/sdk-core";
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 
@@ -10,7 +10,7 @@ import { ITuple } from "@polkadot/types/types";
 import { BaseHomaLite } from "./homaBase";
 import { MintLimitReachedError, RedeemNotEnableError } from "./errors";
 import { HomaLiteMintResult, HomaLiteRedeemResult, HomaLiteStorage } from "./types";
-import { convertLiquidToStaking, convertStakingToLiquid } from "./utils";
+import { convertLiquidToStaking, convertStakingToLiquid, getExchangeRate } from "./utils";
 
 export class HomaLite extends BaseHomaLite<ApiPromise> {
   public storage: HomaLiteStorage | undefined;
@@ -41,7 +41,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
       return {
         redeemer: key.toString(),
         amount: FN.fromInner(data.unwrapOrDefault()[0].toString(), this.constants.liquidToken.decimal),
-        extraFee: FN.fromInner(data.unwrapOrDefault()[1].toString()),
+        extraFee: FN.fromInner(data.unwrapOrDefault()[1].toString(), 6),
       };
     });
 
@@ -54,17 +54,8 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     };
   }
 
-  public getExchangeRate(liquidBalance: FN, stakingBalance: FN) {
-    let exchangeRate = FN.ZERO;
-
-    if (liquidBalance.isZero() && stakingBalance.isZero()) {
-      // FIXME: exchangeRate = this.constants.defaultExchangeRate;
-      exchangeRate = FN.fromInner("5300000000000000", 12).div(new FN(531.4833, 12));
-    } else {
-      exchangeRate = liquidBalance.div(stakingBalance);
-    }
-
-    return exchangeRate;
+  public getExchangeRate(stakingBalance: FN, liquidBalance: FN) {
+    return getExchangeRate(stakingBalance, liquidBalance);
   }
 
   private async mintV1(amount: FN): Promise<HomaLiteMintResult> {
@@ -78,7 +69,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     }
     const { mintGap, totalLiquiditeToken, totalStakingToken } = this.storage;
 
-    const exchangeRate = this.getExchangeRate(totalLiquiditeToken, totalStakingToken);
+    const exchangeRate = this.getExchangeRate(totalStakingToken, totalLiquiditeToken);
 
     if (!exchangeRate || !amount || amount.isZero() || amount.isNaN()) {
       return {
@@ -110,7 +101,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     }
 
     const { redeemRequests, totalLiquiditeToken, totalStakingToken } = this.storage;
-    const exchangeRate = this.getExchangeRate(totalLiquiditeToken, totalStakingToken);
+    const exchangeRate = this.getExchangeRate(totalStakingToken, totalLiquiditeToken);
     const _convertStakingToLiquid = (amt: FN) => convertStakingToLiquid(exchangeRate, amt);
     const _convertLiquidToStaking = (amt: FN) => convertLiquidToStaking(exchangeRate, amt);
 
@@ -138,7 +129,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     }
 
     const { availableStakingToken, totalLiquiditeToken, totalStakingToken } = this.storage;
-    const exchangeRate = this.getExchangeRate(totalLiquiditeToken, totalStakingToken);
+    const exchangeRate = this.getExchangeRate(totalStakingToken, totalLiquiditeToken);
     const _convertStakingToLiquid = (amt: FN) => convertStakingToLiquid(exchangeRate, amt);
     const _convertLiquidToStaking = (amt: FN) => convertLiquidToStaking(exchangeRate, amt);
 
@@ -158,5 +149,27 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
 
   public getMaxStakingBalance() {
     return this.storage?.mintGap.minus(this.storage.totalStakingToken);
+  }
+
+  public async queryUserRedeemRequest(account: MaybeAccount) {
+    if (this.isV1) return "0";
+
+    await this.updateStorage();
+
+    const pending: any = await this.api.query.homaLite.redeemRequests(account);
+
+    const _data = pending.unwrapOrDefault();
+
+    const data = FN.fromInner(_data[0].toString() || 0, this.constants.liquidToken.decimal).mul(
+      FN.ONE.minus(FN.fromInner(_data[1].toString(), 6))
+    );
+
+    const { totalLiquiditeToken, totalStakingToken } = this.storage;
+    const exchangeRate = this.getExchangeRate(totalStakingToken, totalLiquiditeToken);
+    return convertLiquidToStaking(exchangeRate, data)
+      .sub(this.constants.xcmUnbondFee.add(this.constants.baseWithdrawFee))
+      .max(FN.ZERO)
+      .toNumber()
+      .toFixed(8);
   }
 }
