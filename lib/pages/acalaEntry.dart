@@ -96,14 +96,13 @@ class _AcalaEntryState extends State<AcalaEntry> {
                             color: Colors.white70),
                       ),
                       ...liveModules.map((e) {
-                        final dicIndex = isKar ? '${e}KSM' : e;
                         final enabled = !isKar || modulesConfig[e]['enabled'];
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16),
                           child: GestureDetector(
                             child: EntryPageCard(
-                              dic['$dicIndex.title'],
-                              enabled ? dic['$dicIndex.brief'] : dic['coming'],
+                              dic['$e.title'],
+                              enabled ? dic['$e.brief'] : dic['coming'],
                               SvgPicture.asset(
                                 module_icons_uri[e],
                                 height: 88,

@@ -614,10 +614,11 @@ async function calcHomaMintAmount(api: ApiPromise, amount: number) {
   return {
     fee: res.fee.toNumber().toFixed(8),
     received: res.received.toNumber().toFixed(8),
+    suggestRedeemRequests: res.suggestRedeemRequests,
   };
 }
 
-async function calcHomaRedeemAmount(api: ApiPromise, amount: number, isByDex: boolean) {
+async function calcHomaRedeemAmount(api: ApiPromise, address: string, amount: number, isByDex: boolean = false) {
   if (!walletPromise) {
     walletPromise = new WalletPromise(api);
     homaApi = new HomaLite(api, walletPromise);
@@ -636,10 +637,11 @@ async function calcHomaRedeemAmount(api: ApiPromise, amount: number, isByDex: bo
     };
   }
 
-  const res: HomaLiteRedeemResult = await homaApi.redeem(new FixedPointNumber(amount, KSM_DECIMAL));
+  const res: HomaLiteRedeemResult = await homaApi.redeem(address, new FixedPointNumber(amount, KSM_DECIMAL));
   return {
     fee: res.fee.toNumber().toFixed(8),
     expected: res.expected.toNumber().toFixed(8),
+    newRedeemBalance: res.newRedeemBalance?.toChainData(),
   };
 }
 
@@ -649,7 +651,11 @@ async function queryRedeemRequest(api: ApiPromise, address: string) {
     homaApi = new HomaLite(api, walletPromise);
   }
 
-  return homaApi.queryUserRedeemRequest(address);
+  const data = await homaApi.queryUserRedeemRequest(address);
+  if (data.eq(FixedPointNumber.ZERO)) return "0";
+
+  const res = await homaApi.redeem(address, data);
+  return res.expected.toNumber().toFixed(8);
 }
 
 export default {

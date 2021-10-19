@@ -37,7 +37,7 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     const maxRewardPerEra = FN.fromInner(consts.maxRewardPerEra?.toString() || 0, 6);
     const mintFee = FN.fromInner(consts.mintFee?.toString() || 0, stakingToken.decimal);
     const xcmUnbondFee = FN.fromInner(consts.xcmUnbondFee?.toString() || 0, stakingToken.decimal);
-    const baseWithdrawFee = FN.fromInner(consts.baseWithdrawFee?.toString() || 0, stakingToken.decimal);
+    const baseWithdrawFee = FN.fromInner(consts.baseWithdrawFee?.toString() || 0, 6);
     const maximumRedeemRequestMatchesForMint = Number(consts.maximumRedeemRequestMatchesForMint?.toString() || 0);
     const maxScheduleUnbonds = Number(consts.maxScheduledUnbonds?.toString() || 0);
 
@@ -57,15 +57,19 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
   }
 
   get isRedeemenable() {
-    return !!this.api.query.homaLite.availableStakingBalance;
+    return !this.isV1;
   }
 
   get minMint() {
     return this.constants.mintFee.add(this.constants.minimumMintThreshold);
   }
 
+  get minRedeem() {
+    return this.constants.minimumRedeemThreshold;
+  }
+
   protected get isV1() {
-    return !this.api.query.homaLite.availableStakingBalance;
+    return !this.api.query.homaLite.redeemRequests;
   }
 
   /**
@@ -91,6 +95,7 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     amount: FN
   ): HomaLiteMintResult {
     let possibleFee = FN.ZERO;
+    let suggestRedeemRequests: string[] = [];
 
     const { maxRewardPerEra, mintFee } = this.constants;
 
@@ -102,19 +107,24 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
 
     const stakingRemaining = convertLiquidToStaking(remainingAmount);
 
+    if (!mintedAmount.isZero()) {
+      suggestRedeemRequests = redeemRequests.sort((a, b) => (a.extraFee.gt(b.extraFee) ? -1 : 1)).map((item) => item.redeemer.toString());
+    }
+
     if (stakingRemaining.gt(this.minMint)) {
       // // liquid_to_mint = convert_to_liquid( (staked_amount - MintFee) * (1 - MaxRewardPerEra) )
       let liquidToMint = stakingRemaining.sub(mintFee);
 
       liquidToMint = FN.ONE.sub(maxRewardPerEra).mul(liquidToMint);
 
-      liquidToMint = convertLiquidToStaking(liquidToMint);
+      liquidToMint = convertStakingToLiquid(liquidToMint);
 
       mintedAmount = mintedAmount.add(liquidToMint);
       possibleFee = mintFee;
     }
 
     return {
+      suggestRedeemRequests,
       received: mintedAmount,
       fee: possibleFee,
     };
@@ -125,7 +135,8 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     convertLiquidToStaking: ConvertLiquidToStaking,
     availableStakingBalance: FN,
     amount: FN,
-    requestExtraFee: FN
+    requestExtraFee: FN,
+    currentRedeemed: FN
   ): HomaLiteRedeemResult {
     let fee = FN.ZERO;
     let expected = FN.ZERO;
@@ -160,10 +171,11 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
 
       // choose the min expected amount
       expected = expected.add(stakingAmountFromMint.min(stakingAmountFromSchedule));
-      fee = fee.add(feeFromMint.min(feeFromSchedule));
+      fee = fee.add(feeFromMint.max(feeFromSchedule));
     }
 
     return {
+      newRedeemBalance: amount.add(currentRedeemed),
       expected,
       fee,
     };

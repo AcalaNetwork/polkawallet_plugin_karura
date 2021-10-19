@@ -116,11 +116,10 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     return this.mintV2(amount);
   }
 
-  public async redeem(amount: FN, requestExtraFee = FN.ZERO): Promise<HomaLiteRedeemResult> {
+  public async redeem(account: MaybeAccount, amount: FN, requestExtraFee = FN.ZERO): Promise<HomaLiteRedeemResult> {
     if (!this.isRedeemenable) throw new RedeemNotEnableError();
 
-    await this.updateStorage();
-
+    const currentRedeemed = await this.queryUserRedeemRequest(account);
     if (!this.storage) {
       return {
         fee: this.constants.mintFee,
@@ -133,17 +132,30 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     const _convertStakingToLiquid = (amt: FN) => convertStakingToLiquid(exchangeRate, amt);
     const _convertLiquidToStaking = (amt: FN) => convertLiquidToStaking(exchangeRate, amt);
 
-    return this.calculateRedeemResult(_convertStakingToLiquid, _convertLiquidToStaking, availableStakingToken, amount, requestExtraFee);
+    return this.calculateRedeemResult(
+      _convertStakingToLiquid,
+      _convertLiquidToStaking,
+      availableStakingToken,
+      amount,
+      requestExtraFee,
+      currentRedeemed
+    );
   }
 
   public async redeemFromDex(swap: SwapPromise, amount: FN, slippage?: FN): Promise<HomaLiteRedeemResult> {
     const { liquidToken, stakingToken } = this.constants;
     const _slippage = slippage || new FN(0.05 / 100);
 
+    const { totalLiquiditeToken, totalStakingToken } = this.storage;
+    const exchangeRate = this.getExchangeRate(totalStakingToken, totalLiquiditeToken);
+    const _convertLiquidToStaking = (amt: FN) => convertLiquidToStaking(exchangeRate, amt);
+
     const result = await swap.swap([liquidToken, stakingToken], amount, "EXACT_INPUT");
     return {
       expected: result.output.balance.mul(FN.ONE.sub(_slippage)),
-      fee: result.priceImpact.mul(result.output.balance),
+      fee: _convertLiquidToStaking(amount)
+        .minus(result.output.balance)
+        .max(FN.ZERO),
     };
   }
 
@@ -152,7 +164,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
   }
 
   public async queryUserRedeemRequest(account: MaybeAccount) {
-    if (this.isV1) return "0";
+    if (this.isV1) return FN.ZERO;
 
     await this.updateStorage();
 
@@ -160,16 +172,6 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
 
     const _data = pending.unwrapOrDefault();
 
-    const data = FN.fromInner(_data[0].toString() || 0, this.constants.liquidToken.decimal).mul(
-      FN.ONE.minus(FN.fromInner(_data[1].toString(), 6))
-    );
-
-    const { totalLiquiditeToken, totalStakingToken } = this.storage;
-    const exchangeRate = this.getExchangeRate(totalStakingToken, totalLiquiditeToken);
-    return convertLiquidToStaking(exchangeRate, data)
-      .sub(this.constants.xcmUnbondFee.add(this.constants.baseWithdrawFee))
-      .max(FN.ZERO)
-      .toNumber()
-      .toFixed(8);
+    return FN.fromInner(_data[0].toString() || 0, this.constants.liquidToken.decimal);
   }
 }

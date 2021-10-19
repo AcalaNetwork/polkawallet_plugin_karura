@@ -38,11 +38,13 @@ export type ConvertLiquidToStaking = (amount: FN) => FN;
 export type GetExchangeRate = () => FN;
 
 export interface HomaLiteMintResult {
+  suggestRedeemRequests?: string[];
   received: FN;
   fee: FN;
 }
 
 export interface HomaLiteRedeemResult {
+  newRedeemBalance?: FN;
   expected: FN;
   fee: FN;
 }
