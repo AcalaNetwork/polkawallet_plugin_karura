@@ -36,8 +36,8 @@ class AcalaApiHoma {
   }
 
   Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
-      double input, bool isByDex) async {
-    final Map res = await service.calcHomaRedeemAmount(input, isByDex);
+      String address, double input, bool isByDex) async {
+    final Map res = await service.calcHomaRedeemAmount(address, input, isByDex);
     return CalcHomaRedeemAmount.fromJson(res);
   }
 

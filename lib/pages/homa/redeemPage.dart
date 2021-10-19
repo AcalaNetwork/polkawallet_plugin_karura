@@ -72,18 +72,15 @@ class _RedeemPageState extends State<RedeemPage> {
     balanceDouble = Fmt.balanceDouble(balanceData.amount, stakeDecimal);
 
     minStake = Fmt.balanceDouble(
-            widget.plugin.networkConst['homaLite']['minimumMintThreshold']
-                .toString(),
-            stakeDecimal) +
-        Fmt.balanceDouble(
-            widget.plugin.networkConst['homaLite']['mintFee'].toString(),
-            stakeDecimal);
+        widget.plugin.networkConst['homaLite']['minimumRedeemThreshold']
+            .toString(),
+        stakeDecimal);
   }
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
-      var data =
-          await widget.plugin.api.homa.calcHomaRedeemAmount(input, homaNow);
+      var data = await widget.plugin.api.homa
+          .calcHomaRedeemAmount(widget.keyring.current.address, input, homaNow);
       setState(() {
         _data = data;
       });
@@ -186,12 +183,7 @@ class _RedeemPageState extends State<RedeemPage> {
 
     if (_error != null || pay.isEmpty) return;
 
-    var params = [
-      _maxInput != null
-          ? _maxInput.toString()
-          : Fmt.tokenInt(pay, stakeDecimal).toString(),
-      0
-    ];
+    var params = [_data.newRedeemBalance, 0];
     var module = 'homaLite';
     var call = 'requestRedeem';
     var txDisplay = {
@@ -227,7 +219,7 @@ class _RedeemPageState extends State<RedeemPage> {
         ))) as Map;
 
     if (res != null) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop('1');
     }
   }
 
@@ -380,7 +372,7 @@ class _RedeemPageState extends State<RedeemPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: RoundedButton(
-                    text: dic['homa.mint'],
+                    text: dic['homa.redeem'],
                     onPressed: () => _onSubmit(),
                   ),
                 )

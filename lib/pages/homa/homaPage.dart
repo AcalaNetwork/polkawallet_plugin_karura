@@ -37,10 +37,7 @@ class _HomaPageState extends State<HomaPage> {
   Timer _timer;
   String unlockingKsm;
 
-  Future<void> _refreshData() async {
-    widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
-    await widget.plugin.service.homa.queryHomaLiteStakingPool();
-
+  Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api.homa
         .redeemRequested(widget.keyring.current.address);
     if (data != null && data.length > 0) {
@@ -52,6 +49,13 @@ class _HomaPageState extends State<HomaPage> {
         unlockingKsm = null;
       });
     }
+  }
+
+  Future<void> _refreshData() async {
+    widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
+    await widget.plugin.service.homa.queryHomaLiteStakingPool();
+
+    _refreshRedeem();
 
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
@@ -450,7 +454,12 @@ class _HomaPageState extends State<HomaPage> {
                                     style: TextStyle(color: white),
                                   ),
                                   onPressed: () => Navigator.of(context)
-                                      .pushNamed(RedeemPage.route),
+                                      .pushNamed(RedeemPage.route)
+                                      .then((value) {
+                                    if (value != null) {
+                                      _refreshRedeem();
+                                    }
+                                  }),
                                 ),
                               ),
                             ),
@@ -466,7 +475,7 @@ class _HomaPageState extends State<HomaPage> {
                                   ),
                                   onPressed: staked < cap
                                       ? () async {
-                                          if (!(await _confirmMint())) return;
+                                          // if (!(await _confirmMint())) return;
 
                                           Navigator.of(context)
                                               .pushNamed(MintPage.route);

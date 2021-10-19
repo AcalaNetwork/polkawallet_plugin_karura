@@ -35,9 +35,10 @@ class AcalaServiceHoma {
     return res;
   }
 
-  Future<Map> calcHomaRedeemAmount(double input, bool isByDex) async {
-    final Map res = await plugin.sdk.webView
-        .evalJavascript('acala.calcHomaRedeemAmount(api, $input,$isByDex)');
+  Future<Map> calcHomaRedeemAmount(
+      String address, double input, bool isByDex) async {
+    final Map res = await plugin.sdk.webView.evalJavascript(
+        'acala.calcHomaRedeemAmount(api,"$address", $input,$isByDex)');
     return res;
   }
 

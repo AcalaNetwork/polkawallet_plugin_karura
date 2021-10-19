@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
@@ -35,6 +36,7 @@ class _MintPageState extends State<MintPage> {
   String _error;
   String _amountReceive = '';
   BigInt _maxInput;
+  CalcHomaMintAmountData _data;
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
@@ -62,6 +64,7 @@ class _MintPageState extends State<MintPage> {
 
       setState(() {
         _amountReceive = data?.received ?? '';
+        _data = data;
         // _amountReceive =
         //     Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
       });
@@ -140,15 +143,24 @@ class _MintPageState extends State<MintPage> {
 
     if (_error != null || pay.isEmpty) return;
 
-    final params = [
+    final call = _data.suggestRedeemRequests != null &&
+            _data.suggestRedeemRequests.length > 0
+        ? 'mintForRequests'
+        : 'mint';
+
+    final List params = [
       _maxInput != null
           ? _maxInput.toString()
           : Fmt.tokenInt(pay, stakeDecimal).toString()
     ];
+    if (_data.suggestRedeemRequests != null &&
+        _data.suggestRedeemRequests.length > 0) {
+      params.add(_data.suggestRedeemRequests);
+    }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'homaLite',
-          call: 'mint',
+          call: call,
           txTitle: I18n.of(context)
               .getDic(i18n_full_dic_karura, 'acala')['homa.mint'],
           txDisplay: {

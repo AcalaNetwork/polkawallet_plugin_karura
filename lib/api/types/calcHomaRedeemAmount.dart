@@ -6,8 +6,9 @@ part 'calcHomaRedeemAmount.g.dart';
 class CalcHomaRedeemAmount {
   String fee;
   String expected;
+  String newRedeemBalance;
 
-  CalcHomaRedeemAmount(this.fee, this.expected);
+  CalcHomaRedeemAmount(this.fee, this.expected, this.newRedeemBalance);
 
   factory CalcHomaRedeemAmount.fromJson(Map<String, dynamic> json) =>
       _$CalcHomaRedeemAmountFromJson(json);

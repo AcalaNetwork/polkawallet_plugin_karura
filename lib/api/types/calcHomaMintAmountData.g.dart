@@ -11,6 +11,7 @@ CalcHomaMintAmountData _$CalcHomaMintAmountDataFromJson(
   return CalcHomaMintAmountData(
     json['fee'] as String,
     json['received'] as String,
+    json['suggestRedeemRequests'] as List,
   );
 }
 
@@ -19,4 +20,5 @@ Map<String, dynamic> _$CalcHomaMintAmountDataToJson(
     <String, dynamic>{
       'fee': instance.fee,
       'received': instance.received,
+      'suggestRedeemRequests': instance.suggestRedeemRequests,
     };
