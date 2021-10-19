@@ -566,6 +566,13 @@ class _TransferPageState extends State<TransferPage> {
                               final tokens = widget
                                   .plugin.store.assets.tokenBalanceMap.keys
                                   .toList();
+                              tokens.removeWhere((e) =>
+                                  List.of(widget.plugin.store.setting
+                                          .tokensConfig['invisible'])
+                                      .contains(e) ||
+                                  List.of(widget.plugin.store.setting
+                                          .tokensConfig['disabled'])
+                                      .contains(e));
                               final res = await Navigator.of(context).pushNamed(
                                   CurrencySelectPage.route,
                                   arguments: tokens);
