@@ -350,7 +350,7 @@ class _HomaPageState extends State<HomaPage> {
                                               ),
                                               InfoItem(
                                                 title:
-                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'))}',
+                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'), lengthMax: 4)}',
                                                 content: unlockingKsm ?? '0',
                                                 lowTitle: true,
                                               ),
@@ -443,18 +443,14 @@ class _HomaPageState extends State<HomaPage> {
                           children: <Widget>[
                             Expanded(
                               child: Container(
-                                color: false
-                                    ? primary
-                                    : Theme.of(context).disabledColor,
+                                color: primary,
                                 child: TextButton(
                                   child: Text(
                                     '${dic['homa.redeem']} $stakeSymbol',
                                     style: TextStyle(color: white),
                                   ),
-                                  onPressed: false
-                                      ? () => Navigator.of(context)
-                                          .pushNamed(RedeemPage.route)
-                                      : null,
+                                  onPressed: () => Navigator.of(context)
+                                      .pushNamed(RedeemPage.route),
                                 ),
                               ),
                             ),
