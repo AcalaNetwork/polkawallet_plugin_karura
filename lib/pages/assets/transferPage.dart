@@ -96,29 +96,17 @@ class _TransferPageState extends State<TransferPage> {
             ? [
                 {'Token': _token},
                 '1000000000',
-                {
-                  'X2': [
-                    'Parent',
-                    {
+                [
+                  1,
+                  {
+                    'X1': {
                       'AccountId32': {
                         'id': _accountTo.address,
                         'network': 'Any'
                       }
                     }
-                  ]
-                },
-                // todo: new params for runtime 1.5.0
-                // [
-                //   1,
-                //   {
-                //     'X1': {
-                //       'AccountId32': {
-                //         'id': _accountTo.address,
-                //         'network': 'Any'
-                //       }
-                //     }
-                //   }
-                // ],
+                  }
+                ],
                 // params.weight
                 xcm_dest_weight_kusama
               ]

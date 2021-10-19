@@ -142,9 +142,9 @@ class _RedeemPageState extends State<RedeemPage> {
         return dic['amount.low'];
       }
 
-      if (pay <= minStake) {
+      if (pay <= minStake && !homaNow) {
         final minLabel = I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.min'];
+            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.redeem'];
         return '$minLabel > ${minStake.toStringAsFixed(4)}';
       }
 
@@ -227,10 +227,6 @@ class _RedeemPageState extends State<RedeemPage> {
     setState(() {
       homaNow = value;
     });
-    if (_amountPayCtrl.text.length > 0) {
-      _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
-    }
-
     if (homaNow) {
       if (_timer == null) {
         _timer = Timer.periodic(Duration(seconds: 20), (timer) {
@@ -242,6 +238,20 @@ class _RedeemPageState extends State<RedeemPage> {
         _timer.cancel();
         _timer = null;
       }
+    }
+    if (_amountPayCtrl.text.length > 0) {
+      final error = _validateInput(_amountPayCtrl.text.trim());
+      setState(() {
+        _error = error;
+        if (error != null) {
+          _data = null;
+        }
+      });
+
+      if (error != null) {
+        return;
+      }
+      _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
     }
   }
 

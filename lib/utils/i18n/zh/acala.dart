@@ -128,6 +128,7 @@ const Map<String, String> zhDex = {
   'homa.pool.bonded': '锁定数量',
   'homa.pool.ratio': '质押率',
   'homa.pool.min': '最低质押',
+  'homa.pool.redeem': '最低赎回',
   'homa.pool.issuance': '发行量',
   'homa.pool.cap.error': '超出资金池上限',
   'homa.pool.low': '资金池余额不足',
