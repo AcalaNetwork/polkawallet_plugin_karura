@@ -131,6 +131,7 @@ const Map<String, String> enDex = {
   'homa.redeem': 'Redeem',
   'homa.now': 'Redeem Now',
   'homa.era': 'Redeem in Era',
+  'homa.confirm': 'Confirm',
   'homa.unbond': 'Wait for Unbounding',
   'homa.pool': 'Staking Pool',
   'homa.pool.cap': 'Pool Cap',
@@ -162,6 +163,8 @@ const Map<String, String> enDex = {
   'homa.redeem.unbonding': 'Max Unbonding Period',
   'homa.redeem.receive': 'Expected to receive',
   'homa.redeem.cancel': 'Cancel',
+  'homa.redeem.hint':
+      'Cancel the pending redeem KSM request and receive your LKSM. Are you sure to continue?',
   'tx.fee.or': 'or equivalent in other tokens',
   'nft.title': 'NFTs',
   'nft.testnet': 'Mandala testnet badge',

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -40,33 +39,11 @@ class _MintPageState extends State<MintPage> {
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
-      // final symbols = widget.plugin.networkState.tokenSymbol;
-      // final decimals = widget.plugin.networkState.tokenDecimals;
-
-      // final stakeToken = relay_chain_token_symbol;
-      // final stakeDecimal = decimals[symbols.indexOf(stakeToken)];
-      // final poolInfo = widget.plugin.store.homa.poolInfo;
-      // final mintFee = Fmt.balanceDouble(
-      //     widget.plugin.networkConst['homaLite']['mintFee'].toString(),
-      //     stakeDecimal);
-      // final maxRewardPerEra = int.parse(widget
-      //         .plugin.networkConst['homaLite']['maxRewardPerEra']
-      //         .toString()) /
-      //     1000000; // type of maxRewardPerEra is PerMill
-      // final exchangeRate = poolInfo.staked > BigInt.zero
-      //     ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
-      //     : Fmt.balanceDouble(
-      //         widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
-      //         acala_price_decimals);
-      // final receive = (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
-
       var data = await widget.plugin.api.homa.calcHomaMintAmount(input);
 
       setState(() {
         _amountReceive = data?.received ?? '';
         _data = data;
-        // _amountReceive =
-        //     Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
       });
     }
   }
@@ -221,12 +198,6 @@ class _MintPageState extends State<MintPage> {
           appBar: AppBar(
             title: Text('${dic['homa.mint']} L$stakeToken'),
             centerTitle: true,
-            actions: [
-              IconButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
-                  icon: Icon(Icons.history))
-            ],
           ),
           body: SafeArea(
             child: ListView(

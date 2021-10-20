@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -84,29 +83,6 @@ class _RedeemPageState extends State<RedeemPage> {
       setState(() {
         _data = data;
       });
-      //   if (homaNow) {
-      //   } else {
-      //     final poolInfo = widget.plugin.store.homa.poolInfo;
-      //     final mintFee = Fmt.balanceDouble(
-      //         widget.plugin.networkConst['homaLite']['mintFee'].toString(),
-      //         stakeDecimal);
-      //     final maxRewardPerEra = int.parse(widget
-      //             .plugin.networkConst['homaLite']['maxRewardPerEra']
-      //             .toString()) /
-      //         1000000; // type of maxRewardPerEra is PerMill
-      //     final exchangeRate = poolInfo.staked > BigInt.zero
-      //         ? (poolInfo.staked / poolInfo.liquidTokenIssuance)
-      //         : Fmt.balanceDouble(
-      //             widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
-      //             acala_price_decimals);
-      //     final receive =
-      //         (input - mintFee) * exchangeRate * (1 - maxRewardPerEra);
-
-      //     setState(() {
-      //       _amountReceive =
-      //           Fmt.priceFloor(receive > 0 ? receive : 0, lengthFixed: 3);
-      //     });
-      //   }
     }
   }
 
@@ -181,7 +157,7 @@ class _RedeemPageState extends State<RedeemPage> {
   Future<void> _onSubmit() async {
     final pay = _amountPayCtrl.text.trim();
 
-    if (_error != null || pay.isEmpty) return;
+    if (_error != null || pay.isEmpty || _data == null) return;
 
     var params = [_data.newRedeemBalance, 0];
     var module = 'homaLite';
@@ -278,12 +254,6 @@ class _RedeemPageState extends State<RedeemPage> {
           appBar: AppBar(
             title: Text('${dic['homa.redeem']} $stakeToken'),
             centerTitle: true,
-            actions: [
-              IconButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
-                  icon: Icon(Icons.history))
-            ],
           ),
           body: SafeArea(
             child: ListView(
