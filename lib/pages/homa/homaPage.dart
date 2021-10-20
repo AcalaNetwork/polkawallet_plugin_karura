@@ -15,6 +15,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItem.dart';
+import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
@@ -64,28 +65,25 @@ class _HomaPageState extends State<HomaPage> {
     }
   }
 
-  Future<void> _onSubmitWithdraw(int liquidDecimal) async {
-    final userInfo = widget.plugin.store.homa.userInfo;
-    final String receive =
-        Fmt.priceFloorBigInt(userInfo.unbonded, liquidDecimal, lengthMax: 3);
-
+  Future<void> _onSubmit() async {
+    var params = [0, 0];
+    var module = 'homaLite';
+    var call = 'requestRedeem';
+    var txDisplay = {
+    };
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: 'homa',
-          call: 'withdrawRedemption',
-          txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_karura, 'acala')['homa.redeem'],
-          txDisplay: {
-            "amountReceive": receive,
-          },
-          params: [],
+          module: module,
+          call: call,
+          txTitle: "${I18n.of(context)
+              .getDic(i18n_full_dic_karura, 'acala')['homa.redeem.cancel']}${I18n.of(context)
+              .getDic(i18n_full_dic_karura, 'acala')['homa.redeem']}",
+          txDisplay: txDisplay,
+          params: params,
         ))) as Map;
+
     if (res != null) {
-      res['time'] = DateTime.now().millisecondsSinceEpoch;
-      res['action'] = TxHomaData.actionWithdrawRedemption;
-      res['amountPay'] = '0';
-      res['amountReceive'] = receive;
-      widget.plugin.store.homa.addHomaTx(res, widget.keyring.current.pubKey);
+      _refreshRedeem();
     }
   }
 
@@ -354,9 +352,11 @@ class _HomaPageState extends State<HomaPage> {
                                               ),
                                               InfoItem(
                                                 title:
-                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'), lengthMax: 4)}',
-                                                content: unlockingKsm ?? '0',
+                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'), lengthMax: 2)}',
+                                                content:
+                                                    '${Fmt.priceFloor(double.tryParse(unlockingKsm ?? '0'), lengthMax: 4)}',
                                                 lowTitle: true,
+                                                contentRight: OutlinedButtonSmall(content: dic['homa.redeem.cancel'],onPressed: ()=>_onSubmit(),margin: EdgeInsets.only(left: 5),padding: EdgeInsets.symmetric(horizontal: 5,vertical: 2),fontSize:12),
                                               ),
                                             ],
                                           ))

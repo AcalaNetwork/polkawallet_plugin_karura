@@ -151,6 +151,7 @@ const Map<String, String> zhDex = {
   'homa.redeem.free': '资金池',
   'homa.redeem.unbonding': '最长解封期',
   'homa.redeem.receive': '预计收到',
+  'homa.redeem.cancel': '取消',
   'tx.fee.or': '或等额其他代币',
   'nft.title': 'NFTs',
   'nft.testnet': 'Mandala 测试网徽章',
