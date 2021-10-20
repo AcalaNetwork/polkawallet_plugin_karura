@@ -30,18 +30,52 @@ class HomaTxDetailPage extends StatelessWidget {
     final nativeDecimal = decimals[symbols.indexOf(symbol)];
     final liquidDecimal = decimals[symbols.indexOf('L$symbol')];
 
-    String amountPay = Fmt.priceFloorBigInt(tx.amountPay, nativeDecimal);
-    String amountReceive =
-        Fmt.priceFloorBigInt(tx.amountReceive, liquidDecimal);
-    if (tx.action == TxHomaData.actionRedeem) {
-      amountPay += ' L$symbol';
-      amountReceive += ' $symbol';
-    } else {
-      amountPay += ' $symbol';
-      amountReceive += ' L$symbol';
+    final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+
+    final infoItems = [];
+
+    switch (tx.action) {
+      case TxHomaData.actionMint:
+        infoItems.addAll([
+          TxDetailInfoItem(
+            label: dic['dex.pay'],
+            content: Text(
+                '${Fmt.priceFloorBigInt(tx.amountPay, nativeDecimal)} $symbol',
+                style: amountStyle),
+          ),
+          TxDetailInfoItem(
+            label: dic['dex.receive'],
+            content: Text(
+                '${Fmt.priceFloorBigInt(tx.amountReceive, liquidDecimal)} L$symbol',
+                style: amountStyle),
+          )
+        ]);
+        break;
+      case TxHomaData.actionRedeem:
+        infoItems.add(TxDetailInfoItem(
+          label: dic['dex.pay'],
+          content: Text(
+              '${Fmt.priceFloorBigInt(tx.amountPay, liquidDecimal)} L$symbol',
+              style: amountStyle),
+        ));
+        break;
+      case TxHomaData.actionRedeemed:
+        infoItems.add(TxDetailInfoItem(
+          label: dic['dex.receive'],
+          content: Text(
+              '${Fmt.priceFloorBigInt(tx.amountReceive, nativeDecimal)} $symbol',
+              style: amountStyle),
+        ));
+        break;
+      case TxHomaData.actionRedeemCancel:
+        infoItems.add(TxDetailInfoItem(
+          label: dic['dex.receive'],
+          content: Text(
+              '${Fmt.priceFloorBigInt(tx.amountReceive, liquidDecimal)} L$symbol',
+              style: amountStyle),
+        ));
     }
 
-    final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
     return TxDetail(
       success: tx.isSuccess,
       action: tx.action,
@@ -50,16 +84,7 @@ class HomaTxDetailPage extends StatelessWidget {
       blockTime:
           Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.time, true)),
       networkName: plugin.basic.name,
-      infoItems: [
-        TxDetailInfoItem(
-          label: dic['dex.pay'],
-          content: Text(amountPay, style: amountStyle),
-        ),
-        TxDetailInfoItem(
-          label: dic['dex.receive'],
-          content: Text(amountReceive, style: amountStyle),
-        )
-      ],
+      infoItems: infoItems,
     );
   }
 }

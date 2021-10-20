@@ -71,17 +71,29 @@ class HomaHistoryPage extends StatelessWidget {
 
                 final detail = list[i];
 
-                String amountPay =
-                    Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal);
-                String amountReceive =
-                    Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal);
-                if (detail.action == TxHomaData.actionRedeem) {
-                  amountPay += ' L$symbol';
-                  amountReceive += ' $symbol';
-                } else {
-                  amountPay += ' $symbol';
-                  amountReceive += ' L$symbol';
+                String amountPay = '';
+                String amountReceive = '';
+
+                switch (detail.action) {
+                  case TxHomaData.actionMint:
+                    amountPay =
+                        '${Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal)} $symbol';
+                    amountReceive =
+                        '${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                    break;
+                  case TxHomaData.actionRedeem:
+                    amountPay =
+                        '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
+                    break;
+                  case TxHomaData.actionRedeemed:
+                    amountReceive =
+                        '${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
+                    break;
+                  case TxHomaData.actionRedeemCancel:
+                    amountReceive =
+                        '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                 }
+
                 return Container(
                   decoration: BoxDecoration(
                     border: Border(
