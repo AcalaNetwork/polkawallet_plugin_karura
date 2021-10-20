@@ -1,3 +1,9 @@
+## [0.3.5] - 20211019
+- update polkawallet_sdk v0.3.5.
+- update polkawallet_ui v0.3.4.
+- update acala.js/api 3.0.1.
+- add homa Redeem
+
 ## [0.3.4] - 20211012
 - update polkawallet_sdk v0.3.4.
 - update acala.js/api 2.3.2-12.
