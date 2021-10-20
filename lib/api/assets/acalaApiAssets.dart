@@ -23,9 +23,13 @@ class AcalaApiAssets {
       String chain, String address, Function(List<TokenBalanceData>) callback,
       {bool transferEnabled = true}) async {
     final tokens = await getAllTokenSymbols(chain);
-    tokens.removeWhere((token) =>
-        List.of(service.plugin.store.setting.tokensConfig['invisible'])
-            .contains(token['token']));
+    if (service.plugin.store.setting.tokensConfig['invisible'] != null) {
+      final invisible =
+          List.of(service.plugin.store.setting.tokensConfig['invisible']);
+      if (invisible.length > 0) {
+        tokens.removeWhere((token) => invisible.contains(token.id));
+      }
+    }
 
     await service.plugin.service.assets
         .queryMarketPrices(tokens.map((e) => e['token'] as String).toList());

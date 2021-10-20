@@ -149,7 +149,9 @@ class _TransferPageState extends State<TransferPage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     final List tokenXcmConfig =
-        widget.plugin.store.setting.tokensConfig['xcm'][_token];
+        widget.plugin.store.setting.tokensConfig['xcm'] != null
+            ? widget.plugin.store.setting.tokensConfig['xcm'][_token] ?? []
+            : [];
     final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
     showCupertinoModalPopup(
@@ -375,7 +377,9 @@ class _TransferPageState extends State<TransferPage> {
         final tokenView = PluginFmt.tokenView(token);
 
         final List tokenXcmConfig =
-            widget.plugin.store.setting.tokensConfig['xcm'][token];
+            widget.plugin.store.setting.tokensConfig['xcm'] != null
+                ? widget.plugin.store.setting.tokensConfig['xcm'][token]
+                : [];
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
@@ -554,13 +558,20 @@ class _TransferPageState extends State<TransferPage> {
                               final tokens = widget
                                   .plugin.store.assets.tokenBalanceMap.keys
                                   .toList();
-                              tokens.removeWhere((e) =>
-                                  List.of(widget.plugin.store.setting
-                                          .tokensConfig['invisible'])
-                                      .contains(e) ||
-                                  List.of(widget.plugin.store.setting
-                                          .tokensConfig['disabled'])
-                                      .contains(e));
+                              if (widget.plugin.store.setting
+                                          .tokensConfig['invisible'] !=
+                                      null &&
+                                  widget.plugin.store.setting
+                                          .tokensConfig['disabled'] !=
+                                      null) {
+                                tokens.removeWhere((e) =>
+                                    List.of(widget.plugin.store.setting
+                                            .tokensConfig['invisible'])
+                                        .contains(e) ||
+                                    List.of(widget.plugin.store.setting
+                                            .tokensConfig['disabled'])
+                                        .contains(e));
+                              }
                               final res = await Navigator.of(context).pushNamed(
                                   CurrencySelectPage.route,
                                   arguments: tokens);

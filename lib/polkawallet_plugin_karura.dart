@@ -250,9 +250,13 @@ class PluginKarura extends PolkawalletPlugin {
 
       _store.assets.loadCache(acc.pubKey);
       final tokens = _store.assets.tokenBalanceMap.values.toList();
-      tokens.removeWhere((token) =>
-          List.of(service.plugin.store.setting.tokensConfig['invisible'])
-              .contains(token.id));
+      if (service.plugin.store.setting.tokensConfig['invisible'] != null) {
+        final invisible =
+            List.of(service.plugin.store.setting.tokensConfig['invisible']);
+        if (invisible.length > 0) {
+          tokens.removeWhere((token) => invisible.contains(token.id));
+        }
+      }
       balances.setTokens(tokens, isFromCache: true);
 
       _store.loan.loadCache(acc.pubKey);
