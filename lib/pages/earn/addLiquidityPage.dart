@@ -536,9 +536,9 @@ class StakeLPTips extends StatelessWidget {
         });
       }
       final balanceInt =
-          Fmt.balanceInt(plugin.store.assets.tokenBalanceMap[poolId].amount);
-      final balance = Fmt.priceFloorBigInt(
-          balanceInt, plugin.store.assets.tokenBalanceMap[poolId].decimals,
+          Fmt.balanceInt(plugin.store.assets.tokenBalanceMap[poolId]?.amount);
+      final balance = Fmt.priceFloorBigInt(balanceInt,
+          plugin.store.assets.tokenBalanceMap[poolId]?.decimals ?? 12,
           lengthMax: 4);
       final colorGray = Theme.of(context).unselectedWidgetColor;
       return Column(
