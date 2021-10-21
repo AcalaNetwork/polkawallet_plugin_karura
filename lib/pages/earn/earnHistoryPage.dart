@@ -83,6 +83,7 @@ class EarnHistoryPage extends StatelessWidget {
                     isReceive = false;
                     break;
                   case TxDexIncentiveData.actionClaimRewards:
+                  case TxDexIncentiveData.actionPayoutRewards:
                   case TxDexIncentiveData.actionUnStake:
                     amount = detail.amountShare;
                     break;

@@ -7,6 +7,7 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
   static const String actionStake = 'DepositDexShare';
   static const String actionUnStake = 'WithdrawDexShare';
   static const String actionClaimRewards = 'ClaimRewards';
+  static const String actionPayoutRewards = 'PayoutRewards';
   static TxDexIncentiveData fromJson(Map<String, dynamic> json,
       String stableCoinSymbol, List<String> symbols, List<int> decimals) {
     final data = TxDexIncentiveData();
@@ -19,6 +20,17 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
             (jsonDecode(json['data'][1]['value'])['dex']['dexShare'] as List)
                 .map((e) => e['token'])
                 .toList();
+        final poolId = pair.join('-');
+        final rewardToken = jsonDecode(json['data'][2]['value'])['token'];
+        data.poolId = poolId;
+        data.amountShare =
+            '${Fmt.balance(json['data'][3]['value'], decimals[symbols.indexOf(rewardToken)])} ${PluginFmt.tokenView(rewardToken)}';
+        break;
+      case actionPayoutRewards:
+        final pair = (jsonDecode(json['data'][1]['value'])['dexIncentive']
+                ['dexShare'] as List)
+            .map((e) => e['token'])
+            .toList();
         final poolId = pair.join('-');
         final rewardToken = jsonDecode(json['data'][2]['value'])['token'];
         data.poolId = poolId;
