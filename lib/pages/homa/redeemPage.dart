@@ -323,7 +323,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                   children: [
                                     Text(dic['homa.redeem.unbonding'],
                                         style: labelStyle),
-                                    Text("9 ${dic['homa.redeem.day']}")
+                                    Text("7 ${dic['homa.redeem.day']}")
                                   ],
                                 )),
                             Row(
@@ -335,14 +335,18 @@ class _RedeemPageState extends State<RedeemPage> {
                                     "${_data != null ? _data.expected : 0} $stakeToken")
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(dic['homa.redeem.fee'], style: labelStyle),
-                                Text(
-                                    "${_data != null ? _data.fee : 0} $stakeToken")
-                              ],
-                            ),
+                            Visibility(
+                                visible: homaNow,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(dic['homa.redeem.fee'],
+                                        style: labelStyle),
+                                    Text(
+                                        "${_data != null ? _data.fee : 0} $stakeToken")
+                                  ],
+                                )),
                           ],
                         ),
                       )

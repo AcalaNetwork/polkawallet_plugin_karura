@@ -38,7 +38,7 @@ class _HomaPageState extends State<HomaPage> {
   Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api.homa
         .redeemRequested(widget.keyring.current.address);
-    if(mounted) {
+    if (mounted) {
       if (data != null && data.length > 0) {
         setState(() {
           unlockingKsm = data;
