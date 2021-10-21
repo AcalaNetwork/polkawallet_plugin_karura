@@ -510,7 +510,7 @@ class _HomaPageState extends State<HomaPage> {
                                       .pushNamed(RedeemPage.route)
                                       .then((value) {
                                     if (value != null) {
-                                      _refreshRedeem();
+                                      _refreshData();
                                     }
                                   }),
                                 ),
@@ -531,7 +531,12 @@ class _HomaPageState extends State<HomaPage> {
                                           // if (!(await _confirmMint())) return;
 
                                           Navigator.of(context)
-                                              .pushNamed(MintPage.route);
+                                              .pushNamed(MintPage.route)
+                                              .then((value) {
+                                            if (value != null) {
+                                              _refreshData();
+                                            }
+                                          });
                                         }
                                       : null,
                                 ),

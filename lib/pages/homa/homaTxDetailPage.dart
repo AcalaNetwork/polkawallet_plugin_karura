@@ -32,7 +32,7 @@ class HomaTxDetailPage extends StatelessWidget {
 
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-    final infoItems = [];
+    final infoItems = <TxDetailInfoItem>[];
 
     switch (tx.action) {
       case TxHomaData.actionMint:

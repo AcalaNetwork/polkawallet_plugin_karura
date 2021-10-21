@@ -148,14 +148,7 @@ class _MintPageState extends State<MintPage> {
         ))) as Map;
 
     if (res != null) {
-      // res['time'] = DateTime.now().millisecondsSinceEpoch;
-      // res['action'] = TxHomaData.actionMint;
-      // res['amountPay'] = pay;
-      // res['amountReceive'] = receive;
-      // res['params'] = params;
-      // widget.plugin.store.homa.addHomaTx(res, widget.keyring.current.pubKey);
-      // Navigator.of(context).pushNamed(HomaHistoryPage.route);
-      Navigator.of(context).pop();
+      Navigator.of(context).pop('1');
     }
   }
 
