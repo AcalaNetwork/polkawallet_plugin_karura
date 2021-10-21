@@ -69,35 +69,20 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
-  final _$treasuryOverviewAtom =
-      Atom(name: '_GovernanceStore.treasuryOverview');
-
-  @override
   TreasuryOverviewData get treasuryOverview {
-    _$treasuryOverviewAtom.reportRead();
     return super.treasuryOverview;
   }
 
-  @override
   set treasuryOverview(TreasuryOverviewData value) {
-    _$treasuryOverviewAtom.reportWrite(value, super.treasuryOverview, () {
-      super.treasuryOverview = value;
-    });
+    super.treasuryOverview = value;
   }
 
-  final _$treasuryTipsAtom = Atom(name: '_GovernanceStore.treasuryTips');
-
-  @override
   List<TreasuryTipData> get treasuryTips {
-    _$treasuryTipsAtom.reportRead();
     return super.treasuryTips;
   }
 
-  @override
   set treasuryTips(List<TreasuryTipData> value) {
-    _$treasuryTipsAtom.reportWrite(value, super.treasuryTips, () {
-      super.treasuryTips = value;
-    });
+    super.treasuryTips = value;
   }
 
   final _$_GovernanceStoreActionController =
@@ -147,26 +132,12 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     }
   }
 
-  @override
   void setTreasuryOverview(TreasuryOverviewData data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
-        name: '_GovernanceStore.setTreasuryOverview');
-    try {
-      return super.setTreasuryOverview(data);
-    } finally {
-      _$_GovernanceStoreActionController.endAction(_$actionInfo);
-    }
+    return super.setTreasuryOverview(data);
   }
 
-  @override
   void setTreasuryTips(List<TreasuryTipData> data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
-        name: '_GovernanceStore.setTreasuryTips');
-    try {
-      return super.setTreasuryTips(data);
-    } finally {
-      _$_GovernanceStoreActionController.endAction(_$actionInfo);
-    }
+    return super.setTreasuryTips(data);
   }
 
   @override

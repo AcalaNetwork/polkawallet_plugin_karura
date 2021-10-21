@@ -260,8 +260,6 @@ class PluginKarura extends PolkawalletPlugin {
       balances.setTokens(tokens, isFromCache: true);
 
       _store.loan.loadCache(acc.pubKey);
-      _store.earn.loadCache(acc.pubKey);
-      _store.homa.loadCache(acc.pubKey);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);

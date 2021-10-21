@@ -1,6 +1,5 @@
 import 'package:mobx/mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/nftData.dart';
-import 'package:polkawallet_plugin_karura/api/types/transferData.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
@@ -24,9 +23,6 @@ abstract class _AssetsStore with Store {
 
   @observable
   ObservableMap<String, double> marketPrices = ObservableMap();
-
-  @observable
-  ObservableList<TransferData> txs = ObservableList<TransferData>();
 
   @observable
   List<NFTData> nft = [];
@@ -70,11 +66,6 @@ abstract class _AssetsStore with Store {
   @action
   void setNFTs(List<NFTData> list) {
     nft = list;
-  }
-
-  @action
-  void setTxs(List list, int decimals) {
-    txs = list.map((i) => TransferData.fromJson(i as Map, decimals)).toList();
   }
 
   @action

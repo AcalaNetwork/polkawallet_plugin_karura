@@ -54,21 +54,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$txsAtom = Atom(name: '_AssetsStore.txs');
-
-  @override
-  ObservableList<TransferData> get txs {
-    _$txsAtom.reportRead();
-    return super.txs;
-  }
-
-  @override
-  set txs(ObservableList<TransferData> value) {
-    _$txsAtom.reportWrite(value, super.txs, () {
-      super.txs = value;
-    });
-  }
-
   final _$nftAtom = Atom(name: '_AssetsStore.nft');
 
   @override
@@ -132,17 +117,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void setTxs(List<dynamic> list, int decimals) {
-    final _$actionInfo =
-        _$_AssetsStoreActionController.startAction(name: '_AssetsStore.setTxs');
-    try {
-      return super.setTxs(list, decimals);
-    } finally {
-      _$_AssetsStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void loadCache(String pubKey) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.loadCache');
@@ -159,7 +133,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
 tokenBalanceMap: ${tokenBalanceMap},
 prices: ${prices},
 marketPrices: ${marketPrices},
-txs: ${txs},
 nft: ${nft}
     ''';
   }

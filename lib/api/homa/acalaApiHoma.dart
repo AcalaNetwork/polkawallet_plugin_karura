@@ -19,10 +19,10 @@ class AcalaApiHoma {
     );
   }
 
-  Future<HomaUserInfoData> queryHomaUserInfo(String address) async {
-    final Map res = await service.queryHomaUserInfo(address);
-    return HomaUserInfoData.fromJson(Map<String, dynamic>.of(res));
-  }
+  // Future<HomaUserInfoData> queryHomaUserInfo(String address) async {
+  //   final Map res = await service.queryHomaUserInfo(address);
+  //   return HomaUserInfoData.fromJson(Map<String, dynamic>.of(res));
+  // }
 
   Future<HomaRedeemAmountData> queryHomaRedeemAmount(
       double input, int redeemType, era) async {

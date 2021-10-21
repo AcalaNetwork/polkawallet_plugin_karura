@@ -740,16 +740,16 @@ packages:
   polkawallet_sdk:
     dependency: "direct main"
     description:
-      path: "../sdk"
-      relative: true
-    source: path
+      name: polkawallet_sdk
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "0.3.5"
   polkawallet_ui:
     dependency: "direct main"
     description:
-      path: "../ui"
-      relative: true
-    source: path
+      name: polkawallet_ui
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "0.3.4"
   pool:
     dependency: transitive

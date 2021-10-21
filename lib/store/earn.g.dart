@@ -54,21 +54,6 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
-  final _$dexPoolInfoMapAtom = Atom(name: '_EarnStore.dexPoolInfoMap');
-
-  @override
-  ObservableMap<String, DexPoolInfoData> get dexPoolInfoMap {
-    _$dexPoolInfoMapAtom.reportRead();
-    return super.dexPoolInfoMap;
-  }
-
-  @override
-  set dexPoolInfoMap(ObservableMap<String, DexPoolInfoData> value) {
-    _$dexPoolInfoMapAtom.reportWrite(value, super.dexPoolInfoMap, () {
-      super.dexPoolInfoMap = value;
-    });
-  }
-
   final _$dexPoolInfoMapV2Atom = Atom(name: '_EarnStore.dexPoolInfoMapV2');
 
   @override
@@ -109,17 +94,6 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexPoolInfo(Map<String, DexPoolInfoData> data) {
-    final _$actionInfo = _$_EarnStoreActionController.startAction(
-        name: '_EarnStore.setDexPoolInfo');
-    try {
-      return super.setDexPoolInfo(data);
-    } finally {
-      _$_EarnStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setDexPoolInfoV2(Map<String, DexPoolInfoDataV2> data) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setDexPoolInfoV2');
@@ -142,23 +116,11 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void loadCache(String pubKey) {
-    final _$actionInfo =
-        _$_EarnStoreActionController.startAction(name: '_EarnStore.loadCache');
-    try {
-      return super.loadCache(pubKey);
-    } finally {
-      _$_EarnStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   String toString() {
     return '''
 incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},
-dexPoolInfoMap: ${dexPoolInfoMap},
 dexPoolInfoMapV2: ${dexPoolInfoMapV2}
     ''';
   }

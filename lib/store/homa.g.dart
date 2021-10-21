@@ -24,44 +24,6 @@ mixin _$HomaStore on _HomaStore, Store {
     });
   }
 
-  final _$userInfoAtom = Atom(name: '_HomaStore.userInfo');
-
-  @override
-  HomaUserInfoData get userInfo {
-    _$userInfoAtom.reportRead();
-    return super.userInfo;
-  }
-
-  @override
-  set userInfo(HomaUserInfoData value) {
-    _$userInfoAtom.reportWrite(value, super.userInfo, () {
-      super.userInfo = value;
-    });
-  }
-
-  final _$txsAtom = Atom(name: '_HomaStore.txs');
-
-  @override
-  ObservableList<TxHomaData> get txs {
-    _$txsAtom.reportRead();
-    return super.txs;
-  }
-
-  @override
-  set txs(ObservableList<TxHomaData> value) {
-    _$txsAtom.reportWrite(value, super.txs, () {
-      super.txs = value;
-    });
-  }
-
-  final _$setHomaUserInfoAsyncAction =
-      AsyncAction('_HomaStore.setHomaUserInfo');
-
-  @override
-  Future<void> setHomaUserInfo(HomaUserInfoData info) {
-    return _$setHomaUserInfoAsyncAction.run(() => super.setHomaUserInfo(info));
-  }
-
   final _$_HomaStoreActionController = ActionController(name: '_HomaStore');
 
   @override
@@ -76,33 +38,9 @@ mixin _$HomaStore on _HomaStore, Store {
   }
 
   @override
-  void addHomaTx(Map<dynamic, dynamic> tx, String pubKey) {
-    final _$actionInfo =
-        _$_HomaStoreActionController.startAction(name: '_HomaStore.addHomaTx');
-    try {
-      return super.addHomaTx(tx, pubKey);
-    } finally {
-      _$_HomaStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void loadCache(String pubKey) {
-    final _$actionInfo =
-        _$_HomaStoreActionController.startAction(name: '_HomaStore.loadCache');
-    try {
-      return super.loadCache(pubKey);
-    } finally {
-      _$_HomaStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   String toString() {
     return '''
 poolInfo: ${poolInfo},
-userInfo: ${userInfo},
-txs: ${txs}
     ''';
   }
 }

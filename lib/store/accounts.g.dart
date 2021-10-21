@@ -9,21 +9,6 @@ part of 'accounts.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$AccountsStore on _AccountsStore, Store {
-  final _$pubKeyAddressMapAtom = Atom(name: '_AccountsStore.pubKeyAddressMap');
-
-  @override
-  ObservableMap<int, Map<String, String>> get pubKeyAddressMap {
-    _$pubKeyAddressMapAtom.reportRead();
-    return super.pubKeyAddressMap;
-  }
-
-  @override
-  set pubKeyAddressMap(ObservableMap<int, Map<String, String>> value) {
-    _$pubKeyAddressMapAtom.reportWrite(value, super.pubKeyAddressMap, () {
-      super.pubKeyAddressMap = value;
-    });
-  }
-
   final _$addressIndexMapAtom = Atom(name: '_AccountsStore.addressIndexMap');
 
   @override
@@ -58,17 +43,6 @@ mixin _$AccountsStore on _AccountsStore, Store {
       ActionController(name: '_AccountsStore');
 
   @override
-  void setPubKeyAddressMap(Map<String, Map<dynamic, dynamic>> data) {
-    final _$actionInfo = _$_AccountsStoreActionController.startAction(
-        name: '_AccountsStore.setPubKeyAddressMap');
-    try {
-      return super.setPubKeyAddressMap(data);
-    } finally {
-      _$_AccountsStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setAddressIconsMap(List<dynamic> list) {
     final _$actionInfo = _$_AccountsStoreActionController.startAction(
         name: '_AccountsStore.setAddressIconsMap');
@@ -93,7 +67,6 @@ mixin _$AccountsStore on _AccountsStore, Store {
   @override
   String toString() {
     return '''
-pubKeyAddressMap: ${pubKeyAddressMap},
 addressIndexMap: ${addressIndexMap},
 addressIconsMap: ${addressIconsMap}
     ''';

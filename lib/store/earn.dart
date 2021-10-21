@@ -25,10 +25,6 @@ abstract class _EarnStore with Store {
   List<DexPoolData> bootstraps = [];
 
   @observable
-  ObservableMap<String, DexPoolInfoData> dexPoolInfoMap =
-      ObservableMap<String, DexPoolInfoData>();
-
-  @observable
   ObservableMap<String, DexPoolInfoDataV2> dexPoolInfoMapV2 =
       ObservableMap<String, DexPoolInfoDataV2>();
 
@@ -43,11 +39,6 @@ abstract class _EarnStore with Store {
   }
 
   @action
-  void setDexPoolInfo(Map<String, DexPoolInfoData> data) {
-    dexPoolInfoMap.addAll(data);
-  }
-
-  @action
   void setDexPoolInfoV2(Map<String, DexPoolInfoDataV2> data) {
     dexPoolInfoMapV2.addAll(data);
   }
@@ -55,12 +46,5 @@ abstract class _EarnStore with Store {
   @action
   void setIncentives(IncentivesData data) {
     incentives = data;
-  }
-
-  @action
-  void loadCache(String pubKey) {
-    if (pubKey == null || pubKey.isEmpty) return;
-
-    dexPoolInfoMap = ObservableMap<String, DexPoolInfoData>();
   }
 }

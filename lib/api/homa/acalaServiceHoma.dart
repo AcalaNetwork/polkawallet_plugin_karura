@@ -17,11 +17,11 @@ class AcalaServiceHoma {
     return res;
   }
 
-  Future<Map> queryHomaUserInfo(String address) async {
-    final Map res = await plugin.sdk.webView
-        .evalJavascript('acala.fetchHomaUserInfo(api, "$address")');
-    return res;
-  }
+  // Future<Map> queryHomaUserInfo(String address) async {
+  //   final Map res = await plugin.sdk.webView
+  //       .evalJavascript('acala.fetchHomaUserInfo(api, "$address")');
+  //   return res;
+  // }
 
   Future<Map> queryHomaRedeemAmount(double input, int redeemType, era) async {
     final Map res = await plugin.sdk.webView.evalJavascript(

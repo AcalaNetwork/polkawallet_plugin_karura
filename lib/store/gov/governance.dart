@@ -28,10 +28,8 @@ abstract class _GovernanceStore with Store {
   @observable
   List<ProposalInfoData> proposals = [];
 
-  @observable
   TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
 
-  @observable
   List<TreasuryTipData> treasuryTips;
 
   @action
@@ -54,12 +52,10 @@ abstract class _GovernanceStore with Store {
     proposals = ls;
   }
 
-  @action
   void setTreasuryOverview(TreasuryOverviewData data) {
     treasuryOverview = data;
   }
 
-  @action
   void setTreasuryTips(List<TreasuryTipData> data) {
     treasuryTips = data;
   }

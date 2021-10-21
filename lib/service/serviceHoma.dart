@@ -19,10 +19,4 @@ class ServiceHoma {
     store.homa.setHomaLitePoolInfoData(res);
     return res;
   }
-
-  Future<HomaUserInfoData> queryHomaUserInfo(String address) async {
-    final res = await api.homa.queryHomaUserInfo(address);
-    store.homa.setHomaUserInfo(res);
-    return res;
-  }
 }
