@@ -757,9 +757,7 @@ class _TransferPageState extends State<TransferPage> {
                                 ),
                               )
                             : Container(),
-                        _token == 'KSM'
-                            ? _KSMCrossChainTransferWarning()
-                            : Container(),
+                        _KSMCrossChainTransferWarning(token: _token),
                       ],
                     ),
                   ),
@@ -786,8 +784,12 @@ class _TransferPageState extends State<TransferPage> {
 }
 
 class _KSMCrossChainTransferWarning extends StatelessWidget {
+  _KSMCrossChainTransferWarning({this.token});
+  final String token;
   @override
   Widget build(BuildContext context) {
+    if (token != 'KSM' && token != 'BNC') return Container();
+
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return Container(
       margin: EdgeInsets.only(top: 16, bottom: 24),
@@ -803,7 +805,7 @@ class _KSMCrossChainTransferWarning extends StatelessWidget {
             dic['cross.warn'],
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
           ),
-          Text(dic['cross.warn.network'], style: TextStyle(fontSize: 12))
+          Text(dic['cross.warn.$token'], style: TextStyle(fontSize: 12))
         ],
       ),
     );

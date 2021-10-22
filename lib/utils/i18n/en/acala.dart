@@ -194,8 +194,10 @@ const Map<String, String> enDex = {
       '\nThe minimum amount that an account should have to be deemed active.\n',
   'cross.fee': 'destination chain transfer fee',
   'cross.warn': 'Warning',
-  'cross.warn.network':
+  'cross.warn.KSM':
       'Exchanges do not currently support direct transfers of KSM to/from Karura. In order to successfully send KSM to an exchange address, it is required that you first complete an Cross-Chain-Transfer of the token(s) from Karura to Kusama.',
+  'cross.warn.BNC':
+      'Exchanges do not currently support direct transfers of BNC to/from Karura. In order to successfully send BNC to an exchange address, it is required that you first complete an Cross-Chain-Transfer of the token(s) from Karura to Bifrost.',
   'transfer.exist': 'existential deposit',
   'transfer.fee': 'estimated transfer fee',
 };
