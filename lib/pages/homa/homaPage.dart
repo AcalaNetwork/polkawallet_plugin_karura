@@ -38,24 +38,25 @@ class _HomaPageState extends State<HomaPage> {
   Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api.homa
         .redeemRequested(widget.keyring.current.address);
-    if (mounted) {
-      if (data != null && data.length > 0) {
-        setState(() {
-          unlockingKsm = data;
-        });
-      } else if (unlockingKsm != null) {
-        setState(() {
-          unlockingKsm = null;
-        });
-      }
+    if (data != null && data.length > 0) {
+      setState(() {
+        unlockingKsm = data;
+      });
+    } else if (unlockingKsm != null) {
+      setState(() {
+        unlockingKsm = null;
+      });
     }
+  }
+
+  Future<void> _refreshAllData() async {
+    _refreshData();
+    _refreshRedeem();
   }
 
   Future<void> _refreshData() async {
     widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
     await widget.plugin.service.homa.queryHomaLiteStakingPool();
-
-    _refreshRedeem();
 
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
@@ -88,7 +89,7 @@ class _HomaPageState extends State<HomaPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshData();
+      _refreshAllData();
     });
   }
 
@@ -512,7 +513,7 @@ class _HomaPageState extends State<HomaPage> {
                                       .pushNamed(RedeemPage.route)
                                       .then((value) {
                                     if (value != null) {
-                                      _refreshData();
+                                      _refreshAllData();
                                     }
                                   }),
                                 ),
@@ -536,7 +537,7 @@ class _HomaPageState extends State<HomaPage> {
                                               .pushNamed(MintPage.route)
                                               .then((value) {
                                             if (value != null) {
-                                              _refreshData();
+                                              _refreshAllData();
                                             }
                                           });
                                         }
