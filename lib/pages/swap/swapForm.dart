@@ -390,18 +390,18 @@ class _SwapFormState extends State<SwapForm> {
 
         final currencyOptionsLeft = PluginFmt.getAllDexTokens(widget.plugin);
         final currencyOptionsRight = currencyOptionsLeft.toList();
-        final List<String> swapPair =
-            widget.plugin.store.swap.swapPair != null &&
-                    widget.plugin.store.swap
-                            .swapPair(widget.keyring.current.pubKey)
-                            .length >
-                        0
-                ? widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey)
-                : _swapPair.length > 1
-                    ? _swapPair
-                    : currencyOptionsLeft.length > 2
-                        ? currencyOptionsLeft.sublist(0, 2)
-                        : [];
+        final List<String> swapPair = widget.plugin.store.swap.swapPair !=
+                    null &&
+                widget.plugin.store.swap
+                        .swapPair(widget.keyring.current.pubKey)
+                        .length >
+                    0
+            ? widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey)
+            : _swapPair.length > 1
+                ? _swapPair
+                : currencyOptionsLeft.length > 2
+                    ? currencyOptionsLeft.sublist(0, 2)
+                    : [];
 
         if (swapPair.length > 1) {
           currencyOptionsLeft.retainWhere((i) => i != swapPair[0]);
@@ -534,20 +534,9 @@ class _SwapFormState extends State<SwapForm> {
                                         },
                                         child: Container(
                                           margin: EdgeInsets.only(left: 10),
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 3, vertical: 1),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Theme.of(context)
-                                                      .disabledColor,
-                                                  width: 1),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(10.0),
-                                              )),
                                           child: Icon(
                                             Icons.repeat,
-                                            color:
-                                                Theme.of(context).disabledColor,
+                                            color: primary,
                                             size: 16.0,
                                             semanticLabel:
                                                 'Text to announce in accessibility modes',

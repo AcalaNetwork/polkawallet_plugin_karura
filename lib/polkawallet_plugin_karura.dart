@@ -276,9 +276,9 @@ class PluginKarura extends PolkawalletPlugin {
 
     _cache = StoreCache();
     _store = PluginStore(_cache);
-    _loadCacheData(keyring.current);
-
     _service = PluginService(this, keyring);
+
+    _loadCacheData(keyring.current);
 
     _service.fetchLiveModules();
 
