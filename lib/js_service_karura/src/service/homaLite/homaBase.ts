@@ -88,6 +88,23 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     return [totalAmountInRedeemRequests, targetAmount.sub(totalAmountInRedeemRequests).max(FN.ZERO)];
   }
 
+  protected calculateSuggestRedeemRequests(redeemRequests: RedeemRequest[], targetAmount: FN) {
+    const temp = redeemRequests.sort((a, b) => (a.extraFee.gt(b.extraFee) ? -1 : 1));
+
+    const result = [];
+    let remainAmount = targetAmount;
+
+    for (let i of temp) {
+      if (remainAmount.gte(FN.ZERO)) {
+        result.push(i);
+
+        remainAmount = remainAmount.sub(i.amount);
+      }
+    }
+
+    return result.map((i) => i.redeemer.toString());
+  }
+
   protected calculateMintResult(
     convertStakingToLiquid: ConvertStakingToLiquid,
     convertLiquidToStaking: ConvertLiquidToStaking,
@@ -108,7 +125,7 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     const stakingRemaining = convertLiquidToStaking(remainingAmount);
 
     if (!mintedAmount.isZero()) {
-      suggestRedeemRequests = redeemRequests.sort((a, b) => (a.extraFee.gt(b.extraFee) ? -1 : 1)).map((item) => item.redeemer.toString());
+      suggestRedeemRequests = this.calculateSuggestRedeemRequests(redeemRequests, totalLiquidToMint);
     }
 
     if (stakingRemaining.gt(this.minMint)) {
