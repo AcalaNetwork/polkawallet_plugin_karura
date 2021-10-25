@@ -12,13 +12,13 @@ mixin _$SwapStore on _SwapStore, Store {
   final _$_swapPairAtom = Atom(name: '_SwapStore._swapPair');
 
   @override
-  Map<dynamic, dynamic> get _swapPair {
+  Map<String, List<String>> get _swapPair {
     _$_swapPairAtom.reportRead();
     return super._swapPair;
   }
 
   @override
-  set _swapPair(Map<dynamic, dynamic> value) {
+  set _swapPair(Map<String, List<String>> value) {
     _$_swapPairAtom.reportWrite(value, super._swapPair, () {
       super._swapPair = value;
     });
@@ -27,7 +27,7 @@ mixin _$SwapStore on _SwapStore, Store {
   final _$_SwapStoreActionController = ActionController(name: '_SwapStore');
 
   @override
-  void setSwapPair(List<dynamic> value, String pubKey) {
+  void setSwapPair(List<String> value, String pubKey) {
     final _$actionInfo = _$_SwapStoreActionController.startAction(
         name: '_SwapStore.setSwapPair');
     try {

@@ -81,6 +81,8 @@ class _SwapFormState extends State<SwapForm> {
       _amountReceiveCtrl.text = pay;
       _swapMode = _swapMode == 0 ? 1 : 0;
     });
+    widget.plugin.store.swap
+        .setSwapPair(_swapPair, widget.keyring.current.pubKey);
     if (_payFocusNode.hasFocus) {
       _payFocusNode.unfocus();
       _receiveFocusNode.requestFocus();
@@ -355,11 +357,22 @@ class _SwapFormState extends State<SwapForm> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _getTxFee();
 
-      final tokens = PluginFmt.getAllDexTokens(widget.plugin);
-      if (tokens.length > 2) {
+      if (widget.plugin.store.swap.swapPair != null &&
+          widget.plugin.store.swap
+                  .swapPair(widget.keyring.current.pubKey)
+                  .length >
+              0) {
         setState(() {
-          _swapPair = tokens.sublist(0, 2);
+          _swapPair =
+              widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey);
         });
+      } else {
+        final tokens = PluginFmt.getAllDexTokens(widget.plugin);
+        if (tokens.length > 2) {
+          setState(() {
+            _swapPair = tokens.sublist(0, 2);
+          });
+        }
       }
 
       _setUpdateTimer(init: true);
@@ -390,18 +403,11 @@ class _SwapFormState extends State<SwapForm> {
 
         final currencyOptionsLeft = PluginFmt.getAllDexTokens(widget.plugin);
         final currencyOptionsRight = currencyOptionsLeft.toList();
-        final List<String> swapPair = widget.plugin.store.swap.swapPair !=
-                    null &&
-                widget.plugin.store.swap
-                        .swapPair(widget.keyring.current.pubKey)
-                        .length >
-                    0
-            ? widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey)
-            : _swapPair.length > 1
-                ? _swapPair
-                : currencyOptionsLeft.length > 2
-                    ? currencyOptionsLeft.sublist(0, 2)
-                    : [];
+        final List<String> swapPair = _swapPair.length > 1
+            ? _swapPair
+            : currencyOptionsLeft.length > 2
+                ? currencyOptionsLeft.sublist(0, 2)
+                : [];
 
         if (swapPair.length > 1) {
           currencyOptionsLeft.retainWhere((i) => i != swapPair[0]);
