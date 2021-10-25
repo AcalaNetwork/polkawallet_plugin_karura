@@ -40,7 +40,7 @@ mixin _$HomaStore on _HomaStore, Store {
   @override
   String toString() {
     return '''
-poolInfo: ${poolInfo},
+poolInfo: ${poolInfo}
     ''';
   }
 }

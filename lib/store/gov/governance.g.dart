@@ -69,22 +69,6 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
-  TreasuryOverviewData get treasuryOverview {
-    return super.treasuryOverview;
-  }
-
-  set treasuryOverview(TreasuryOverviewData value) {
-    super.treasuryOverview = value;
-  }
-
-  List<TreasuryTipData> get treasuryTips {
-    return super.treasuryTips;
-  }
-
-  set treasuryTips(List<TreasuryTipData> value) {
-    super.treasuryTips = value;
-  }
-
   final _$_GovernanceStoreActionController =
       ActionController(name: '_GovernanceStore');
 
@@ -132,14 +116,6 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     }
   }
 
-  void setTreasuryOverview(TreasuryOverviewData data) {
-    return super.setTreasuryOverview(data);
-  }
-
-  void setTreasuryTips(List<TreasuryTipData> data) {
-    return super.setTreasuryTips(data);
-  }
-
   @override
   void clearState() {
     final _$actionInfo = _$_GovernanceStoreActionController.startAction(
@@ -157,9 +133,7 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
 bestNumber: ${bestNumber},
 referendums: ${referendums},
 voteConvictions: ${voteConvictions},
-proposals: ${proposals},
-treasuryOverview: ${treasuryOverview},
-treasuryTips: ${treasuryTips}
+proposals: ${proposals}
     ''';
   }
 }

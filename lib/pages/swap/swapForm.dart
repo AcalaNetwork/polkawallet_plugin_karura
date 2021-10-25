@@ -58,6 +58,8 @@ class _SwapFormState extends State<SwapForm> {
   // use another _timer to control swap amount query
   Timer _delayTimer;
 
+  bool rateExchange = false;
+
   Future<void> _getTxFee({bool reload = false}) async {
     final sender = TxSenderData(
         widget.keyring.current.address, widget.keyring.current.pubKey);
@@ -388,11 +390,18 @@ class _SwapFormState extends State<SwapForm> {
 
         final currencyOptionsLeft = PluginFmt.getAllDexTokens(widget.plugin);
         final currencyOptionsRight = currencyOptionsLeft.toList();
-        final List<String> swapPair = _swapPair.length > 1
-            ? _swapPair
-            : currencyOptionsLeft.length > 2
-                ? currencyOptionsLeft.sublist(0, 2)
-                : [];
+        final List<String> swapPair =
+            widget.plugin.store.swap.swapPair != null &&
+                    widget.plugin.store.swap
+                            .swapPair(widget.keyring.current.pubKey)
+                            .length >
+                        0
+                ? widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey)
+                : _swapPair.length > 1
+                    ? _swapPair
+                    : currencyOptionsLeft.length > 2
+                        ? currencyOptionsLeft.sublist(0, 2)
+                        : [];
 
         if (swapPair.length > 1) {
           currencyOptionsLeft.retainWhere((i) => i != swapPair[0]);
@@ -443,6 +452,8 @@ class _SwapFormState extends State<SwapForm> {
                                     : [token, swapPair[1]];
                                 _maxInput = null;
                               });
+                              widget.plugin.store.swap.setSwapPair(
+                                  _swapPair, widget.keyring.current.pubKey);
                               _updateSwapAmount();
                             }
                           },
@@ -488,6 +499,8 @@ class _SwapFormState extends State<SwapForm> {
                                       : [swapPair[0], token];
                                   _maxInput = null;
                                 });
+                                widget.plugin.store.swap.setSwapPair(
+                                    _swapPair, widget.keyring.current.pubKey);
                                 _updateSwapAmount();
                               }
                             },
@@ -500,21 +513,50 @@ class _SwapFormState extends State<SwapForm> {
                           ),
                         ),
                         ErrorMessage(_errorReceive),
-                        showExchangeRate
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                    left: 16, top: 12, right: 16),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(dic['dex.rate'], style: labelStyle),
+                        Visibility(
+                            visible: showExchangeRate,
+                            child: Container(
+                              margin:
+                                  EdgeInsets.only(left: 16, top: 12, right: 16),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(dic['dex.rate'], style: labelStyle),
+                                  Row(children: <Widget>[
                                     Text(
-                                        '1 ${PluginFmt.tokenView(swapPair[0])} = ${_swapRatio.toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[1])}'),
-                                  ],
-                                ),
-                              )
-                            : Container(),
+                                        '1 ${PluginFmt.tokenView(swapPair[rateExchange ? 1 : 0])} = ${(rateExchange ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[rateExchange ? 0 : 1])}'),
+                                    GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            rateExchange = !rateExchange;
+                                          });
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.only(left: 10),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 3, vertical: 1),
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Theme.of(context)
+                                                      .disabledColor,
+                                                  width: 1),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0),
+                                              )),
+                                          child: Icon(
+                                            Icons.repeat,
+                                            color:
+                                                Theme.of(context).disabledColor,
+                                            size: 16.0,
+                                            semanticLabel:
+                                                'Text to announce in accessibility modes',
+                                          ),
+                                        )),
+                                  ])
+                                ],
+                              ),
+                            )),
                         Container(
                           margin: EdgeInsets.only(left: 16, top: 12, right: 16),
                           child: Row(
