@@ -539,13 +539,11 @@ class _SwapFormState extends State<SwapForm> {
                                           });
                                         },
                                         child: Container(
-                                          margin: EdgeInsets.only(left: 10),
+                                          margin: EdgeInsets.only(left: 4),
                                           child: Icon(
                                             Icons.repeat,
                                             color: primary,
                                             size: 16.0,
-                                            semanticLabel:
-                                                'Text to announce in accessibility modes',
                                           ),
                                         )),
                                   ])

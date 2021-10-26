@@ -63,7 +63,7 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
         if (res.input) {
           resolve({
             amount: output === null ? res.output.balance.toNumber(6) : res.input.balance.toNumber(6),
-            priceImpact: res.priceImpact.toNumber(6),
+            priceImpact: res.naturalPriceImpact.toNumber(6),
             fee: res.input.balance.times(_computeExchangeFee(res.path, feeRate)).toNumber(6),
             path: res.path,
             input: res.input.token.toString(),
@@ -565,7 +565,7 @@ async function queryIncentives(api: ApiPromise) {
     const idString = incentiveType === "Dex" ? id["DEXShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
     const incentiveToken = e[0].args[1];
     const incentiveTokenView = incentiveToken.toHuman()["Token"];
-    const incentiveTokenDecimal = walletPromise.getToken(incentiveToken).decimal;
+    const incentiveTokenDecimal = walletPromise.getToken(incentiveToken as any).decimal;
 
     if (!res[incentiveType][idString]) {
       res[incentiveType][idString] = [];
