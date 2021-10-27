@@ -19,13 +19,13 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
     super(api, wallet);
   }
 
-  private async updateStorage() {
+  private async updateStorage(needQueryUnbonding: boolean) {
     const data = await Promise.all([
       this.api.query.tokens.totalIssuance(this.constants.liquidToken.toChainData()),
       this.api.query.homaLite.totalStakingCurrency(),
       this.api.query.homaLite.stakingCurrencyMintCap(),
       this.isV1 ? "0" : this.api.query.homaLite.availableStakingBalance(),
-      this.isV1 ? [] : this.api.query.homaLite.redeemRequests.entries(),
+      this.isV1 || !needQueryUnbonding ? [] : this.api.query.homaLite.redeemRequests.entries(),
     ]);
 
     const mintGap = FN.fromInner(data[2].toString(), this.constants.stakingToken.decimal);
@@ -59,7 +59,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
   }
 
   private async mintV1(amount: FN): Promise<HomaLiteMintResult> {
-    await this.updateStorage();
+    await this.updateStorage(false);
 
     if (!this.storage) {
       return {
@@ -91,7 +91,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
   }
 
   private async mintV2(amount: FN): Promise<HomaLiteMintResult> {
-    await this.updateStorage();
+    await this.updateStorage(true);
 
     if (!this.storage) {
       return {
@@ -176,7 +176,7 @@ export class HomaLite extends BaseHomaLite<ApiPromise> {
   public async queryUserRedeemRequest(account: MaybeAccount) {
     if (this.isV1) return FN.ZERO;
 
-    await this.updateStorage();
+    await this.updateStorage(false);
 
     const pending: any = await this.api.query.homaLite.redeemRequests(account);
 
