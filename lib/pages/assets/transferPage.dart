@@ -286,10 +286,10 @@ class _TransferPageState extends State<TransferPage> {
             // params.dest
             isV2XCM ? {'V1': dest} : dest,
             // params.weight
-            isToParent
-                ? xcm_dest_weight_kusama
-                : isV2XCM
-                    ? xcm_dest_weight_karura_v2
+            isV2XCM
+                ? xcm_dest_weight_v2
+                : isToParent
+                    ? xcm_dest_weight_kusama
                     : xcm_dest_weight_karura
           ],
         );
@@ -498,7 +498,7 @@ class _TransferPageState extends State<TransferPage> {
                                         });
                                       },
                                     )
-                                  : Container(),
+                                  : null,
                             ),
                             inputFormatters: [
                               UI.decimalInputFormatter(decimals)

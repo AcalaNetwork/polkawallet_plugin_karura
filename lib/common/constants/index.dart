@@ -34,11 +34,11 @@ const cross_chain_xcm_fees = {
   },
   para_chain_name_bifrost: {
     relay_chain_token_symbol: {
-      'fee': '4848000000',
+      'fee': '64000000',
       'existentialDeposit': '100000000',
     },
     karura_stable_coin: {
-      'fee': '19200000000',
+      'fee': '25600000000',
       'existentialDeposit': '100000000',
     },
     para_chain_token_symbol_bifrost: {
@@ -53,7 +53,7 @@ const cross_chain_xcm_fees = {
 };
 const xcm_dest_weight_kusama = '3000000000';
 const xcm_dest_weight_karura = '600000000';
-const xcm_dest_weight_karura_v2 = '3000000000';
+const xcm_dest_weight_v2 = '5000000000';
 
 const existential_deposit = {
   'KSM': '100000000',

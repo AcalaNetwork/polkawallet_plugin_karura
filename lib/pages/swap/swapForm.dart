@@ -76,6 +76,7 @@ class _SwapFormState extends State<SwapForm> {
   Future<void> _switchPair() async {
     final pay = _amountPayCtrl.text;
     setState(() {
+      _maxInput = null;
       _swapPair = [_swapPair[1], _swapPair[0]];
       _amountPayCtrl.text = _amountReceiveCtrl.text;
       _amountReceiveCtrl.text = pay;
@@ -198,56 +199,68 @@ class _SwapFormState extends State<SwapForm> {
 
     widget.plugin.service.assets.queryMarketPrices(_swapPair);
 
-    if (supply == null) {
-      final output = await widget.plugin.api.swap.queryTokenSwapAmount(
-        supply,
-        target.isEmpty ? '1' : target,
-        _swapPair,
-        _slippage.toString(),
-      );
-      if (mounted) {
-        setState(() {
-          if (!init) {
-            if (target.isNotEmpty) {
-              _amountPayCtrl.text = output.amount.toString();
-            } else {
-              _amountPayCtrl.text = '';
+    try {
+      if (supply == null) {
+        final inputAmount = double.tryParse(target);
+        if (inputAmount == 0.0) return;
+
+        final output = await widget.plugin.api.swap.queryTokenSwapAmount(
+          supply,
+          target.isEmpty ? '1' : target,
+          _swapPair,
+          _slippage.toString(),
+        );
+        if (mounted) {
+          setState(() {
+            if (!init) {
+              if (target.isNotEmpty) {
+                _amountPayCtrl.text = output.amount.toString();
+              } else {
+                _amountPayCtrl.text = '';
+              }
             }
+            _swapRatio = target.isEmpty
+                ? output.amount
+                : double.parse(target) / output.amount;
+            _swapOutput = output;
+          });
+          if (!init) {
+            _onCheckBalance();
           }
-          _swapRatio = target.isEmpty
-              ? output.amount
-              : double.parse(target) / output.amount;
-          _swapOutput = output;
-        });
-        if (!init) {
-          _onCheckBalance();
+        }
+      } else if (target == null) {
+        final inputAmount = double.tryParse(supply);
+        if (inputAmount == 0.0) return;
+
+        final output = await widget.plugin.api.swap.queryTokenSwapAmount(
+          supply.isEmpty ? '1' : supply,
+          target,
+          _swapPair,
+          _slippage.toString(),
+        );
+        if (mounted) {
+          setState(() {
+            if (!init) {
+              if (supply.isNotEmpty) {
+                _amountReceiveCtrl.text = output.amount.toString();
+              } else {
+                _amountReceiveCtrl.text = '';
+              }
+            }
+            _swapRatio = supply.isEmpty
+                ? output.amount
+                : output.amount / double.parse(supply);
+            _swapOutput = output;
+          });
+          if (!init) {
+            _onCheckBalance();
+          }
         }
       }
-    } else if (target == null) {
-      final output = await widget.plugin.api.swap.queryTokenSwapAmount(
-        supply.isEmpty ? '1' : supply,
-        target,
-        _swapPair,
-        _slippage.toString(),
-      );
-      if (mounted) {
-        setState(() {
-          if (!init) {
-            if (supply.isNotEmpty) {
-              _amountReceiveCtrl.text = output.amount.toString();
-            } else {
-              _amountReceiveCtrl.text = '';
-            }
-          }
-          _swapRatio = supply.isEmpty
-              ? output.amount
-              : output.amount / double.parse(supply);
-          _swapOutput = output;
-        });
-        if (!init) {
-          _onCheckBalance();
-        }
-      }
+    } on Exception catch (err) {
+      setState(() {
+        _error = err.toString().split(':')[0];
+      });
     }
   }
 

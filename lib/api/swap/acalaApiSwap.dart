@@ -16,6 +16,9 @@ class AcalaApiSwap {
   ) async {
     final output = await service.queryTokenSwapAmount(
         supplyAmount, targetAmount, swapPair, slippage);
+    if (output != null && output['error'] != null) {
+      throw new Exception(output['error']['message']);
+    }
     return SwapOutputData.fromJson(output);
   }
 

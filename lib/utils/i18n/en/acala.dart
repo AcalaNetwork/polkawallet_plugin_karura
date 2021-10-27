@@ -189,10 +189,10 @@ const Map<String, String> enDex = {
   'cross.chain': 'To Chain',
   'cross.xcm': 'Cross Chain',
   'cross.chain.select': 'Select Network',
-  'cross.exist': 'destination chain existential deposit',
+  'cross.exist': 'dest chain existential deposit',
   'cross.exist.msg':
       '\nThe minimum amount that an account should have to be deemed active.\n',
-  'cross.fee': 'destination chain transfer fee',
+  'cross.fee': 'dest chain transfer fee',
   'cross.warn': 'Warning',
   'cross.warn.KSM':
       'Exchanges do not currently support direct transfers of KSM to/from Karura. In order to successfully send KSM to an exchange address, it is required that you first complete an Cross-Chain-Transfer of the token(s) from Karura to Kusama.',
