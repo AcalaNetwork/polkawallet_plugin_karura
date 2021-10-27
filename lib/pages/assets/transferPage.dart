@@ -246,9 +246,12 @@ class _TransferPageState extends State<TransferPage> {
           destPubKey = pk.keys.toList()[0];
         }
 
-        final dest = [
-          1,
-          isToParent
+        final isV2XCM = await widget.plugin.sdk.webView.evalJavascript(
+            'api.createType(api.tx.xTokens.transfer.meta.args[2].toJSON()["type"]).defKeys.includes("V1")',
+            wrapPromise: false);
+        final dest = {
+          'parents': 1,
+          'interior': isToParent
               ? {
                   'X1': {
                     'AccountId32': {'id': destPubKey, 'network': 'Any'}
@@ -262,7 +265,7 @@ class _TransferPageState extends State<TransferPage> {
                     }
                   ]
                 }
-        ];
+        };
         return TxConfirmParams(
           txTitle:
               '${dicAcala['transfer']} $tokenView (${dicAcala['cross.xcm']})',
@@ -281,9 +284,13 @@ class _TransferPageState extends State<TransferPage> {
             (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
                 .toString(),
             // params.dest
-            dest,
+            isV2XCM ? {'V1': dest} : dest,
             // params.weight
-            isToParent ? xcm_dest_weight_kusama : xcm_dest_weight_karura
+            isToParent
+                ? xcm_dest_weight_kusama
+                : isV2XCM
+                    ? xcm_dest_weight_karura_v2
+                    : xcm_dest_weight_karura
           ],
         );
       }

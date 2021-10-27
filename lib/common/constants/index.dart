@@ -42,17 +42,18 @@ const cross_chain_xcm_fees = {
       'existentialDeposit': '100000000',
     },
     para_chain_token_symbol_bifrost: {
-      'fee': '3840000000',
+      'fee': '5120000000',
       'existentialDeposit': '10000000000',
     },
     'VSKSM': {
-      'fee': '48000000',
+      'fee': '64000000',
       'existentialDeposit': '100000000',
     }
   }
 };
 const xcm_dest_weight_kusama = '3000000000';
 const xcm_dest_weight_karura = '600000000';
+const xcm_dest_weight_karura_v2 = '3000000000';
 
 const existential_deposit = {
   'KSM': '100000000',

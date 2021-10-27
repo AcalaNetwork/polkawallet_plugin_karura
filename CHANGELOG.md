@@ -1,3 +1,8 @@
+## [0.3.6] - 20211027
+- bump polkawallet_sdk v0.3.6.
+- bump polkawallet_ui v0.3.5.
+- update xcm V1.
+
 ## [0.3.5] - 20211019
 - update polkawallet_sdk v0.3.5.
 - update polkawallet_ui v0.3.4.

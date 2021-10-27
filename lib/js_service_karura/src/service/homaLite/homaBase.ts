@@ -28,8 +28,8 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
   private getConstants() {
     const consts = this.api.consts.homaLite;
 
-    const liquidToken = this.wallet.getToken(consts.liquidCurrencyId);
-    const stakingToken = this.wallet.getToken(consts.stakingCurrencyId);
+    const liquidToken = this.wallet.getToken(consts.liquidCurrencyId as any);
+    const stakingToken = this.wallet.getToken(consts.stakingCurrencyId as any);
 
     const defaultExchangeRate = FN.fromInner(consts.defaultExchangeRate?.toString() || 0);
     const minimumMintThreshold = FN.fromInner(consts.minimumMintThreshold?.toString() || 0, stakingToken.decimal);
