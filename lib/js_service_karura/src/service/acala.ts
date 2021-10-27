@@ -651,11 +651,8 @@ async function queryRedeemRequest(api: ApiPromise, address: string) {
     homaApi = new HomaLite(api, walletPromise);
   }
 
-  const data = await homaApi.queryUserRedeemRequest(address);
-  if (data.eq(FixedPointNumber.ZERO)) return "0";
-
-  const res = await homaApi.redeem(address, data);
-  return res.expected.toNumber().toFixed(8);
+  const data = await homaApi.queryUserUnbondingStakingToken(address);
+  return (data[0] || FixedPointNumber.ZERO).toNumber().toFixed(8);
 }
 
 export default {

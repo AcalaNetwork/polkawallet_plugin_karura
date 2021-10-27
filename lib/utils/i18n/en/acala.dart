@@ -189,9 +189,9 @@ const Map<String, String> enDex = {
   'cross.chain': 'To Chain',
   'cross.xcm': 'Cross Chain',
   'cross.chain.select': 'Select Network',
-  'cross.exist': 'dest chain existential deposit',
+  'cross.exist': 'dest chain ED',
   'cross.exist.msg':
-      '\nThe minimum amount that an account should have to be deemed active.\n',
+      '\nED (existential deposit): The minimum amount that an account should have to be deemed active.\n',
   'cross.fee': 'dest chain transfer fee',
   'cross.warn': 'Warning',
   'cross.warn.KSM':

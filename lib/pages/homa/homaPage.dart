@@ -33,18 +33,18 @@ class HomaPage extends StatefulWidget {
 
 class _HomaPageState extends State<HomaPage> {
   Timer _timer;
-  String unlockingKsm;
+  String _unlockingKsm;
 
   Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api.homa
         .redeemRequested(widget.keyring.current.address);
     if (data != null && data.length > 0) {
       setState(() {
-        unlockingKsm = data;
+        _unlockingKsm = data;
       });
-    } else if (unlockingKsm != null) {
+    } else if (_unlockingKsm != null) {
       setState(() {
-        unlockingKsm = null;
+        _unlockingKsm = null;
       });
     }
   }
@@ -63,6 +63,39 @@ class _HomaPageState extends State<HomaPage> {
         _refreshData();
       });
     }
+  }
+
+  void _onCancelRedeem() {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        return CupertinoAlertDialog(
+          title: Text(dic['homa.confirm']),
+          content: Text(dic['homa.redeem.hint']),
+          actions: <Widget>[
+            CupertinoButton(
+              child: Text(
+                dic['homa.redeem.cancel'],
+                style: TextStyle(
+                  color: Theme.of(context).unselectedWidgetColor,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoButton(
+              child: Text(dic['homa.confirm']),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _onSubmit();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _onSubmit() async {
@@ -283,8 +316,8 @@ class _HomaPageState extends State<HomaPage> {
                                   child: Text(dic['homa.user.stats']),
                                 ),
                                 Visibility(
-                                    visible: unlockingKsm != null &&
-                                        double.tryParse(unlockingKsm ?? '0') !=
+                                    visible: _unlockingKsm != null &&
+                                        double.tryParse(_unlockingKsm ?? '0') !=
                                             0,
                                     child: Column(children: [
                                       Row(
@@ -308,21 +341,14 @@ class _HomaPageState extends State<HomaPage> {
                                                 child: TokenIcon(stakeSymbol,
                                                     widget.plugin.tokenIcons),
                                               ),
-                                              // InfoItem(
-                                              //   title:
-                                              //       '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'), lengthMax: 2)}',
-                                              //   content:
-                                              //       '${Fmt.priceFloor(double.tryParse(unlockingKsm ?? '0'), lengthMax: 4)}',
-                                              //   lowTitle: true,
-                                              // ),
-                                              Row(
+                                              Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Column(
+                                                  Row(
                                                     children: [
                                                       Text(
-                                                        '${Fmt.priceFloor(double.tryParse(unlockingKsm ?? '0'), lengthMax: 4)}',
+                                                        '${Fmt.priceFloor(double.tryParse(_unlockingKsm ?? '0'), lengthMax: 4)}',
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
@@ -332,86 +358,34 @@ class _HomaPageState extends State<HomaPage> {
                                                               .unselectedWidgetColor,
                                                         ),
                                                       ),
-                                                      Text(
-                                                          '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(unlockingKsm ?? '0'), lengthMax: 2)}',
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .unselectedWidgetColor)),
+                                                      GestureDetector(
+                                                        child: Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    left: 4),
+                                                            child: Text(
+                                                              dic['homa.redeem.cancel'],
+                                                              style: TextStyle(
+                                                                fontSize: 12,
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic,
+                                                                decoration:
+                                                                    TextDecoration
+                                                                        .underline,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .primaryColor,
+                                                              ),
+                                                            )),
+                                                        onTap: _onCancelRedeem,
+                                                      )
                                                     ],
                                                   ),
-                                                  GestureDetector(
-                                                      child: Container(
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  left: 5),
-                                                          child: Text(
-                                                            dic['homa.redeem.cancel'],
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .italic,
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .underline,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .primaryColor,
-                                                            ),
-                                                          )),
-                                                      onTap: () {
-                                                        showCupertinoDialog(
-                                                          context: context,
-                                                          builder: (BuildContext
-                                                              context) {
-                                                            return CupertinoAlertDialog(
-                                                              title: Text(dic[
-                                                                  'homa.confirm']),
-                                                              content: Text(dic[
-                                                                  'homa.redeem.hint']),
-                                                              actions: <Widget>[
-                                                                CupertinoButton(
-                                                                  child: Text(
-                                                                    dic['homa.redeem.cancel'],
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Theme.of(
-                                                                              context)
-                                                                          .unselectedWidgetColor,
-                                                                    ),
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                  },
-                                                                ),
-                                                                CupertinoButton(
-                                                                  child: Text(
-                                                                    dic['homa.confirm'],
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Theme.of(
-                                                                              context)
-                                                                          .unselectedWidgetColor,
-                                                                    ),
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                    _onSubmit();
-                                                                  },
-                                                                ),
-                                                              ],
-                                                            );
-                                                          },
-                                                        );
-                                                      })
+                                                  Text(
+                                                      '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(_unlockingKsm ?? '0'), lengthMax: 2)}',
+                                                      style: TextStyle(
+                                                          fontSize: 12)),
                                                 ],
                                               )
                                             ],

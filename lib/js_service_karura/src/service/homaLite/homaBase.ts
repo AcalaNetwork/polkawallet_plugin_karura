@@ -28,8 +28,8 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
   private getConstants() {
     const consts = this.api.consts.homaLite;
 
-    const liquidToken = this.wallet.getToken(consts.liquidCurrencyId as any);
-    const stakingToken = this.wallet.getToken(consts.stakingCurrencyId as any);
+    const liquidToken = this.wallet.getToken(consts.liquidCurrencyId);
+    const stakingToken = this.wallet.getToken(consts.stakingCurrencyId);
 
     const defaultExchangeRate = FN.fromInner(consts.defaultExchangeRate?.toString() || 0);
     const minimumMintThreshold = FN.fromInner(consts.minimumMintThreshold?.toString() || 0, stakingToken.decimal);
@@ -147,6 +147,20 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
     };
   }
 
+  public calculateExpectedReceive(convertLiquidToStaking: ConvertLiquidToStaking, amount: FN, requestExtraFee: FN): [FN, FN] {
+    const { xcmUnbondFee } = this.constants;
+    const feeDeductedPercentage = FN.ONE.sub(requestExtraFee);
+    const stakingAmountFromMint = feeDeductedPercentage.mul(convertLiquidToStaking(amount));
+    const feeFromMint = FN.ONE.sub(feeDeductedPercentage).mul(convertLiquidToStaking(amount));
+
+    // if redeem from schedule unbond process
+    const stakingAmountFromSchedule = convertLiquidToStaking(amount).sub(xcmUnbondFee);
+    const feeFromSchedule = xcmUnbondFee;
+
+    // choose the minumum expected amount
+    return [stakingAmountFromMint.min(stakingAmountFromSchedule).max(FN.ZERO), feeFromMint.max(feeFromSchedule).max(FN.ZERO)];
+  }
+
   protected calculateRedeemResult(
     convertStakingToLiquid: ConvertStakingToLiquid,
     convertLiquidToStaking: ConvertLiquidToStaking,
@@ -162,6 +176,12 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
 
     if (amount.lte(minimumRedeemThreshold)) throw new AmountBelowMinimumThreshold();
 
+    const baseFee = amount.times(baseWithdrawFee);
+
+    // deduct base fee from the liquid amount
+    amount = amount.sub(baseFee);
+    fee = fee.add(baseFee);
+
     const actualLiquidAmount = amount.min(convertStakingToLiquid(availableStakingBalance));
 
     let liquidRemaining = amount.clone();
@@ -174,21 +194,12 @@ export abstract class BaseHomaLite<Api extends ApiPromise | ApiRx> {
       liquidRemaining = liquidRemaining.sub(actualLiquidAmount);
     }
 
+    // insert to redeem requests
     if (liquidRemaining.gt(minimumRedeemThreshold)) {
-      // insert to redeem requests
-      const feeDeductedPercentage = FN.ONE.sub(baseWithdrawFee).sub(requestExtraFee);
+      const [minReceived, maxFee] = this.calculateExpectedReceive(convertLiquidToStaking, liquidRemaining, requestExtraFee);
 
-      // if redeem from mint process
-      const stakingAmountFromMint = feeDeductedPercentage.mul(convertLiquidToStaking(liquidRemaining));
-      const feeFromMint = FN.ONE.sub(feeDeductedPercentage).mul(convertLiquidToStaking(liquidRemaining));
-
-      // if redeem from schedule unbond process
-      const stakingAmountFromSchedule = convertLiquidToStaking(liquidRemaining).sub(xcmUnbondFee);
-      const feeFromSchedule = xcmUnbondFee;
-
-      // choose the min expected amount
-      expected = expected.add(stakingAmountFromMint.min(stakingAmountFromSchedule));
-      fee = fee.add(feeFromMint.max(feeFromSchedule));
+      expected = expected.add(minReceived);
+      fee = fee.add(maxFee);
     }
 
     return {
