@@ -761,14 +761,14 @@ class _TransferPageState extends State<TransferPage> {
                             ),
                           ),
                         ),
-                        canCrossChain
-                            ? _CrossChainTransferWarning(
-                                token: token,
-                                chain: (widget.plugin.store.setting
-                                        .tokensConfig['warning'] ??
-                                    {})[token],
-                              )
-                            : Container(),
+                        Visibility(
+                            visible: canCrossChain,
+                            child: _CrossChainTransferWarning(
+                              token: token,
+                              chain: (widget.plugin.store.setting
+                                      .tokensConfig['warning'] ??
+                                  {})[token],
+                            )),
                       ],
                     ),
                   ),
