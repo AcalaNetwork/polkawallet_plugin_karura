@@ -82,15 +82,15 @@ class SwapTokenInput extends StatelessWidget {
                   '${dicAssets['balance']}: ${Fmt.token(max, balance?.decimals ?? 12)}',
                   style: TextStyle(color: colorGray, fontSize: 14),
                 ),
-                onSetMax == null
-                    ? Container()
-                    : GestureDetector(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: TextTag(dic['loan.max']),
-                        ),
-                        onTap: () => onSetMax(max),
-                      )
+                Visibility(
+                    visible: onSetMax != null,
+                    child: GestureDetector(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: TextTag(dic['loan.max']),
+                      ),
+                      onTap: () => onSetMax(max),
+                    ))
               ],
             ),
           ),
@@ -149,12 +149,12 @@ class SwapTokenInput extends StatelessWidget {
                   )
                 ]),
               ),
-              priceVisible
-                  ? Text(
-                      '≈ \$${Fmt.priceFloor(price)}',
-                      style: TextStyle(fontSize: 12, color: colorGray),
-                    )
-                  : Container()
+              Visibility(
+                  visible: priceVisible,
+                  child: Text(
+                    '≈ \$${Fmt.priceFloor(price)}',
+                    style: TextStyle(fontSize: 12, color: colorGray),
+                  ))
             ],
           ),
         ],

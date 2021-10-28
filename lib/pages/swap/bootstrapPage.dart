@@ -335,47 +335,46 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                 ],
                               ),
                             ),
-                            _addTab != 1
-                                ? Column(
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(top: 8),
-                                        child: SwapTokenInput(
-                                          title: dic['earn.add'],
-                                          inputCtrl: _amountLeftCtrl,
-                                          focusNode: _leftFocusNode,
-                                          balance: balancePair[0],
-                                          tokenIconsMap:
-                                              widget.plugin.tokenIcons,
-                                          onInputChange: (v) =>
-                                              _onAmountChange(0, v),
-                                        ),
+                            Visibility(
+                                visible: _addTab != 1,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(top: 8),
+                                      child: SwapTokenInput(
+                                        title: dic['earn.add'],
+                                        inputCtrl: _amountLeftCtrl,
+                                        focusNode: _leftFocusNode,
+                                        balance: balancePair[0],
+                                        tokenIconsMap: widget.plugin.tokenIcons,
+                                        onInputChange: (v) =>
+                                            _onAmountChange(0, v),
                                       ),
-                                      ErrorMessage(_leftAmountError),
-                                    ],
-                                  )
-                                : Container(),
-                            _addTab == 2 ? Icon(Icons.add) : Container(),
-                            _addTab != 0
-                                ? Column(
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(top: 8),
-                                        child: SwapTokenInput(
-                                          title: dic['earn.add'],
-                                          inputCtrl: _amountRightCtrl,
-                                          focusNode: _rightFocusNode,
-                                          balance: balancePair[1],
-                                          tokenIconsMap:
-                                              widget.plugin.tokenIcons,
-                                          onInputChange: (v) =>
-                                              _onAmountChange(1, v),
-                                        ),
+                                    ),
+                                    ErrorMessage(_leftAmountError),
+                                  ],
+                                )),
+                            Visibility(
+                                visible: _addTab == 2, child: Icon(Icons.add)),
+                            Visibility(
+                                visible: _addTab != 0,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(top: 8),
+                                      child: SwapTokenInput(
+                                        title: dic['earn.add'],
+                                        inputCtrl: _amountRightCtrl,
+                                        focusNode: _rightFocusNode,
+                                        balance: balancePair[1],
+                                        tokenIconsMap: widget.plugin.tokenIcons,
+                                        onInputChange: (v) =>
+                                            _onAmountChange(1, v),
                                       ),
-                                      ErrorMessage(_rightAmountError),
-                                    ],
-                                  )
-                                : Container(),
+                                    ),
+                                    ErrorMessage(_rightAmountError),
+                                  ],
+                                )),
                             Container(
                               margin: EdgeInsets.only(top: 8),
                               child: Row(

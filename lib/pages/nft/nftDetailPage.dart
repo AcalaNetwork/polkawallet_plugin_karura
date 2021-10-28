@@ -144,28 +144,26 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: burnable
-                                  ? OutlinedButtonSmall(
-                                      content: dic['nft.burn'],
-                                      active: false,
-                                      padding:
-                                          EdgeInsets.only(top: 8, bottom: 8),
-                                      onPressed:
-                                          false ? () => _onBurn(item) : null,
-                                    )
-                                  : Container(),
+                              child: Visibility(
+                                  visible: burnable,
+                                  child: OutlinedButtonSmall(
+                                    content: dic['nft.burn'],
+                                    active: false,
+                                    padding: EdgeInsets.only(top: 8, bottom: 8),
+                                    onPressed:
+                                        false ? () => _onBurn(item) : null,
+                                  )),
                             ),
                             Expanded(
-                              child: transferable
-                                  ? OutlinedButtonSmall(
-                                      content: dic['nft.transfer'],
-                                      active: true,
-                                      padding:
-                                          EdgeInsets.only(top: 8, bottom: 8),
-                                      margin: EdgeInsets.only(left: 8),
-                                      onPressed: () => _onTransfer(item),
-                                    )
-                                  : Container(),
+                              child: Visibility(
+                                  visible: transferable,
+                                  child: OutlinedButtonSmall(
+                                    content: dic['nft.transfer'],
+                                    active: true,
+                                    padding: EdgeInsets.only(top: 8, bottom: 8),
+                                    margin: EdgeInsets.only(left: 8),
+                                    onPressed: () => _onTransfer(item),
+                                  )),
                             ),
                           ],
                         ),

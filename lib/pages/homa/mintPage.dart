@@ -222,13 +222,13 @@ class _MintPageState extends State<MintPage> {
                         },
                       ),
                       ErrorMessage(_error),
-                      _amountReceive.isNotEmpty
-                          ? Container(
-                              margin: EdgeInsets.only(top: 16),
-                              child: InfoItemRow(dic['dex.receive'],
-                                  '$_amountReceive L$stakeToken'),
-                            )
-                          : Container(),
+                      Visibility(
+                          visible: _amountReceive.isNotEmpty,
+                          child: Container(
+                            margin: EdgeInsets.only(top: 16),
+                            child: InfoItemRow(dic['dex.receive'],
+                                '$_amountReceive L$stakeToken'),
+                          )),
                     ],
                   ),
                 ),

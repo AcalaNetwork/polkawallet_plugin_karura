@@ -115,25 +115,25 @@ class _AcalaEntryState extends State<AcalaEntry> {
                           ),
                         );
                       }).toList(),
-                      isKar
-                          ? Padding(
-                              padding: EdgeInsets.only(bottom: 16),
-                              child: GestureDetector(
-                                child: EntryPageCard(
-                                  dicGov['democracy'],
-                                  dicGov['democracy.brief'],
-                                  SvgPicture.asset(
-                                    'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
-                                    height: 88,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  color: Colors.transparent,
+                      Visibility(
+                          visible: isKar,
+                          child: Padding(
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: GestureDetector(
+                              child: EntryPageCard(
+                                dicGov['democracy'],
+                                dicGov['democracy.brief'],
+                                SvgPicture.asset(
+                                  'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
+                                  height: 88,
+                                  color: Theme.of(context).primaryColor,
                                 ),
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed(DemocracyPage.route),
+                                color: Colors.transparent,
                               ),
-                            )
-                          : Container(),
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed(DemocracyPage.route),
+                            ),
+                          )),
                     ],
                   );
                 },

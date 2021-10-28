@@ -126,20 +126,18 @@ class EarnDetailPage extends StatelessWidget {
                                         : null,
                                   ),
                                 ),
-                                share > BigInt.zero
-                                    ? Container(width: 16)
-                                    : Container(),
-                                share > BigInt.zero
-                                    ? Expanded(
-                                        child: RoundedButton(
-                                          text: dic['earn.unStake'],
-                                          onPressed: () => _onStake(
-                                              context,
-                                              LPStakePage.actionUnStake,
-                                              poolId),
-                                        ),
-                                      )
-                                    : Container()
+                                Visibility(
+                                    visible: share > BigInt.zero,
+                                    child: Container(width: 16)),
+                                Visibility(
+                                    visible: share > BigInt.zero,
+                                    child: Expanded(
+                                      child: RoundedButton(
+                                        text: dic['earn.unStake'],
+                                        onPressed: () => _onStake(context,
+                                            LPStakePage.actionUnStake, poolId),
+                                      ),
+                                    ))
                               ],
                             ),
                           ),
@@ -180,24 +178,24 @@ class EarnDetailPage extends StatelessWidget {
                                 }),
                           ),
                         ),
-                        balance > BigInt.zero
-                            ? Expanded(
-                                child: Container(
-                                  color: primaryColor,
-                                  child: TextButton(
-                                    child: Text(
-                                      dic['earn.remove'],
-                                      style: TextStyle(color: cardColor),
-                                    ),
-                                    onPressed: () =>
-                                        Navigator.of(context).pushNamed(
-                                      WithdrawLiquidityPage.route,
-                                      arguments: poolId,
-                                    ),
+                        Visibility(
+                            visible: balance > BigInt.zero,
+                            child: Expanded(
+                              child: Container(
+                                color: primaryColor,
+                                child: TextButton(
+                                  child: Text(
+                                    dic['earn.remove'],
+                                    style: TextStyle(color: cardColor),
+                                  ),
+                                  onPressed: () =>
+                                      Navigator.of(context).pushNamed(
+                                    WithdrawLiquidityPage.route,
+                                    arguments: poolId,
                                   ),
                                 ),
-                              )
-                            : Container(),
+                              ),
+                            )),
                       ],
                     ),
                   ],
@@ -533,23 +531,23 @@ class _UserCard extends StatelessWidget {
                   ],
                 ),
               ),
-              blocksToEnd != null
-                  ? Container(
-                      margin: EdgeInsets.only(top: 8),
-                      child: Text(
-                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
-                        style: TextStyle(fontSize: 10),
-                      ),
-                    )
-                  : Container(),
-              canClaim
-                  ? Container(
-                      margin: EdgeInsets.only(top: 16),
-                      child: RoundedButton(
-                          text: dic['earn.claim'],
-                          onPressed: () => _onClaim(context)),
-                    )
-                  : Container(),
+              Visibility(
+                  visible: blocksToEnd != null,
+                  child: Container(
+                    margin: EdgeInsets.only(top: 8),
+                    child: Text(
+                      '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  )),
+              Visibility(
+                  visible: canClaim,
+                  child: Container(
+                    margin: EdgeInsets.only(top: 16),
+                    child: RoundedButton(
+                        text: dic['earn.claim'],
+                        onPressed: () => _onClaim(context)),
+                  )),
             ],
           ),
         ],

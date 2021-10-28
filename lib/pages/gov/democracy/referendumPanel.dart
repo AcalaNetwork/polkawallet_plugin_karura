@@ -70,28 +70,28 @@ class ReferendumPanel extends StatelessWidget {
           )
         ],
       ),
-      data.isPassing
-          ? Row(
-              children: <Widget>[
-                Container(width: 21),
-                Expanded(
-                  child: Text(
-                      '${dic['activate']} ${Fmt.blockToTime(activateLeft.toInt(), blockDuration)}',
-                      style: TextStyle(color: Colors.pink)),
-                ),
-                Text(
-                  '#${Fmt.priceFloorBigInt(bestNumber + activateLeft, 0, lengthFixed: 0)}',
-                  style: TextStyle(color: Colors.pink),
-                )
-              ],
-            )
-          : Container(),
-      data.detail['content'].toString().isNotEmpty
-          ? Container(
-              padding: EdgeInsets.only(top: 16),
-              child: Text(data.detail['content'].toString().trim()),
-            )
-          : Container()
+      Visibility(
+          visible: data.isPassing,
+          child: Row(
+            children: <Widget>[
+              Container(width: 21),
+              Expanded(
+                child: Text(
+                    '${dic['activate']} ${Fmt.blockToTime(activateLeft.toInt(), blockDuration)}',
+                    style: TextStyle(color: Colors.pink)),
+              ),
+              Text(
+                '#${Fmt.priceFloorBigInt(bestNumber + activateLeft, 0, lengthFixed: 0)}',
+                style: TextStyle(color: Colors.pink),
+              )
+            ],
+          )),
+      Visibility(
+          visible: data.detail['content'].toString().isNotEmpty,
+          child: Container(
+            padding: EdgeInsets.only(top: 16),
+            child: Text(data.detail['content'].toString().trim()),
+          ))
     ];
     if (data.detail['params'] != null && data.detail['params'].length > 0) {
       list.add(

@@ -54,15 +54,15 @@ class LoanDonutChart extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  title != null
-                      ? Container(
+                  Visibility(
+                      visible: title != null,
+                      child: Container(
                           margin: EdgeInsets.only(top: 8),
-                          child: Text(title, style: titleStyle))
-                      : Container(),
-                  subtitle != null
-                      ? Text(subtitle,
-                          style: TextStyle(fontSize: 10, color: textColor))
-                      : Container(),
+                          child: Text(title, style: titleStyle))),
+                  Visibility(
+                      visible: subtitle != null,
+                      child: Text(subtitle,
+                          style: TextStyle(fontSize: 10, color: textColor))),
                 ],
               ))
         ])

@@ -461,14 +461,14 @@ class _TransferPageState extends State<TransferPage> {
                           },
                           key: ValueKey<KeyPairData>(_accountTo),
                         ),
-                        _accountToError != null
-                            ? Container(
-                                margin: EdgeInsets.only(top: 4),
-                                child: Text(_accountToError,
-                                    style: TextStyle(
-                                        fontSize: 12, color: Colors.red)),
-                              )
-                            : Container(),
+                        Visibility(
+                            visible: _accountToError != null,
+                            child: Container(
+                              margin: EdgeInsets.only(top: 4),
+                              child: Text(_accountToError ?? "",
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.red)),
+                            )),
                         Form(
                           key: _formKey,
                           child: TextFormField(
@@ -598,125 +598,121 @@ class _TransferPageState extends State<TransferPage> {
                             },
                           ),
                         ),
-                        canCrossChain
-                            ? GestureDetector(
-                                child: Container(
-                                  color: Theme.of(context).canvasColor,
-                                  margin: EdgeInsets.only(bottom: 16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Padding(
-                                        padding: EdgeInsets.only(bottom: 4),
-                                        child: Text(
-                                          dicAcala['cross.chain'],
-                                          style: TextStyle(
-                                              color: colorGrey, fontSize: 12),
-                                        ),
+                        Visibility(
+                            visible: canCrossChain,
+                            child: GestureDetector(
+                              child: Container(
+                                color: Theme.of(context).canvasColor,
+                                margin: EdgeInsets.only(bottom: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: EdgeInsets.only(bottom: 4),
+                                      child: Text(
+                                        dicAcala['cross.chain'],
+                                        style: TextStyle(
+                                            color: colorGrey, fontSize: 12),
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Container(
-                                                margin:
-                                                    EdgeInsets.only(right: 8),
-                                                width: 32,
-                                                height: 32,
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                  child: isCrossChain
-                                                      ? TokenIcon(_chainTo,
-                                                          crossChainIcons)
-                                                      : widget
-                                                          .plugin.basic.icon,
-                                                ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Row(
+                                          children: <Widget>[
+                                            Container(
+                                              margin: EdgeInsets.only(right: 8),
+                                              width: 32,
+                                              height: 32,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(32),
+                                                child: isCrossChain
+                                                    ? TokenIcon(_chainTo,
+                                                        crossChainIcons)
+                                                    : widget.plugin.basic.icon,
                                               ),
-                                              Text(chainTo.toUpperCase())
-                                            ],
+                                            ),
+                                            Text(chainTo.toUpperCase())
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Visibility(
+                                                visible: isCrossChain,
+                                                child: TextTag(
+                                                    dicAcala['cross.xcm'],
+                                                    margin: EdgeInsets.only(
+                                                        right: 8),
+                                                    color: Colors.red)),
+                                            Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 18,
+                                              color: colorGrey,
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              onTap: () => _onSelectChain(crossChainIcons),
+                            )),
+                        Visibility(
+                            visible: isCrossChain,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: TapTooltip(
+                                      message: dicAcala['cross.exist.msg'],
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(right: 4),
+                                            child:
+                                                Text(dicAcala['cross.exist']),
                                           ),
-                                          Row(
-                                            children: [
-                                              isCrossChain
-                                                  ? TextTag(
-                                                      dicAcala['cross.xcm'],
-                                                      margin: EdgeInsets.only(
-                                                          right: 8),
-                                                      color: Colors.red)
-                                                  : Container(),
-                                              Icon(
-                                                Icons.arrow_forward_ios,
-                                                size: 18,
-                                                color: colorGrey,
-                                              )
-                                            ],
+                                          Icon(
+                                            Icons.info,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .unselectedWidgetColor,
                                           )
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                                onTap: () => _onSelectChain(crossChainIcons),
-                              )
-                            : Container(),
-                        isCrossChain
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: TapTooltip(
-                                        message: dicAcala['cross.exist.msg'],
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child:
-                                                  Text(dicAcala['cross.exist']),
-                                            ),
-                                            Icon(
-                                              Icons.info,
-                                              size: 16,
-                                              color: Theme.of(context)
-                                                  .unselectedWidgetColor,
-                                            )
-                                          ],
-                                        ),
-                                      ),
+                                  Expanded(
+                                    flex: 0,
+                                    child: Text(
+                                        '${Fmt.priceCeilBigInt(destExistDeposit, decimals, lengthMax: 6)} $tokenView'),
+                                  )
+                                ],
+                              ),
+                            )),
+                        Visibility(
+                            visible: isCrossChain,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 4),
+                                      child: Text(dicAcala['cross.fee']),
                                     ),
-                                    Expanded(
-                                      flex: 0,
-                                      child: Text(
-                                          '${Fmt.priceCeilBigInt(destExistDeposit, decimals, lengthMax: 6)} $tokenView'),
-                                    )
-                                  ],
-                                ),
-                              )
-                            : Container(),
-                        isCrossChain
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Text(dicAcala['cross.fee']),
-                                      ),
-                                    ),
-                                    Text(
-                                        '${Fmt.priceCeilBigInt(destFee, decimals, lengthMax: 6)} $tokenView'),
-                                  ],
-                                ),
-                              )
-                            : Container(),
+                                  ),
+                                  Text(
+                                      '${Fmt.priceCeilBigInt(destFee, decimals, lengthMax: 6)} $tokenView'),
+                                ],
+                              ),
+                            )),
                         Padding(
                           padding: EdgeInsets.only(top: 16),
                           child: Row(
@@ -746,24 +742,24 @@ class _TransferPageState extends State<TransferPage> {
                             ],
                           ),
                         ),
-                        _fee?.partialFee != null
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Text(dicAcala['transfer.fee']),
-                                      ),
+                        Visibility(
+                            visible: _fee?.partialFee != null,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 4),
+                                      child: Text(dicAcala['transfer.fee']),
                                     ),
-                                    Text(
-                                        '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee.partialFee.toString()), decimals, lengthMax: 6)} $nativeToken'),
-                                  ],
-                                ),
-                              )
-                            : Container(),
+                                  ),
+                                  Text(
+                                      '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee?.partialFee?.toString() ?? "0"), decimals, lengthMax: 6)} $nativeToken'),
+                                ],
+                              ),
+                            )),
                         _KSMCrossChainTransferWarning(token: _token),
                       ],
                     ),

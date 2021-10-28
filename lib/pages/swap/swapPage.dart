@@ -102,17 +102,17 @@ class _SwapPageState extends State<SwapPage> {
                           },
                         ),
                       ),
-                      isKar
-                          ? IconButton(
-                              padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
-                              icon: Icon(Icons.history,
-                                  color: Theme.of(context).cardColor),
-                              onPressed: enabled
-                                  ? () => Navigator.of(context)
-                                      .pushNamed(SwapHistoryPage.route)
-                                  : null,
-                            )
-                          : Container(),
+                      Visibility(
+                          visible: isKar,
+                          child: IconButton(
+                            padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                            icon: Icon(Icons.history,
+                                color: Theme.of(context).cardColor),
+                            onPressed: enabled
+                                ? () => Navigator.of(context)
+                                    .pushNamed(SwapHistoryPage.route)
+                                : null,
+                          )),
                     ],
                   ),
                 ),

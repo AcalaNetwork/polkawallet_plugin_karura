@@ -293,79 +293,75 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             child: ListView(
               padding: EdgeInsets.all(16),
               children: <Widget>[
-                (poolInfo?.shares ?? BigInt.zero) > BigInt.zero
-                    ? RoundedCard(
-                        padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
-                        child: Column(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                  '${PluginFmt.tokenView(poolId)} ${dicAssets['balance']}'),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(bottom: 4),
-                              child: Row(
-                                children: [
-                                  InfoItem(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    title: dicAssets['amount.all'],
-                                    content: Fmt.priceFloorBigInt(
-                                        shareFreeInt + shareStakedInt,
-                                        balancePair[0].decimals),
-                                  ),
-                                  InfoItem(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    title: dicAssets['amount.staked'],
-                                    content: Fmt.priceFloorBigInt(
-                                        shareStakedInt,
-                                        balancePair[0].decimals),
-                                  ),
-                                  InfoItem(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    title: dicAssets['amount.free'],
-                                    content: Fmt.priceFloorBigInt(
-                                        shareFreeInt, balancePair[0].decimals),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                Visibility(
+                    visible: (poolInfo?.shares ?? BigInt.zero) > BigInt.zero,
+                    child: RoundedCard(
+                      padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: 8),
+                            child: Text(
+                                '${PluginFmt.tokenView(poolId)} ${dicAssets['balance']}'),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(bottom: 4),
+                            child: Row(
                               children: [
-                                TapTooltip(
-                                  message: '${dic['earn.fromPool.txt']}\n',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.info,
-                                          color: Theme.of(context)
-                                              .unselectedWidgetColor,
-                                          size: 16),
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 8),
-                                        child: Text(dic['earn.fromPool']),
-                                      ),
-                                    ],
-                                  ),
+                                InfoItem(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  title: dicAssets['amount.all'],
+                                  content: Fmt.priceFloorBigInt(
+                                      shareFreeInt + shareStakedInt,
+                                      balancePair[0].decimals),
                                 ),
-                                CupertinoSwitch(
-                                  value: _fromPool,
-                                  onChanged: (res) {
-                                    setState(() {
-                                      _fromPool = res;
-                                    });
-                                  },
+                                InfoItem(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  title: dicAssets['amount.staked'],
+                                  content: Fmt.priceFloorBigInt(
+                                      shareStakedInt, balancePair[0].decimals),
                                 ),
+                                InfoItem(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  title: dicAssets['amount.free'],
+                                  content: Fmt.priceFloorBigInt(
+                                      shareFreeInt, balancePair[0].decimals),
+                                )
                               ],
-                            )
-                          ],
-                        ),
-                      )
-                    : Container(),
+                            ),
+                          ),
+                          Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TapTooltip(
+                                message: '${dic['earn.fromPool.txt']}\n',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.info,
+                                        color: Theme.of(context)
+                                            .unselectedWidgetColor,
+                                        size: 16),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 8),
+                                      child: Text(dic['earn.fromPool']),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              CupertinoSwitch(
+                                value: _fromPool,
+                                onChanged: (res) {
+                                  setState(() {
+                                    _fromPool = res;
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    )),
                 RoundedCard(
                   margin: EdgeInsets.only(top: 16),
                   padding: EdgeInsets.fromLTRB(16, 8, 16, 16),

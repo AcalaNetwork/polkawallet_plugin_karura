@@ -32,18 +32,18 @@ class LoanInfoPanel extends StatelessWidget {
         Fmt.token(liquidationPrice, acala_price_decimals);
     return Column(
       children: <Widget>[
-        debits != null
-            ? InfoItemRow(
-                dic['loan.borrowed'],
-                debits,
-              )
-            : Container(),
-        collateral != null
-            ? InfoItemRow(
-                dic['loan.collateral'],
-                collateral,
-              )
-            : Container(),
+        Visibility(
+            visible: debits != null,
+            child: InfoItemRow(
+              dic['loan.borrowed'],
+              debits,
+            )),
+        Visibility(
+            visible: collateral != null,
+            child: InfoItemRow(
+              dic['loan.collateral'],
+              collateral,
+            )),
         InfoItemRow(
           dic['collateral.price.current'],
           '\$$priceString',

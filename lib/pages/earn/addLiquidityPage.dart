@@ -569,30 +569,30 @@ class StakeLPTips extends StatelessWidget {
                   ),
                 ],
               ),
-              balanceInt > BigInt.zero
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TapTooltip(
-                          message:
-                              '\n${dic['earn.withStake.all.txt']}\n(${dicCommon['balance']}: $balance ${PluginFmt.tokenView(poolId)})\n',
-                          child: Row(
-                            children: [
-                              Icon(Icons.info, color: colorGray, size: 16),
-                              Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child: Text(dic['earn.withStake.all']),
-                              ),
-                            ],
-                          ),
+              Visibility(
+                  visible: balanceInt > BigInt.zero,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TapTooltip(
+                        message:
+                            '\n${dic['earn.withStake.all.txt']}\n(${dicCommon['balance']}: $balance ${PluginFmt.tokenView(poolId)})\n',
+                        child: Row(
+                          children: [
+                            Icon(Icons.info, color: colorGray, size: 16),
+                            Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Text(dic['earn.withStake.all']),
+                            ),
+                          ],
                         ),
-                        CupertinoSwitch(
-                          value: switch1Active,
-                          onChanged: onSwitch1,
-                        ),
-                      ],
-                    )
-                  : Container(),
+                      ),
+                      CupertinoSwitch(
+                        value: switch1Active,
+                        onChanged: onSwitch1,
+                      ),
+                    ],
+                  )),
             ],
           ),
           Padding(

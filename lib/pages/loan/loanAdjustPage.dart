@@ -495,147 +495,144 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                           liquidationPrice: _liquidationPrice,
                         ),
                       ),
-                      showCollateral
-                          ? Padding(
-                              padding: EdgeInsets.only(left: 16, right: 16),
-                              child: TextFormField(
-                                decoration: InputDecoration(
-                                  hintText: assetDic['amount'],
-                                  labelText:
-                                      '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
-                                  suffix: params.actionType ==
-                                              LoanAdjustPage
-                                                  .actionTypeDeposit ||
-                                          loan.debits == BigInt.zero
-                                      ? GestureDetector(
-                                          child: Text(
-                                            dic['loan.max'],
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor),
-                                          ),
-                                          onTap: () async {
-                                            setState(() {
-                                              _amountCollateral = available;
-                                              _amountCtrl.text =
-                                                  Fmt.bigIntToDouble(available,
-                                                          collateralDecimals)
-                                                      .toString();
-                                            });
-                                            _onAmount1Change(
-                                              availableView,
-                                              loan.type,
-                                              price,
-                                              stableCoinDecimals,
-                                              collateralDecimals,
-                                              max: available,
-                                            );
-                                          },
-                                        )
-                                      : null,
-                                ),
-                                inputFormatters: [
-                                  UI.decimalInputFormatter(collateralDecimals)
-                                ],
-                                controller: _amountCtrl,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                validator: (v) =>
-                                    _validateAmount1(v, available),
-                                onChanged: (v) => _onAmount1Change(
+                      Visibility(
+                          visible: showCollateral,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16, right: 16),
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                hintText: assetDic['amount'],
+                                labelText:
+                                    '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
+                                suffix: params.actionType ==
+                                            LoanAdjustPage.actionTypeDeposit ||
+                                        loan.debits == BigInt.zero
+                                    ? GestureDetector(
+                                        child: Text(
+                                          dic['loan.max'],
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                        ),
+                                        onTap: () async {
+                                          setState(() {
+                                            _amountCollateral = available;
+                                            _amountCtrl.text =
+                                                Fmt.bigIntToDouble(available,
+                                                        collateralDecimals)
+                                                    .toString();
+                                          });
+                                          _onAmount1Change(
+                                            availableView,
+                                            loan.type,
+                                            price,
+                                            stableCoinDecimals,
+                                            collateralDecimals,
+                                            max: available,
+                                          );
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              inputFormatters: [
+                                UI.decimalInputFormatter(collateralDecimals)
+                              ],
+                              controller: _amountCtrl,
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              validator: (v) => _validateAmount1(v, available),
+                              onChanged: (v) => _onAmount1Change(
+                                v,
+                                loan.type,
+                                price,
+                                stableCoinDecimals,
+                                collateralDecimals,
+                              ),
+                            ),
+                          )),
+                      Visibility(
+                          visible: showDebit,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16, right: 16),
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                hintText: assetDic['amount'],
+                                labelText:
+                                    '${assetDic['amount']}(${dic['loan.max']}: $maxToBorrowView)',
+                                suffix: params.actionType ==
+                                        LoanAdjustPage.actionTypePayback
+                                    ? GestureDetector(
+                                        child: Text(
+                                          dic['loan.max'],
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                        ),
+                                        onTap: () async {
+                                          double max = NumberFormat(",##0.00")
+                                              .parse(maxToBorrowView);
+                                          setState(() {
+                                            _amountDebit = maxToBorrow;
+                                            _amountCtrl2.text = max.toString();
+                                          });
+                                          _onAmount2Change(
+                                            maxToBorrowView,
+                                            loan.type,
+                                            stableCoinPrice,
+                                            stableCoinDecimals,
+                                            collateralDecimals,
+                                            showCheckbox,
+                                            debits: maxToBorrow,
+                                          );
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              inputFormatters: [
+                                UI.decimalInputFormatter(stableCoinDecimals)
+                              ],
+                              controller: _amountCtrl2,
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              validator: (v) => _validateAmount2(
+                                  v,
+                                  maxToBorrow,
+                                  maxToBorrowView,
+                                  balanceStableCoin,
+                                  loan,
+                                  stableCoinDecimals),
+                              onChanged: (v) => _onAmount2Change(
                                   v,
                                   loan.type,
-                                  price,
+                                  stableCoinPrice,
                                   stableCoinDecimals,
                                   collateralDecimals,
-                                ),
+                                  showCheckbox),
+                            ),
+                          )),
+                      Visibility(
+                          visible: showCheckbox,
+                          child: Row(
+                            children: <Widget>[
+                              Checkbox(
+                                value: _paybackAndCloseChecked,
+                                onChanged: (v) {
+                                  setState(() {
+                                    _paybackAndCloseChecked = v;
+                                  });
+                                },
                               ),
-                            )
-                          : Container(),
-                      showDebit
-                          ? Padding(
-                              padding: EdgeInsets.only(left: 16, right: 16),
-                              child: TextFormField(
-                                decoration: InputDecoration(
-                                  hintText: assetDic['amount'],
-                                  labelText:
-                                      '${assetDic['amount']}(${dic['loan.max']}: $maxToBorrowView)',
-                                  suffix: params.actionType ==
-                                          LoanAdjustPage.actionTypePayback
-                                      ? GestureDetector(
-                                          child: Text(
-                                            dic['loan.max'],
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor),
-                                          ),
-                                          onTap: () async {
-                                            double max = NumberFormat(",##0.00")
-                                                .parse(maxToBorrowView);
-                                            setState(() {
-                                              _amountDebit = maxToBorrow;
-                                              _amountCtrl2.text =
-                                                  max.toString();
-                                            });
-                                            _onAmount2Change(
-                                              maxToBorrowView,
-                                              loan.type,
-                                              stableCoinPrice,
-                                              stableCoinDecimals,
-                                              collateralDecimals,
-                                              showCheckbox,
-                                              debits: maxToBorrow,
-                                            );
-                                          },
-                                        )
-                                      : null,
-                                ),
-                                inputFormatters: [
-                                  UI.decimalInputFormatter(stableCoinDecimals)
-                                ],
-                                controller: _amountCtrl2,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                validator: (v) => _validateAmount2(
-                                    v,
-                                    maxToBorrow,
-                                    maxToBorrowView,
-                                    balanceStableCoin,
-                                    loan,
-                                    stableCoinDecimals),
-                                onChanged: (v) => _onAmount2Change(
-                                    v,
-                                    loan.type,
-                                    stableCoinPrice,
-                                    stableCoinDecimals,
-                                    collateralDecimals,
-                                    showCheckbox),
-                              ),
-                            )
-                          : Container(),
-                      showCheckbox
-                          ? Row(
-                              children: <Widget>[
-                                Checkbox(
-                                  value: _paybackAndCloseChecked,
-                                  onChanged: (v) {
-                                    setState(() {
-                                      _paybackAndCloseChecked = v;
-                                    });
-                                  },
-                                ),
-                                GestureDetector(
-                                  child: Text(dic['loan.withdraw.all']),
-                                  onTap: () {
-                                    setState(() {
-                                      _paybackAndCloseChecked =
-                                          !_paybackAndCloseChecked;
-                                    });
-                                  },
-                                )
-                              ],
-                            )
-                          : Container(),
+                              GestureDetector(
+                                child: Text(dic['loan.withdraw.all']),
+                                onTap: () {
+                                  setState(() {
+                                    _paybackAndCloseChecked =
+                                        !_paybackAndCloseChecked;
+                                  });
+                                },
+                              )
+                            ],
+                          )),
                     ],
                   ),
                 ),

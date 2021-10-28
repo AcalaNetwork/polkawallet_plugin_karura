@@ -589,87 +589,86 @@ class _SwapFormState extends State<SwapForm> {
                             ],
                           ),
                         ),
-                        _slippageSettingVisible
-                            ? Container(
-                                margin:
-                                    EdgeInsets.only(left: 8, right: 8, top: 8),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    OutlinedButtonSmall(
-                                      content: '0.1 %',
-                                      active: _slippage == 0.001,
-                                      onPressed: () => _updateSlippage(0.001),
-                                    ),
-                                    OutlinedButtonSmall(
-                                      content: '0.5 %',
-                                      active: _slippage == 0.005,
-                                      onPressed: () => _updateSlippage(0.005),
-                                    ),
-                                    OutlinedButtonSmall(
-                                      content: '1 %',
-                                      active: _slippage == 0.01,
-                                      onPressed: () => _updateSlippage(0.01),
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        children: <Widget>[
-                                          CupertinoTextField(
-                                            padding: EdgeInsets.fromLTRB(
-                                                12, 4, 12, 2),
-                                            placeholder: I18n.of(context)
-                                                .getDic(i18n_full_dic_karura,
-                                                    'common')['custom'],
-                                            placeholderStyle: TextStyle(
-                                                fontSize: 12,
-                                                height: 1.5,
-                                                color: grey),
-                                            inputFormatters: [
-                                              UI.decimalInputFormatter(6)
-                                            ],
-                                            keyboardType:
-                                                TextInputType.numberWithOptions(
-                                                    decimal: true),
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(24)),
-                                              border: Border.all(
+                        Visibility(
+                            visible: _slippageSettingVisible,
+                            child: Container(
+                              margin:
+                                  EdgeInsets.only(left: 8, right: 8, top: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  OutlinedButtonSmall(
+                                    content: '0.1 %',
+                                    active: _slippage == 0.001,
+                                    onPressed: () => _updateSlippage(0.001),
+                                  ),
+                                  OutlinedButtonSmall(
+                                    content: '0.5 %',
+                                    active: _slippage == 0.005,
+                                    onPressed: () => _updateSlippage(0.005),
+                                  ),
+                                  OutlinedButtonSmall(
+                                    content: '1 %',
+                                    active: _slippage == 0.01,
+                                    onPressed: () => _updateSlippage(0.01),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      children: <Widget>[
+                                        CupertinoTextField(
+                                          padding:
+                                              EdgeInsets.fromLTRB(12, 4, 12, 2),
+                                          placeholder: I18n.of(context).getDic(
+                                              i18n_full_dic_karura,
+                                              'common')['custom'],
+                                          placeholderStyle: TextStyle(
+                                              fontSize: 12,
+                                              height: 1.5,
+                                              color: grey),
+                                          inputFormatters: [
+                                            UI.decimalInputFormatter(6)
+                                          ],
+                                          keyboardType:
+                                              TextInputType.numberWithOptions(
+                                                  decimal: true),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(24)),
+                                            border: Border.all(
+                                                color:
+                                                    _slippageFocusNode.hasFocus
+                                                        ? primary
+                                                        : grey),
+                                          ),
+                                          controller: _amountSlippageCtrl,
+                                          focusNode: _slippageFocusNode,
+                                          onChanged: _onSlippageChange,
+                                          suffix: Container(
+                                            padding: EdgeInsets.only(right: 8),
+                                            child: Text(
+                                              '%',
+                                              style: TextStyle(
                                                   color: _slippageFocusNode
                                                           .hasFocus
                                                       ? primary
                                                       : grey),
                                             ),
-                                            controller: _amountSlippageCtrl,
-                                            focusNode: _slippageFocusNode,
-                                            onChanged: _onSlippageChange,
-                                            suffix: Container(
-                                              padding:
-                                                  EdgeInsets.only(right: 8),
-                                              child: Text(
-                                                '%',
-                                                style: TextStyle(
-                                                    color: _slippageFocusNode
-                                                            .hasFocus
-                                                        ? primary
-                                                        : grey),
-                                              ),
-                                            ),
                                           ),
-                                          _slippageError != null
-                                              ? Text(
-                                                  _slippageError,
-                                                  style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontSize: 10),
-                                                )
-                                              : Container()
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              )
-                            : Container(),
+                                        ),
+                                        Visibility(
+                                            visible: _slippageError != null,
+                                            child: Text(
+                                              _slippageError ?? "",
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontSize: 10),
+                                            ))
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )),
                       ],
                     )
                   : Center(
@@ -679,78 +678,77 @@ class _SwapFormState extends State<SwapForm> {
                       ),
                     ),
             ),
-            showExchangeRate && _swapOutput?.amount != null
-                ? RoundedCard(
-                    margin: EdgeInsets.only(top: 16),
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                    dic[_swapMode == 0 ? 'dex.min' : 'dex.max'],
-                                    style: labelStyle),
-                              ),
-                              Text(
-                                  '${minMax.toStringAsFixed(6)} ${PluginFmt.tokenView(_swapMode == 0 ? _swapOutput.output : _swapOutput.input)}'),
-                            ],
-                          ),
+            Visibility(
+                visible: showExchangeRate && _swapOutput?.amount != null,
+                child: RoundedCard(
+                  margin: EdgeInsets.only(top: 16),
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                  dic[_swapMode == 0 ? 'dex.min' : 'dex.max'],
+                                  style: labelStyle),
+                            ),
+                            Text(
+                                '${minMax.toStringAsFixed(6)} ${PluginFmt.tokenView(_swapMode == 0 ? _swapOutput.output ?? "" : _swapOutput.input ?? "")}'),
+                          ],
                         ),
-                        Container(
-                          margin: EdgeInsets.only(bottom: 8),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(dic['dex.impact'], style: labelStyle),
+                            ),
+                            Text('<${Fmt.ratio(_swapOutput.priceImpact)}'),
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                          visible: _swapOutput?.fee != null,
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Expanded(
+                                  child:
+                                      Text(dic['dex.fee'], style: labelStyle),
+                                ),
+                                Text(
+                                    '${_swapOutput.fee} ${PluginFmt.tokenView(swapPair[0])}'),
+                              ],
+                            ),
+                          )),
+                      Visibility(
+                          visible: (_swapOutput.path?.length ?? 0) > 2,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
+                            children: [
                               Expanded(
                                 child:
-                                    Text(dic['dex.impact'], style: labelStyle),
+                                    Text(dic['dex.route'], style: labelStyle),
                               ),
-                              Text('<${Fmt.ratio(_swapOutput.priceImpact)}'),
-                            ],
-                          ),
-                        ),
-                        _swapOutput?.fee != null
-                            ? Container(
-                                margin: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Text(dic['dex.fee'],
-                                          style: labelStyle),
-                                    ),
-                                    Text(
-                                        '${_swapOutput.fee} ${PluginFmt.tokenView(swapPair[0])}'),
-                                  ],
-                                ),
-                              )
-                            : Container(),
-                        (_swapOutput.path?.length ?? 0) > 2
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(dic['dex.route'],
-                                        style: labelStyle),
-                                  ),
-                                  Text(_swapOutput.path
+                              Text(_swapOutput.path != null
+                                  ? _swapOutput.path
                                       .map(
                                           (i) => PluginFmt.tokenView(i['name']))
                                       .toList()
-                                      .join(' > ')),
-                                ],
-                              )
-                            : Container()
-                      ],
-                    ),
-                  )
-                : Container(),
+                                      .join(' > ')
+                                  : ""),
+                            ],
+                          ))
+                    ],
+                  ),
+                )),
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: RoundedButton(

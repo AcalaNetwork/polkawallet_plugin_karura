@@ -192,21 +192,21 @@ class _LoanPageState extends State<LoanPage> {
                                     incentiveTokenSymbol: incentiveTokenSymbol,
                                   ),
                           ),
-                    _tab == 0 &&
+                    Visibility(
+                        visible: _tab == 0 &&
                             !isDataLoading &&
                             loans.length <
-                                widget.plugin.store.loan.loanTypes.length
-                        ? Container(
-                            padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            child: RoundedButton(
-                              text: '+ ${dic['loan.create']}',
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .pushNamed(LoanCreatePage.route);
-                              },
-                            ),
-                          )
-                        : Container(),
+                                widget.plugin.store.loan.loanTypes.length,
+                        child: Container(
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          child: RoundedButton(
+                            text: '+ ${dic['loan.create']}',
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed(LoanCreatePage.route);
+                            },
+                          ),
+                        )),
                   ],
                 )),
           ),
@@ -582,36 +582,36 @@ class CollateralIncentiveList extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
-                rewardView.isNotEmpty && shouldActivate
-                    ? Container(
-                        margin: EdgeInsets.only(top: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              child: Text(
-                                dic['loan.activate.1'],
-                                style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontStyle: FontStyle.italic,
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              onTap: () => _activateRewards(context, token),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(left: 4),
-                              child: Text(
-                                dic['loan.activate.2'],
-                                style: TextStyle(fontSize: 10),
+                Visibility(
+                    visible: rewardView.isNotEmpty && shouldActivate,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            child: Text(
+                              dic['loan.activate.1'],
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontStyle: FontStyle.italic,
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
-                        ),
-                      )
-                    : Container(),
+                            onTap: () => _activateRewards(context, token),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 4),
+                            child: Text(
+                              dic['loan.activate.2'],
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
                 Container(
                   margin: EdgeInsets.only(top: 8),
                   child: Row(
@@ -666,15 +666,15 @@ class CollateralIncentiveList extends StatelessWidget {
                     ],
                   ),
                 ),
-                blocksToEnd != null
-                    ? Container(
-                        margin: EdgeInsets.only(top: 4),
-                        child: Text(
-                          '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
-                          style: TextStyle(fontSize: 10),
-                        ),
-                      )
-                    : Container(),
+                Visibility(
+                    visible: blocksToEnd != null,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 4),
+                      child: Text(
+                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    )),
                 Divider(height: 24),
                 Row(
                   children: [

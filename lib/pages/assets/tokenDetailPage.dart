@@ -116,17 +116,19 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   ),
                                 ),
                               ),
-                              tokenValue > 0
-                                  ? Padding(
-                                      padding: EdgeInsets.only(bottom: 16),
-                                      child: Text(
-                                        '≈ \$ ${Fmt.priceFloor(tokenValue) ?? '--.--'}',
-                                        style: TextStyle(
-                                          color: Theme.of(context).cardColor,
-                                        ),
+                              Visibility(
+                                  visible: tokenValue > 0,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 16),
+                                    child: Text(
+                                      tokenValue > 0
+                                          ? '≈ \$ ${Fmt.priceFloor(tokenValue) ?? '--.--'}'
+                                          : "",
+                                      style: TextStyle(
+                                        color: Theme.of(context).cardColor,
                                       ),
-                                    )
-                                  : Container(),
+                                    ),
+                                  )),
                               Row(
                                 children: [
                                   InfoItem(

@@ -260,26 +260,26 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                             widget.plugin.tokenIcons),
                         Container(
                           margin: EdgeInsets.only(bottom: 16),
-                          child: needSwap
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    GestureDetector(
-                                      child: Text(
-                                        dic['loan.close.dex'],
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontStyle: FontStyle.italic,
-                                          decoration: TextDecoration.underline,
-                                          color: Theme.of(context).primaryColor,
-                                        ),
+                          child: Visibility(
+                              visible: needSwap,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                    child: Text(
+                                      dic['loan.close.dex'],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontStyle: FontStyle.italic,
+                                        decoration: TextDecoration.underline,
+                                        color: Theme.of(context).primaryColor,
                                       ),
-                                      onTap: () => _closeVault(loan,
-                                          collateralDecimals, debitDouble),
-                                    )
-                                  ],
-                                )
-                              : Container(),
+                                    ),
+                                    onTap: () => _closeVault(
+                                        loan, collateralDecimals, debitDouble),
+                                  )
+                                ],
+                              )),
                         ),
                       ],
                     ),
