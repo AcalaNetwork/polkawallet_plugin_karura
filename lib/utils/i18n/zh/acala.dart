@@ -181,10 +181,7 @@ const Map<String, String> zhDex = {
   'cross.exist.msg': '\n账户在网络上存活所需要的最小余额。\n',
   'cross.fee': '收款链手续费',
   'cross.warn': '警告',
-  'cross.warn.KSM':
-      '交易所当前不支持 Karura 网络跨链转账充提 KSM，请先使用跨链转账将 KSM 转回 Kusama，再从 Kusama 网络转账至交易所地址。',
-  'cross.warn.BNC':
-      '交易所当前不支持 Karura 网络跨链转账充提 BNC，请先使用跨链转账将 BNC 转回 Bifrost，再从 Bifrost 网络转账至交易所地址。',
   'transfer.exist': '存活余额',
   'transfer.fee': '预估手续费',
+  'warn.fee': '因 KAR 余额不足，该笔交易可能会执行失败。',
 };

@@ -742,25 +742,32 @@ class _TransferPageState extends State<TransferPage> {
                             ],
                           ),
                         ),
-                        Visibility(
-                            visible: _fee?.partialFee != null,
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Text(dicAcala['transfer.fee']),
+                        _fee?.partialFee != null
+                            ? Padding(
+                                padding: EdgeInsets.only(top: 16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: Text(dicAcala['transfer.fee']),
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                      '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee?.partialFee?.toString() ?? "0"), decimals, lengthMax: 6)} $nativeToken'),
-                                ],
-                              ),
-                            )),
-                        _KSMCrossChainTransferWarning(token: _token),
+                                    Text(
+                                        '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee.partialFee.toString()), decimals, lengthMax: 6)} $nativeToken'),
+                                  ],
+                                ),
+                              )
+                            : Container(),
+                        canCrossChain
+                            ? _CrossChainTransferWarning(
+                                token: token,
+                                chain: (widget.plugin.store.setting
+                                        .tokensConfig['warning'] ??
+                                    {})[token],
+                              )
+                            : Container(),
                       ],
                     ),
                   ),
@@ -786,12 +793,20 @@ class _TransferPageState extends State<TransferPage> {
   }
 }
 
-class _KSMCrossChainTransferWarning extends StatelessWidget {
-  _KSMCrossChainTransferWarning({this.token});
+class _CrossChainTransferWarning extends StatelessWidget {
+  _CrossChainTransferWarning({this.token, this.chain});
   final String token;
+  final String chain;
+
+  String getWarnInfo(BuildContext context) {
+    return I18n.of(context).locale.toString().contains('zh')
+        ? '交易所当前不支持 Karura 网络跨链转账充提 $token，请先使用跨链转账将 $token 转回 $chain，再从 $chain 网络转账至交易所地址。'
+        : 'Exchanges do not currently support direct transfers of $token to/from Karura. In order to successfully send $token to an exchange address, it is required that you first complete an Cross-Chain-Transfer of the token(s) from Karura to $chain.';
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (token != 'KSM' && token != 'BNC') return Container();
+    if (chain == null || chain.isEmpty) return Container();
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return Container(
@@ -808,7 +823,7 @@ class _KSMCrossChainTransferWarning extends StatelessWidget {
             dic['cross.warn'],
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
           ),
-          Text(dic['cross.warn.$token'], style: TextStyle(fontSize: 12))
+          Text(getWarnInfo(context), style: TextStyle(fontSize: 12))
         ],
       ),
     );
