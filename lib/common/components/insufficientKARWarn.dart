@@ -7,19 +7,17 @@ class InsufficientKARWarn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextTag(
-              dic['warn.fee'],
-              padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-              color: Colors.deepOrangeAccent,
-            ),
-          )
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(
+          child: TextTag(
+            dic['warn.fee'],
+            padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+            margin: EdgeInsets.only(bottom: 8),
+            color: Colors.deepOrangeAccent,
+          ),
+        )
+      ],
     );
   }
 }

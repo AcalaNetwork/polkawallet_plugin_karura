@@ -90,9 +90,9 @@ class PluginFmt {
   static BigInt getAccountED(PluginKarura plugin) {
     final nativeED = Fmt.balanceInt(
         plugin.networkConst['balances']['existentialDeposit'].toString());
-    final unavailable =
-        Fmt.balanceInt(plugin.balances.native.reservedBalance.toString()) +
-            Fmt.balanceInt(plugin.balances.native.frozenMisc.toString());
+    final unavailable = Fmt.balanceInt(
+            (plugin.balances.native?.reservedBalance ?? 0).toString()) +
+        Fmt.balanceInt((plugin.balances.native?.frozenMisc ?? 0).toString());
     return unavailable > nativeED ? BigInt.zero : (nativeED - unavailable);
   }
 }

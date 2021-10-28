@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
+import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
@@ -111,11 +112,18 @@ class _SwapFormState extends State<SwapForm> {
       error = dic['amount.error'];
     }
     if (error == null) {
-      if (_maxInput == null &&
-          double.parse(v) >
-              Fmt.bigIntToDouble(Fmt.balanceInt(balancePair[0]?.amount ?? '0'),
-                  balancePair[0]?.decimals)) {
-        error = dic['amount.low'];
+      if (_maxInput == null) {
+        BigInt available = Fmt.balanceInt(balancePair[0]?.amount ?? '0');
+        // limit user's input for tx fee if token is KAR
+        if (balancePair[0].id == acala_token_ids[0]) {
+          final accountED = PluginFmt.getAccountED(widget.plugin);
+          available -= accountED +
+              Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
+        }
+        if (double.parse(v) >
+            Fmt.bigIntToDouble(available, balancePair[0]?.decimals)) {
+          error = dic['amount.low'];
+        }
       }
 
       // check if user's receive token balance meet existential deposit.
@@ -309,12 +317,18 @@ class _SwapFormState extends State<SwapForm> {
     }
   }
 
-  void _onSetMax(BigInt max, int decimals) {
-    final amount = Fmt.bigIntToDouble(max, decimals).toStringAsFixed(6);
+  void _onSetMax(BigInt max, int decimals, {BigInt nativeKeepAlive}) {
+    // keep some KAR for tx fee
+    BigInt input = _swapPair[0] == acala_token_ids[0] &&
+            (max - nativeKeepAlive > BigInt.zero)
+        ? max - nativeKeepAlive
+        : max;
+
+    final amount = Fmt.bigIntToDouble(input, decimals).toStringAsFixed(6);
     setState(() {
       _swapMode = 0;
       _amountPayCtrl.text = amount;
-      _maxInput = max;
+      _maxInput = input;
       _error = null;
       _errorReceive = null;
     });
@@ -428,6 +442,12 @@ class _SwapFormState extends State<SwapForm> {
         }
 
         final balancePair = PluginFmt.getBalancePair(widget.plugin, swapPair);
+        final nativeBalance = Fmt.balanceInt(
+            widget.plugin.balances.native.availableBalance.toString());
+        final accountED = PluginFmt.getAccountED(widget.plugin);
+        final nativeKeepAlive = accountED +
+            Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
+        final isNativeTokenLow = nativeBalance < nativeKeepAlive;
 
         double minMax = 0;
         if (_swapOutput.output != null) {
@@ -453,6 +473,10 @@ class _SwapFormState extends State<SwapForm> {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
+                        Visibility(
+                          visible: isNativeTokenLow,
+                          child: InsufficientKARWarn(),
+                        ),
                         SwapTokenInput(
                           title: dic['dex.pay'],
                           inputCtrl: _amountPayCtrl,
@@ -476,8 +500,8 @@ class _SwapFormState extends State<SwapForm> {
                               _updateSwapAmount();
                             }
                           },
-                          onSetMax: (v) =>
-                              _onSetMax(v, balancePair[0].decimals),
+                          onSetMax: (v) => _onSetMax(v, balancePair[0].decimals,
+                              nativeKeepAlive: nativeKeepAlive),
                           onClear: () {
                             setState(() {
                               _maxInput = null;

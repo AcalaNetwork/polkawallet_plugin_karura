@@ -399,7 +399,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                     children: <Widget>[
                       Visibility(
                         visible: nativeBalance - accountED <
-                            Fmt.balanceInt(_fee?.partialFee?.toString()) *
+                            Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) *
                                 BigInt.two,
                         child: InsufficientKARWarn(),
                       ),

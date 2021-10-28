@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -394,6 +395,10 @@ class _TransferPageState extends State<TransferPage> {
         final nativeTokenBalance =
             Fmt.balanceInt(widget.plugin.balances.native.freeBalance) -
                 Fmt.balanceInt(widget.plugin.balances.native.frozenFee);
+        final accountED = PluginFmt.getAccountED(widget.plugin);
+        final isNativeTokenLow = nativeTokenBalance - accountED <
+            Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
+
         final decimals =
             widget.plugin.store.assets.tokenBalanceMap[token]?.decimals ?? 12;
         final balanceData =
@@ -480,10 +485,7 @@ class _TransferPageState extends State<TransferPage> {
                                 decimals,
                                 lengthMax: 6,
                               )})',
-                              suffix: _fee?.partialFee != null &&
-                                      nativeTokenBalance >
-                                          Fmt.balanceInt(
-                                              _fee?.partialFee.toString())
+                              suffix: !isNativeTokenLow
                                   ? GestureDetector(
                                       child: Text(dic['amount.max'],
                                           style: TextStyle(
@@ -661,6 +663,10 @@ class _TransferPageState extends State<TransferPage> {
                               onTap: () => _onSelectChain(crossChainIcons),
                             )),
                         Visibility(
+                          visible: isNativeTokenLow,
+                          child: InsufficientKARWarn(),
+                        ),
+                        Visibility(
                             visible: isCrossChain,
                             child: Padding(
                               padding: EdgeInsets.only(top: 16),
@@ -756,7 +762,7 @@ class _TransferPageState extends State<TransferPage> {
                                   ),
                                 ),
                                 Text(
-                                    '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee.partialFee.toString()), decimals, lengthMax: 6)} $nativeToken'),
+                                    '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), decimals, lengthMax: 6)} $nativeToken'),
                               ],
                             ),
                           ),

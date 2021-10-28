@@ -79,7 +79,7 @@ class SwapTokenInput extends StatelessWidget {
               children: [
                 Expanded(child: Text(title ?? '')),
                 Text(
-                  '${dicAssets['balance']}: ${Fmt.token(max, balance?.decimals ?? 12)}',
+                  '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(max, balance?.decimals ?? 12, lengthMax: 4)}',
                   style: TextStyle(color: colorGray, fontSize: 14),
                 ),
                 Visibility(
