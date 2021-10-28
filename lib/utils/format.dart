@@ -1,6 +1,7 @@
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginFmt {
   static String tokenView(String token) {
@@ -84,6 +85,15 @@ class PluginFmt {
       });
     });
     return tokens;
+  }
+
+  static BigInt getAccountED(PluginKarura plugin) {
+    final nativeED = Fmt.balanceInt(
+        plugin.networkConst['balances']['existentialDeposit'].toString());
+    final unavailable =
+        Fmt.balanceInt(plugin.balances.native.reservedBalance.toString()) +
+            Fmt.balanceInt(plugin.balances.native.frozenMisc.toString());
+    return unavailable > nativeED ? BigInt.zero : (nativeED - unavailable);
   }
 }
 

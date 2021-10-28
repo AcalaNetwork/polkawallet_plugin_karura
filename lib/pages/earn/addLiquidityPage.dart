@@ -4,12 +4,14 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
+import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -49,6 +51,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   String _errorLeft;
   String _errorRight;
 
+  TxFeeEstimateResult _fee;
+
   Future<void> _refreshData() async {
     final String poolId = ModalRoute.of(context).settings.arguments;
 
@@ -69,7 +73,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     }
   }
 
-  Future<void> _onSupplyAmountChange(String supply) async {
+  Future<void> _onSupplyAmountChange(String supply,
+      {bool isSetMax = false}) async {
     final value = supply.trim();
     double v = 0;
     try {
@@ -78,11 +83,16 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     setState(() {
       _inputIndex = 0;
       _amountRightCtrl.text = v == 0 ? '' : (v * _price).toStringAsFixed(8);
+      // clear max input on amount changes
+      if (!isSetMax) {
+        _maxInputLeft = null;
+      }
     });
     _onValidate();
   }
 
-  Future<void> _onTargetAmountChange(String target) async {
+  Future<void> _onTargetAmountChange(String target,
+      {bool isSetMax = false}) async {
     final value = target.trim();
     double v = 0;
     try {
@@ -91,6 +101,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     setState(() {
       _inputIndex = 1;
       _amountLeftCtrl.text = v == 0 ? '' : (v / _price).toStringAsFixed(8);
+      // clear max input on amount changes
+      if (!isSetMax) {
+        _maxInputRight = null;
+      }
     });
     _onValidate();
   }
@@ -119,9 +133,14 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (error == null) {
       if ((index == 0 && _maxInputLeft == null) ||
           (index == 1 && _maxInputRight == null)) {
-        if (double.parse(v) >
-            Fmt.bigIntToDouble(
-                Fmt.balanceInt(balance?.amount ?? '0'), balance.decimals)) {
+        BigInt available = Fmt.balanceInt(balance?.amount ?? '0');
+        // limit user's input for tx fee if token is KAR
+        if (balance.id == acala_token_ids[0]) {
+          final accountED = PluginFmt.getAccountED(widget.plugin);
+          available -= accountED +
+              Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
+        }
+        if (double.parse(v) > Fmt.bigIntToDouble(available, balance.decimals)) {
           error = dic['amount.low'];
         }
       }
@@ -182,7 +201,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       _maxInputLeft = max;
       _maxInputRight = null;
     });
-    _onSupplyAmountChange(amount);
+    _onSupplyAmountChange(amount, isSetMax: true);
   }
 
   void _onSetRightMax(BigInt max, int decimals) {
@@ -192,7 +211,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       _maxInputLeft = null;
       _maxInputRight = max;
     });
-    _onTargetAmountChange(amount);
+    _onTargetAmountChange(amount, isSetMax: true);
   }
 
   Future<void> _onSubmit(int decimalsLeft, int decimalsRight) async {
@@ -217,8 +236,12 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       final params = [
         {'Token': pair[0]},
         {'Token': pair[1]},
-        Fmt.tokenInt(amountLeft, decimalsLeft).toString(),
-        Fmt.tokenInt(amountRight, decimalsRight).toString(),
+        _maxInputLeft != null
+            ? _maxInputLeft.toString()
+            : Fmt.tokenInt(amountLeft, decimalsLeft).toString(),
+        _maxInputRight != null
+            ? _maxInputRight.toString()
+            : Fmt.tokenInt(amountRight, decimalsRight).toString(),
         '0',
         _withStake,
       ];
@@ -273,12 +296,37 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     }
   }
 
+  Future<String> _getTxFee() async {
+    if (_fee?.partialFee != null) {
+      return _fee.partialFee.toString();
+    }
+
+    final sender = TxSenderData(
+        widget.keyring.current.address, widget.keyring.current.pubKey);
+    final fee = await widget.plugin.sdk.api.tx
+        .estimateFees(TxInfoData('dex', 'addLiquidity', sender), [
+      {'Token': 'KAR'},
+      {'Token': 'KSM'},
+      '1000000000000',
+      '100000000000',
+      '0',
+      true,
+    ]);
+    if (mounted) {
+      setState(() {
+        _fee = fee;
+      });
+    }
+    return fee.partialFee.toString();
+  }
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshData();
+      _getTxFee();
     });
   }
 
@@ -310,6 +358,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         ];
 
         final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
+        final nativeBalance = Fmt.balanceInt(
+            widget.plugin.balances.native.availableBalance.toString());
+        final accountED = PluginFmt.getAccountED(widget.plugin);
 
         double userShare = 0;
 
@@ -346,15 +397,22 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      Visibility(
+                        visible: nativeBalance - accountED <
+                            Fmt.balanceInt(_fee?.partialFee?.toString()) *
+                                BigInt.two,
+                        child: InsufficientKARWarn(),
+                      ),
                       SwapTokenInput(
                         title: 'token 1',
                         inputCtrl: _amountLeftCtrl,
                         focusNode: _leftFocusNode,
                         balance: balancePair[0],
                         tokenIconsMap: widget.plugin.tokenIcons,
-                        onInputChange: _onSupplyAmountChange,
-                        onSetMax: (v) =>
-                            _onSetLeftMax(v, balancePair[0].decimals),
+                        onInputChange: (v) => _onSupplyAmountChange(v),
+                        onSetMax: balancePair[0].id == acala_token_ids[0]
+                            ? null
+                            : (v) => _onSetLeftMax(v, balancePair[0].decimals),
                         onClear: () {
                           setState(() {
                             _maxInputLeft = null;
@@ -389,9 +447,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                         focusNode: _rightFocusNode,
                         balance: balancePair[1],
                         tokenIconsMap: widget.plugin.tokenIcons,
-                        onInputChange: _onTargetAmountChange,
-                        onSetMax: (v) =>
-                            _onSetRightMax(v, balancePair[1].decimals),
+                        onInputChange: (v) => _onTargetAmountChange(v),
+                        onSetMax: balancePair[1].id == acala_token_ids[0]
+                            ? null
+                            : (v) => _onSetRightMax(v, balancePair[1].decimals),
                         onClear: () {
                           setState(() {
                             _maxInputRight = null;

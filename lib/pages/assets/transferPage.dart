@@ -742,24 +742,25 @@ class _TransferPageState extends State<TransferPage> {
                             ],
                           ),
                         ),
-                        _fee?.partialFee != null
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Text(dicAcala['transfer.fee']),
-                                      ),
-                                    ),
-                                    Text(
-                                        '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee.partialFee.toString()), decimals, lengthMax: 6)} $nativeToken'),
-                                  ],
+                        Visibility(
+                          visible: _fee?.partialFee != null,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Text(dicAcala['transfer.fee']),
+                                  ),
                                 ),
-                              )
-                            : Container(),
+                                Text(
+                                    '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee.partialFee.toString()), decimals, lengthMax: 6)} $nativeToken'),
+                              ],
+                            ),
+                          ),
+                        ),
                         canCrossChain
                             ? _CrossChainTransferWarning(
                                 token: token,

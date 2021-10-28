@@ -183,5 +183,5 @@ const Map<String, String> zhDex = {
   'cross.warn': '警告',
   'transfer.exist': '存活余额',
   'transfer.fee': '预估手续费',
-  'warn.fee': '因 KAR 余额不足，该笔交易可能会执行失败。',
+  'warn.fee': '因 KAR 余额不足，交易可能会执行失败。',
 };
