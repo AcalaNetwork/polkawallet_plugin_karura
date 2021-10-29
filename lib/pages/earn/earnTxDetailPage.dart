@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -19,7 +18,6 @@ class EarnTxDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isKar = plugin.basic.name == plugin_name_karura;
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 

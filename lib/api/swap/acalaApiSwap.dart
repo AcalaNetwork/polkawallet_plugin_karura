@@ -37,12 +37,11 @@ class AcalaApiSwap {
         .queryDexLiquidityPoolRewards(dexPools.map((e) => e.tokens).toList());
   }
 
-  Future<Map<String, DexPoolInfoDataV2>> queryDexPoolInfoV2(
+  Future<Map<String, DexPoolInfoDataV2>> queryDexPoolInfo(
       List<String> pools, address) async {
-    final List info = await service.queryDexPoolInfoV2(pools, address);
+    final List info = await service.queryDexPoolInfo(pools, address);
     final Map<String, DexPoolInfoDataV2> res = {};
     info.forEach((e) {
-      print(e);
       res[e['token']] = DexPoolInfoDataV2.fromJson(Map.of(e));
     });
     return res;

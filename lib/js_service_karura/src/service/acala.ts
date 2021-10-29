@@ -80,7 +80,7 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
 async function queryLPTokens(api: ApiPromise, address: string) {
   const allTokens = (api.consts.dex.enabledTradingPairs as any).map((item: any) =>
     api.createType("CurrencyId" as any, {
-      DEXShare: [item[0].asToken.toString(), item[1].asToken.toString()],
+      DexShare: [item[0].asToken.toString(), item[1].asToken.toString()],
     })
   );
 
@@ -246,63 +246,11 @@ async function fetchCollateralRewardsV2(api: ApiPromise, pool: any, address: str
  * @param {String} address
  */
 async function fetchDexPoolInfo(api: ApiPromise, pool: any, address: string) {
-  const res = (await Promise.all([
-    api.query.dex.liquidityPool(pool.DEXShare),
-    api.query.rewards.pools({ DexIncentive: pool }),
-    api.query.rewards.pools({ DexSaving: pool }),
-    api.query.rewards.shareAndWithdrawnReward({ DexIncentive: pool }, address),
-    api.query.rewards.shareAndWithdrawnReward({ DexSaving: pool }, address),
-    api.query.tokens.totalIssuance(pool),
-  ])) as any;
-  const pendingRewards = (!!api.query.incentives.pendingRewards
-    ? await Promise.all([
-        api.query.incentives?.pendingRewards({ DexIncentive: pool }, address),
-        api.query.incentives?.pendingRewards({ DexSaving: pool }, address),
-      ])
-    : [null, null]) as any;
-  let proportion = new FixedPointNumber(0);
-  if (res[1] && res[3] && FPNum(res[1].totalShares).gt(new FixedPointNumber(0))) {
-    proportion = FPNum(res[3][0]).div(FPNum(res[1].totalShares));
-  }
-  const decimalsACA = 12;
-  const decimalsAUSD = 12;
-  return {
-    token: pool.DEXShare.map((e) => e.Token).join("-"),
-    pool: res[0],
-    sharesTotal: res[1].totalShares,
-    shares: res[3][0],
-    proportion: proportion.toNumber() || 0,
-    reward: {
-      incentive: (
-        FPNum(res[1].totalRewards, decimalsACA)
-          .times(proportion)
-          .minus(FPNum(res[3][1], decimalsACA))
-          .plus(FPNum(pendingRewards[0] || 0, decimalsACA))
-          .toNumber() || 0
-      ).toString(),
-      saving: (
-        FPNum(res[2].totalRewards, decimalsAUSD)
-          .times(proportion)
-          .minus(FPNum(res[4][1], decimalsAUSD))
-          .plus(FPNum(pendingRewards[1] || 0, decimalsAUSD))
-          .toNumber() || 0
-      ).toString(),
-    },
-    issuance: res[5],
-  };
-}
-
-/**
- * fetchDexPoolInfo
- * @param {String} poolId
- * @param {String} address
- */
-async function fetchDexPoolInfoV2(api: ApiPromise, pool: any, address: string) {
   if (!walletPromise) {
     walletPromise = new WalletPromise(api);
   }
   const res = (await Promise.all([
-    api.query.dex.liquidityPool(pool.DEXShare),
+    api.query.dex.liquidityPool(pool.DexShare),
     api.query.rewards.poolInfos({ Dex: pool }),
     api.query.rewards.sharesAndWithdrawnRewards({ Dex: pool }, address),
     api.query.tokens.totalIssuance(pool),
@@ -348,7 +296,7 @@ async function fetchDexPoolInfoV2(api: ApiPromise, pool: any, address: string) {
     return data;
   });
   return {
-    token: pool.DEXShare.map((e) => e.Token).join("-"),
+    token: pool.DexShare.map((e) => e.Token).join("-"),
     pool: res[0],
     sharesTotal: res[1].totalShares,
     shares: res[2][0],
@@ -410,9 +358,10 @@ async function fetchHomaUserInfo(api: ApiPromise, address: string) {
 }
 
 const NFT_CLASS_ALL = [0, 1, 2, 3, 4, 5];
-async function _transformClassInfo(id: number, data: any): Promise<Omit<any, "tokenId">> {
+async function _transformClassInfo(api: ApiPromise, id: number, data: any): Promise<Omit<any, "tokenId">> {
   const cid = hexToString(data.metadata.toString());
-  const properties = (data.data.properties.toJSON() as unknown) as any[];
+  const _properties = api.createType("Properties", data.data.properties.toU8a());
+  const properties = (_properties.toJSON() as unknown) as any[];
   const attribute = (data.data.attributes.toJSON() as unknown) as any;
   const owner = data.owner.toString();
   const metadataIpfsUrl = _getMetadataUrl(cid);
@@ -472,7 +421,7 @@ async function queryNFTs(api: ApiPromise, address: string) {
       return [api.query.ormlNft.classes, id];
     })
   );
-  const infos = await Promise.all(classes.map((e: any, i) => _transformClassInfo(i, e.unwrapOrDefault())));
+  const infos = await Promise.all(classes.map((e: any, i) => _transformClassInfo(api, i, e.unwrapOrDefault())));
   const data = await Promise.all(
     NFT_CLASS_ALL.map((id) => {
       return api.query.ormlNft.tokensByOwner.entries(address, id);
@@ -554,7 +503,7 @@ async function queryIncentives(api: ApiPromise) {
     const poolId = e[0].args[0].toHuman();
     const incentiveType = Object.keys(poolId)[0];
     const id = poolId[incentiveType];
-    const idString = incentiveType === "Dex" ? id["DEXShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
+    const idString = incentiveType === "Dex" ? id["DexShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
 
     return { incentiveType, idString, value: FPNum(e[1], 18).toString() };
   });
@@ -562,7 +511,7 @@ async function queryIncentives(api: ApiPromise) {
     const poolId = e[0].args[0].toHuman();
     const incentiveType = Object.keys(poolId)[0];
     const id = poolId[incentiveType];
-    const idString = incentiveType === "Dex" ? id["DEXShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
+    const idString = incentiveType === "Dex" ? id["DexShare"].map((e: any) => e["Token"]).join("-") : id["Token"];
     const incentiveToken = e[0].args[1];
     const incentiveTokenView = incentiveToken.toHuman()["Token"];
     const incentiveTokenDecimal = walletPromise.getToken(incentiveToken as any).decimal;
@@ -590,7 +539,7 @@ async function queryIncentives(api: ApiPromise) {
   pools[2].forEach((e) => {
     const poolId = e[0].args[0].toHuman();
     const incentiveType = "DexSaving";
-    const id = poolId["Dex"]["DEXShare"].map((e: any) => e["Token"]).join("-");
+    const id = poolId["Dex"]["DexShare"].map((e: any) => e["Token"]).join("-");
 
     if (!res[incentiveType][id]) {
       res[incentiveType][id] = [];
@@ -605,7 +554,7 @@ async function queryIncentives(api: ApiPromise) {
 }
 
 async function calcHomaMintAmount(api: ApiPromise, amount: number) {
-  if (!walletPromise) {
+  if (!walletPromise || !homaApi) {
     walletPromise = new WalletPromise(api);
     homaApi = new HomaLite(api, walletPromise);
   }
@@ -619,7 +568,7 @@ async function calcHomaMintAmount(api: ApiPromise, amount: number) {
 }
 
 async function calcHomaRedeemAmount(api: ApiPromise, address: string, amount: number, isByDex: boolean = false) {
-  if (!walletPromise) {
+  if (!walletPromise || !homaApi) {
     walletPromise = new WalletPromise(api);
     homaApi = new HomaLite(api, walletPromise);
   }
@@ -646,7 +595,7 @@ async function calcHomaRedeemAmount(api: ApiPromise, address: string, amount: nu
 }
 
 async function queryRedeemRequest(api: ApiPromise, address: string) {
-  if (!walletPromise) {
+  if (!walletPromise || !homaApi) {
     walletPromise = new WalletPromise(api);
     homaApi = new HomaLite(api, walletPromise);
   }
@@ -664,7 +613,6 @@ export default {
   fetchCollateralRewards,
   fetchCollateralRewardsV2,
   fetchDexPoolInfo,
-  fetchDexPoolInfoV2,
   fetchHomaUserInfo,
   queryNFTs,
   checkExistentialDepositForTransfer,

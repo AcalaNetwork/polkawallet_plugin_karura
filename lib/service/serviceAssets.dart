@@ -43,7 +43,7 @@ class ServiceAssets {
           prices[relay_chain_token_symbol] / exchangeRate;
     }
     if (tokens.contains(para_chain_token_symbol_bifrost)) {
-      final dexPool = plugin.store.earn.dexPoolInfoMapV2[
+      final dexPool = plugin.store.earn.dexPoolInfoMap[
           '$karura_stable_coin-$para_chain_token_symbol_bifrost'];
       if (dexPool != null) {
         final priceBNC = dexPool.amountLeft / dexPool.amountRight;

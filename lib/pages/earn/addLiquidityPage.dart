@@ -62,7 +62,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       final tokenPair = poolId.toUpperCase().split('-');
       final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
       setState(() {
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+        final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
         _price = Fmt.bigIntToDouble(
                 poolInfo.amountRight, balancePair[0].decimals) /
             Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1].decimals);
@@ -151,7 +151,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         .plugin.store.assets.tokenBalanceMap[poolId.toUpperCase()]?.amount);
     if (error == null && index == 0 && balanceLP == BigInt.zero) {
       double min = 0;
-      final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+      final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
       min = Fmt.balanceInt(
               tokenPair[0] == widget.plugin.networkState.tokenSymbol[0]
                   ? widget.plugin.networkConst['balances']['existentialDeposit']
@@ -367,7 +367,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         double amountLeft = 0;
         double amountRight = 0;
 
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+        final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
         if (poolInfo != null) {
           amountLeft =
               Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);

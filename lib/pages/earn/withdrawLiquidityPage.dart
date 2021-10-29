@@ -42,7 +42,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   bool _fromPool = false;
 
   DEXPoolInfo _getPoolInfoData(String poolId) {
-    final poolInfo = widget.plugin.store.earn.dexPoolInfoMapV2[poolId];
+    final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
     return poolInfo != null
         ? DEXPoolInfo(poolInfo.shares, poolInfo.issuance, poolInfo.amountLeft,
             poolInfo.amountRight)

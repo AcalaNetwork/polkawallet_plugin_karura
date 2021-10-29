@@ -156,7 +156,7 @@ class _LPStakePage extends State<LPStakePage> {
             BigInt balance = BigInt.zero;
             if (!isStake) {
               final poolInfo =
-                  widget.plugin.store.earn.dexPoolInfoMapV2[args.poolId];
+                  widget.plugin.store.earn.dexPoolInfoMap[args.poolId];
               balance = poolInfo.shares;
             } else {
               balance = Fmt.balanceInt(widget.plugin.store.assets

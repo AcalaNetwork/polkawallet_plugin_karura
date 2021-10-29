@@ -671,7 +671,7 @@ class CollateralIncentiveList extends StatelessWidget {
                     child: Container(
                       margin: EdgeInsets.only(top: 4),
                       child: Text(
-                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd, 12500)}',
+                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd ?? 0, 12500)}',
                         style: TextStyle(fontSize: 10),
                       ),
                     )),

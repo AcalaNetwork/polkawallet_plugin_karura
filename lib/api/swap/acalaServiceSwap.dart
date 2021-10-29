@@ -80,10 +80,10 @@ class AcalaServiceSwap {
     };
   }
 
-  Future<List> queryDexPoolInfoV2(List<String> pools, address) async {
+  Future<List> queryDexPoolInfo(List<String> pools, address) async {
     final query = pools
-        .map((e) => 'acala.fetchDexPoolInfoV2(api, ${jsonEncode({
-                  'DEXShare': e
+        .map((e) => 'acala.fetchDexPoolInfo(api, ${jsonEncode({
+                  'DexShare': e
                       .split('-')
                       .map((e) => ({'Token': e.toUpperCase()}))
                       .toList()

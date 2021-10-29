@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/gov/democracyPage.dart';
@@ -41,7 +40,6 @@ class _AcalaEntryState extends State<AcalaEntry> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final dicGov = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
-    final isKar = widget.plugin.basic.name == plugin_name_karura;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -54,7 +52,7 @@ class _AcalaEntryState extends State<AcalaEntry> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    dic[isKar ? 'karura' : 'acala'],
+                    dic['karura'],
                     style: TextStyle(
                       fontSize: 20,
                       color: Theme.of(context).cardColor,
@@ -92,11 +90,11 @@ class _AcalaEntryState extends State<AcalaEntry> {
                         height: 68,
                         margin: EdgeInsets.only(bottom: 16),
                         child: SvgPicture.asset(
-                            'packages/polkawallet_plugin_karura/assets/images/${isKar ? 'logo_kar_empty' : 'logo1'}.svg',
+                            'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
                             color: Colors.white70),
                       ),
                       ...liveModules.map((e) {
-                        final enabled = !isKar || modulesConfig[e]['enabled'];
+                        final enabled = modulesConfig[e]['enabled'];
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16),
                           child: GestureDetector(
@@ -115,25 +113,23 @@ class _AcalaEntryState extends State<AcalaEntry> {
                           ),
                         );
                       }).toList(),
-                      Visibility(
-                          visible: isKar,
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 16),
-                            child: GestureDetector(
-                              child: EntryPageCard(
-                                dicGov['democracy'],
-                                dicGov['democracy.brief'],
-                                SvgPicture.asset(
-                                  'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
-                                  height: 88,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                color: Colors.transparent,
-                              ),
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(DemocracyPage.route),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 16),
+                        child: GestureDetector(
+                          child: EntryPageCard(
+                            dicGov['democracy'],
+                            dicGov['democracy.brief'],
+                            SvgPicture.asset(
+                              'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
+                              height: 88,
+                              color: Theme.of(context).primaryColor,
                             ),
-                          )),
+                            color: Colors.transparent,
+                          ),
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(DemocracyPage.route),
+                        ),
+                      ),
                     ],
                   );
                 },

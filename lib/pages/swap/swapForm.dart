@@ -720,7 +720,7 @@ class _SwapFormState extends State<SwapForm> {
                                   style: labelStyle),
                             ),
                             Text(
-                                '${minMax.toStringAsFixed(6)} ${PluginFmt.tokenView(_swapMode == 0 ? _swapOutput.output ?? "" : _swapOutput.input ?? "")}'),
+                                '${minMax.toStringAsFixed(6)} ${PluginFmt.tokenView(_swapMode == 0 ? _swapOutput?.output ?? "" : _swapOutput?.input ?? "")}'),
                           ],
                         ),
                       ),
@@ -732,7 +732,8 @@ class _SwapFormState extends State<SwapForm> {
                             Expanded(
                               child: Text(dic['dex.impact'], style: labelStyle),
                             ),
-                            Text('<${Fmt.ratio(_swapOutput.priceImpact)}'),
+                            Text(
+                                '<${Fmt.ratio(_swapOutput?.priceImpact ?? 0)}'),
                           ],
                         ),
                       ),
@@ -748,12 +749,12 @@ class _SwapFormState extends State<SwapForm> {
                                       Text(dic['dex.fee'], style: labelStyle),
                                 ),
                                 Text(
-                                    '${_swapOutput.fee} ${PluginFmt.tokenView(swapPair[0])}'),
+                                    '${_swapOutput?.fee} ${PluginFmt.tokenView(swapPair[0])}'),
                               ],
                             ),
                           )),
                       Visibility(
-                          visible: (_swapOutput.path?.length ?? 0) > 2,
+                          visible: (_swapOutput?.path?.length ?? 0) > 2,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -761,7 +762,7 @@ class _SwapFormState extends State<SwapForm> {
                                 child:
                                     Text(dic['dex.route'], style: labelStyle),
                               ),
-                              Text(_swapOutput.path != null
+                              Text(_swapOutput?.path != null
                                   ? _swapOutput.path
                                       .map(
                                           (i) => PluginFmt.tokenView(i['name']))

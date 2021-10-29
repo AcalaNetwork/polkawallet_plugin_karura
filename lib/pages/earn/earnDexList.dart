@@ -95,7 +95,7 @@ class _EarnDexListState extends State<EarnDexList> {
                 double loyaltyBonus = 0;
                 double savingLoyaltyBonus = 0;
 
-                sharesTotal = widget.plugin.store.earn.dexPoolInfoMapV2[poolId]
+                sharesTotal = widget.plugin.store.earn.dexPoolInfoMap[poolId]
                         ?.sharesTotal ??
                     BigInt.zero;
                 if (incentivesV2.dex != null) {

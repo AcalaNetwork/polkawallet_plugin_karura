@@ -58,10 +58,10 @@ class LoanDonutChart extends StatelessWidget {
                       visible: title != null,
                       child: Container(
                           margin: EdgeInsets.only(top: 8),
-                          child: Text(title, style: titleStyle))),
+                          child: Text(title ?? '', style: titleStyle))),
                   Visibility(
                       visible: subtitle != null,
-                      child: Text(subtitle,
+                      child: Text(subtitle ?? '',
                           style: TextStyle(fontSize: 10, color: textColor))),
                 ],
               ))

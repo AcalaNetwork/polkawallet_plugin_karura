@@ -28,7 +28,7 @@ class ServiceEarn {
       }
       final pool = pools[poolIndex];
 
-      final poolInfo = store.earn.dexPoolInfoMapV2[k];
+      final poolInfo = store.earn.dexPoolInfoMap[k];
       final prices = store.assets.marketPrices;
 
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
@@ -47,7 +47,7 @@ class ServiceEarn {
     });
 
     data.dexSaving.forEach((k, v) {
-      final poolInfo = store.earn.dexPoolInfoMapV2[k];
+      final poolInfo = store.earn.dexPoolInfoMap[k];
       v.forEach((e) {
         e.apr = e.amount > 0
             ? e.amount / (poolInfo.sharesTotal / poolInfo.issuance)
@@ -77,8 +77,8 @@ class ServiceEarn {
 
   Future<void> queryDexPoolInfo(List<String> poolIds) async {
     final info =
-        await api.swap.queryDexPoolInfoV2(poolIds, keyring.current.address);
-    store.earn.setDexPoolInfoV2(info);
+        await api.swap.queryDexPoolInfo(poolIds, keyring.current.address);
+    store.earn.setDexPoolInfo(info);
   }
 
   double getSwapFee() {

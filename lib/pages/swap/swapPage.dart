@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapList.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/dexPoolList.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapForm.dart';
@@ -48,7 +47,6 @@ class _SwapPageState extends State<SwapPage> {
   @override
   Widget build(_) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final isKar = widget.plugin.basic.name == plugin_name_karura;
     // todo: fix this after new acala online
     final bool enabled = widget.plugin.basic.name == 'acala'
         ? ModalRoute.of(context).settings.arguments
@@ -85,13 +83,11 @@ class _SwapPageState extends State<SwapPage> {
                       ),
                       Expanded(
                         child: PageTitleTabs(
-                          names: isKar
-                              ? [
-                                  dic['dex.title'],
-                                  dic['dex.lp'],
-                                  dic['boot.title']
-                                ]
-                              : [dic['dex.title']],
+                          names: [
+                            dic['dex.title'],
+                            dic['dex.lp'],
+                            dic['boot.title']
+                          ],
                           activeTab: _tab,
                           onTab: (i) {
                             if (i != _tab) {
@@ -102,17 +98,15 @@ class _SwapPageState extends State<SwapPage> {
                           },
                         ),
                       ),
-                      Visibility(
-                          visible: isKar,
-                          child: IconButton(
-                            padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
-                            icon: Icon(Icons.history,
-                                color: Theme.of(context).cardColor),
-                            onPressed: enabled
-                                ? () => Navigator.of(context)
-                                    .pushNamed(SwapHistoryPage.route)
-                                : null,
-                          )),
+                      IconButton(
+                        padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                        icon: Icon(Icons.history,
+                            color: Theme.of(context).cardColor),
+                        onPressed: enabled
+                            ? () => Navigator.of(context)
+                                .pushNamed(SwapHistoryPage.route)
+                            : null,
+                      ),
                     ],
                   ),
                 ),
@@ -122,7 +116,7 @@ class _SwapPageState extends State<SwapPage> {
                           child: CupertinoActivityIndicator(),
                         )
                       // todo: enable bootstrap for aca while new aca online
-                      : !isKar || _tab == 0
+                      : _tab == 0
                           ? SwapForm(widget.plugin, widget.keyring, enabled)
                           : _tab == 1
                               ? DexPoolList(widget.plugin, widget.keyring)

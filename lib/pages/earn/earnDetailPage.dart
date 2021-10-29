@@ -59,7 +59,7 @@ class EarnDetailPage extends StatelessWidget {
 
           String lpAmountString = '~';
 
-          final poolInfo = plugin.store.earn.dexPoolInfoMapV2[poolId];
+          final poolInfo = plugin.store.earn.dexPoolInfoMap[poolId];
           if (poolInfo != null) {
             issuance = poolInfo.issuance;
             shareTotal = poolInfo.sharesTotal;

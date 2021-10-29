@@ -36,13 +36,13 @@ class LoanInfoPanel extends StatelessWidget {
             visible: debits != null,
             child: InfoItemRow(
               dic['loan.borrowed'],
-              debits,
+              debits ?? '',
             )),
         Visibility(
             visible: collateral != null,
             child: InfoItemRow(
               dic['loan.collateral'],
-              collateral,
+              collateral ?? '',
             )),
         InfoItemRow(
           dic['collateral.price.current'],
