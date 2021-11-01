@@ -128,6 +128,7 @@ const dex_incentive_loyalty_end_block = {
   'KAR-KSM': 2799580,
   'KSM-LKSM': 1503600,
   'LKSM': 1503600,
+  'KUSD-BNC': 1443800,
 };
 
 // todo: remove this, tx control config has been built in UI.TxConfirmPage.dart
