@@ -2,6 +2,11 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 
 const node_list = [
   {
+    'name': 'Karura (Hosted by PatractLabs)',
+    'ss58': ss58_prefix_karura,
+    'endpoint': 'wss://pub.elara.patract.io/karura',
+  },
+  {
     'name': 'Karura (Hosted by Polkawallet)',
     'ss58': ss58_prefix_karura,
     'endpoint': 'wss://karura.polkawallet.io',
@@ -19,17 +24,17 @@ const node_list = [
   {
     'name': 'Karura (Hosted by Acala Foundation 2)',
     'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://karura-rpc-2.aca-api.network',
+    'endpoint': 'wss://karura-rpc-2.aca-api.network/ws',
   },
   {
     'name': 'Karura (Hosted by Acala Foundation 3)',
     'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://karura-rpc-3.aca-api.network',
+    'endpoint': 'wss://karura-rpc-3.aca-api.network/ws',
   },
   {
     'name': 'Karura (Hosted by OnFinality)',
     'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://karura.api.onfinality.io',
+    'endpoint': 'wss://karura.api.onfinality.io/public-ws',
   },
   // {
   //   'name': 'Acala Karura (Polkawallet dev node)',

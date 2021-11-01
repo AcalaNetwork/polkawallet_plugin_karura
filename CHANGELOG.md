@@ -1,3 +1,8 @@
+## [0.3.7] - 20211101
+- bump polkawallet_sdk v0.3.7.
+- update js api data parsing.
+- update node list.
+
 ## [0.3.6] - 20211027
 - bump polkawallet_sdk v0.3.6.
 - bump polkawallet_ui v0.3.5.
