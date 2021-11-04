@@ -52,6 +52,8 @@ abstract class _DexPoolData {
   List tokens;
   List<int> pairDecimals;
   ProvisioningData provisioning;
+  double rewards;
+  double rewardsLoyalty;
 }
 
 @JsonSerializable()

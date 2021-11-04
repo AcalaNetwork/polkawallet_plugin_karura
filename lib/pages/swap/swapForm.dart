@@ -395,7 +395,7 @@ class _SwapFormState extends State<SwapForm> {
         });
       } else {
         final tokens = PluginFmt.getAllDexTokens(widget.plugin);
-        if (tokens.length > 2) {
+        if (tokens.length > 1) {
           setState(() {
             _swapPair = tokens.sublist(0, 2);
           });

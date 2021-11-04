@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -66,10 +67,47 @@ class _EarnDexListState extends State<EarnDexList> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     return Observer(builder: (_) {
-      final dexPools = widget.plugin.store.earn.dexPools.toList();
+      var dexPools = widget.plugin.store.earn.dexPools.toList();
       dexPools.retainWhere((e) => e.provisioning == null);
 
       final incentivesV2 = widget.plugin.store.earn.incentives;
+      if (dexPools.length > 0) {
+        final List<DexPoolData> datas = [];
+        final List<DexPoolData> otherDatas = [];
+        for (int i = 0; i < dexPools.length; i++) {
+          final poolId = dexPools[i].tokens.map((e) => e['token']).join('-');
+
+          double rewards = 0;
+          double savingRewards = 0;
+          double loyaltyBonus = 0;
+          double savingLoyaltyBonus = 0;
+
+          if (incentivesV2.dex != null) {
+            (incentivesV2.dex[poolId] ?? []).forEach((e) {
+              rewards += e.apr;
+              loyaltyBonus = e.deduction;
+            });
+            (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
+              savingRewards += e.apr;
+              savingLoyaltyBonus = e.deduction;
+            });
+          }
+
+          dexPools[i].rewards = rewards + savingRewards;
+          dexPools[i].rewardsLoyalty = rewards * (1 - loyaltyBonus) +
+              savingRewards * (1 - savingLoyaltyBonus);
+
+          if (poolId.indexOf("KAR") >= 0) {
+            datas.add(dexPools[i]);
+          } else {
+            otherDatas.add(dexPools[i]);
+          }
+        }
+
+        otherDatas.sort((left, right) => right.rewards.compareTo(left.rewards));
+        datas.addAll(otherDatas);
+        dexPools = datas;
+      }
       return dexPools.length == 0
           ? ListView(
               padding: EdgeInsets.all(16),
@@ -89,25 +127,9 @@ class _EarnDexListState extends State<EarnDexList> {
                 final poolId =
                     dexPools[i].tokens.map((e) => e['token']).join('-');
 
-                BigInt sharesTotal = BigInt.zero;
-                double rewards = 0;
-                double savingRewards = 0;
-                double loyaltyBonus = 0;
-                double savingLoyaltyBonus = 0;
-
-                sharesTotal = widget.plugin.store.earn.dexPoolInfoMap[poolId]
-                        ?.sharesTotal ??
+                final BigInt sharesTotal = widget.plugin.store.earn
+                        .dexPoolInfoMap[poolId]?.sharesTotal ??
                     BigInt.zero;
-                if (incentivesV2.dex != null) {
-                  (incentivesV2.dex[poolId] ?? []).forEach((e) {
-                    rewards += e.apr;
-                    loyaltyBonus = e.deduction;
-                  });
-                  (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
-                    savingRewards += e.apr;
-                    savingLoyaltyBonus = e.deduction;
-                  });
-                }
 
                 final rewardsEmpty = incentivesV2.dex == null;
                 return GestureDetector(
@@ -140,7 +162,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                 title: dic['earn.apy'],
                                 content: rewardsEmpty
                                     ? '--.--%'
-                                    : Fmt.ratio(rewards + savingRewards),
+                                    : Fmt.ratio(dexPools[i].rewards),
                                 color: Theme.of(context).primaryColor,
                               ),
                               InfoItem(
@@ -148,9 +170,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                 title: dic['earn.apy.0'],
                                 content: rewardsEmpty
                                     ? '--.--%'
-                                    : Fmt.ratio(rewards * (1 - loyaltyBonus) +
-                                        savingRewards *
-                                            (1 - savingLoyaltyBonus)),
+                                    : Fmt.ratio(dexPools[i].rewardsLoyalty),
                                 color: Theme.of(context).primaryColor,
                               ),
                             ],

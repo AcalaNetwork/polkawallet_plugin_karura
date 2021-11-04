@@ -14,6 +14,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/SkaletonList.dart';
 import 'package:polkawallet_ui/components/entryPageCard.dart';
 
 class AcalaEntry extends StatefulWidget {
@@ -33,7 +34,6 @@ class _AcalaEntryState extends State<AcalaEntry> {
     'earn': EarnPage.route,
     'homa': HomaPage.route,
     'nft': NFTPage.route,
-    'gov': NFTPage.route,
   };
 
   @override
@@ -66,16 +66,29 @@ class _AcalaEntryState extends State<AcalaEntry> {
               child: Observer(
                 builder: (_) {
                   if (widget.plugin.sdk.api?.connectedNode == null) {
-                    return Container(
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.width / 2),
-                      child: Column(
-                        children: [
-                          CupertinoActivityIndicator(),
-                          Text(dic['node.connecting']),
-                        ],
+                    return Column(children: [
+                      Container(
+                        height: 68,
+                        margin: EdgeInsets.only(bottom: 16),
+                        child: SvgPicture.asset(
+                            'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
+                            color: Colors.white70),
                       ),
-                    );
+                      Expanded(
+                          child: SkaletonList(
+                        items: _liveModuleRoutes.length,
+                      ))
+                    ]);
+                    // return Container(
+                    //   padding: EdgeInsets.only(
+                    //       top: MediaQuery.of(context).size.width / 2),
+                    //   child: Column(
+                    //     children: [
+                    //       CupertinoActivityIndicator(),
+                    //       Text(dic['node.connecting']),
+                    //     ],
+                    //   ),
+                    // );
                   }
                   final modulesConfig = widget.plugin.store.setting.liveModules;
                   final List liveModules =

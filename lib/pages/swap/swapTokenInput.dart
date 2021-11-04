@@ -131,7 +131,14 @@ class SwapTokenInput extends StatelessWidget {
                       controller: inputCtrl,
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
-                      onChanged: onInputChange,
+                      onChanged: (value) {
+                        try {
+                          double.parse(value);
+                          onInputChange(value);
+                        } catch (e) {
+                          inputCtrl.text = "";
+                        }
+                      },
                     ),
                   ),
                   GestureDetector(
