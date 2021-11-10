@@ -4,12 +4,11 @@ class TxSwapData extends _TxSwapData {
   static TxSwapData fromJson(
       Map json, List<String> symbols, List<int> decimals) {
     final data = TxSwapData();
-    data.action = json['extrinsic']['method'];
+    data.action = json['type'];
     data.hash = json['extrinsic']['id'];
 
     switch (data.action) {
-      case "swapWithExactSupply":
-      case "swapWithExactTarget":
+      case "swap":
         final List path = jsonDecode(json['data'][1]['value']);
         data.tokenPay = path[0]['token'];
         data.tokenReceive = path[path.length - 1]['token'];

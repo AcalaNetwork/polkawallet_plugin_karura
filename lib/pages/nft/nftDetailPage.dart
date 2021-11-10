@@ -143,17 +143,17 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: Visibility(
-                                  visible: burnable,
-                                  child: OutlinedButtonSmall(
-                                    content: dic['nft.burn'],
-                                    active: false,
-                                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                                    onPressed:
-                                        false ? () => _onBurn(item) : null,
-                                  )),
-                            ),
+                            // Expanded(
+                            //   child: Visibility(
+                            //       visible: burnable,
+                            //       child: OutlinedButtonSmall(
+                            //         content: dic['nft.burn'],
+                            //         active: false,
+                            //         padding: EdgeInsets.only(top: 8, bottom: 8),
+                            //         onPressed:
+                            //             false ? () => _onBurn(item) : null,
+                            //       )),
+                            // ),
                             Expanded(
                               child: Visibility(
                                   visible: transferable,

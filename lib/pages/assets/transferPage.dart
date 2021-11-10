@@ -478,7 +478,7 @@ class _TransferPageState extends State<TransferPage> {
                           key: _formKey,
                           child: TextFormField(
                             decoration: InputDecoration(
-                              hintText: dic['amount'],
+                              hintText: dic['amount.hint'],
                               labelText:
                                   '${dic['amount']} (${dic['asset.transferable']}: ${Fmt.priceFloorBigInt(
                                 available,
@@ -517,8 +517,10 @@ class _TransferPageState extends State<TransferPage> {
                               if (v.isEmpty) {
                                 return dic['amount.error'];
                               }
+
+                              final input = Fmt.tokenInt(v, decimals);
                               if (_amountMax == null &&
-                                  double.parse(v.trim()) >
+                                  input.toDouble() >
                                       available /
                                           BigInt.from(pow(10, decimals))) {
                                 return dic['amount.low'];

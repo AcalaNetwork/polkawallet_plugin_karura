@@ -43,8 +43,7 @@ class SwapDetailPage extends StatelessWidget {
     }
     final List<TxDetailInfoItem> items = [];
     switch (tx.action) {
-      case "swapWithExactSupply":
-      case "swapWithExactTarget":
+      case "swap":
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],

@@ -132,50 +132,65 @@ class _EarnDexListState extends State<EarnDexList> {
                     BigInt.zero;
 
                 final rewardsEmpty = incentivesV2.dex == null;
+
+                final poolInfo =
+                    widget.plugin.store.earn.dexPoolInfoMap[poolId];
                 return GestureDetector(
                   child: RoundedCard(
                     margin: EdgeInsets.only(bottom: 16),
                     padding: EdgeInsets.all(16),
-                    child: Column(
+                    child: Stack(
+                      alignment: Alignment.topRight,
                       children: [
-                        CurrencyWithIcon(
-                          PluginFmt.tokenView(poolId),
-                          TokenIcon(poolId, widget.plugin.tokenIcons),
-                          textStyle: Theme.of(context).textTheme.headline4,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                        ),
-                        Divider(height: 24),
-                        Text(
-                          Fmt.token(sharesTotal, dexPools[i].decimals),
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 4),
-                          child: Text('staked'),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 8),
-                          child: Row(
-                            children: [
-                              InfoItem(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                title: dic['earn.apy'],
-                                content: rewardsEmpty
-                                    ? '--.--%'
-                                    : Fmt.ratio(dexPools[i].rewards),
-                                color: Theme.of(context).primaryColor,
+                        Visibility(
+                            visible: (poolInfo?.shares ?? BigInt.zero) !=
+                                BigInt.zero,
+                            child: Image.asset(
+                              "packages/polkawallet_plugin_karura/assets/images/staked.png",width:35 ,)),
+                        Column(
+                          children: [
+                            CurrencyWithIcon(
+                              PluginFmt.tokenView(poolId),
+                              TokenIcon(poolId, widget.plugin.tokenIcons),
+                              textStyle: Theme.of(context).textTheme.headline4,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                            ),
+                            Divider(height: 24),
+                            Text(
+                              Fmt.token(sharesTotal, dexPools[i].decimals),
+                              style: Theme.of(context).textTheme.headline4,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 4),
+                              child: Text('staked'),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 8),
+                              child: Row(
+                                children: [
+                                  InfoItem(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    title: dic['earn.apy'],
+                                    content: rewardsEmpty
+                                        ? '--.--%'
+                                        : Fmt.ratio(dexPools[i].rewards),
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  InfoItem(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    title: dic['earn.apy.0'],
+                                    content: rewardsEmpty
+                                        ? '--.--%'
+                                        : Fmt.ratio(dexPools[i].rewardsLoyalty),
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ],
                               ),
-                              InfoItem(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                title: dic['earn.apy.0'],
-                                content: rewardsEmpty
-                                    ? '--.--%'
-                                    : Fmt.ratio(dexPools[i].rewardsLoyalty),
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),

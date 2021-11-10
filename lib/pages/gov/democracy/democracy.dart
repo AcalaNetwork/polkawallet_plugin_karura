@@ -24,6 +24,8 @@ class Democracy extends StatefulWidget {
 }
 
 class _DemocracyState extends State<Democracy> {
+  bool isLoading = false;
+
   final GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
 
@@ -40,6 +42,9 @@ class _DemocracyState extends State<Democracy> {
   }
 
   Future<void> _fetchReferendums() async {
+    setState(() {
+      isLoading = true;
+    });
     if (widget.plugin.sdk.api.connectedNode == null) {
       return;
     }
@@ -47,6 +52,10 @@ class _DemocracyState extends State<Democracy> {
     await widget.plugin.service.gov.queryReferendums();
 
     _queryDemocracyUnlocks();
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _submitCancelVote(int id) async {
@@ -153,7 +162,8 @@ class _DemocracyState extends State<Democracy> {
                       child: Center(
                           child: ListTail(
                         isEmpty: count == 0,
-                        isLoading: false,
+                        isLoading: isLoading,
+                        isShowLoadText: true,
                       )),
                     )
                   : ReferendumPanel(
