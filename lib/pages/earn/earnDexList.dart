@@ -146,7 +146,9 @@ class _EarnDexListState extends State<EarnDexList> {
                             visible: (poolInfo?.shares ?? BigInt.zero) !=
                                 BigInt.zero,
                             child: Image.asset(
-                              "packages/polkawallet_plugin_karura/assets/images/staked.png",width:35 ,)),
+                              "packages/polkawallet_plugin_karura/assets/images/staked.png",
+                              width: 35,
+                            )),
                         Column(
                           children: [
                             CurrencyWithIcon(
