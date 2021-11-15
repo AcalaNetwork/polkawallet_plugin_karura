@@ -518,9 +518,9 @@ class _TransferPageState extends State<TransferPage> {
                                 return dic['amount.error'];
                               }
 
-                              final input = Fmt.tokenInt(v, decimals);
+                              final input = Fmt.tokenInt(v.trim(), decimals);
                               if (_amountMax == null &&
-                                  input.toDouble() >
+                                  Fmt.bigIntToDouble(input, decimals) >
                                       available /
                                           BigInt.from(pow(10, decimals))) {
                                 return dic['amount.low'];
