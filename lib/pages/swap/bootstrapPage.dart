@@ -73,14 +73,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
     final balance = balancePair[index];
 
     final v = value.trim();
-    String error;
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        error = dic['amount.error'];
-      }
-    } catch (err) {
-      error = dic['amount.error'];
-    }
+    String error = Fmt.validatePrice(v, context);
+
     if (error == null) {
       final input = double.parse(v);
       final DexPoolData pool = ModalRoute.of(context).settings.arguments;
@@ -118,15 +112,14 @@ class _BootstrapPageState extends State<BootstrapPage> {
   }
 
   Future<TxConfirmParams> _onSubmit() async {
-    final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     if (_addTab != 1 && _amountLeftCtrl.text.isEmpty) {
       setState(() {
-        _leftAmountError = dicCommon['amount.error'];
+        _leftAmountError = Fmt.validatePrice(_amountLeftCtrl.text, context);
       });
     }
     if (_addTab != 0 && _amountRightCtrl.text.isEmpty) {
       setState(() {
-        _rightAmountError = dicCommon['amount.error'];
+        _rightAmountError = Fmt.validatePrice(_amountRightCtrl.text, context);
       });
     }
     if (_leftAmountError != null || _rightAmountError != null) {

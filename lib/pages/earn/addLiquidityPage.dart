@@ -122,14 +122,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         index == 0 ? _amountLeftCtrl.text.trim() : _amountRightCtrl.text.trim();
     final balance = balancePair[index];
 
-    String error;
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        error = dic['amount.error'];
-      }
-    } catch (err) {
-      error = dic['amount.error'];
-    }
+    String error = Fmt.validatePrice(v, context);
     if (error == null) {
       if ((index == 0 && _maxInputLeft == null) ||
           (index == 1 && _maxInputRight == null)) {

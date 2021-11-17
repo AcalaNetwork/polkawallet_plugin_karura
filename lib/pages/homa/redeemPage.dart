@@ -108,32 +108,29 @@ class _RedeemPageState extends State<RedeemPage> {
 
   String _validateInput(String supply) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    String error;
-    if (supply.isEmpty) {
-      return dic['amount.error'];
+    final error = Fmt.validatePrice(supply, context);
+    if (error != null) {
+      return error;
     }
-    try {
-      final pay = double.parse(supply);
-      if (_maxInput == null && pay > balanceDouble) {
-        return dic['amount.low'];
-      }
 
-      if (pay <= minStake && !homaNow) {
-        final minLabel = I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.redeem'];
-        return '$minLabel > ${minStake.toStringAsFixed(4)}';
-      }
+    final pay = double.parse(supply);
+    if (_maxInput == null && pay > balanceDouble) {
+      return dic['amount.low'];
+    }
 
-      final symbols = widget.plugin.networkState.tokenSymbol;
-      final decimals = widget.plugin.networkState.tokenDecimals;
-      final stakeDecimal = decimals[symbols.indexOf(relay_chain_token_symbol)];
-      final poolInfo = widget.plugin.store.homa.poolInfo;
-      if (Fmt.tokenInt(supply, stakeDecimal) + poolInfo.staked > poolInfo.cap) {
-        return I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
-      }
-    } catch (err) {
-      error = dic['amount.error'];
+    if (pay <= minStake && !homaNow) {
+      final minLabel = I18n.of(context)
+          .getDic(i18n_full_dic_karura, 'acala')['homa.pool.redeem'];
+      return '$minLabel > ${minStake.toStringAsFixed(4)}';
+    }
+
+    final symbols = widget.plugin.networkState.tokenSymbol;
+    final decimals = widget.plugin.networkState.tokenDecimals;
+    final stakeDecimal = decimals[symbols.indexOf(relay_chain_token_symbol)];
+    final poolInfo = widget.plugin.store.homa.poolInfo;
+    if (Fmt.tokenInt(supply, stakeDecimal) + poolInfo.staked > poolInfo.cap) {
+      return I18n.of(context)
+          .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
     }
     return error;
   }

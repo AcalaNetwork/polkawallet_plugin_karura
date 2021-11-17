@@ -16,7 +16,6 @@ const Map<String, String> zhCommon = {
   'amount.hint': '请输入您想转账的数额',
   'amount.max': '最大值',
   'amount.available': '可用',
-  'amount.error': '数量无效',
   'amount.low': '余额不足',
   'amount.min': '最小数量为',
   'amount.all': '全部',

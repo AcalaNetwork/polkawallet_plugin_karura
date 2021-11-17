@@ -172,13 +172,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   String _validateAmount1(String value, BigInt available) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
-    String v = value.trim();
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        return dic['amount.error'];
-      }
-    } catch (err) {
-      return dic['amount.error'];
+    final error = Fmt.validatePrice(value, context);
+    if (error != null) {
+      return error;
     }
     if (_amountCollateral > available) {
       return dic['amount.low'];
@@ -191,13 +187,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
-    String v = value.trim();
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        return assetDic['amount.error'];
-      }
-    } catch (err) {
-      return assetDic['amount.error'];
+    final error = Fmt.validatePrice(value, context);
+    if (error != null) {
+      return error;
     }
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;

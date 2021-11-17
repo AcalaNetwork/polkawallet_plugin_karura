@@ -73,12 +73,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     final v = value.trim();
-    try {
-      if (v.isEmpty || double.parse(v.trim()) == 0) {
-        return dic['amount.error'];
-      }
-    } catch (e) {
-      return dic['amount.error'];
+    final error = Fmt.validatePrice(v, context);
+    if (error != null) {
+      return error;
     }
 
     final symbols = widget.plugin.networkState.tokenSymbol;

@@ -125,12 +125,9 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
     String v = value.trim();
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        return dic['amount.error'];
-      }
-    } catch (err) {
-      return dic['amount.error'];
+    final error = Fmt.validatePrice(v, context);
+    if (error != null) {
+      return error;
     }
     BigInt collateral = Fmt.tokenInt(v, collateralDecimals);
     if (collateral > available) {
@@ -145,18 +142,16 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
     String v = value.trim();
-    try {
-      if (v.isEmpty) {
-        return assetDic['amount.error'];
-      }
-      final input = double.parse(v);
-      final min =
-          Fmt.bigIntToDouble(loanType.minimumDebitValue, stableCoinDecimals);
-      if (input < min) {
-        return '${assetDic['min']} ${min.toStringAsFixed(2)}';
-      }
-    } catch (err) {
-      return assetDic['amount.error'];
+    final error = Fmt.validatePrice(v, context);
+    if (error != null) {
+      return error;
+    }
+
+    final input = double.parse(v);
+    final min =
+        Fmt.bigIntToDouble(loanType.minimumDebitValue, stableCoinDecimals);
+    if (input < min) {
+      return '${assetDic['min']} ${min.toStringAsFixed(2)}';
     }
     BigInt debits = Fmt.tokenInt(v, stableCoinDecimals);
     if (debits >= _maxToBorrow) {

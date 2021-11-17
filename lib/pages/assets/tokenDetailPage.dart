@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:polkawallet_plugin_karura/api/types/transferData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
@@ -18,6 +17,7 @@ import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/components/TransferIcon.dart';
 
 class TokenDetailPage extends StatefulWidget {
   TokenDetailPage(this.plugin, this.keyring);
@@ -307,9 +307,14 @@ class TransferListItem extends StatelessWidget {
     final title = Fmt.address(address) ?? Fmt.address(data.hash);
     final colorFailed = Theme.of(context).unselectedWidgetColor;
     return ListTile(
-      leading: SvgPicture.asset(
-          'packages/polkawallet_plugin_karura/assets/images/${data.isSuccess ? isOut ? 'assets_up' : 'assets_down' : 'tx_failed'}.svg',
-          width: 32),
+      leading: data.isSuccess
+          ? isOut
+              ? TransferIcon(type: TransferIconType.rollOut)
+              : TransferIcon(type: TransferIconType.rollIn)
+          : TransferIcon(
+              type: TransferIconType.failure,
+              paddingHorizontal: 7,
+            ),
       title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
       subtitle: Text(Fmt.dateTime(DateTime.parse(data.timestamp))),
       trailing: Container(

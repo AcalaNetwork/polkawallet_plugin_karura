@@ -64,13 +64,9 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
   String _validateAmount1(String value, BigInt available) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
-    String v = value.trim();
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        return dic['amount.error'];
-      }
-    } catch (err) {
-      return dic['amount.error'];
+    final error = Fmt.validatePrice(value, context);
+    if (error != null) {
+      return error;
     }
     if (_amountCollateral > available) {
       return dic['amount.low'];

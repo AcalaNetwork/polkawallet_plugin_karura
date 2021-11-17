@@ -514,8 +514,9 @@ class _TransferPageState extends State<TransferPage> {
                               });
                             },
                             validator: (v) {
-                              if (v.isEmpty) {
-                                return dic['amount.error'];
+                              final error = Fmt.validatePrice(v, context);
+                              if (error != null) {
+                                return error;
                               }
 
                               final input = Fmt.tokenInt(v.trim(), decimals);

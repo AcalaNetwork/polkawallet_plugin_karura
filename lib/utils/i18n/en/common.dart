@@ -16,7 +16,6 @@ const Map<String, String> enCommon = {
   'amount.hint': 'Please enter the transfer amount',
   'amount.max': 'Max',
   'amount.available': 'Available',
-  'amount.error': 'Invalid amount',
   'amount.low': 'Insufficient balance',
   'amount.min': 'Min amount is',
   'amount.all': 'Total',

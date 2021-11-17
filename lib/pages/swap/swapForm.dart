@@ -102,15 +102,9 @@ class _SwapFormState extends State<SwapForm> {
     final v = _amountPayCtrl.text.trim();
     final balancePair = PluginFmt.getBalancePair(widget.plugin, _swapPair);
 
-    String error;
+    String error = Fmt.validatePrice(v, context);
     String errorReceive;
-    try {
-      if (v.isEmpty || double.parse(v) == 0) {
-        error = dic['amount.error'];
-      }
-    } catch (err) {
-      error = dic['amount.error'];
-    }
+
     if (error == null) {
       if (_maxInput == null) {
         BigInt available = Fmt.balanceInt(balancePair[0]?.amount ?? '0');
@@ -352,9 +346,7 @@ class _SwapFormState extends State<SwapForm> {
       }
 
       final params = [
-        _swapOutput.path
-            .map((e) => ({'Token': e['name'], 'decimal': e['decimal']}))
-            .toList(),
+        _swapOutput.path.map((e) => ({'Token': e['name']})).toList(),
         input.toString(),
         Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0])
             .toString(),
