@@ -123,14 +123,6 @@ const cross_chain_icons = {
   para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
 };
 
-const dex_incentive_loyalty_end_block = {
-  'KUSD-KSM': 1538140,
-  'KAR-KSM': 2799580,
-  'KSM-LKSM': 1503600,
-  'LKSM': 1503600,
-  'KUSD-BNC': 1443800,
-};
-
 // todo: remove this, tx control config has been built in UI.TxConfirmPage.dart
 const action_loan_adjust = 'honzon.adjustLoan';
 const action_loan_close = 'honzon.closeLoanHasDebitByDex';

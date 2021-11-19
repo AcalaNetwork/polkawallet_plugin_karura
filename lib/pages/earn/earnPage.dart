@@ -24,6 +24,12 @@ class _EarnPageState extends State<EarnPage> {
   int _tab = 0;
 
   @override
+  void initState() {
+    widget.plugin.store.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 

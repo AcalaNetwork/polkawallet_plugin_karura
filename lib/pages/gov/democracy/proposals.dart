@@ -14,6 +14,7 @@ class Proposals extends StatefulWidget {
 }
 
 class _ProposalsState extends State<Proposals> {
+  bool isLoading = false;
   final GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
 
@@ -21,7 +22,13 @@ class _ProposalsState extends State<Proposals> {
     if (widget.plugin.sdk.api.connectedNode == null) {
       return;
     }
+    setState(() {
+      isLoading = true;
+    });
     await widget.plugin.service.gov.queryProposals();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -42,7 +49,12 @@ class _ProposalsState extends State<Proposals> {
           onRefresh: _fetchData,
           child: widget.plugin.store.gov.proposals == null ||
                   widget.plugin.store.gov.proposals.length == 0
-              ? Center(child: ListTail(isEmpty: true, isLoading: false))
+              ? Center(
+                  child: ListTail(
+                  isEmpty: true,
+                  isLoading: isLoading,
+                  isShowLoadText: true,
+                ))
               : ListView.builder(
                   itemCount: widget.plugin.store.gov.proposals.length + 1,
                   itemBuilder: (_, int i) {

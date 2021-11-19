@@ -604,6 +604,45 @@ async function queryRedeemRequest(api: ApiPromise, address: string) {
   return (data[0] || FixedPointNumber.ZERO).toNumber().toFixed(8);
 }
 
+async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
+  const data = await api.query.scheduler.agenda.entries();
+
+      const result: { blockNumber: number; pool: PoolId }[] = [];
+
+      data.forEach(([key, value]) => {
+        const blockNumber = key.args[0].toNumber();
+
+        const inner = (data: PalletSchedulerScheduledV2['call']) => {
+          if (data.method === 'updateClaimRewardDeductionRates' && data.section === 'incentives') {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            const args = data.args as any as Vec<Vec<ITuple<[PoolId, Rate]>>>;
+
+            args.forEach((i) => {
+              i.forEach((item) => {
+                const ratio = item[1].toString();
+
+                if (ratio === '0') {
+                  result.push({
+                    blockNumber,
+                    pool: api.createType('PoolId', item[0])
+                  });
+                }
+              });
+            });
+          }
+
+          if (data.method === 'batchAll' && data.section === 'utility') {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            (data.args[0] as any as PalletSchedulerScheduledV2['call'][]).forEach((item) => inner(item));
+          }
+        };
+
+        value.forEach((item) => inner(item.unwrapOrDefault().call));
+      });
+
+      return result;
+}
+
 export default {
   calcTokenSwapAmount,
   queryLPTokens,
@@ -622,4 +661,6 @@ export default {
   calcHomaMintAmount,
   calcHomaRedeemAmount,
   queryRedeemRequest,
+
+  queryDexIncentiveLoyaltyEndBlock,
 };

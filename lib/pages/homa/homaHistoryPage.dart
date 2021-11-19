@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
@@ -11,6 +10,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -90,8 +90,8 @@ class HomaHistoryPage extends StatelessWidget {
                         '${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeemCancel:
-                    amountReceive =
-                        '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
+                    amountPay =
+                        '${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
                 }
 
                 return Container(
@@ -105,8 +105,11 @@ class HomaHistoryPage extends StatelessWidget {
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
-                    leading: SvgPicture.asset('assets/images/assets_up.svg',
-                        width: 32),
+                    leading: TransferIcon(
+                      type: detail.action == TxHomaData.actionRedeemCancel
+                          ? TransferIconType.rollIn
+                          : TransferIconType.rollOut,
+                    ),
                     trailing: Text(
                       amountPay,
                       style: Theme.of(context).textTheme.headline4,

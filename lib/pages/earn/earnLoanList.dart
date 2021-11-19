@@ -83,6 +83,8 @@ class _EarnLoanListState extends State<EarnLoanList> {
                 marketPrices: widget.plugin.store.assets.marketPrices,
                 collateralDecimals: stableCoinDecimals,
                 incentiveTokenSymbol: incentiveTokenSymbol,
+                dexIncentiveLoyaltyEndBlock:
+                    widget.plugin.store.earn.dexIncentiveLoyaltyEndBlock,
               );
       },
     );

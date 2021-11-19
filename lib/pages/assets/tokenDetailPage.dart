@@ -311,10 +311,7 @@ class TransferListItem extends StatelessWidget {
           ? isOut
               ? TransferIcon(type: TransferIconType.rollOut)
               : TransferIcon(type: TransferIconType.rollIn)
-          : TransferIcon(
-              type: TransferIconType.failure,
-              paddingHorizontal: 7,
-            ),
+          : TransferIcon(type: TransferIconType.failure),
       title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
       subtitle: Text(Fmt.dateTime(DateTime.parse(data.timestamp))),
       trailing: Container(

@@ -65,6 +65,8 @@ class _LoanPageState extends State<LoanPage> {
   void initState() {
     super.initState();
 
+    widget.plugin.store.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // todo: fix this after new acala online
       final bool enabled = widget.plugin.basic.name == 'acala'
@@ -190,6 +192,8 @@ class _LoanPageState extends State<LoanPage> {
                                         widget.plugin.store.assets.marketPrices,
                                     collateralDecimals: stableCoinDecimals,
                                     incentiveTokenSymbol: incentiveTokenSymbol,
+                                    dexIncentiveLoyaltyEndBlock: widget.plugin
+                                        .store.earn.dexIncentiveLoyaltyEndBlock,
                                   ),
                           ),
                     Visibility(
@@ -400,6 +404,7 @@ class CollateralIncentiveList extends StatelessWidget {
     this.marketPrices,
     this.collateralDecimals,
     this.incentiveTokenSymbol,
+    this.dexIncentiveLoyaltyEndBlock,
   });
 
   final PluginKarura plugin;
@@ -411,6 +416,7 @@ class CollateralIncentiveList extends StatelessWidget {
   final Map<String, double> marketPrices;
   final int collateralDecimals;
   final String incentiveTokenSymbol;
+  final List<dynamic> dexIncentiveLoyaltyEndBlock;
 
   Future<void> _onClaimReward(
       BuildContext context, String token, String rewardView) async {
@@ -520,9 +526,15 @@ class CollateralIncentiveList extends StatelessWidget {
           final shouldActivate = reward?.shares != loans[token]?.collaterals;
 
           final bestNumber = plugin.store.gov.bestNumber;
-          final blocksToEnd = dex_incentive_loyalty_end_block[token] != null
-              ? dex_incentive_loyalty_end_block[token] - bestNumber.toInt()
-              : null;
+          var blockNumber;
+          dexIncentiveLoyaltyEndBlock.forEach((element) {
+            if (token == PluginFmt.getPool(element['pool'])) {
+              blockNumber = element['blockNumber'];
+              return;
+            }
+          });
+          final blocksToEnd =
+              blockNumber != null ? blockNumber - bestNumber.toInt() : null;
 
           return RoundedCard(
             padding: EdgeInsets.all(16),

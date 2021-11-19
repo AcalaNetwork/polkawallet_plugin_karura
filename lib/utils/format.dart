@@ -95,6 +95,16 @@ class PluginFmt {
         Fmt.balanceInt((plugin.balances.native?.frozenMisc ?? 0).toString());
     return unavailable > nativeED ? BigInt.zero : (nativeED - unavailable);
   }
+
+  static String getPool(dynamic pool) {
+    if (pool['dex'] != null) {
+      return '${pool['dex']['dexShare'][0]['token']}-${pool['dex']['dexShare'][1]['token']}';
+    } else if (pool['loans'] != null) {
+      return pool['loans']['token'];
+    } else {
+      return null;
+    }
+  }
 }
 
 class LiquidityShareInfo {

@@ -54,6 +54,24 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
+  final _$dexIncentiveLoyaltyEndBlockAtom =
+      Atom(name: '_EarnStore.dexIncentiveLoyaltyEndBlock');
+
+  @override
+  List<dynamic> get dexIncentiveLoyaltyEndBlock {
+    _$dexIncentiveLoyaltyEndBlockAtom.reportRead();
+    return super.dexIncentiveLoyaltyEndBlock;
+  }
+
+  @override
+  set dexIncentiveLoyaltyEndBlock(List<dynamic> value) {
+
+    _$dexIncentiveLoyaltyEndBlockAtom
+        .reportWrite(value, super.dexIncentiveLoyaltyEndBlock, () {
+      super.dexIncentiveLoyaltyEndBlock = value;
+    });
+  }
+
   final _$dexPoolInfoMapV2Atom = Atom(name: '_EarnStore.dexPoolInfoMapV2');
 
   @override
@@ -88,6 +106,17 @@ mixin _$EarnStore on _EarnStore, Store {
         name: '_EarnStore.setBootstraps');
     try {
       return super.setBootstraps(list);
+    } finally {
+      _$_EarnStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setDexIncentiveLoyaltyEndBlock(List<dynamic> list) {
+    final _$actionInfo = _$_EarnStoreActionController.startAction(
+        name: '_EarnStore.setDexIncentiveLoyaltyEndBlock');
+    try {
+      return super.setDexIncentiveLoyaltyEndBlock(list);
     } finally {
       _$_EarnStoreActionController.endAction(_$actionInfo);
     }

@@ -142,21 +142,25 @@ class EarnDetailPage extends StatelessWidget {
                             ),
                           ),
                           _UserCard(
-                            share: stakeShare,
-                            poolInfo: poolInfo,
-                            token: poolId,
-                            rewardAPY: rewardAPR,
-                            rewardSavingAPY: savingRewardAPR,
-                            loyaltyBonus: loyaltyBonus,
-                            savingLoyaltyBonus: savingLoyaltyBonus,
-                            fee: plugin.service.earn.getSwapFee(),
-                            incentiveCoinSymbol: symbols[0],
-                            stableCoinSymbol: karura_stable_coin,
-                            stableCoinDecimal:
-                                plugin.networkState.tokenDecimals[
-                                    symbols.indexOf(karura_stable_coin)],
-                            bestNumber: plugin.store.gov.bestNumber,
-                          )
+                              share: stakeShare,
+                              poolInfo: poolInfo,
+                              token: poolId,
+                              rewardAPY: rewardAPR,
+                              rewardSavingAPY: savingRewardAPR,
+                              loyaltyBonus: loyaltyBonus,
+                              savingLoyaltyBonus: savingLoyaltyBonus,
+                              fee: plugin.service.earn.getSwapFee(),
+                              incentiveCoinSymbol: symbols[0],
+                              stableCoinSymbol: karura_stable_coin,
+                              stableCoinDecimal:
+                                  plugin.networkState.tokenDecimals[
+                                      symbols.indexOf(karura_stable_coin)],
+                              bestNumber: plugin.store.gov.bestNumber,
+                              dexIncentiveLoyaltyEndBlock: this
+                                  .plugin
+                                  .store
+                                  .earn
+                                  .dexIncentiveLoyaltyEndBlock)
                         ],
                       ),
                     ),
@@ -292,6 +296,7 @@ class _UserCard extends StatelessWidget {
     this.stableCoinSymbol,
     this.stableCoinDecimal,
     this.bestNumber,
+    this.dexIncentiveLoyaltyEndBlock,
   });
   final double share;
   final DexPoolInfoDataV2 poolInfo;
@@ -305,6 +310,7 @@ class _UserCard extends StatelessWidget {
   final String stableCoinSymbol;
   final int stableCoinDecimal;
   final BigInt bestNumber;
+  final List<dynamic> dexIncentiveLoyaltyEndBlock;
 
   Future<void> _onClaim(BuildContext context) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
@@ -386,9 +392,16 @@ class _UserCard extends StatelessWidget {
           ' ${e['token']}';
     })?.join(' + ');
 
-    final blocksToEnd = dex_incentive_loyalty_end_block[token] != null
-        ? dex_incentive_loyalty_end_block[token] - bestNumber.toInt()
-        : null;
+    var blockNumber;
+    dexIncentiveLoyaltyEndBlock.forEach((element) {
+      if (token == PluginFmt.getPool(element['pool'])) {
+        blockNumber = element['blockNumber'];
+        return;
+      }
+    });
+
+    final blocksToEnd =
+        blockNumber != null ? blockNumber - bestNumber.toInt() : null;
 
     final rewardsRow = <Widget>[
       Column(

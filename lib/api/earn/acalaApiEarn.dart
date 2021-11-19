@@ -10,4 +10,9 @@ class AcalaApiEarn {
     final res = await service.queryIncentives();
     return IncentivesData.fromJson(res);
   }
+
+  Future<List<dynamic>> queryDexIncentiveLoyaltyEndBlock() async {
+    final List<dynamic> res = await service.queryDexIncentiveLoyaltyEndBlock();
+    return res;
+  }
 }
