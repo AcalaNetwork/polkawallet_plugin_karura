@@ -121,7 +121,9 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
                         Visibility(
                             visible: hasProposal,
                             child: Text(
-                              '${proposal.image?.proposal?.section}.${proposal.image?.proposal?.method}',
+                              proposal.image?.proposal == null
+                                  ? ""
+                                  : '${proposal.image?.proposal?.section}.${proposal.image?.proposal?.method}',
                               style: Theme.of(context).textTheme.headline4,
                             )),
                         Visibility(

@@ -18,7 +18,7 @@
     "build-dev": "webpack --mode development"
   },
   "resolutions": {
-    "@polkadot/api": "^6.5.2"
+    "@polkadot/api": "^6.9.1"
   },
   "dependencies": {
     "@acala-network/api": "^3.0.3-3",
@@ -26,7 +26,7 @@
     "@acala-network/sdk-swap": "^3.0.3-3",
     "@acala-network/sdk-wallet": "^3.0.3-3",
     "@babel/polyfill": "^7.8.3",
-    "@polkadot/api": "^6.5.2",
+    "@polkadot/api": "^6.9.1",
     "@polkadot/ui-shared": "^0.85.3",
     "axios": "^0.23.0",
     "bn.js": "^5.1.2",

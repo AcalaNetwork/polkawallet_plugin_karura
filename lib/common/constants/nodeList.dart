@@ -42,8 +42,8 @@ const node_list = [
   //   'endpoint': 'wss://kusama-1.polkawallet.io:9944',
   // },
   // {
-  //   'name': 'Acala Karura (xcm dev node 150)',
+  //   'name': 'Acala Karura (acala dev node)',
   //   'ss58': ss58_prefix_karura,
-  //   'endpoint': 'wss://crosschain-dev.polkawallet.io:9905',
+  //   'endpoint': 'wss://kusama-1.polkawallet.io:3000',
   // },
 ];
