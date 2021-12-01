@@ -65,7 +65,6 @@ mixin _$EarnStore on _EarnStore, Store {
 
   @override
   set dexIncentiveLoyaltyEndBlock(List<dynamic> value) {
-
     _$dexIncentiveLoyaltyEndBlockAtom
         .reportWrite(value, super.dexIncentiveLoyaltyEndBlock, () {
       super.dexIncentiveLoyaltyEndBlock = value;
@@ -123,11 +122,12 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexPoolInfo(Map<String, DexPoolInfoDataV2> data) {
+  void setDexPoolInfo(Map<String, DexPoolInfoDataV2> data,
+      {bool reset = false}) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setDexPoolInfoV2');
     try {
-      return super.setDexPoolInfo(data);
+      return super.setDexPoolInfo(data, reset: reset);
     } finally {
       _$_EarnStoreActionController.endAction(_$actionInfo);
     }

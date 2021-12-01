@@ -60,6 +60,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginKarura extends PolkawalletPlugin {
   PluginKarura({String name = plugin_name_karura})
@@ -130,6 +131,52 @@ class PluginKarura extends PolkawalletPlugin {
         content: AcalaEntry(this, keyring),
       )
     ];
+  }
+
+  @override
+  Widget getAggregatedAssetsWidget(
+      {String priceCurrency = 'USD', bool hideBalance = false}) {
+    String res = '';
+    final vaults = store.loan.loans.values.toList();
+    vaults.forEach((e) {
+      if (e.collaterals > BigInt.zero) {
+        final collateralDecimal = networkState
+            .tokenDecimals[networkState.tokenSymbol.indexOf(e.token)];
+        final debitDecimal = networkState.tokenDecimals[
+            networkState.tokenSymbol.indexOf(karura_stable_coin)];
+        res +=
+            'collateral: ${Fmt.priceFloorBigInt(e.collaterals, collateralDecimal)} ${e.token}';
+        res +=
+            '\ndebts: ${Fmt.priceFloorBigInt(e.debits, debitDecimal)} $karura_stable_coin_view';
+      }
+    });
+    final lp = store.earn.dexPoolInfoMap.values.toList();
+    lp.forEach((e) {
+      if (e.shares > BigInt.zero) {
+        final decimalPair = e.token
+            .split('-')
+            .map((i) =>
+                networkState.tokenDecimals[networkState.tokenSymbol.indexOf(i)])
+            .toList();
+        final proportion = e.shares / e.issuance;
+        res +=
+            '\nlp staking: ${Fmt.priceFloor(Fmt.bigIntToDouble(e.amountLeft, decimalPair[0]) * proportion)} '
+            '+ ${Fmt.priceFloor(Fmt.bigIntToDouble(e.amountRight, decimalPair[1]) * proportion)} ${e.token} LP';
+        String rewards = '';
+        double loyalty = 0;
+        if (store.earn.incentives.dex != null) {
+          loyalty = store.earn.incentives.dex[e.token][0].deduction;
+        }
+        print(e.reward?.incentive);
+        e.reward?.incentive?.forEach((i) {
+          rewards +=
+              '${Fmt.priceFloor(double.tryParse(i['amount']) * (1 - (loyalty ?? 0)))} ${i['token']}';
+        });
+        res += '\n earn rewards: $rewards';
+      }
+    });
+    print(res);
+    return Text(res);
   }
 
   @override
@@ -235,6 +282,8 @@ class PluginKarura extends PolkawalletPlugin {
       balances.setTokens(data);
     }, transferEnabled: enabled);
 
+    _service.assets.queryAggregatedAssets();
+
     final nft = await _api.assets.queryNFTs(acc.address);
     if (nft != null) {
       _store.assets.setNFTs(nft);
@@ -261,6 +310,7 @@ class PluginKarura extends PolkawalletPlugin {
 
       _store.loan.loadCache(acc.pubKey);
       _store.swap.loadCache(acc.pubKey);
+      _store.earn.setDexPoolInfo({}, reset: true);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);

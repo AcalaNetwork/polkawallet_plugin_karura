@@ -48,8 +48,13 @@ abstract class _EarnStore with Store {
   }
 
   @action
-  void setDexPoolInfo(Map<String, DexPoolInfoDataV2> data) {
-    dexPoolInfoMap.addAll(data);
+  void setDexPoolInfo(Map<String, DexPoolInfoDataV2> data,
+      {bool reset = false}) {
+    if (reset) {
+      dexPoolInfoMap = ObservableMap<String, DexPoolInfoDataV2>();
+    } else {
+      dexPoolInfoMap.addAll(data);
+    }
   }
 
   @action
