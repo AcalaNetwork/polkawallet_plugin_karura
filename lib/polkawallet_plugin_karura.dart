@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
@@ -52,6 +53,7 @@ import 'package:polkawallet_plugin_karura/service/graphql.dart';
 import 'package:polkawallet_plugin_karura/service/index.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/api/types/networkParams.dart';
 import 'package:polkawallet_sdk/plugin/homeNavItem.dart';
 import 'package:polkawallet_sdk/plugin/index.dart';
@@ -60,7 +62,6 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
-import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginKarura extends PolkawalletPlugin {
   PluginKarura({String name = plugin_name_karura})
@@ -136,47 +137,15 @@ class PluginKarura extends PolkawalletPlugin {
   @override
   Widget getAggregatedAssetsWidget(
       {String priceCurrency = 'USD', bool hideBalance = false}) {
-    String res = '';
-    final vaults = store.loan.loans.values.toList();
-    vaults.forEach((e) {
-      if (e.collaterals > BigInt.zero) {
-        final collateralDecimal = networkState
-            .tokenDecimals[networkState.tokenSymbol.indexOf(e.token)];
-        final debitDecimal = networkState.tokenDecimals[
-            networkState.tokenSymbol.indexOf(karura_stable_coin)];
-        res +=
-            'collateral: ${Fmt.priceFloorBigInt(e.collaterals, collateralDecimal)} ${e.token}';
-        res +=
-            '\ndebts: ${Fmt.priceFloorBigInt(e.debits, debitDecimal)} $karura_stable_coin_view';
-      }
+    if (store == null) return Container();
+
+    return Observer(builder: (_) {
+      final rewards = store.loan.collateralRewardsV2;
+      if (store.earn.incentives.dex == null) return Container();
+
+      AssetsUtils.calcAggregatedAssets(networkState, balances, store);
+      return Text('res');
     });
-    final lp = store.earn.dexPoolInfoMap.values.toList();
-    lp.forEach((e) {
-      if (e.shares > BigInt.zero) {
-        final decimalPair = e.token
-            .split('-')
-            .map((i) =>
-                networkState.tokenDecimals[networkState.tokenSymbol.indexOf(i)])
-            .toList();
-        final proportion = e.shares / e.issuance;
-        res +=
-            '\nlp staking: ${Fmt.priceFloor(Fmt.bigIntToDouble(e.amountLeft, decimalPair[0]) * proportion)} '
-            '+ ${Fmt.priceFloor(Fmt.bigIntToDouble(e.amountRight, decimalPair[1]) * proportion)} ${e.token} LP';
-        String rewards = '';
-        double loyalty = 0;
-        if (store.earn.incentives.dex != null) {
-          loyalty = store.earn.incentives.dex[e.token][0].deduction;
-        }
-        print(e.reward?.incentive);
-        e.reward?.incentive?.forEach((i) {
-          rewards +=
-              '${Fmt.priceFloor(double.tryParse(i['amount']) * (1 - (loyalty ?? 0)))} ${i['token']}';
-        });
-        res += '\n earn rewards: $rewards';
-      }
-    });
-    print(res);
-    return Text(res);
   }
 
   @override

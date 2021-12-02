@@ -91,6 +91,7 @@ class ServiceAssets {
       plugin.api.loan.queryLoanTypes(),
       plugin.api.loan.queryAccountLoans(keyring.current.address),
     ]);
+    plugin.service.loan.queryCollateralRewardsV2(keyring.current.address);
 
     final data = Map<String, LoanData>();
     final stableCoinDecimals = plugin.networkState.tokenDecimals[
