@@ -156,7 +156,7 @@ class _RedeemPageState extends State<RedeemPage> {
 
     if (_error != null || pay.isEmpty || _data == null) return;
 
-    var params = [Fmt.tokenInt(pay, stakeDecimal).toString(), 0];
+    var params = [_data.newRedeemBalance, 0];
     var module = 'homaLite';
     var call = 'requestRedeem';
     var txDisplay = {
