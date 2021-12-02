@@ -15,9 +15,9 @@ const transferQuery = r'''
         token {id}
         amount
         isSuccess
+        timestamp
         extrinsic {
           id
-          timestamp
         }
       }
     }
@@ -31,10 +31,10 @@ const loanQuery = r'''
         id
         type
         data
+        timestamp
         extrinsic {
           id
           method
-          timestamp
           isSuccess
         }
       }
@@ -49,10 +49,10 @@ const swapQuery = r'''
         id
         type
         data
+        timestamp
         extrinsic {
           id
           method
-          timestamp
           isSuccess
         }
       }
@@ -67,10 +67,10 @@ const dexStakeQuery = r'''
         id
         type
         data
+        timestamp
         extrinsic {
           id
           method
-          timestamp
           isSuccess
         }
       }
@@ -85,6 +85,7 @@ const homaQuery = r'''
         id
         type
         data
+        timestamp
         extrinsic {
           id
           method

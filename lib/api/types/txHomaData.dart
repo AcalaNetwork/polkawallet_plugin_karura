@@ -9,7 +9,10 @@ class TxHomaData extends _TxHomaData {
   static TxHomaData fromJson(Map<String, dynamic> json) {
     TxHomaData data = TxHomaData();
     data.action = json['type'];
-    data.hash = json['extrinsic']['id'];
+    if (json['extrinsic'] != null) {
+      data.hash = json['extrinsic']['id'];
+      data.isSuccess = json['extrinsic']['isSuccess'];
+    }
 
     switch (data.action) {
       case actionMint:
@@ -26,8 +29,7 @@ class TxHomaData extends _TxHomaData {
             Fmt.balanceInt(json['data'][1]['value'].toString());
     }
 
-    data.time = (json['extrinsic']['timestamp'] as String).replaceAll(' ', '');
-    data.isSuccess = json['extrinsic']['isSuccess'];
+    data.time = (json['timestamp'] as String).replaceAll(' ', '');
     return data;
   }
 }

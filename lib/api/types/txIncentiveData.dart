@@ -49,7 +49,7 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
             '${Fmt.balance(json['data'][2]['value'], decimals[symbols.indexOf(pair[0])])} $shareTokenView';
         break;
     }
-    data.time = json['extrinsic']['timestamp'] as String;
+    data.time = (json['timestamp'] as String).replaceAll(' ', '');
     data.isSuccess = json['extrinsic']['isSuccess'];
     return data;
   }

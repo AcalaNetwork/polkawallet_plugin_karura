@@ -45,7 +45,7 @@ class TxLoanData extends _TxLoanData {
       data.actionType = actionTypeCreate;
     }
 
-    data.time = (json['extrinsic']['timestamp'] as String).replaceAll(' ', '');
+    data.time = (json['timestamp'] as String).replaceAll(' ', '');
     data.isSuccess = json['extrinsic']['isSuccess'];
     return data;
   }

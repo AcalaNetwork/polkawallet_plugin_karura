@@ -58,6 +58,9 @@ class HomaHistoryPage extends StatelessWidget {
             final list = List.of(result.data['homaActions']['nodes'])
                 .map((i) => TxHomaData.fromJson(i as Map))
                 .toList();
+            list.removeWhere((e) =>
+                e.action == TxHomaData.actionRedeemed &&
+                e.amountReceive == BigInt.zero);
 
             final nativeDecimal = decimals[symbols.indexOf(symbol)];
             final liquidDecimal = decimals[symbols.indexOf('L$symbol')];

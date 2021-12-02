@@ -33,7 +33,7 @@ class TxSwapData extends _TxSwapData {
         break;
     }
 
-    data.time = (json['extrinsic']['timestamp'] as String).replaceAll(' ', '');
+    data.time = (json['timestamp'] as String).replaceAll(' ', '');
     data.isSuccess = json['extrinsic']['isSuccess'];
     return data;
   }

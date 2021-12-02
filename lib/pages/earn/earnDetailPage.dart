@@ -393,7 +393,7 @@ class _UserCard extends StatelessWidget {
     })?.join(' + ');
 
     var blockNumber;
-    dexIncentiveLoyaltyEndBlock.forEach((element) {
+    dexIncentiveLoyaltyEndBlock?.forEach((element) {
       if (token == PluginFmt.getPool(element['pool'])) {
         blockNumber = element['blockNumber'];
         return;

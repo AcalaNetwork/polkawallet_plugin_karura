@@ -8,8 +8,7 @@ class TransferData extends _TransferData {
     res.token = json['token']['id'];
     res.amount = Fmt.balance(json['amount'].toString(), decimals);
     res.hash = json['extrinsic']['id'];
-    res.timestamp =
-        (json['extrinsic']['timestamp'] as String).replaceAll(' ', '');
+    res.timestamp = (json['timestamp'] as String).replaceAll(' ', '');
     res.isSuccess = json['isSuccess'];
     return res;
   }
