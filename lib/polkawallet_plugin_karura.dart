@@ -140,11 +140,13 @@ class PluginKarura extends PolkawalletPlugin {
     if (store == null) return Container();
 
     return Observer(builder: (_) {
-      final rewards = store.loan.collateralRewardsV2;
-      if (store.earn.incentives.dex == null) return Container();
+      if (store.assets.aggregatedAssets.keys.length == 0) return Container();
 
-      AssetsUtils.calcAggregatedAssets(networkState, balances, store);
-      return Text('res');
+      final data = AssetsUtils.aggregatedAssetsDataFromJson(
+          store.assets.aggregatedAssets, balances, store.assets.marketPrices);
+      // data.forEach((element) => print(element));
+      final total = data.map((e) => e.value).reduce((a, b) => a + b);
+      return Text('total: ${hideBalance ? '***' : total}');
     });
   }
 

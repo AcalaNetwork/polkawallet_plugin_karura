@@ -27,6 +27,9 @@ abstract class _AssetsStore with Store {
   @observable
   List<NFTData> nft = [];
 
+  @observable
+  Map aggregatedAssets = {};
+
   @action
   void setTokenBalanceMap(List<TokenBalanceData> list, String pubKey,
       {bool shouldCache = true}) {
@@ -69,6 +72,15 @@ abstract class _AssetsStore with Store {
   }
 
   @action
+  void setAggregatedAssets(Map data, String pubKey) {
+    aggregatedAssets = data;
+
+    final cached = cache.aggregatedAssets.val;
+    cached[pubKey] = data;
+    cache.aggregatedAssets.val = cached;
+  }
+
+  @action
   void loadCache(String pubKey) {
     if (pubKey == null || pubKey.isEmpty) return;
 
@@ -87,6 +99,14 @@ abstract class _AssetsStore with Store {
           shouldCache: false);
     } else {
       tokenBalanceMap = Map<String, TokenBalanceData>();
+    }
+
+    final cachedAggregatedAssets = cache.aggregatedAssets.val;
+    if (cachedAggregatedAssets != null &&
+        cachedAggregatedAssets[pubKey] != null) {
+      aggregatedAssets = cachedAggregatedAssets[pubKey];
+    } else {
+      aggregatedAssets = {};
     }
   }
 }

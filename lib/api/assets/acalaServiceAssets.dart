@@ -118,6 +118,12 @@ class AcalaServiceAssets {
     return res;
   }
 
+  Future<Map> queryAggregatedAssets(String address) async {
+    final Map res = await plugin.sdk.webView
+        .evalJavascript('acala.queryAggregatedAssets(api, "$address")');
+    return res;
+  }
+
   Future<bool> checkExistentialDepositForTransfer(
     String address,
     String token,

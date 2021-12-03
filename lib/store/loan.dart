@@ -67,5 +67,6 @@ abstract class _LoanStore with Store {
     if (pubKey == null || pubKey.isEmpty) return;
 
     setAccountLoans(Map<String, LoanData>());
+    setCollateralRewardsV2([]);
   }
 }

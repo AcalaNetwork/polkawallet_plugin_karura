@@ -553,6 +553,138 @@ async function queryIncentives(api: ApiPromise) {
   return res;
 }
 
+async function queryAggregatedAssets(api: ApiPromise, address: string) {
+  const [dexPools, loanTypes] = await Promise.all([getTokenPairs(api), api.derive.loan.allLoanTypes()]);
+  const [loans, nativeToken, tokens, poolInfos, loanRewards, incentives] = await Promise.all([
+    api.derive.loan.allLoans(address),
+    api.query.system.account(address),
+    api.query.tokens.accounts.entries(address),
+    Promise.all(dexPools.map((e) => fetchDexPoolInfo(api, { DexShare: e.tokens.map((i) => ({ Token: i.token })) }, address))),
+    Promise.all(
+      loanTypes.map((e) => {
+        const token = e.currency.toHuman().Token;
+        return fetchCollateralRewardsV2(api, { Token: token }, address, _getTokenDecimal(api, token));
+      })
+    ),
+    queryIncentives(api),
+  ]);
+  const [loansMap, loanRewardsMap] = _calcLoanAssets(api, loanTypes, loans, loanRewards, incentives);
+  const [tokensMap, lpTokensMap] = _calcFreeTokens(api, nativeToken, tokens);
+  const [lpStakedMap, lpFreemap, lpRewardsMap] = _calcLPAssets(api, poolInfos, lpTokensMap, incentives);
+  Object.keys(loanRewardsMap).forEach((token) => {
+    if (!lpRewardsMap[token]) {
+      lpRewardsMap[token] = loanRewardsMap[token];
+    } else {
+      lpRewardsMap[token] += loanRewardsMap[token];
+    }
+  });
+  return {
+    Tokens: tokensMap,
+    Vaults: loansMap,
+    "LP Staking": lpStakedMap,
+    "LP Free": lpFreemap,
+    Rewards: lpRewardsMap,
+  };
+}
+function _addAsset(assetsMap: object, token: string, value: number) {
+  if (assetsMap[token] == undefined) {
+    assetsMap[token] = 0;
+  }
+  assetsMap[token] += value;
+}
+function _calcLoanAssets(api: ApiPromise, loanTypes: any[], loans: any[], loanRewards: any[], incentives: any) {
+  const karura_stable_coin = "KUSD";
+  const res = {};
+  const rewardsMap = {};
+  loans.forEach((e) => {
+    const token = e.currency.toHuman().Token;
+    _addAsset(res, token, FPNum(e.collateral, _getTokenDecimal(api, token)).toNumber());
+    _addAsset(
+      res,
+      karura_stable_coin,
+      0 -
+        FPNum(e.debit, _getTokenDecimal(api, karura_stable_coin))
+          .times(FPNum(loanTypes.find((t) => t.currency == e.currency).debitExchangeRate))
+          .toNumber()
+    );
+
+    const reward = loanRewards.find((e) => e.token === token);
+    if (!!reward && !!incentives.Loans[token]) {
+      const loyalty = incentives.Loans[token][0].deduction;
+      reward.reward.forEach((i) => {
+        _addAsset(rewardsMap, "KAR", i.amount * (1 - loyalty));
+      });
+    }
+  });
+  return [res, rewardsMap];
+}
+function _calcFreeTokens(api: ApiPromise, native: any, tokens: any[]) {
+  const native_token = "KAR";
+  const res = {};
+  const lpTokens = {};
+
+  res[native_token] = FPNum(native.data.free.add(native.data.reserved), _getTokenDecimal(api, native_token)).toNumber();
+  tokens.forEach(
+    ([
+      {
+        args: [_, currency],
+      },
+      v,
+    ]) => {
+      const token = currency.toHuman()["Token"];
+      if (!token) {
+        lpTokens[
+          currency
+            .toHuman()
+            ["DexShare"].map((e) => e.Token)
+            .join("-")
+        ] = v.free.add(v.reserved);
+      } else {
+        _addAsset(res, token, FPNum(v.free.add(v.reserved), _getTokenDecimal(api, token)).toNumber());
+      }
+    }
+  );
+  return [res, lpTokens];
+}
+function _calcLPAssets(api: ApiPromise, poolInfos: any[], lpTokensMap: any, incentives: any) {
+  const res = {};
+  const lpTokensFree = {};
+  const lpRewards = {};
+
+  poolInfos.map((e) => {
+    const pair = e.token.split("-");
+    const decimalPair = [_getTokenDecimal(api, pair[0]), _getTokenDecimal(api, pair[1])];
+    [e.shares, lpTokensMap[e.token]].forEach((amount, i) => {
+      if (!!amount && amount.gt(new BN(0))) {
+        const proportion = FPNum(amount).div(FPNum(e.issuance));
+        pair.forEach((token, index) => {
+          _addAsset(
+            i === 0 ? res : lpTokensFree,
+            token,
+            index === 0
+              ? FPNum(e.pool[0], decimalPair[0])
+                  .times(proportion)
+                  .toNumber()
+              : FPNum(e.pool[1], decimalPair[1])
+                  .times(proportion)
+                  .toNumber()
+          );
+        });
+      }
+    });
+
+    const loyalty = incentives.Dex[e.token] ? incentives.Dex[e.token][0].deduction : 0;
+    const savingLoyalty = !!incentives.DexSaving[e.token] ? incentives.DexSaving[e.token][0].deduction : 0;
+    e.reward.incentive.forEach((i) => {
+      _addAsset(lpRewards, i.token, i.amount * (1 - loyalty));
+    });
+    if ((e.reward.saving || 0) > 0) {
+      _addAsset(lpRewards, "KUSD", (e.reward.saving || 0) * (1 - savingLoyalty));
+    }
+  });
+  return [res, lpTokensFree, lpRewards];
+}
+
 async function calcHomaMintAmount(api: ApiPromise, amount: number) {
   if (!walletPromise || !homaApi) {
     walletPromise = new WalletPromise(api);
@@ -607,40 +739,40 @@ async function queryRedeemRequest(api: ApiPromise, address: string) {
 async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
   const data = await api.query.scheduler.agenda.entries();
 
-      const result: { blockNumber: number; pool: PoolId }[] = [];
+  const result: { blockNumber: number; pool: PoolId }[] = [];
 
-      data.forEach(([key, value]) => {
-        const blockNumber = key.args[0].toNumber();
+  data.forEach(([key, value]) => {
+    const blockNumber = key.args[0].toNumber();
 
-        const inner = (data: PalletSchedulerScheduledV2['call']) => {
-          if (data.method === 'updateClaimRewardDeductionRates' && data.section === 'incentives') {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            const args = data.args as any as Vec<Vec<ITuple<[PoolId, Rate]>>>;
+    const inner = (data: PalletSchedulerScheduledV2["call"]) => {
+      if (data.method === "updateClaimRewardDeductionRates" && data.section === "incentives") {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const args = (data.args as any) as Vec<Vec<ITuple<[PoolId, Rate]>>>;
 
-            args.forEach((i) => {
-              i.forEach((item) => {
-                const ratio = item[1].toString();
+        args.forEach((i) => {
+          i.forEach((item) => {
+            const ratio = item[1].toString();
 
-                if (ratio === '0') {
-                  result.push({
-                    blockNumber,
-                    pool: api.createType('PoolId', item[0])
-                  });
-                }
+            if (ratio === "0") {
+              result.push({
+                blockNumber,
+                pool: api.createType("PoolId", item[0]),
               });
-            });
-          }
+            }
+          });
+        });
+      }
 
-          if (data.method === 'batchAll' && data.section === 'utility') {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            (data.args[0] as any as PalletSchedulerScheduledV2['call'][]).forEach((item) => inner(item));
-          }
-        };
+      if (data.method === "batchAll" && data.section === "utility") {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        ((data.args[0] as any) as PalletSchedulerScheduledV2["call"][]).forEach((item) => inner(item));
+      }
+    };
 
-        value.forEach((item) => inner(item.unwrapOrDefault().call));
-      });
+    value.forEach((item) => inner(item.unwrapOrDefault().call));
+  });
 
-      return result;
+  return result;
 }
 
 export default {
@@ -656,6 +788,7 @@ export default {
   queryNFTs,
   checkExistentialDepositForTransfer,
   queryIncentives,
+  queryAggregatedAssets,
 
   // homaLite
   calcHomaMintAmount,

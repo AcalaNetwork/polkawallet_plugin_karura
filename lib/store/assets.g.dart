@@ -54,6 +54,21 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  final _$aggregatedAssetsAtom = Atom(name: '_AssetsStore.aggregatedAssets');
+
+  @override
+  Map get aggregatedAssets {
+    _$nftAtom.reportRead();
+    return super.aggregatedAssets;
+  }
+
+  @override
+  set aggregatedAssets(Map value) {
+    _$aggregatedAssetsAtom.reportWrite(value, super.aggregatedAssets, () {
+      super.aggregatedAssets = value;
+    });
+  }
+
   final _$nftAtom = Atom(name: '_AssetsStore.nft');
 
   @override
@@ -117,6 +132,17 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
+  void setAggregatedAssets(Map data, String pubKey) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.setAggregatedAssets');
+    try {
+      return super.setAggregatedAssets(data, pubKey);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void loadCache(String pubKey) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.loadCache');
@@ -133,6 +159,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
 tokenBalanceMap: ${tokenBalanceMap},
 prices: ${prices},
 marketPrices: ${marketPrices},
+aggregatedAssets: ${aggregatedAssets},
 nft: ${nft}
     ''';
   }

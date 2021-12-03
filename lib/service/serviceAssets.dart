@@ -1,5 +1,4 @@
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
-import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/walletApi.dart';
@@ -85,29 +84,9 @@ class ServiceAssets {
   }
 
   Future<void> queryAggregatedAssets() async {
-    plugin.service.earn.updateAllDexPoolInfo();
-
-    final loans = await Future.wait([
-      plugin.api.loan.queryLoanTypes(),
-      plugin.api.loan.queryAccountLoans(keyring.current.address),
-    ]);
-    plugin.service.loan.queryCollateralRewardsV2(keyring.current.address);
-
-    final data = Map<String, LoanData>();
-    final stableCoinDecimals = plugin.networkState.tokenDecimals[
-        plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
-    loans[1].forEach((i) {
-      final String token = i['currency']['token'];
-      final tokenDecimals = plugin.networkState
-          .tokenDecimals[plugin.networkState.tokenSymbol.indexOf(token)];
-      data[token] = LoanData.fromJson(
-        Map<String, dynamic>.from(i),
-        loans[0].firstWhere((t) => t.token == token),
-        BigInt.zero,
-        stableCoinDecimals,
-        tokenDecimals,
-      );
-    });
-    plugin.store.loan.setAccountLoans(data);
+    queryMarketPrices([plugin.networkState.tokenSymbol[0]]);
+    final data =
+        await plugin.api.assets.queryAggregatedAssets(keyring.current.address);
+    plugin.store.assets.setAggregatedAssets(data, keyring.current.pubKey);
   }
 }

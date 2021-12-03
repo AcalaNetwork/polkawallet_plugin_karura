@@ -95,6 +95,10 @@ class AcalaApiAssets {
         .toList();
   }
 
+  Future<Map> queryAggregatedAssets(String address) async {
+    return service.queryAggregatedAssets(address);
+  }
+
   Future<bool> checkExistentialDepositForTransfer(
     String address,
     String token,
