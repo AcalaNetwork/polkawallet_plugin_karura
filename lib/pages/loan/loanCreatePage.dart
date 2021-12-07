@@ -245,13 +245,11 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     return Observer(builder: (_) {
       final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
       final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-      final symbols = widget.plugin.networkState.tokenSymbol;
-      final decimals = widget.plugin.networkState.tokenDecimals;
-
-      final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
 
       final token = _token ?? relay_chain_token_symbol;
-      final collateralDecimals = decimals[symbols.indexOf(token)];
+
+      final balancePair =
+          PluginFmt.getBalancePair(widget.plugin, [token, karura_stable_coin]);
 
       final pageTitle = '${dic['loan.create']} $token';
 
@@ -259,14 +257,14 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
       final loanType = widget.plugin.store.loan.loanTypes
           .firstWhere((i) => i.token == token);
-      final balance = Fmt.balanceInt(
-          widget.plugin.store.assets.tokenBalanceMap[token]?.amount);
+      final balance = Fmt.balanceInt(balancePair[0].amount);
       final available = balance;
 
-      final balanceView =
-          Fmt.priceFloorBigInt(available, collateralDecimals, lengthMax: 4);
+      final balanceView = Fmt.priceFloorBigInt(
+          available, balancePair[0].decimals,
+          lengthMax: 4);
       final maxToBorrow =
-          Fmt.priceFloorBigInt(_maxToBorrow, stableCoinDecimals);
+          Fmt.priceFloorBigInt(_maxToBorrow, balancePair[1].decimals);
 
       return Scaffold(
         appBar: AppBar(
@@ -326,16 +324,16 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                                 '${assetDic['amount']} (${assetDic['amount.available']}: $balanceView $token)',
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(collateralDecimals)
+                            UI.decimalInputFormatter(balancePair[0].decimals)
                           ],
                           controller: _amountCtrl,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           validator: (v) => _validateAmount1(
-                              v, available, collateralDecimals),
+                              v, available, balancePair[0].decimals),
                           onChanged: (v) => _onAmount1Change(v, loanType, price,
-                              stableCoinDecimals: stableCoinDecimals,
-                              collateralDecimals: collateralDecimals),
+                              stableCoinDecimals: balancePair[1].decimals,
+                              collateralDecimals: balancePair[0].decimals),
                         ),
                         Padding(
                           padding: EdgeInsets.only(top: 16),
@@ -348,15 +346,15 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                                 '${assetDic['amount']}(${dic['loan.max']}: $maxToBorrow)',
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(stableCoinDecimals)
+                            UI.decimalInputFormatter(balancePair[1].decimals)
                           ],
                           controller: _amountCtrl2,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) => _validateAmount2(
-                              v, loanType, maxToBorrow, stableCoinDecimals),
+                          validator: (v) => _validateAmount2(v, loanType,
+                              maxToBorrow, balancePair[1].decimals),
                           onChanged: (v) => _onAmount2Change(v, loanType,
-                              stableCoinDecimals, collateralDecimals),
+                              balancePair[1].decimals, balancePair[0].decimals),
                         ),
                       ],
                     ),
@@ -370,8 +368,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
                         _onSubmit(pageTitle, loanType,
-                            stableCoinDecimals: stableCoinDecimals,
-                            collateralDecimals: collateralDecimals);
+                            stableCoinDecimals: balancePair[1].decimals,
+                            collateralDecimals: balancePair[0].decimals);
                       }
                     },
                   ),

@@ -125,36 +125,33 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
 
     return Observer(
       builder: (_) {
         final token = ModalRoute.of(context).settings.arguments;
         final loan = widget.plugin.store.loan.loans[token];
 
-        final stableCoinDecimals =
-            decimals[symbols.indexOf(karura_stable_coin)];
-        final collateralDecimals = decimals[symbols.indexOf(token)];
+        final balancePair = PluginFmt.getBalancePair(
+            widget.plugin, [token, karura_stable_coin]);
 
         final dataChartDebit = [
-          Fmt.bigIntToDouble(loan.debitInUSD, stableCoinDecimals),
+          Fmt.bigIntToDouble(loan.debitInUSD, balancePair[1].decimals),
           Fmt.bigIntToDouble(
               loan.maxToBorrow - loan.debitInUSD > BigInt.zero
                   ? loan.maxToBorrow - loan.debitInUSD
                   : BigInt.zero,
-              stableCoinDecimals),
+              balancePair[1].decimals),
         ];
         final price = widget.plugin.store.assets.prices[token];
         final dataChartPrice = [
-          Fmt.bigIntToDouble(loan.liquidationPrice, stableCoinDecimals),
+          Fmt.bigIntToDouble(loan.liquidationPrice, balancePair[1].decimals),
           Fmt.bigIntToDouble(
               price - loan.liquidationPrice > BigInt.zero
                   ? price - loan.liquidationPrice
                   : BigInt.zero,
-              stableCoinDecimals),
+              balancePair[1].decimals),
           Fmt.bigIntToDouble(
-              price ~/ (BigInt.one + BigInt.two), stableCoinDecimals),
+              price ~/ (BigInt.one + BigInt.two), balancePair[1].decimals),
         ];
         final requiredCollateralRatio =
             double.parse(Fmt.token(loan.type.requiredCollateralRatio, 18));
@@ -166,12 +163,9 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                 ? 2
                 : 0;
 
-        final aUSDBalance = Fmt.balanceInt(widget
-            .plugin.store.assets.tokenBalanceMap[karura_stable_coin].amount);
-        final tokenBalance = Fmt.balanceInt(
-            widget.plugin.store.assets.tokenBalanceMap[token].amount);
-        final debitDouble = Fmt.bigIntToDouble(loan.debits, stableCoinDecimals);
-        final needSwap = aUSDBalance < loan.debits;
+        final debitDouble =
+            Fmt.bigIntToDouble(loan.debits, balancePair[1].decimals);
+        final needSwap = Fmt.balanceInt(balancePair[1].amount) < loan.debits;
 
         final titleStyle = TextStyle(
           fontSize: 16,
@@ -207,14 +201,14 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                             dataChartDebit,
                                             title: Fmt.priceCeilBigInt(
                                                 loan.debits,
-                                                stableCoinDecimals),
+                                                balancePair[1].decimals),
                                             subtitle: dic['loan.borrowed'],
                                             colorType: colorType,
                                           ),
                                           Text(
                                               Fmt.priceFloorBigInt(
                                                   loan.maxToBorrow,
-                                                  stableCoinDecimals),
+                                                  balancePair[1].decimals),
                                               style: titleStyle),
                                           Text(
                                               '${dic['borrow.limit']}($karura_stable_coin_view)',
@@ -246,17 +240,19 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                         LoanCollateralCard(
                             loan,
                             Fmt.priceFloorBigInt(
-                                tokenBalance, collateralDecimals),
-                            stableCoinDecimals,
-                            collateralDecimals,
+                                Fmt.balanceInt(balancePair[0].amount),
+                                balancePair[0].decimals),
+                            balancePair[1].decimals,
+                            balancePair[0].decimals,
                             widget.plugin.tokenIcons),
                         LoanDebtCard(
                             loan,
                             Fmt.priceFloorBigInt(
-                                aUSDBalance, stableCoinDecimals),
+                                Fmt.balanceInt(balancePair[1].amount),
+                                balancePair[1].decimals),
                             karura_stable_coin,
-                            stableCoinDecimals,
-                            collateralDecimals,
+                            balancePair[1].decimals,
+                            balancePair[0].decimals,
                             widget.plugin.tokenIcons),
                         Container(
                           margin: EdgeInsets.only(bottom: 16),
@@ -275,8 +271,8 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                         color: Theme.of(context).primaryColor,
                                       ),
                                     ),
-                                    onTap: () => _closeVault(
-                                        loan, collateralDecimals, debitDouble),
+                                    onTap: () => _closeVault(loan,
+                                        balancePair[0].decimals, debitDouble),
                                   )
                                 ],
                               )),
