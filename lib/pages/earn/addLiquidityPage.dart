@@ -10,7 +10,6 @@ import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -209,17 +208,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   Future<void> _onSubmit(int decimalsLeft, int decimalsRight) async {
     if (_onValidate()) {
-      try {
-        if (widget.plugin.store.setting.liveModules['swap']['actionsDisabled']
-                [action_swap_add_lp] ??
-            false) {
-          UIUtils.showInvalidActionAlert(context, action_swap_add_lp);
-          return;
-        }
-      } catch (err) {
-        // ignore
-      }
-
       final String poolId = ModalRoute.of(context).settings.arguments;
       final pair = poolId.toUpperCase().split('-');
 

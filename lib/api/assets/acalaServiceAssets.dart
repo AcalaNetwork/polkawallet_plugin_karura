@@ -13,15 +13,15 @@ class AcalaServiceAssets {
 
   final tokenBalanceChannel = 'tokenBalance';
 
-  Future<List> getAllTokenSymbols(String chain) async {
+  Future<List> getAllTokenSymbols() async {
     return await plugin.sdk.webView
-        .evalJavascript('acala.getAllTokenSymbols("$chain")');
+        .evalJavascript('api.registry.chainTokens', wrapPromise: false);
   }
 
-  void unsubscribeTokenBalances(String chain, String address) async {
-    final tokens = await getAllTokenSymbols(chain);
+  void unsubscribeTokenBalances(String address) async {
+    final tokens = await getAllTokenSymbols();
     tokens.forEach((e) {
-      plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel${e['token']}');
+      plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel$e');
     });
 
     final dexPairs = await plugin.api.swap.getTokenPairs();
@@ -35,18 +35,16 @@ class AcalaServiceAssets {
   Future<void> subscribeTokenBalances(
       String address, List tokens, Function(Map) callback) async {
     tokens.forEach((e) {
-      final channel = '$tokenBalanceChannel${e['token']}';
+      final channel = '$tokenBalanceChannel$e';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
-        [address, e],
+        [
+          address,
+          {'token': e}
+        ],
         channel,
         (Map data) {
-          callback({
-            'symbol': e['token'],
-            'name': e['name'],
-            'decimals': e['decimals'],
-            'balance': data
-          });
+          callback({'symbol': e, 'balance': data});
         },
       );
     });

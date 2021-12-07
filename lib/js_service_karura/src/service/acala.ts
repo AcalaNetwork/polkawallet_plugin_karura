@@ -2,7 +2,7 @@ import { FixedPointNumber, Token, createLPCurrencyName, forceToCurrencyIdName } 
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
-import { nft_image_config, tokensForKarura } from "../constants/acala";
+import { nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 import { HomaLite } from "./homaLite";
@@ -138,11 +138,6 @@ async function getBootstraps(api: ApiPromise) {
         };
       }
     );
-}
-
-async function getAllTokenSymbols() {
-  const allTokens: any[] = (<any>window).api.registry.chainTokens;
-  return tokensForKarura.filter((e) => allTokens.indexOf(e.token) > -1);
 }
 
 /**
@@ -780,7 +775,6 @@ export default {
   queryLPTokens,
   getTokenPairs,
   getBootstraps,
-  getAllTokenSymbols,
   fetchCollateralRewards,
   fetchCollateralRewardsV2,
   fetchDexPoolInfo,

@@ -6,7 +6,6 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -109,16 +108,6 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
   Future<void> _onSubmit(
       String title, LoanData loan, int stableCoinDecimals) async {
-    try {
-      if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
-              [action_loan_adjust] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, action_loan_adjust);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
     final params = await _getTxParams(loan, stableCoinDecimals);
     if (params == null) return null;
 
@@ -239,9 +228,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                             hintText: assetDic['amount'],
                             labelText:
                                 '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
-                            suffix: params.actionType ==
-                                        LoanDepositPage.actionTypeDeposit ||
-                                    loan.debits == BigInt.zero
+                            suffix: loan.token !=
+                                        widget.plugin.networkState
+                                            .tokenSymbol[0] &&
+                                    (params.actionType ==
+                                            LoanDepositPage.actionTypeDeposit ||
+                                        loan.debits == BigInt.zero)
                                 ? GestureDetector(
                                     child: Text(
                                       dic['loan.max'],

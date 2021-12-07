@@ -14,17 +14,21 @@ const acala_token_polka_btc_view = 'polkaBTC';
 
 const relay_chain_name = 'kusama';
 const para_chain_name_bifrost = 'bifrost';
+const para_chain_name_khala = 'khala';
 const para_chain_ids = {
   para_chain_name_bifrost: 2001,
+  para_chain_name_khala: 2004,
 };
 
 const network_ss58_format = {
   plugin_name_karura: 8,
   relay_chain_name: 2,
   para_chain_name_bifrost: 6,
+  para_chain_name_khala: 30,
 };
 const relay_chain_token_symbol = 'KSM';
 const para_chain_token_symbol_bifrost = 'BNC';
+const para_chain_token_symbol_khala = 'PHA';
 const cross_chain_xcm_fees = {
   relay_chain_name: {
     relay_chain_token_symbol: {
@@ -49,6 +53,12 @@ const cross_chain_xcm_fees = {
       'fee': '64000000',
       'existentialDeposit': '100000000',
     }
+  },
+  para_chain_name_khala: {
+    para_chain_token_symbol_khala: {
+      'fee': '800000000',
+      'existentialDeposit': '10000000000',
+    }
   }
 };
 const xcm_dest_weight_kusama = '3000000000';
@@ -61,6 +71,7 @@ const existential_deposit = {
   'LKSM': '500000000',
   'BNC': '8000000000',
   'VSKSM': '100000000',
+  'PHA': '40000000000',
 };
 
 const acala_token_ids = [
@@ -70,6 +81,7 @@ const acala_token_ids = [
   'LKSM',
   'BNC',
   'VSKSM',
+  'PHA',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
@@ -121,13 +133,5 @@ const cross_chain_icons = {
   plugin_name_karura: '$image_assets_uri/tokens/KAR.png',
   relay_chain_name: '$image_assets_uri/tokens/KSM.png',
   para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
+  para_chain_name_khala: '$image_assets_uri/tokens/PHA.png',
 };
-
-// todo: remove this, tx control config has been built in UI.TxConfirmPage.dart
-const action_loan_adjust = 'honzon.adjustLoan';
-const action_loan_close = 'honzon.closeLoanHasDebitByDex';
-const action_swap_add_lp = 'dex.addLiquidity';
-const action_swap_remove_lp = 'dex.removeLiquidity';
-const action_earn_claim = 'incentives.claimRewards';
-const action_earn_deposit_lp = 'incentives.depositDexShare';
-const action_earn_withdraw_lp = 'incentives.withdrawDexShare';

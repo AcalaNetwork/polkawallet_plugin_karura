@@ -107,10 +107,7 @@ class _BootstrapListState extends State<BootstrapList> {
       _claimSubmitting = true;
     });
     final params = [widget.keyring.current.address, pair[0], pair[1]];
-    final withStakeDisabled = widget.plugin.store.setting.liveModules['earn']
-            ['actionsDisabled'][action_earn_deposit_lp] ??
-        false;
-    if (!withStakeDisabled && _withStake) {
+    if (_withStake) {
       final batchTxs = [
         'api.tx.dex.claimDexShare(...${jsonEncode(params)})',
         'api.tx.incentives.depositDexShare(...${jsonEncode([
@@ -163,9 +160,6 @@ class _BootstrapListState extends State<BootstrapList> {
       dexPools.retainWhere((e) => _userProvisions.keys
           .contains(e.tokens.map((e) => e['token']).join('-')));
 
-      final withStakeDisabled = widget.plugin.store.setting.liveModules['earn']
-              ['actionsDisabled'][action_earn_deposit_lp] ??
-          false;
       return RefreshIndicator(
         key: _refreshKey,
         onRefresh: _updateData,
@@ -206,14 +200,12 @@ class _BootstrapListState extends State<BootstrapList> {
                       existentialDeposit: Fmt.priceCeilBigInt(
                           existDeposit, e.pairDecimals[0],
                           lengthMax: 6),
-                      withStake: withStakeDisabled ? false : _withStake,
-                      onWithStakeChange: withStakeDisabled
-                          ? null
-                          : (v) {
-                              setState(() {
-                                _withStake = v;
-                              });
-                            },
+                      withStake: _withStake,
+                      onWithStakeChange: (v) {
+                        setState(() {
+                          _withStake = v;
+                        });
+                      },
                       onClaimLP: _claimLPToken,
                       onFinish: (res) async {
                         if (res != null) {

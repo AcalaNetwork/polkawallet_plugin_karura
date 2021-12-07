@@ -9,7 +9,6 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -195,16 +194,6 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
   Future<void> _onSubmit(String pageTitle, LoanType loanType,
       {int stableCoinDecimals, int collateralDecimals}) async {
-    try {
-      if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
-              [action_loan_adjust] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, action_loan_adjust);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
     final params = _getTxParams(loanType,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);

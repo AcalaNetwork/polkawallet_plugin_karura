@@ -14,7 +14,6 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -422,17 +421,6 @@ class CollateralIncentiveList extends StatelessWidget {
 
   Future<void> _onClaimReward(
       BuildContext context, String token, String rewardView) async {
-    try {
-      if (plugin.store.setting.liveModules['earn']['actionsDisabled']
-              [action_earn_claim] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, action_earn_claim);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
-
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final pool = {
       'Loans': {'Token': token}
@@ -448,16 +436,6 @@ class CollateralIncentiveList extends StatelessWidget {
   }
 
   Future<void> _activateRewards(BuildContext context, String token) async {
-    try {
-      if (plugin.store.setting.liveModules['loan']['actionsDisabled']
-              [action_loan_adjust] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, action_loan_adjust);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final params = TxConfirmParams(
       module: 'honzon',
