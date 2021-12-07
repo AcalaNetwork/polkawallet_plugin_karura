@@ -184,4 +184,8 @@ const Map<String, String> zhDex = {
   'transfer.exist': '存活余额',
   'transfer.fee': '预估手续费',
   'warn.fee': '因 KAR 余额不足，交易可能会执行失败。',
+  'v3.switchDefi': '切换至Defi',
+  'v3.switchBack': '切换回来',
+  'v3.totalBalance': '总资产',
+  'v3.myDefi': '我的Defi',
 };

@@ -53,13 +53,18 @@ import 'package:polkawallet_plugin_karura/service/graphql.dart';
 import 'package:polkawallet_plugin_karura/service/index.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
+import 'package:polkawallet_plugin_karura/utils/InstrumentItemWidget.dart';
+import 'package:polkawallet_plugin_karura/utils/InstrumentWidget.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_plugin_karura/utils/types/aggregatedAssetsData.dart';
 import 'package:polkawallet_sdk/api/types/networkParams.dart';
 import 'package:polkawallet_sdk/plugin/homeNavItem.dart';
 import 'package:polkawallet_sdk/plugin/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
+import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 
@@ -136,18 +141,92 @@ class PluginKarura extends PolkawalletPlugin {
 
   @override
   Widget getAggregatedAssetsWidget(
-      {String priceCurrency = 'USD', bool hideBalance = false}) {
-    if (store == null) return Container();
+      {String priceCurrency = 'USD',
+      bool hideBalance = false,
+      @required Function onSwitchBack}) {
+    if (store == null) return null;
 
-    return Observer(builder: (_) {
-      if (store.assets.aggregatedAssets.keys.length == 0) return Container();
+    return Observer(builder: (context) {
+      if (store.assets.aggregatedAssets.keys.length == 0) return null;
 
       final data = AssetsUtils.aggregatedAssetsDataFromJson(
           store.assets.aggregatedAssets, balances, store.assets.marketPrices);
-      // data.forEach((element) => print(element));
-      final total = data.map((e) => e.value).reduce((a, b) => a + b);
-      return Text('total: ${hideBalance ? '***' : total}');
+      // // data.forEach((element) => print(element));
+      // final total = data.map((e) => e.value).reduce((a, b) => a + b);
+      // return Text('total: ${hideBalance ? '***' : total}');
+      return InstrumentWidget(
+        instrumentDatas(data, context, priceCurrency: priceCurrency),
+        onSwitchBack,
+        hideBalance: hideBalance,
+      );
     });
+  }
+
+  List<InstrumentData> instrumentDatas(
+      List<AggregatedAssetsData> data, BuildContext context,
+      {String priceCurrency = 'USD'}) {
+    final List<InstrumentData> datas = [];
+    InstrumentData totalBalance1 = InstrumentData(0, []);
+    datas.add(totalBalance1);
+
+    final total = data.map((e) => e.value).reduce((a, b) => a + b);
+    InstrumentData totalBalance = InstrumentData(total, [],
+        currencySymbol: currencySymbol(priceCurrency),
+        title:
+            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')["v3.myDefi"],
+        prompt: I18n.of(context)
+            .getDic(i18n_full_dic_karura, 'acala')["v3.switchBack"]);
+    data.forEach((element) {
+      totalBalance.items.add(InstrumentItemData(
+          instrumentColor(element.category),
+          element.category,
+          element.value,
+          instrumentIconName(element.category)));
+    });
+    datas.add(totalBalance);
+    datas.add(totalBalance1);
+    return datas;
+  }
+
+  String currencySymbol(String priceCurrency) {
+    switch (priceCurrency) {
+      case "USD":
+        return "\$";
+      case "CNY":
+        return "￥";
+      default:
+        return "\$";
+    }
+  }
+
+  Color instrumentColor(String category) {
+    switch (category) {
+      case "Tokens":
+        return Color(0xFF5E5C59);
+      case "Vaults":
+        return Color(0xFFCE623C);
+      case "LP Staking":
+        return Color(0xFF768FE1);
+      case "Rewards":
+        return Color(0xFFFFC952);
+      default:
+        return Color(0xFFFFC952);
+    }
+  }
+
+  String instrumentIconName(String category) {
+    switch (category) {
+      case "Tokens":
+        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_black.png";
+      case "Vaults":
+        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_orange.png";
+      case "LP Staking":
+        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_blue.png";
+      case "Rewards":
+        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_yellow.png";
+      default:
+        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_yellow.png";
+    }
   }
 
   @override
