@@ -208,6 +208,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         String balance = Fmt.token(balanceAUSD, stableCoinDecimals);
         return '${assetDic['amount.low']}(${assetDic['balance']}: $balance)';
       }
+      if (_amountDebit > loan.debits) {
+        return '${dic['loan.max']} ${Fmt.priceFloorBigInt(loan.debits, stableCoinDecimals)}';
+      }
       BigInt debitLeft = loan.debits - _amountDebit;
       if (debitLeft > BigInt.zero && debitLeft < loan.type.minimumDebitValue) {
         return dic['payback.small'] +

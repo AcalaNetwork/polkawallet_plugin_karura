@@ -22,7 +22,7 @@ class WalletApi {
   }
 
   static Future<Map> getTokenPrice(String token) async {
-    final url = '$_endpoint/price/price/latest?token=$token';
+    final url = '$_endpoint/price-server/?token=$token';
     try {
       Response res = await get(Uri.parse(url));
       if (res == null) {
