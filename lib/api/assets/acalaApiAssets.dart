@@ -11,28 +11,28 @@ class AcalaApiAssets {
 
   final Map _tokenBalances = {};
 
-  Future<List> getAllTokenSymbols(String chain) async {
-    return await service.getAllTokenSymbols(chain);
+  Future<List> getAllTokenSymbols() async {
+    return await service.getAllTokenSymbols();
   }
 
-  void unsubscribeTokenBalances(String chain, String address) {
-    service.unsubscribeTokenBalances(chain, address);
+  void unsubscribeTokenBalances(String address) {
+    service.unsubscribeTokenBalances(address);
   }
 
   Future<void> subscribeTokenBalances(
-      String chain, String address, Function(List<TokenBalanceData>) callback,
+      String address, Function(List<TokenBalanceData>) callback,
       {bool transferEnabled = true}) async {
-    final tokens = await getAllTokenSymbols(chain);
+    final tokens = await getAllTokenSymbols();
     if (service.plugin.store.setting.tokensConfig['invisible'] != null) {
       final invisible =
           List.of(service.plugin.store.setting.tokensConfig['invisible']);
       if (invisible.length > 0) {
-        tokens.removeWhere((token) => invisible.contains(token.id));
+        tokens.removeWhere((token) => invisible.contains(token));
       }
     }
 
     await service.plugin.service.assets
-        .queryMarketPrices(tokens.map((e) => e['token'] as String).toList());
+        .queryMarketPrices(List<String>.from(tokens));
     _tokenBalances.clear();
 
     await service.subscribeTokenBalances(address, tokens, (Map data) {
@@ -41,19 +41,23 @@ class AcalaApiAssets {
       // do not callback if we did not receive enough data.
       if (_tokenBalances.keys.length < tokens.length) return;
 
-      callback(_tokenBalances.values
-          .map((e) => TokenBalanceData(
-                id: e['symbol'],
-                symbol: PluginFmt.tokenView(e['symbol']),
-                name: e['name'],
-                decimals: e['decimals'],
-                amount: e['balance']['free'].toString(),
-                locked: e['balance']['frozen'].toString(),
-                reserved: e['balance']['reserved'].toString(),
-                price: service.plugin.store.assets.marketPrices[e['symbol']],
-                detailPageRoute: transferEnabled ? TokenDetailPage.route : null,
-              ))
-          .toList());
+      callback(_tokenBalances.values.map((e) {
+        final decimal = e['decimals'] ??
+            service.plugin.networkState.tokenDecimals[
+                service.plugin.networkState.tokenSymbol.indexOf(e['symbol'])];
+        return TokenBalanceData(
+          id: e['symbol'],
+          symbol: PluginFmt.tokenView(e['symbol']),
+          name: service.plugin.store.setting.tokensConfig['tokenName']
+              [e['symbol']],
+          decimals: decimal,
+          amount: e['balance']['free'].toString(),
+          locked: e['balance']['frozen'].toString(),
+          reserved: e['balance']['reserved'].toString(),
+          price: service.plugin.store.assets.marketPrices[e['symbol']],
+          detailPageRoute: transferEnabled ? TokenDetailPage.route : null,
+        );
+      }).toList());
     });
   }
 

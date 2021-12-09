@@ -6,7 +6,6 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -109,16 +108,6 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
   Future<void> _onSubmit(
       String title, LoanData loan, int stableCoinDecimals) async {
-    try {
-      if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
-              [action_loan_adjust] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, action_loan_adjust);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
     final params = await _getTxParams(loan, stableCoinDecimals);
     if (params == null) return null;
 
@@ -167,15 +156,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     var dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     var assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
-
-    final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
-
     final LoanDepositPageParams params =
         ModalRoute.of(context).settings.arguments;
     final symbol = _token ?? params.token;
-    final collateralDecimals = decimals[symbols.indexOf(symbol)];
+
+    final balancePair =
+        PluginFmt.getBalancePair(widget.plugin, [symbol, karura_stable_coin]);
 
     final tokenOptions =
         widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
@@ -192,8 +178,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     final symbolView = PluginFmt.tokenView(symbol);
     String titleSuffix = ' $symbolView';
 
-    BigInt balance = Fmt.balanceInt(
-        widget.plugin.store.assets.tokenBalanceMap[symbol].amount);
+    final BigInt balance = Fmt.balanceInt(balancePair[0].amount);
     BigInt available = balance;
 
     if (params.actionType == LoanDepositPage.actionTypeWithdraw) {
@@ -204,7 +189,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     }
 
     final availableView =
-        Fmt.priceFloorBigInt(available, collateralDecimals, lengthMax: 8);
+        Fmt.priceFloorBigInt(available, balancePair[0].decimals, lengthMax: 8);
 
     final pageTitle = '${dic['loan.${params.actionType}']}$titleSuffix';
 
@@ -243,9 +228,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                             hintText: assetDic['amount'],
                             labelText:
                                 '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
-                            suffix: params.actionType ==
-                                        LoanDepositPage.actionTypeDeposit ||
-                                    loan.debits == BigInt.zero
+                            suffix: loan.token !=
+                                        widget.plugin.networkState
+                                            .tokenSymbol[0] &&
+                                    (params.actionType ==
+                                            LoanDepositPage.actionTypeDeposit ||
+                                        loan.debits == BigInt.zero)
                                 ? GestureDetector(
                                     child: Text(
                                       dic['loan.max'],
@@ -257,15 +245,16 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                                       setState(() {
                                         _amountCollateral = available;
                                         _amountCtrl.text = Fmt.bigIntToDouble(
-                                                available, collateralDecimals)
+                                                available,
+                                                balancePair[0].decimals)
                                             .toString();
                                       });
                                       _onAmount1Change(
                                         availableView,
                                         loan.type,
                                         price,
-                                        stableCoinDecimals,
-                                        collateralDecimals,
+                                        balancePair[1].decimals,
+                                        balancePair[0].decimals,
                                         max: available,
                                       );
                                     },
@@ -273,7 +262,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                                 : null,
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(collateralDecimals)
+                            UI.decimalInputFormatter(balancePair[0].decimals)
                           ],
                           controller: _amountCtrl,
                           keyboardType:
@@ -283,8 +272,8 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                             v,
                             loan.type,
                             price,
-                            stableCoinDecimals,
-                            collateralDecimals,
+                            balancePair[1].decimals,
+                            balancePair[0].decimals,
                           ),
                         ),
                       ),
@@ -299,7 +288,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                       .getDic(i18n_full_dic_ui, 'common')['tx.submit'],
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      _onSubmit(pageTitle, loan, stableCoinDecimals);
+                      _onSubmit(pageTitle, loan, balancePair[1].decimals);
                     }
                   },
                 ),

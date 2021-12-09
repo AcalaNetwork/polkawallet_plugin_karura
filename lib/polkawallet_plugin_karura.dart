@@ -326,13 +326,14 @@ class PluginKarura extends PolkawalletPlugin {
         ? _store.setting.liveModules['assets']['enabled']
         : true;
 
-    _api.assets.subscribeTokenBalances(basic.name, acc.address, (data) {
+    _api.assets.subscribeTokenBalances(acc.address, (data) {
       _store.assets.setTokenBalanceMap(data, acc.pubKey);
 
       balances.setTokens(data);
     }, transferEnabled: enabled);
 
-    _service.assets.queryAggregatedAssets();
+    // todo: queryAggregatedAssets is in dev
+    // _service.assets.queryAggregatedAssets();
 
     final nft = await _api.assets.queryNFTs(acc.address);
     if (nft != null) {
@@ -400,7 +401,7 @@ class PluginKarura extends PolkawalletPlugin {
     _loadCacheData(acc);
 
     if (_service.connected) {
-      _api.assets.unsubscribeTokenBalances(basic.name, acc.address);
+      _api.assets.unsubscribeTokenBalances(acc.address);
       _subscribeTokenBalances(acc);
     }
   }

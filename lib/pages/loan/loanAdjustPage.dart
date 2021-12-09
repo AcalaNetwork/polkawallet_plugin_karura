@@ -8,7 +8,6 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -209,6 +208,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         String balance = Fmt.token(balanceAUSD, stableCoinDecimals);
         return '${assetDic['amount.low']}(${assetDic['balance']}: $balance)';
       }
+      if (_amountDebit > loan.debits) {
+        return '${dic['loan.max']} ${Fmt.priceFloorBigInt(loan.debits, stableCoinDecimals)}';
+      }
       BigInt debitLeft = loan.debits - _amountDebit;
       if (debitLeft > BigInt.zero && debitLeft < loan.type.minimumDebitValue) {
         return dic['payback.small'] +
@@ -324,16 +326,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
   Future<void> _onSubmit(
       String title, LoanData loan, int stableCoinDecimals) async {
-    try {
-      if (widget.plugin.store.setting.liveModules['loan']['actionsDisabled']
-              [action_loan_adjust] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, action_loan_adjust);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
     final params = await _getTxParams(loan, stableCoinDecimals);
     if (params == null) return null;
 
@@ -385,20 +377,16 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     var dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     var assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
-
-    final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
-
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
     final symbol = params.token;
-    final collateralDecimals = decimals[symbols.indexOf(symbol)];
+    final balancePair =
+        PluginFmt.getBalancePair(widget.plugin, [symbol, karura_stable_coin]);
 
     final loan = widget.plugin.store.loan.loans[symbol];
 
     final price = widget.plugin.store.assets.prices[symbol];
-    final stableCoinPrice = Fmt.tokenInt('1', stableCoinDecimals);
+    final stableCoinPrice = Fmt.tokenInt('1', balancePair[1].decimals);
 
     final symbolView = PluginFmt.tokenView(symbol);
     final stableCoinView = karura_stable_coin_view;
@@ -406,29 +394,29 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     bool showCollateral = true;
     bool showDebit = true;
 
-    BigInt balanceStableCoin = Fmt.balanceInt(
-        widget.plugin.store.assets.tokenBalanceMap[karura_stable_coin].amount);
-    BigInt balance = Fmt.balanceInt(
-        widget.plugin.store.assets.tokenBalanceMap[params.token].amount);
+    final BigInt balanceStableCoin = Fmt.balanceInt(balancePair[1].amount);
+    final BigInt balance = Fmt.balanceInt(balancePair[0].amount);
     BigInt available = balance;
     BigInt maxToBorrow = loan.maxToBorrow - loan.debits;
     String maxToBorrowView =
-        Fmt.priceFloorBigInt(maxToBorrow, stableCoinDecimals);
+        Fmt.priceFloorBigInt(maxToBorrow, balancePair[1].decimals);
 
     switch (params.actionType) {
       case LoanAdjustPage.actionTypeMint:
         maxToBorrow = maxToBorrow > BigInt.zero ? maxToBorrow : BigInt.zero;
-        maxToBorrowView = Fmt.priceFloorBigInt(maxToBorrow, stableCoinDecimals);
+        maxToBorrowView =
+            Fmt.priceFloorBigInt(maxToBorrow, balancePair[1].decimals);
         showCollateral = false;
         titleSuffix = ' $stableCoinView';
         break;
       case LoanAdjustPage.actionTypePayback:
         // max to payback
-        maxToBorrow =
-            balanceStableCoin > loan.debits ? loan.debits : balanceStableCoin;
+        maxToBorrow = balanceStableCoin > loan.debits
+            ? loan.debits
+            : (balanceStableCoin - BigInt.from(100000000000));
         maxToBorrowView = balanceStableCoin > loan.debits
-            ? Fmt.priceCeilBigInt(maxToBorrow, stableCoinDecimals)
-            : Fmt.priceFloorBigInt(maxToBorrow, stableCoinDecimals);
+            ? Fmt.priceCeilBigInt(maxToBorrow, balancePair[1].decimals)
+            : Fmt.priceFloorBigInt(maxToBorrow, balancePair[1].decimals);
         showCollateral = false;
         titleSuffix = ' $stableCoinView';
         break;
@@ -446,10 +434,11 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     }
 
     final availableView =
-        Fmt.priceFloorBigInt(available, collateralDecimals, lengthMax: 8);
-    final debitsView = Fmt.priceCeilBigInt(loan.debits, stableCoinDecimals);
+        Fmt.priceFloorBigInt(available, balancePair[0].decimals, lengthMax: 8);
+    final debitsView =
+        Fmt.priceCeilBigInt(loan.debits, balancePair[1].decimals);
     final collateralView =
-        Fmt.priceFloorBigInt(loan.collaterals, collateralDecimals);
+        Fmt.priceFloorBigInt(loan.collaterals, balancePair[0].decimals);
 
     final pageTitle = '${dic['loan.${params.actionType}']}$titleSuffix';
 
@@ -496,9 +485,13 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                 hintText: assetDic['amount'],
                                 labelText:
                                     '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
-                                suffix: params.actionType ==
-                                            LoanAdjustPage.actionTypeDeposit ||
-                                        loan.debits == BigInt.zero
+                                suffix: loan.token !=
+                                            widget.plugin.networkState
+                                                .tokenSymbol[0] &&
+                                        (params.actionType ==
+                                                LoanAdjustPage
+                                                    .actionTypeDeposit ||
+                                            loan.debits == BigInt.zero)
                                     ? GestureDetector(
                                         child: Text(
                                           dic['loan.max'],
@@ -511,15 +504,15 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                             _amountCollateral = available;
                                             _amountCtrl.text =
                                                 Fmt.bigIntToDouble(available,
-                                                        collateralDecimals)
+                                                        balancePair[0].decimals)
                                                     .toString();
                                           });
                                           _onAmount1Change(
                                             availableView,
                                             loan.type,
                                             price,
-                                            stableCoinDecimals,
-                                            collateralDecimals,
+                                            balancePair[1].decimals,
+                                            balancePair[0].decimals,
                                             max: available,
                                           );
                                         },
@@ -527,7 +520,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     : null,
                               ),
                               inputFormatters: [
-                                UI.decimalInputFormatter(collateralDecimals)
+                                UI.decimalInputFormatter(
+                                    balancePair[0].decimals)
                               ],
                               controller: _amountCtrl,
                               keyboardType: TextInputType.numberWithOptions(
@@ -537,8 +531,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                 v,
                                 loan.type,
                                 price,
-                                stableCoinDecimals,
-                                collateralDecimals,
+                                balancePair[1].decimals,
+                                balancePair[0].decimals,
                               ),
                             ),
                           )),
@@ -571,8 +565,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                             maxToBorrowView,
                                             loan.type,
                                             stableCoinPrice,
-                                            stableCoinDecimals,
-                                            collateralDecimals,
+                                            balancePair[1].decimals,
+                                            balancePair[0].decimals,
                                             showCheckbox,
                                             debits: maxToBorrow,
                                           );
@@ -581,7 +575,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     : null,
                               ),
                               inputFormatters: [
-                                UI.decimalInputFormatter(stableCoinDecimals)
+                                UI.decimalInputFormatter(
+                                    balancePair[1].decimals)
                               ],
                               controller: _amountCtrl2,
                               keyboardType: TextInputType.numberWithOptions(
@@ -592,13 +587,13 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   maxToBorrowView,
                                   balanceStableCoin,
                                   loan,
-                                  stableCoinDecimals),
+                                  balancePair[1].decimals),
                               onChanged: (v) => _onAmount2Change(
                                   v,
                                   loan.type,
                                   stableCoinPrice,
-                                  stableCoinDecimals,
-                                  collateralDecimals,
+                                  balancePair[1].decimals,
+                                  balancePair[0].decimals,
                                   showCheckbox),
                             ),
                           )),
@@ -636,7 +631,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                       .getDic(i18n_full_dic_ui, 'common')['tx.submit'],
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      _onSubmit(pageTitle, loan, stableCoinDecimals);
+                      _onSubmit(pageTitle, loan, balancePair[1].decimals);
                     }
                   },
                 ),

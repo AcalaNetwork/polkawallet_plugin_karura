@@ -224,6 +224,7 @@ class _DemocracyState extends State<Democracy> {
         maxLockAmount = amount;
       }
     }
+    final redeemable = maxUnlockAmount - maxLockAmount;
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: EdgeInsets.all(16),
@@ -250,10 +251,6 @@ class _DemocracyState extends State<Democracy> {
             itemCount: locks.length,
             itemBuilder: (context, index) {
               var unlockAt = locks[index]['unlockAt'];
-              final int blockDuration = BigInt.parse(widget
-                      .plugin.networkConst['babe']['expectedBlockTime']
-                      .toString())
-                  .toInt();
               if (unlockAt == "0") {
                 widget.plugin.store.gov.referendums.forEach((element) {
                   if (element.userVoted != null &&
@@ -303,7 +300,7 @@ class _DemocracyState extends State<Democracy> {
                           child: Text(
                               endLeft.toInt() <= 0
                                   ? ""
-                                  : '${Fmt.blockToTime(endLeft.toInt(), blockDuration)}',
+                                  : '${Fmt.blockToTime(endLeft.toInt(), BLOCK_TIME_DEFAULT)}',
                               style: TextStyle(color: Colors.grey))),
                     ),
                   ],
@@ -312,7 +309,7 @@ class _DemocracyState extends State<Democracy> {
             },
           ),
           Visibility(
-              visible: maxUnlockAmount - maxLockAmount > 0,
+              visible: redeemable > 0,
               child: Column(
                 children: [
                   Divider(),
@@ -320,7 +317,7 @@ class _DemocracyState extends State<Democracy> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                          '${dic['democracy.unlock']}:${maxUnlockAmount - maxLockAmount} $symbol'),
+                          '${dic['democracy.unlock']}:${Fmt.priceFloor(redeemable, lengthMax: 4)} $symbol'),
                       OutlinedButtonSmall(
                         content: dic['democracy.referendum.clear'],
                         padding:

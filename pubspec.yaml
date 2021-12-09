@@ -1,6 +1,6 @@
 name: polkawallet_plugin_karura
 description: Karura network plugin for Polkawallet.
-version: 0.3.7
+version: 0.3.8
 homepage:
 
 environment:

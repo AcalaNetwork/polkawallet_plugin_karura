@@ -9,7 +9,6 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItem.dart';
@@ -130,16 +129,6 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
   Future<void> _onSubmit(int shareDecimals) async {
     if (_formKey.currentState.validate()) {
-      try {
-        if (widget.plugin.store.setting.liveModules['swap']['actionsDisabled']
-                [action_swap_remove_lp] ??
-            false) {
-          UIUtils.showInvalidActionAlert(context, action_swap_remove_lp);
-          return;
-        }
-      } catch (err) {
-        // ignore
-      }
       final String poolId = ModalRoute.of(context).settings.arguments;
       final amount = _amountCtrl.text.trim();
       final amountInt = Fmt.tokenInt(amount, shareDecimals);

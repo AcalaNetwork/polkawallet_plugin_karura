@@ -5,7 +5,6 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
-import 'package:polkawallet_plugin_karura/utils/uiUtils.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -81,18 +80,6 @@ class _LPStakePage extends State<LPStakePage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final LPStakePageParams params = ModalRoute.of(context).settings.arguments;
     final isStake = params.action == LPStakePage.actionStake;
-    try {
-      final actionDisabled =
-          isStake ? action_earn_deposit_lp : action_earn_withdraw_lp;
-      if (widget.plugin.store.setting.liveModules['earn']['actionsDisabled']
-              [actionDisabled] ??
-          false) {
-        UIUtils.showInvalidActionAlert(context, actionDisabled);
-        return;
-      }
-    } catch (err) {
-      // ignore
-    }
 
     final pool = params.poolId.split('-').map((e) => ({'Token': e})).toList();
     String input = _amountCtrl.text.trim();

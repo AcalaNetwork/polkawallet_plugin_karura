@@ -2,7 +2,7 @@ import { FixedPointNumber, Token, createLPCurrencyName, forceToCurrencyIdName } 
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
-import { nft_image_config, tokensForKarura } from "../constants/acala";
+import { nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 import { HomaLite } from "./homaLite";
@@ -46,8 +46,14 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
   // }
   const swapper = new SwapPromise(api);
 
-  const inputToken = Token.fromCurrencyId(api.createType("CurrencyId" as any, { token: swapPair[0] }), _getTokenDecimal(api, swapPair[0]));
-  const outputToken = Token.fromCurrencyId(api.createType("CurrencyId" as any, { token: swapPair[1] }), _getTokenDecimal(api, swapPair[1]));
+  const inputToken = Token.fromCurrencyId(
+    api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, { token: swapPair[0] }),
+    _getTokenDecimal(api, swapPair[0])
+  );
+  const outputToken = Token.fromCurrencyId(
+    api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, { token: swapPair[1] }),
+    _getTokenDecimal(api, swapPair[1])
+  );
   const i = new FixedPointNumber(input || 0, inputToken.decimal);
   const o = new FixedPointNumber(output || 0, outputToken.decimal);
 
@@ -79,7 +85,7 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
 
 async function queryLPTokens(api: ApiPromise, address: string) {
   const allTokens = (api.consts.dex.enabledTradingPairs as any).map((item: any) =>
-    api.createType("CurrencyId" as any, {
+    api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, {
       DexShare: [item[0].asToken.toString(), item[1].asToken.toString()],
     })
   );
@@ -138,11 +144,6 @@ async function getBootstraps(api: ApiPromise) {
         };
       }
     );
-}
-
-async function getAllTokenSymbols() {
-  const allTokens: any[] = (<any>window).api.registry.chainTokens;
-  return tokensForKarura.filter((e) => allTokens.indexOf(e.token) > -1);
 }
 
 /**
@@ -418,13 +419,13 @@ function _getImageUrl(data: string) {
 async function queryNFTs(api: ApiPromise, address: string) {
   const classes = await api.queryMulti(
     NFT_CLASS_ALL.map((id) => {
-      return [api.query.ormlNft.classes, id];
+      return [api.query.ormlNFT.classes, id];
     })
   );
   const infos = await Promise.all(classes.map((e: any, i) => _transformClassInfo(api, i, e.unwrapOrDefault())));
   const data = await Promise.all(
     NFT_CLASS_ALL.map((id) => {
-      return api.query.ormlNft.tokensByOwner.entries(address, id);
+      return api.query.ormlNFT.tokensByOwner.entries(address, id);
     })
   );
 
@@ -446,7 +447,7 @@ async function queryNFTs(api: ApiPromise, address: string) {
       });
     });
 
-  const deposits = await Promise.all(res.map((e) => api.query.ormlNft.tokens(e.classId, e.tokenId)));
+  const deposits = await Promise.all(res.map((e) => api.query.ormlNFT.tokens(e.classId, e.tokenId)));
   return res.map((e, i) => ({ ...e, deposit: (deposits[i] as any).toJSON()["data"]["deposit"].toString() }));
 }
 
@@ -756,7 +757,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
             if (ratio === "0") {
               result.push({
                 blockNumber,
-                pool: api.createType("PoolId", item[0]),
+                pool: api.createType("ModuleIncentivesPoolId", item[0]),
               });
             }
           });
@@ -780,7 +781,6 @@ export default {
   queryLPTokens,
   getTokenPairs,
   getBootstraps,
-  getAllTokenSymbols,
   fetchCollateralRewards,
   fetchCollateralRewardsV2,
   fetchDexPoolInfo,

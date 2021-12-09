@@ -1,3 +1,10 @@
+## [0.3.8] - 20211208
+- bump polkawallet_sdk v0.3.8.
+- update js api data types.
+- add PHA support.
+- KAR as collateral support.
+- update token market price API.
+
 ## [0.3.7] - 20211101
 - bump polkawallet_sdk v0.3.7.
 - update js api data parsing.
