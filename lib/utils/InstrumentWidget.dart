@@ -6,11 +6,12 @@ import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class InstrumentWidget extends StatefulWidget {
-  InstrumentWidget(this.datas, this.onSwitchChange,
+  InstrumentWidget(this.datas, this.onSwitchChange, this.onSwitchHideBalance,
       {Key key, this.hideBalance = false, this.enabled = true})
       : super(key: key);
   final List<InstrumentData> datas;
   final Function onSwitchChange;
+  final Function onSwitchHideBalance;
   final bool hideBalance;
   final bool enabled;
 
@@ -69,15 +70,20 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w400,
                               color: Theme.of(context).textSelectionColor)),
-                      Text(
-                          widget.hideBalance
-                              ? "******"
-                              : "${widget.datas[index].currencySymbol}${Fmt.priceFloor(widget.datas[index].sumValue, lengthMax: widget.datas[index].lengthMax)}",
-                          style: TextStyle(
-                              fontFamily: "SF_Pro",
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).textSelectionColor)),
+                      GestureDetector(
+                          onTap: () {
+                            widget.onSwitchHideBalance();
+                          },
+                          child: Text(
+                              widget.hideBalance
+                                  ? "******"
+                                  : "${widget.datas[index].currencySymbol}${Fmt.priceFloor(widget.datas[index].sumValue, lengthMax: widget.datas[index].lengthMax)}",
+                              style: TextStyle(
+                                  fontFamily: "SF_Pro",
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color:
+                                      Theme.of(context).textSelectionColor))),
                       Container(
                         margin: EdgeInsets.only(top: 15.h),
                         child: GestureDetector(

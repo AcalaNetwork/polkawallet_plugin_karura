@@ -143,7 +143,8 @@ class PluginKarura extends PolkawalletPlugin {
   Widget getAggregatedAssetsWidget(
       {String priceCurrency = 'USD',
       bool hideBalance = false,
-      @required Function onSwitchBack}) {
+      @required Function onSwitchBack,
+      @required Function onSwitchHideBalance}) {
     if (store == null) return null;
 
     return Observer(builder: (context) {
@@ -157,6 +158,7 @@ class PluginKarura extends PolkawalletPlugin {
       return InstrumentWidget(
         instrumentDatas(data, context, priceCurrency: priceCurrency),
         onSwitchBack,
+        onSwitchHideBalance,
         hideBalance: hideBalance,
       );
     });
