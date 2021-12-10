@@ -14,8 +14,10 @@ class AcalaServiceAssets {
   final tokenBalanceChannel = 'tokenBalance';
 
   Future<List> getAllTokenSymbols() async {
-    return await plugin.sdk.webView
+    final List res = await plugin.sdk.webView
         .evalJavascript('api.registry.chainTokens', wrapPromise: false);
+    res.removeWhere((e) => e == plugin.networkState.tokenSymbol[0]);
+    return res;
   }
 
   void unsubscribeTokenBalances(String address) async {
