@@ -69,7 +69,9 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                               fontFamily: "TitilliumWeb",
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w400,
-                              color: Theme.of(context).textSelectionColor)),
+                              color: Theme.of(context)
+                                  .textSelectionTheme
+                                  .selectionColor)),
                       GestureDetector(
                           onTap: () {
                             widget.onSwitchHideBalance();
@@ -82,8 +84,9 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                   fontFamily: "SF_Pro",
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
-                                  color:
-                                      Theme.of(context).textSelectionColor))),
+                                  color: Theme.of(context)
+                                      .textSelectionTheme
+                                      .selectionColor))),
                       Container(
                         margin: EdgeInsets.only(top: 15.h),
                         child: GestureDetector(
@@ -123,8 +126,8 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                           1.0
                                         ],
                                         colors: [
-                                          Color(0xFFFFFAF1),
-                                          Color(0xFFB1ADA7),
+                                          Color(0xFFBEB9B2),
+                                          Color(0xFF74716C),
                                         ])),
                                 child: Center(
                                   child: Container(
@@ -155,7 +158,9 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                         fontFamily: "SF_Pro",
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).textSelectionColor)),
+                        color: Theme.of(context)
+                            .textSelectionTheme
+                            .selectionColor)),
               ),
         Row(
           children: [
@@ -185,8 +190,9 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                     fontFamily: "TitilliumWeb",
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w400,
-                                    color:
-                                        Theme.of(context).textSelectionColor),
+                                    color: Theme.of(context)
+                                        .textSelectionTheme
+                                        .selectionColor),
                               )
                             ],
                           ),
@@ -198,7 +204,9 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                 fontFamily: "TitilliumWeb",
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w400,
-                                color: Theme.of(context).textSelectionColor),
+                                color: Theme.of(context)
+                                    .textSelectionTheme
+                                    .selectionColor),
                           )
                         ],
                       ),
