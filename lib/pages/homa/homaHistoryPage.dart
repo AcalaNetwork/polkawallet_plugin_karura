@@ -12,6 +12,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class HomaHistoryPage extends StatelessWidget {
@@ -31,6 +32,7 @@ class HomaHistoryPage extends StatelessWidget {
         title: Text(
             I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['loan.txs']),
         centerTitle: true,
+        leading: BackBtn(),
       ),
       body: SafeArea(
         child: Query(
@@ -109,9 +111,10 @@ class HomaHistoryPage extends StatelessWidget {
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
                     leading: TransferIcon(
-                      type: detail.action == TxHomaData.actionRedeemCancel
-                          ? TransferIconType.rollIn
-                          : TransferIconType.rollOut,
+                      type: detail.action == TxHomaData.actionMint ||
+                              detail.action == TxHomaData.actionRedeemCancel
+                          ? TransferIconType.rollOut
+                          : TransferIconType.rollIn,
                     ),
                     trailing: Text(
                       amountPay,

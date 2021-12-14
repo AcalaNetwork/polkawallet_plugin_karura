@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -368,7 +369,11 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         final colorGray = Theme.of(context).unselectedWidgetColor;
 
         return Scaffold(
-          appBar: AppBar(title: Text(dic['earn.add']), centerTitle: true),
+          appBar: AppBar(
+            title: Text(dic['earn.add']),
+            centerTitle: true,
+            leading: BackBtn(),
+          ),
           body: SafeArea(
             child: ListView(
               padding: EdgeInsets.fromLTRB(8, 16, 8, 32),

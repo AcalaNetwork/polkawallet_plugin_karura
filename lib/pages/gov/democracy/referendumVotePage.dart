@@ -10,6 +10,7 @@ import 'package:polkawallet_sdk/api/types/gov/referendumInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
@@ -129,6 +130,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
       appBar: AppBar(
         title: Text(dicGov['vote.proposal']),
         centerTitle: true,
+        leading: BackBtn(),
       ),
       body: Observer(
         builder: (_) {

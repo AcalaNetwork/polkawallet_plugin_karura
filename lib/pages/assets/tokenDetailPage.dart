@@ -11,13 +11,14 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/borderedTitle.dart';
 import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/TransferIcon.dart';
 
 class TokenDetailPage extends StatefulWidget {
   TokenDetailPage(this.plugin, this.keyring);
@@ -58,10 +59,10 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(token.symbol),
-        centerTitle: true,
-        elevation: 0.0,
-      ),
+          title: Text(token.symbol),
+          centerTitle: true,
+          elevation: 0.0,
+          leading: BackBtn()),
       body: SafeArea(
         child: Observer(
           builder: (_) {

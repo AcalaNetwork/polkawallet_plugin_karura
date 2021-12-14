@@ -10,6 +10,7 @@ import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/addressInputField.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/scanPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -76,6 +77,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
       appBar: AppBar(
         title: Text('NFT ${dic['nft.transfer']}'),
         centerTitle: true,
+        leading: BackBtn(),
         actions: [
           IconButton(
             padding: EdgeInsets.only(right: 8),

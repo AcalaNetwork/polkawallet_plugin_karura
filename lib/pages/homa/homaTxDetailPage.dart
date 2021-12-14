@@ -7,7 +7,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/txDetail.dart';
+import 'package:polkawallet_ui/components/v3/txDetail.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class HomaTxDetailPage extends StatelessWidget {
@@ -77,6 +77,7 @@ class HomaTxDetailPage extends StatelessWidget {
     }
 
     return TxDetail(
+      current: keyring.current,
       success: tx.isSuccess,
       action: tx.action,
       // blockNum: int.parse(tx.block),

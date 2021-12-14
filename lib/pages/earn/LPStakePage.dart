@@ -9,6 +9,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
@@ -131,6 +132,7 @@ class _LPStakePage extends State<LPStakePage> {
         title: Text(
             '${dic['earn.${args.action}']} ${PluginFmt.tokenView(args.poolId)}'),
         centerTitle: true,
+        leading: BackBtn(),
       ),
       body: SafeArea(
         child: Observer(

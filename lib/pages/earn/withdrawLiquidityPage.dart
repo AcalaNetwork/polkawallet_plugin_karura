@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
@@ -274,7 +275,11 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         final shareEmpty = shareFromInt == BigInt.zero;
 
         return Scaffold(
-          appBar: AppBar(title: Text(dic['earn.remove']), centerTitle: true),
+          appBar: AppBar(
+            title: Text(dic['earn.remove']),
+            centerTitle: true,
+            leading: BackBtn(),
+          ),
           body: SafeArea(
             child: ListView(
               padding: EdgeInsets.all(16),

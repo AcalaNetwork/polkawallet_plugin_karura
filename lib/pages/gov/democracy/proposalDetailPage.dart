@@ -12,6 +12,7 @@ import 'package:polkawallet_ui/components/addressIcon.dart';
 import 'package:polkawallet_ui/components/borderedTitle.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
@@ -83,9 +84,11 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
         ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-              '${dic['proposal']} #${BigInt.parse(proposalPara.index.toString())}'),
-          centerTitle: true),
+        title: Text(
+            '${dic['proposal']} #${BigInt.parse(proposalPara.index.toString())}'),
+        centerTitle: true,
+        leading: BackBtn(),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           key: _refreshKey,

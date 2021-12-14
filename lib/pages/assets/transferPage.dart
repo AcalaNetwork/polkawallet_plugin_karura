@@ -21,6 +21,8 @@ import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/textTag.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/pages/scanPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -431,16 +433,17 @@ class _TransferPageState extends State<TransferPage> {
           appBar: AppBar(
             title: Text(dic['transfer']),
             centerTitle: true,
+            leading: BackBtn(),
             actions: <Widget>[
-              IconButton(
-                padding: EdgeInsets.only(right: 8),
-                icon: SvgPicture.asset(
-                  'assets/images/scan.svg',
-                  color: Theme.of(context).cardColor,
-                  width: 28,
-                ),
-                onPressed: _onScan,
-              )
+              v3.IconButton(
+                  margin: EdgeInsets.only(right: 12),
+                  icon: SvgPicture.asset(
+                    'assets/images/scan.svg',
+                    color: Theme.of(context).cardColor,
+                    width: 18,
+                  ),
+                  onPressed: _onScan,
+                  isBlueBg: true)
             ],
           ),
           body: SafeArea(
@@ -531,40 +534,37 @@ class _TransferPageState extends State<TransferPage> {
                           ),
                         ),
                         Container(
-                          color: Theme.of(context).canvasColor,
                           margin: EdgeInsets.only(top: 16, bottom: 16),
                           child: GestureDetector(
-                            child: Container(
-                              color: Theme.of(context).canvasColor,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    margin: EdgeInsets.only(bottom: 4),
-                                    child: Text(
-                                      dic['currency'],
-                                      style: TextStyle(
-                                          color: colorGrey, fontSize: 12),
+                            behavior: HitTestBehavior.opaque,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 4),
+                                  child: Text(
+                                    dic['currency'],
+                                    style: TextStyle(
+                                        color: colorGrey, fontSize: 12),
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    CurrencyWithIcon(
+                                      tokenView,
+                                      TokenIcon(
+                                          token, widget.plugin.tokenIcons),
                                     ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      CurrencyWithIcon(
-                                        tokenView,
-                                        TokenIcon(
-                                            token, widget.plugin.tokenIcons),
-                                      ),
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 18,
-                                        color: colorGrey,
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 18,
+                                      color: colorGrey,
+                                    )
+                                  ],
+                                ),
+                              ],
                             ),
                             onTap: () async {
                               final tokens = widget
@@ -606,8 +606,8 @@ class _TransferPageState extends State<TransferPage> {
                         Visibility(
                             visible: canCrossChain,
                             child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
                               child: Container(
-                                color: Theme.of(context).canvasColor,
                                 margin: EdgeInsets.only(bottom: 16),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

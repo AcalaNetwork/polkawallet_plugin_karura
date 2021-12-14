@@ -27,6 +27,8 @@ import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -117,12 +119,18 @@ class _LoanPageState extends State<LoanPage> {
           appBar: AppBar(
             title: Text(dic['loan.title.KSM']),
             centerTitle: true,
+            leading: BackBtn(),
             actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.history, color: Theme.of(context).cardColor),
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(LoanHistoryPage.route),
-              )
+              v3.IconButton(
+                  margin: EdgeInsets.only(right: 12),
+                  icon: Icon(
+                    Icons.history,
+                    color: Theme.of(context).cardColor,
+                    size: 18,
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(LoanHistoryPage.route),
+                  isBlueBg: true)
             ],
           ),
           body: SafeArea(

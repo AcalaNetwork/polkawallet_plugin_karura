@@ -10,6 +10,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/textTag.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class NFTDetailPage extends StatefulWidget {
@@ -49,7 +50,11 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
 
     final deposit = Fmt.balance(item.deposit, decimal);
     return Scaffold(
-      appBar: AppBar(title: Text(item.metadata['name']), centerTitle: true),
+      appBar: AppBar(
+        title: Text(item.metadata['name']),
+        centerTitle: true,
+        leading: BackBtn(),
+      ),
       body: SafeArea(
         child: Observer(
           builder: (_) {

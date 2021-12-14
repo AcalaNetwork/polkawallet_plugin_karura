@@ -15,6 +15,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -166,7 +167,10 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
-              title: Text(PluginFmt.tokenView(token)), centerTitle: true),
+            title: Text(PluginFmt.tokenView(token)),
+            centerTitle: true,
+            leading: BackBtn(),
+          ),
           body: SafeArea(
             child: AccountCardLayout(
               widget.keyring.current,

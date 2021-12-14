@@ -20,6 +20,7 @@ import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -46,7 +47,11 @@ class EarnDetailPage extends StatelessWidget {
     final String poolId = ModalRoute.of(context).settings.arguments;
     final pair = poolId.split('-');
     return Scaffold(
-      appBar: AppBar(title: Text(dic['earn.title']), centerTitle: true),
+      appBar: AppBar(
+        title: Text(dic['earn.title']),
+        centerTitle: true,
+        leading: BackBtn(),
+      ),
       body: Observer(
         builder: (_) {
           final balancePair = PluginFmt.getBalancePair(plugin, pair);

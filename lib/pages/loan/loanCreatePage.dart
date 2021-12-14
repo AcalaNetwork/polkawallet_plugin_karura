@@ -14,6 +14,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -259,6 +260,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
         appBar: AppBar(
           title: Text(pageTitle),
           centerTitle: true,
+          leading: BackBtn(),
         ),
         body: Builder(builder: (BuildContext context) {
           return SafeArea(

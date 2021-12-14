@@ -8,6 +8,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 
 class NFTBurnPage extends StatefulWidget {
   NFTBurnPage(this.plugin, this.keyring);
@@ -37,7 +38,11 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
 
     final colorGrey = Theme.of(context).unselectedWidgetColor;
     return Scaffold(
-      appBar: AppBar(title: Text('NFT ${dic['nft.burn']}'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('NFT ${dic['nft.burn']}'),
+        centerTitle: true,
+        leading: BackBtn(),
+      ),
       body: SafeArea(
         child: Observer(
           builder: (_) {

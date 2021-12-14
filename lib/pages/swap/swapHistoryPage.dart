@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
@@ -11,7 +10,9 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class SwapHistoryPage extends StatelessWidget {
@@ -28,6 +29,7 @@ class SwapHistoryPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(dic['loan.txs']),
         centerTitle: true,
+        leading: BackBtn(),
       ),
       body: SafeArea(
         child: Query(
@@ -66,6 +68,16 @@ class SwapHistoryPage extends StatelessWidget {
                 }
 
                 final TxSwapData detail = list[i];
+                bool isOut = false;
+                switch (detail.action) {
+                  case "removeLiquidity":
+                    break;
+                  case "addProvision":
+                  case "addLiquidity":
+                  case "swap":
+                    isOut = true;
+                    break;
+                }
                 return Container(
                   decoration: BoxDecoration(
                     border: Border(
@@ -77,9 +89,13 @@ class SwapHistoryPage extends StatelessWidget {
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
-                    leading: SvgPicture.asset(
-                        'packages/polkawallet_plugin_karura/assets/images/${detail.isSuccess ? 'assets_down' : 'tx_failed'}.svg',
-                        width: 32),
+                    leading: TransferIcon(
+                      type: detail.isSuccess
+                          ? isOut
+                              ? TransferIconType.rollOut
+                              : TransferIconType.rollIn
+                          : TransferIconType.failure,
+                    ),
                     trailing: Container(
                       width: 140,
                       child: Text(

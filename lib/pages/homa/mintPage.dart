@@ -13,6 +13,7 @@ import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -188,6 +189,7 @@ class _MintPageState extends State<MintPage> {
           appBar: AppBar(
             title: Text('${dic['homa.mint']} L$stakeToken'),
             centerTitle: true,
+            leading: BackBtn(),
           ),
           body: SafeArea(
             child: ListView(

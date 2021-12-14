@@ -8,6 +8,8 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/MainTabBar.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 
 class EarnPage extends StatefulWidget {
   EarnPage(this.plugin, this.keyring);
@@ -37,11 +39,20 @@ class _EarnPageState extends State<EarnPage> {
       appBar: AppBar(
         title: Text(dic['earn.title']),
         centerTitle: true,
+        leading: BackBtn(),
         actions: [
-          IconButton(
-            icon: Icon(Icons.history, color: Theme.of(context).cardColor),
-            onPressed: () =>
-                Navigator.of(context).pushNamed(EarnHistoryPage.route),
+          Container(
+            padding: EdgeInsets.only(right: 16),
+            child: v3.IconButton(
+              icon: Icon(
+                Icons.history,
+                color: Theme.of(context).cardColor,
+                size: 18,
+              ),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(EarnHistoryPage.route),
+              isBlueBg: true,
+            ),
           )
         ],
       ),

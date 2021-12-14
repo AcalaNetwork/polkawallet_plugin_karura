@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
@@ -13,7 +12,9 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class EarnHistoryPage extends StatelessWidget {
@@ -31,6 +32,7 @@ class EarnHistoryPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(dic['loan.txs']),
         centerTitle: true,
+        leading: BackBtn(),
       ),
       body: SafeArea(
         child: Query(
@@ -76,18 +78,22 @@ class EarnHistoryPage extends StatelessWidget {
 
                 final detail = list[i];
                 String amount = '';
-                bool isReceive = true;
+                TransferIconType icon = TransferIconType.rollIn;
                 switch (detail.event) {
                   case TxDexIncentiveData.actionStake:
                     amount = detail.amountShare;
-                    isReceive = false;
+                    icon = TransferIconType.rollOut;
                     break;
                   case TxDexIncentiveData.actionClaimRewards:
                   case TxDexIncentiveData.actionPayoutRewards:
+                    amount = detail.amountShare;
+                    icon = TransferIconType.earn;
+                    break;
                   case TxDexIncentiveData.actionUnStake:
                     amount = detail.amountShare;
                     break;
                 }
+
                 return Container(
                   decoration: BoxDecoration(
                     border: Border(
@@ -99,9 +105,7 @@ class EarnHistoryPage extends StatelessWidget {
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
-                    leading: SvgPicture.asset(
-                        'packages/polkawallet_plugin_karura/assets/images/${detail.isSuccess ? isReceive ? 'assets_down' : 'assets_up' : 'tx_failed'}.svg',
-                        width: 32),
+                    leading: TransferIcon(type: icon),
                     trailing: Text(
                       detail.event,
                       style: TextStyle(fontWeight: FontWeight.bold),

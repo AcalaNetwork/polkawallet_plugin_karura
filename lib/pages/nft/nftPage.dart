@@ -7,6 +7,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 
 class NFTPage extends StatefulWidget {
   NFTPage(this.plugin, this.keyring);
@@ -46,7 +47,11 @@ class _NFTPageState extends State<NFTPage> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return Scaffold(
-      appBar: AppBar(title: Text('NFTs'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('NFTs'),
+        centerTitle: true,
+        leading: BackBtn(),
+      ),
       body: SafeArea(
         child: Observer(
           builder: (_) {

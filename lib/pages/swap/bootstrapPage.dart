@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class BootstrapPage extends StatefulWidget {
@@ -221,8 +222,10 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
       return Scaffold(
         appBar: AppBar(
-            title: Text('${pairView.join('-')} ${dic['boot.title']}'),
-            centerTitle: true),
+          title: Text('${pairView.join('-')} ${dic['boot.title']}'),
+          centerTitle: true,
+          leading: BackBtn(),
+        ),
         body: SafeArea(
           child: Column(
             children: [

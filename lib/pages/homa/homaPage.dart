@@ -17,6 +17,8 @@ import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -194,11 +196,17 @@ class _HomaPageState extends State<HomaPage> {
             title: Text('${dic['homa.title']} $stakeSymbol'),
             centerTitle: true,
             elevation: 0.0,
+            leading: BackBtn(),
             actions: [
-              IconButton(
+              Container(
+                margin: EdgeInsets.only(right: 16),
+                child: v3.IconButton(
                   onPressed: () =>
                       Navigator.of(context).pushNamed(HomaHistoryPage.route),
-                  icon: Icon(Icons.history))
+                  icon: Icon(Icons.history, size: 18),
+                  isBlueBg: true,
+                ),
+              )
             ],
           ),
           body: Stack(

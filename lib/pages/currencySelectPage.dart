@@ -6,6 +6,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/currencyWithIcon.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 
 class CurrencySelectPage extends StatelessWidget {
   CurrencySelectPage(this.plugin);
@@ -20,6 +21,7 @@ class CurrencySelectPage extends StatelessWidget {
         title: Text(I18n.of(context)
             .getDic(i18n_full_dic_karura, 'common')['currency.select']),
         centerTitle: true,
+        leading: BackBtn(),
       ),
       body: SafeArea(
         child: ListView(
