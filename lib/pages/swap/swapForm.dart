@@ -109,7 +109,7 @@ class _SwapFormState extends State<SwapForm> {
       if (_maxInput == null) {
         BigInt available = Fmt.balanceInt(balancePair[0]?.amount ?? '0');
         // limit user's input for tx fee if token is KAR
-        if (balancePair[0].id == acala_token_ids[0]) {
+        if (balancePair[0].symbol == acala_token_ids[0]) {
           final accountED = PluginFmt.getAccountED(widget.plugin);
           available -= accountED +
               Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;

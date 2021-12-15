@@ -144,7 +144,7 @@ class SwapTokenInput extends StatelessWidget {
                   GestureDetector(
                     child: CurrencyWithIcon(
                       balance.symbol,
-                      TokenIcon(balance.id, tokenIconsMap, small: true),
+                      TokenIcon(balance.symbol, tokenIconsMap, small: true),
                       textStyle: Theme.of(context).textTheme.headline4,
                       trailing: onTokenChange != null
                           ? Icon(Icons.keyboard_arrow_down)

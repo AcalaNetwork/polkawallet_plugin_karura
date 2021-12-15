@@ -322,7 +322,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                   children: [
                                     Text(dic['homa.redeem.unbonding'],
                                         style: labelStyle),
-                                    Text("7 ${dic['homa.redeem.day']}")
+                                    Text("10 ${dic['homa.redeem.day']}")
                                   ],
                                 )),
                             Row(

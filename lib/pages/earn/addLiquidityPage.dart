@@ -128,7 +128,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           (index == 1 && _maxInputRight == null)) {
         BigInt available = Fmt.balanceInt(balance?.amount ?? '0');
         // limit user's input for tx fee if token is KAR
-        if (balance.id == acala_token_ids[0]) {
+        if (balance.symbol == acala_token_ids[0]) {
           final accountED = PluginFmt.getAccountED(widget.plugin);
           available -= accountED +
               Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
@@ -148,7 +148,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       min = Fmt.balanceInt(
               tokenPair[0] == widget.plugin.networkState.tokenSymbol[0]
                   ? widget.plugin.networkConst['balances']['existentialDeposit']
-                  : existential_deposit[balance.id]) /
+                  : existential_deposit[balance.symbol?.toUpperCase()]) /
           poolInfo.issuance *
           Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
 
@@ -396,7 +396,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                         balance: balancePair[0],
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) => _onSupplyAmountChange(v),
-                        onSetMax: balancePair[0].id == acala_token_ids[0]
+                        onSetMax: balancePair[0].symbol == acala_token_ids[0]
                             ? null
                             : (v) => _onSetLeftMax(v, balancePair[0].decimals),
                         onClear: () {
@@ -434,7 +434,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                         balance: balancePair[1],
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) => _onTargetAmountChange(v),
-                        onSetMax: balancePair[1].id == acala_token_ids[0]
+                        onSetMax: balancePair[1].symbol == acala_token_ids[0]
                             ? null
                             : (v) => _onSetRightMax(v, balancePair[1].decimals),
                         onClear: () {

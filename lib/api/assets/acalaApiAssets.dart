@@ -47,9 +47,13 @@ class AcalaApiAssets {
                 service.plugin.networkState.tokenSymbol.indexOf(e['symbol'])];
         return TokenBalanceData(
           id: e['symbol'],
-          symbol: PluginFmt.tokenView(e['symbol']),
-          name: service.plugin.store.setting.tokensConfig['tokenName']
-              [e['symbol']],
+          symbol: e['symbol'],
+          name: PluginFmt.tokenView(e['symbol']),
+          fullName:
+              service.plugin.store.setting.tokensConfig['tokenName'] != null
+                  ? service.plugin.store.setting.tokensConfig['tokenName']
+                      [e['symbol']]
+                  : null,
           decimals: decimal,
           amount: e['balance']['free'].toString(),
           locked: e['balance']['frozen'].toString(),

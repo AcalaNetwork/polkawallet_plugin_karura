@@ -356,7 +356,8 @@ class PluginKarura extends PolkawalletPlugin {
         final invisible =
             List.of(service.plugin.store.setting.tokensConfig['invisible']);
         if (invisible.length > 0) {
-          tokens.removeWhere((token) => invisible.contains(token.id));
+          tokens.removeWhere(
+              (token) => invisible.contains(token.symbol?.toUpperCase()));
         }
       }
       balances.setTokens(tokens, isFromCache: true);

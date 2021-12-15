@@ -36,12 +36,13 @@ abstract class _AssetsStore with Store {
     final data = Map<String, TokenBalanceData>();
     final dataForCache = {};
     list.forEach((e) {
-      data[e.id] = e;
+      data[e.symbol] = e;
 
-      dataForCache[e.id] = {
+      dataForCache[e.symbol] = {
         'id': e.id,
         'name': e.name,
         'symbol': e.symbol,
+        'fullName': e.fullName,
         'decimals': e.decimals,
         'amount': e.amount,
         'detailPageRoute': e.detailPageRoute,
@@ -92,6 +93,7 @@ abstract class _AssetsStore with Store {
               id: e['id'],
               name: e['name'],
               symbol: e['symbol'],
+              fullName: e['fullName'],
               decimals: e['decimals'],
               amount: e['amount'],
               detailPageRoute: e['detailPageRoute']))),

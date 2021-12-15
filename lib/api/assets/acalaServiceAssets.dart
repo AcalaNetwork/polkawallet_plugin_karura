@@ -14,10 +14,14 @@ class AcalaServiceAssets {
   final tokenBalanceChannel = 'tokenBalance';
 
   Future<List> getAllTokenSymbols() async {
-    final List res = await plugin.sdk.webView
-        .evalJavascript('api.registry.chainTokens', wrapPromise: false);
-    res.removeWhere((e) => e == plugin.networkState.tokenSymbol[0]);
-    return res;
+    final res = await plugin.sdk.webView.evalJavascript(
+        'JSON.stringify(api.registry.chainTokens)',
+        wrapPromise: false);
+    if (res == null) return [];
+
+    final List tokens = jsonDecode(res);
+    tokens.removeWhere((e) => e == plugin.networkState.tokenSymbol[0]);
+    return tokens;
   }
 
   void unsubscribeTokenBalances(String address) async {
