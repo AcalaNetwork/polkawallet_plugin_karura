@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 
 class AcalaServiceSwap {
   AcalaServiceSwap(this.plugin);
@@ -62,8 +63,12 @@ class AcalaServiceSwap {
     final savingRates = Map<String, dynamic>();
     final deductionRates = Map<String, dynamic>();
     final deductionSavingRates = Map<String, dynamic>();
-    final tokenPairs =
-        dexPools.map((e) => e.map((i) => i['token']).join('-')).toList();
+    final tokenPairs = dexPools
+        .map((e) => e
+            .map((i) => AssetsUtils.tokenSymbolFromCurrencyId(
+                plugin.store.assets.tokenBalanceMap, i))
+            .join('-'))
+        .toList();
     tokenPairs.asMap().forEach((k, v) {
       incentives[v] = res[0][k];
       savingRates[v] = res[1][k];
@@ -85,7 +90,8 @@ class AcalaServiceSwap {
         .map((e) => 'acala.fetchDexPoolInfo(api, ${jsonEncode({
                   'DexShare': e
                       .split('-')
-                      .map((e) => ({'Token': e.toUpperCase()}))
+                      .map((e) =>
+                          AssetsUtils.currencyIdFromTokenSymbol(plugin, e))
                       .toList()
                 })}, "$address")')
         .join(',');

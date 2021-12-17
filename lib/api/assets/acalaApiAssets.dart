@@ -12,7 +12,7 @@ class AcalaApiAssets {
   final Map _tokenBalances = {};
 
   Future<List> getAllTokenSymbols() async {
-    return await service.getAllTokenSymbols();
+    return service.getAllTokenSymbols();
   }
 
   void unsubscribeTokenBalances(String address) {
@@ -27,12 +27,12 @@ class AcalaApiAssets {
       final invisible =
           List.of(service.plugin.store.setting.tokensConfig['invisible']);
       if (invisible.length > 0) {
-        tokens.removeWhere((token) => invisible.contains(token));
+        tokens.removeWhere((token) => invisible.contains(token['symbol']));
       }
     }
 
-    await service.plugin.service.assets
-        .queryMarketPrices(List<String>.from(tokens));
+    await service.plugin.service.assets.queryMarketPrices(
+        List<String>.from(tokens.map((e) => e['symbol']).toList()));
     _tokenBalances.clear();
 
     await service.subscribeTokenBalances(address, tokens, (Map data) {
@@ -46,8 +46,10 @@ class AcalaApiAssets {
             service.plugin.networkState.tokenDecimals[
                 service.plugin.networkState.tokenSymbol.indexOf(e['symbol'])];
         return TokenBalanceData(
-          id: e['symbol'],
+          id: e['id'] ?? e['symbol'],
           symbol: e['symbol'],
+          type: e['type'],
+          minBalance: e['minBalance'],
           name: PluginFmt.tokenView(e['symbol']),
           fullName:
               service.plugin.store.setting.tokensConfig['tokenName'] != null

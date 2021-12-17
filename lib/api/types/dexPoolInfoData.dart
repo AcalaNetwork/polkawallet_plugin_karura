@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 part 'dexPoolInfoData.g.dart';
@@ -45,6 +47,18 @@ class DexPoolData extends _DexPoolData {
   static DexPoolData fromJson(Map<String, dynamic> json) =>
       _$DexPoolDataFromJson(json);
   Map<String, dynamic> toJson() => _$DexPoolDataToJson(this);
+
+  List<String> _poolId;
+
+  List<String> getPoolId(PluginKarura plugin) {
+    if (_poolId == null && tokens != null) {
+      _poolId = tokens
+          .map((e) => AssetsUtils.tokenSymbolFromCurrencyId(
+              plugin.store.assets.tokenBalanceMap, e))
+          .toList();
+    }
+    return _poolId;
+  }
 }
 
 abstract class _DexPoolData {

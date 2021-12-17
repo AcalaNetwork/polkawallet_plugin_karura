@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -67,7 +68,10 @@ class LoanHistoryPage extends StatelessWidget {
                     i as Map,
                     karura_stable_coin,
                     stableCoinDecimals,
-                    decimals[symbols.indexOf(token['token'])]);
+                    decimals[symbols.indexOf(
+                        AssetsUtils.tokenSymbolFromCurrencyId(
+                            plugin.store.assets.tokenBalanceMap, token))],
+                    plugin.store.assets.tokenBalanceMap);
               }).toList();
               return ListView.builder(
                 itemCount: list.length + 1,

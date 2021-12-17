@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -50,7 +51,8 @@ class ServiceLoan {
     final stableCoinDecimals = plugin.networkState.tokenDecimals[
         plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
     loans.forEach((i) {
-      final String token = i['currency']['token'];
+      final String token = AssetsUtils.tokenSymbolFromCurrencyId(
+          plugin.store.assets.tokenBalanceMap, i['currency']);
       final tokenDecimals = plugin.networkState
           .tokenDecimals[plugin.networkState.tokenSymbol.indexOf(token)];
       data[token] = LoanData.fromJson(
@@ -59,6 +61,7 @@ class ServiceLoan {
         prices[token] ?? BigInt.zero,
         stableCoinDecimals,
         tokenDecimals,
+        plugin.store.assets.tokenBalanceMap,
       );
     });
     return data;

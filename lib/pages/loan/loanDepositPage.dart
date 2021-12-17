@@ -4,6 +4,7 @@ import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -77,6 +78,8 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
   Future<Map> _getTxParams(LoanData loan, int stableCoinDecimals) async {
     final LoanDepositPageParams params =
         ModalRoute.of(context).settings.arguments;
+    final currencyId =
+        AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, params.token);
     switch (params.actionType) {
       case LoanDepositPage.actionTypeDeposit:
         return {
@@ -85,7 +88,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                 _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
           },
           'params': [
-            {'token': _token},
+            currencyId,
             _amountCollateral.toString(),
             0,
           ]
@@ -97,7 +100,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                 _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
           },
           'params': [
-            {'token': _token},
+            currencyId,
             (BigInt.zero - _amountCollateral).toString(),
             0,
           ]
@@ -161,8 +164,8 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
         ModalRoute.of(context).settings.arguments;
     final symbol = _token ?? params.token;
 
-    final balancePair =
-        PluginFmt.getBalancePair(widget.plugin, [symbol, karura_stable_coin]);
+    final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
+        widget.plugin, [symbol, karura_stable_coin]);
 
     final tokenOptions =
         widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();

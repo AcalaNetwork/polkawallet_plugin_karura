@@ -2,7 +2,7 @@ import { FixedPointNumber, Token, createLPCurrencyName, forceToCurrencyIdName } 
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
-import { nft_image_config } from "../constants/acala";
+import { existential_deposit, nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 import { HomaLite } from "./homaLite";
@@ -97,6 +97,35 @@ async function queryLPTokens(api: ApiPromise, address: string) {
 }
 
 /**
+ * getAllTokens, with ForeignAssets
+ */
+async function getAllTokens(api: ApiPromise) {
+  const [{ tokenSymbol, tokenDecimals }, foreign] = await Promise.all([
+    api.rpc.system.properties(),
+    api.query.assetRegistry.assetMetadatas.entries(),
+  ]);
+  const tokens = [...api.registry.chainTokens];
+  tokens.shift();
+  const res = tokens.map((e) => ({
+    type: "Token",
+    symbol: e,
+    decimals: tokenDecimals.toJSON()[tokenSymbol.toJSON().indexOf(e)],
+    minBalance: existential_deposit[e],
+  }));
+  const res2 = foreign.map(([args, data]) => {
+    const json = data.toJSON();
+    return {
+      type: "ForeignAsset",
+      id: args.toHuman()[0],
+      ...(data.toHuman() as Object),
+      decimals: json["decimals"],
+      minBalance: json["minimalBalance"].toString(),
+    };
+  });
+  return [...res, ...res2];
+}
+
+/**
  * getAllTokenPairs
  */
 async function getTokenPairs(api: ApiPromise) {
@@ -112,7 +141,7 @@ async function getTokenPairs(api: ApiPromise) {
         const pair = item.toJSON() as any[];
         const pairDecimals = [_getTokenDecimal(api, pair[0]?.token?.toString()), _getTokenDecimal(api, pair[1]?.token?.toString())];
         return {
-          decimals: pairDecimals[0] > pairDecimals[1] ? pairDecimals[0] : pairDecimals[1],
+          decimals: pairDecimals[0],
           pairDecimals,
           tokens: pair,
         };
@@ -779,6 +808,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
 export default {
   calcTokenSwapAmount,
   queryLPTokens,
+  getAllTokens,
   getTokenPairs,
   getBootstraps,
   fetchCollateralRewards,

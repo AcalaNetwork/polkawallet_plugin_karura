@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxDexIncentiveData extends _TxDexIncentiveData {
@@ -8,8 +10,12 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
   static const String actionUnStake = 'WithdrawDexShare';
   static const String actionClaimRewards = 'ClaimRewards';
   static const String actionPayoutRewards = 'PayoutRewards';
-  static TxDexIncentiveData fromJson(Map<String, dynamic> json,
-      String stableCoinSymbol, List<String> symbols, List<int> decimals) {
+  static TxDexIncentiveData fromJson(
+      Map<String, dynamic> json,
+      String stableCoinSymbol,
+      List<String> symbols,
+      List<int> decimals,
+      Map<String, TokenBalanceData> tokenBalanceMap) {
     final data = TxDexIncentiveData();
     data.hash = json['extrinsic']['id'];
     data.event = json['type'];
@@ -18,10 +24,12 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
       case actionClaimRewards:
         final pair =
             (jsonDecode(json['data'][1]['value'])['dex']['dexShare'] as List)
-                .map((e) => e['token'])
+                .map((e) =>
+                    AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, e))
                 .toList();
         final poolId = pair.join('-');
-        final rewardToken = jsonDecode(json['data'][2]['value'])['token'];
+        final rewardToken = AssetsUtils.tokenSymbolFromCurrencyId(
+            tokenBalanceMap, jsonDecode(json['data'][2]['value']));
         data.poolId = poolId;
         data.amountShare =
             '${Fmt.balance(json['data'][3]['value'], decimals[symbols.indexOf(rewardToken)])} ${PluginFmt.tokenView(rewardToken)}';
@@ -29,10 +37,12 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
       case actionPayoutRewards:
         final pair = (jsonDecode(json['data'][1]['value'])['dexIncentive']
                 ['dexShare'] as List)
-            .map((e) => e['token'])
+            .map((e) =>
+                AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, e))
             .toList();
         final poolId = pair.join('-');
-        final rewardToken = jsonDecode(json['data'][2]['value'])['token'];
+        final rewardToken = AssetsUtils.tokenSymbolFromCurrencyId(
+            tokenBalanceMap, jsonDecode(json['data'][2]['value']));
         data.poolId = poolId;
         data.amountShare =
             '${Fmt.balance(json['data'][3]['value'], decimals[symbols.indexOf(rewardToken)])} ${PluginFmt.tokenView(rewardToken)}';
@@ -40,7 +50,8 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
       case actionStake:
       case actionUnStake:
         final pair = (jsonDecode(json['data'][1]['value'])['dexShare'] as List)
-            .map((e) => e['token'])
+            .map((e) =>
+                AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, e))
             .toList();
         final poolId = pair.join('-');
         final shareTokenView = PluginFmt.tokenView(poolId);

@@ -75,7 +75,7 @@ class _EarnDexListState extends State<EarnDexList> {
         final List<DexPoolData> datas = [];
         final List<DexPoolData> otherDatas = [];
         for (int i = 0; i < dexPools.length; i++) {
-          final poolId = dexPools[i].tokens.map((e) => e['token']).join('-');
+          final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
 
           double rewards = 0;
           double savingRewards = 0;
@@ -124,8 +124,7 @@ class _EarnDexListState extends State<EarnDexList> {
               padding: EdgeInsets.all(16),
               itemCount: dexPools.length,
               itemBuilder: (_, i) {
-                final poolId =
-                    dexPools[i].tokens.map((e) => e['token']).join('-');
+                final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
 
                 final BigInt sharesTotal = widget.plugin.store.earn
                         .dexPoolInfoMap[poolId]?.sharesTotal ??
@@ -197,7 +196,7 @@ class _EarnDexListState extends State<EarnDexList> {
                     ),
                   ),
                   onTap: () => Navigator.of(context)
-                      .pushNamed(EarnDetailPage.route, arguments: poolId),
+                      .pushNamed(EarnDetailPage.route, arguments: dexPools[i]),
                 );
               },
             );

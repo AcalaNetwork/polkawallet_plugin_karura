@@ -5,8 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -50,8 +51,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   }
 
   Future<void> _refreshData() async {
-    final String poolId = ModalRoute.of(context).settings.arguments;
-    await widget.plugin.service.earn.queryDexPoolInfo([poolId]);
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    await widget.plugin.service.earn
+        .queryDexPoolInfo([pool.getPoolId(widget.plugin).join('-')]);
     if (mounted) {
       _timer = Timer(Duration(seconds: 30), () {
         if (mounted) {
@@ -79,9 +81,11 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     }
 
     final symbols = widget.plugin.networkState.tokenSymbol;
-    final String poolId = ModalRoute.of(context).settings.arguments;
-    final pair = poolId.toUpperCase().split('-');
-    final balancePair = PluginFmt.getBalancePair(widget.plugin, pair);
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final pair = pool.getPoolId(widget.plugin);
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
+    final poolId = pair.join('-');
 
     final poolInfo = _getPoolInfoData(poolId);
 
@@ -97,13 +101,15 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     double min = 0;
     if (pair[0] != symbols[0] &&
         Fmt.balanceInt(balancePair[0].amount) == BigInt.zero) {
-      min = Fmt.balanceInt(existential_deposit[pair[0]]) /
+      min = Fmt.balanceInt(
+              widget.plugin.store.assets.tokenBalanceMap[pair[0]].minBalance) /
           poolInfo.amountLeft *
           Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
     }
     if (pair[1] != symbols[0] &&
         Fmt.balanceInt(balancePair[1].amount) == BigInt.zero) {
-      final min2 = Fmt.balanceInt(existential_deposit[pair[1]]) /
+      final min2 = Fmt.balanceInt(
+              widget.plugin.store.assets.tokenBalanceMap[pair[1]].minBalance) /
           poolInfo.amountRight *
           Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
       min = min > min2 ? min : min2;
@@ -115,12 +121,10 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   }
 
   List _getTxParams(BigInt amount, bool fromPool) {
-    final String poolId = ModalRoute.of(context).settings.arguments;
-    final pair = poolId.toUpperCase().split('-');
-
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
     return [
-      {'Token': pair[0]},
-      {'Token': pair[1]},
+      pool.tokens[0],
+      pool.tokens[1],
       amount.toString(),
       '0',
       '0',
@@ -130,7 +134,8 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
   Future<void> _onSubmit(int shareDecimals) async {
     if (_formKey.currentState.validate()) {
-      final String poolId = ModalRoute.of(context).settings.arguments;
+      final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+      final poolId = pool.getPoolId(widget.plugin).join('-');
       final amount = _amountCtrl.text.trim();
       final amountInt = Fmt.tokenInt(amount, shareDecimals);
       final free = Fmt.balanceInt(widget
@@ -219,11 +224,13 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         final dicAssets =
             I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
-        final String poolId = ModalRoute.of(context).settings.arguments;
-        final pair = poolId.toUpperCase().split('-');
+        final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+        final pair = pool.getPoolId(widget.plugin);
+        final poolId = pair.join('-');
         final pairView = pair.map((e) => PluginFmt.tokenView(e)).toList();
 
-        final balancePair = PluginFmt.getBalancePair(widget.plugin, pair);
+        final balancePair =
+            AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
 
         double shareInput = 0;
         BigInt shareInputInt = BigInt.zero;

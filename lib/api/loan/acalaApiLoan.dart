@@ -14,7 +14,8 @@ class AcalaApiLoan {
   Future<List<LoanType>> queryLoanTypes() async {
     final List res = await service.queryLoanTypes();
     return res
-        .map((e) => LoanType.fromJson(Map<String, dynamic>.of(e)))
+        .map((e) => LoanType.fromJson(Map<String, dynamic>.of(e),
+            service.plugin.store.assets.tokenBalanceMap))
         .toList();
   }
 

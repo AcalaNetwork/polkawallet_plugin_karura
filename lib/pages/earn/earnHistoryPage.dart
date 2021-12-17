@@ -66,7 +66,8 @@ class EarnHistoryPage extends StatelessWidget {
                     i as Map,
                     karura_stable_coin,
                     plugin.networkState.tokenSymbol,
-                    plugin.networkState.tokenDecimals))
+                    plugin.networkState.tokenDecimals,
+                    plugin.store.assets.tokenBalanceMap))
                 .toList();
 
             return ListView.builder(

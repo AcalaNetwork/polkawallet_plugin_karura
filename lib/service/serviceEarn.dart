@@ -21,12 +21,13 @@ class ServiceEarn {
   IncentivesData _calcIncentivesAPR(IncentivesData data) {
     final pools = plugin.store.earn.dexPools.toList();
     data.dex.forEach((k, v) {
-      final poolIndex = pools
-          .indexWhere((e) => e.tokens.map((t) => t['token']).join('-') == k);
+      final poolIndex =
+          pools.indexWhere((e) => e.getPoolId(plugin).join('-') == k);
       if (poolIndex < 0) {
         return;
       }
       final pool = pools[poolIndex];
+      final tokenPair = pool.getPoolId(plugin);
 
       final poolInfo = store.earn.dexPoolInfoMap[k];
       final prices = store.assets.marketPrices;
@@ -35,9 +36,9 @@ class ServiceEarn {
       final stakingPoolValue = poolInfo.sharesTotal /
           poolInfo.issuance *
           (Fmt.bigIntToDouble(poolInfo.amountLeft, pool.pairDecimals[0]) *
-                  (prices[pool.tokens[0]['token'].toString()] ?? 0) +
+                  (prices[tokenPair[0]] ?? 0) +
               Fmt.bigIntToDouble(poolInfo.amountRight, pool.pairDecimals[1]) *
-                  (prices[pool.tokens[1]['token'].toString()] ?? 0));
+                  (prices[tokenPair[1]] ?? 0));
 
       v.forEach((e) {
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
@@ -94,7 +95,7 @@ class ServiceEarn {
     // 2. default poolId is the first pool or KAR-kUSD
     final tabNow = poolId ??
         (store.earn.dexPools.length > 0
-            ? store.earn.dexPools[0].tokens.map((e) => e['token']).join('-')
+            ? store.earn.dexPools[0].getPoolId(plugin).join('-')
             : (plugin.basic.name == plugin_name_karura
                 ? 'KAR-KUSD'
                 : 'ACA-AUSD'));
@@ -113,7 +114,7 @@ class ServiceEarn {
     plugin.service.assets.queryMarketPrices(PluginFmt.getAllDexTokens(plugin));
 
     await queryDexPoolInfo((store.earn.dexPools
-        .map((e) => e.tokens.map((e) => e['token']).join('-'))
+        .map((e) => e.getPoolId(plugin).join('-'))
         .toList()));
 
     queryIncentives();

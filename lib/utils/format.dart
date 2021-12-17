@@ -1,5 +1,6 @@
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -42,45 +43,12 @@ class PluginFmt {
     return LiquidityShareInfo(userShare, userShare / totalShare);
   }
 
-  static List<TokenBalanceData> getBalancePair(
-      PluginKarura plugin, List<String> tokenPair) {
-    final symbols = plugin.networkState.tokenSymbol;
-
-    TokenBalanceData balanceLeft;
-    TokenBalanceData balanceRight;
-    if (tokenPair.length > 0) {
-      if (tokenPair[0] == symbols[0]) {
-        balanceLeft = TokenBalanceData(
-            id: tokenPair[0],
-            symbol: tokenPair[0],
-            decimals: plugin.networkState.tokenDecimals[0],
-            amount: (plugin.balances.native?.availableBalance ?? 0).toString());
-        balanceRight =
-            plugin.store.assets.tokenBalanceMap[tokenPair[1].toUpperCase()];
-      } else if (tokenPair[1] == symbols[0]) {
-        balanceRight = TokenBalanceData(
-            id: tokenPair[1],
-            symbol: tokenPair[1],
-            decimals: plugin.networkState.tokenDecimals[0],
-            amount: (plugin.balances.native?.availableBalance ?? 0).toString());
-        balanceLeft =
-            plugin.store.assets.tokenBalanceMap[tokenPair[0].toUpperCase()];
-      } else {
-        balanceLeft =
-            plugin.store.assets.tokenBalanceMap[tokenPair[0].toUpperCase()];
-        balanceRight =
-            plugin.store.assets.tokenBalanceMap[tokenPair[1].toUpperCase()];
-      }
-    }
-    return [balanceLeft, balanceRight];
-  }
-
   static List<String> getAllDexTokens(PluginKarura plugin) {
     final List<String> tokens = [];
     plugin.store.earn.dexPools.forEach((e) {
-      e.tokens.forEach((token) {
-        if (tokens.indexOf(token['token']) < 0) {
-          tokens.add(token['token']);
+      e.getPoolId(plugin).forEach((token) {
+        if (tokens.indexOf(token) < 0) {
+          tokens.add(token);
         }
       });
     });
@@ -96,9 +64,12 @@ class PluginFmt {
     return unavailable > nativeED ? BigInt.zero : (nativeED - unavailable);
   }
 
-  static String getPool(dynamic pool) {
+  static String getPool(
+      Map<String, TokenBalanceData> tokenBalanceMap, dynamic pool) {
     if (pool['dex'] != null) {
-      return '${pool['dex']['dexShare'][0]['token']}-${pool['dex']['dexShare'][1]['token']}';
+      return List.from(pool['dex']['dexShare'])
+          .map((e) => AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, e))
+          .join('-');
     } else if (pool['loans'] != null) {
       return pool['loans']['token'];
     } else {

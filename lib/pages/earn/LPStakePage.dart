@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -15,9 +16,9 @@ import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
 class LPStakePageParams {
-  LPStakePageParams(this.poolId, this.action);
+  LPStakePageParams(this.pool, this.action);
   final String action;
-  final String poolId;
+  final DexPoolData pool;
 }
 
 class LPStakePage extends StatefulWidget {
@@ -53,14 +54,16 @@ class _LPStakePage extends State<LPStakePage> {
       return dic['amount.low'];
     }
     final LPStakePageParams args = ModalRoute.of(context).settings.arguments;
-    final balance = Fmt.balanceInt(
-        widget.plugin.store.assets.tokenBalanceMap[args.poolId]?.amount ?? '0');
+    final poolTokenPair = args.pool.getPoolId(widget.plugin);
+    final balance = Fmt.balanceInt(widget.plugin.store.assets
+            .tokenBalanceMap[poolTokenPair.join('-')]?.amount ??
+        '0');
     if (balance == BigInt.zero) {
-      final pair = args.poolId.split('-').toList();
-      final min = pair[0] == widget.plugin.networkState.tokenSymbol[0]
+      final min = poolTokenPair[0] == widget.plugin.networkState.tokenSymbol[0]
           ? Fmt.balanceInt(
               widget.plugin.networkConst['balances']['existentialDeposit'])
-          : Fmt.balanceInt(existential_deposit[pair[0]]);
+          : Fmt.balanceInt(widget.plugin.store.assets
+              .tokenBalanceMap[poolTokenPair[0]].minBalance);
       if (input < min) {
         return '${dic['amount.min']} ${Fmt.priceCeilBigInt(min, decimals, lengthMax: 6)}';
       }
@@ -82,7 +85,7 @@ class _LPStakePage extends State<LPStakePage> {
     final LPStakePageParams params = ModalRoute.of(context).settings.arguments;
     final isStake = params.action == LPStakePage.actionStake;
 
-    final pool = params.poolId.split('-').map((e) => ({'Token': e})).toList();
+    final poolId = params.pool.getPoolId(widget.plugin).join('-');
     String input = _amountCtrl.text.trim();
     BigInt amount = Fmt.tokenInt(input, decimals);
     if (_isMax || max - amount < BigInt.one) {
@@ -94,13 +97,13 @@ class _LPStakePage extends State<LPStakePage> {
           module: 'incentives',
           call: isStake ? 'depositDexShare' : 'withdrawDexShare',
           txTitle:
-              '${dic['earn.${params.action}']} ${PluginFmt.tokenView(params.poolId)}',
+              '${dic['earn.${params.action}']} ${PluginFmt.tokenView(poolId)}',
           txDisplay: {
-            "poolId": params.poolId,
+            "poolId": poolId,
             "amount": input,
           },
           params: [
-            {'DEXShare': pool},
+            {'DEXShare': params.pool.tokens},
             amount.toString()
           ],
         ))) as Map;
@@ -120,8 +123,10 @@ class _LPStakePage extends State<LPStakePage> {
 
     final LPStakePageParams args = ModalRoute.of(context).settings.arguments;
 
-    final token =
-        args.poolId.split('-').firstWhere((e) => e != karura_stable_coin);
+    final token = args.pool
+        .getPoolId(widget.plugin)
+        .firstWhere((e) => e != karura_stable_coin);
+    final poolId = args.pool.getPoolId(widget.plugin).join('-');
     final tokenDecimals = decimals[symbols.indexOf(token)];
     final shareDecimals = stableCoinDecimals >= tokenDecimals
         ? stableCoinDecimals
@@ -130,7 +135,7 @@ class _LPStakePage extends State<LPStakePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            '${dic['earn.${args.action}']} ${PluginFmt.tokenView(args.poolId)}'),
+            '${dic['earn.${args.action}']} ${PluginFmt.tokenView(poolId)}'),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -141,13 +146,12 @@ class _LPStakePage extends State<LPStakePage> {
 
             BigInt balance = BigInt.zero;
             if (!isStake) {
-              final poolInfo =
-                  widget.plugin.store.earn.dexPoolInfoMap[args.poolId];
+              final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
               balance = poolInfo.shares;
             } else {
-              balance = Fmt.balanceInt(widget.plugin.store.assets
-                      .tokenBalanceMap[args.poolId]?.amount ??
-                  '0');
+              balance = Fmt.balanceInt(
+                  widget.plugin.store.assets.tokenBalanceMap[poolId]?.amount ??
+                      '0');
             }
 
             final balanceView =

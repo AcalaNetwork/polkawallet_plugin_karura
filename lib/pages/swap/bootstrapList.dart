@@ -86,7 +86,7 @@ class _BootstrapListState extends State<BootstrapList> {
     final Map<String, List> provisions = {};
     final Map<String, List> shareRates = {};
     widget.plugin.store.earn.dexPools.asMap().forEach((i, e) {
-      final poolId = e.tokens.map((e) => e['token']).join('-');
+      final poolId = e.getPoolId(widget.plugin).join('-');
       final provision = res[i][0] as List;
       if (BigInt.parse(provision[0].toString()) > BigInt.zero ||
           BigInt.parse(provision[1].toString()) > BigInt.zero) {
@@ -102,16 +102,20 @@ class _BootstrapListState extends State<BootstrapList> {
     }
   }
 
-  TxConfirmParams _claimLPToken(List pair, double amount, int decimals) {
+  TxConfirmParams _claimLPToken(DexPoolData pool, double amount, int decimals) {
     setState(() {
       _claimSubmitting = true;
     });
-    final params = [widget.keyring.current.address, pair[0], pair[1]];
+    final params = [
+      widget.keyring.current.address,
+      pool.tokens[0],
+      pool.tokens[1]
+    ];
     if (_withStake) {
       final batchTxs = [
         'api.tx.dex.claimDexShare(...${jsonEncode(params)})',
         'api.tx.incentives.depositDexShare(...${jsonEncode([
-              {'DEXShare': pair},
+              {'DEXShare': pool.tokens},
               Fmt.tokenInt(amount.toString(), decimals).toString()
             ])})',
       ];
@@ -120,7 +124,7 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'utility',
         call: 'batch',
         txDisplay: {
-          'pool': pair.map((e) => e['token']).join('-'),
+          'pool': pool.getPoolId(widget.plugin).join('-'),
           'amount': Fmt.priceFloor(amount, lengthMax: 4),
           'withStake': true,
         },
@@ -133,13 +137,13 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'dex',
         call: 'claimDexShare',
         txDisplay: {
-          'pool': pair.map((e) => e['token']).join('-'),
+          'pool': pool.getPoolId(widget.plugin).join('-'),
           'amount': Fmt.priceFloor(amount, lengthMax: 4),
         },
         params: [
           widget.keyring.current.address,
-          pair[0],
-          pair[1]
+          pool.tokens[0],
+          pool.tokens[1]
         ]);
   }
 
@@ -157,8 +161,8 @@ class _BootstrapListState extends State<BootstrapList> {
     return Observer(builder: (_) {
       final bootstraps = widget.plugin.store.earn.bootstraps.toList();
       final dexPools = widget.plugin.store.earn.dexPools.toList();
-      dexPools.retainWhere((e) => _userProvisions.keys
-          .contains(e.tokens.map((e) => e['token']).join('-')));
+      dexPools.retainWhere((e) =>
+          _userProvisions.keys.contains(e.getPoolId(widget.plugin).join('-')));
 
       return RefreshIndicator(
         key: _refreshKey,
@@ -177,6 +181,7 @@ class _BootstrapListState extends State<BootstrapList> {
               : [
                   ...bootstraps.map((e) {
                     return _BootStrapCard(
+                      plugin: widget.plugin,
                       pool: e,
                       bestNumber: _bestNumber,
                       tokenIcons: widget.plugin.tokenIcons,
@@ -185,12 +190,18 @@ class _BootstrapListState extends State<BootstrapList> {
                     );
                   }).toList(),
                   ...dexPools.map((e) {
-                    final poolId = e.tokens.map((e) => e['token']).join('-');
-                    final existDeposit = Fmt.balanceInt(e.tokens[0]['token'] ==
+                    final tokenPair = e.getPoolId(widget.plugin);
+                    final poolId = tokenPair.join('-');
+                    final existDeposit = Fmt.balanceInt(tokenPair[0] ==
                             widget.plugin.networkState.tokenSymbol[0]
                         ? widget.plugin.networkConst['balances']
                             ['existentialDeposit']
-                        : existential_deposit[e.tokens[0]['token']]);
+                        : widget
+                            .plugin
+                            .store
+                            .assets
+                            .tokenBalanceMap[e.getPoolId(widget.plugin)[0]]
+                            .minBalance);
                     return _BootStrapCardEnabled(
                       widget.plugin,
                       pool: e,
@@ -227,8 +238,13 @@ class _BootstrapListState extends State<BootstrapList> {
 
 class _BootStrapCard extends StatelessWidget {
   _BootStrapCard(
-      {this.pool, this.bestNumber, this.tokenIcons, this.relayChainTokenPrice});
+      {this.plugin,
+      this.pool,
+      this.bestNumber,
+      this.tokenIcons,
+      this.relayChainTokenPrice});
 
+  final PluginKarura plugin;
   final DexPoolData pool;
   final int bestNumber;
   final Map<String, Widget> tokenIcons;
@@ -240,9 +256,10 @@ class _BootStrapCard extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final tokenPair = pool.tokens.map((e) => e['token']).toList();
+    final tokenPair = pool.getPoolId(plugin);
     final poolId = tokenPair.join('-');
-    final tokenPairView = tokenPair.map((e) => PluginFmt.tokenView(e)).toList();
+    final tokenPairView =
+        tokenPair.map((e) => PluginFmt.tokenView(e ?? '')).toList();
 
     final targetLeft =
         Fmt.balanceInt(pool.provisioning.targetProvision[0].toString());
@@ -413,7 +430,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
   final String existentialDeposit;
   final bool withStake;
   final Function(bool) onWithStakeChange;
-  final TxConfirmParams Function(List, double, int) onClaimLP;
+  final TxConfirmParams Function(DexPoolData, double, int) onClaimLP;
   final Function(Map) onFinish;
   final bool submitting;
 
@@ -423,9 +440,10 @@ class _BootStrapCardEnabled extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final tokenPair = pool.tokens.map((e) => e['token']).toList();
+    final tokenPair = pool.getPoolId(plugin);
     final poolId = tokenPair.join('-');
-    final tokenPairView = tokenPair.map((e) => PluginFmt.tokenView(e)).toList();
+    final tokenPairView =
+        tokenPair.map((e) => PluginFmt.tokenView(e ?? '')).toList();
 
     final userLeft =
         Fmt.balanceDouble(userProvision[0].toString(), pool.pairDecimals[0]);
@@ -537,7 +555,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
               : TxButton(
                   text: 'Claim LP Tokens',
                   getTxParams: () async =>
-                      onClaimLP(pool.tokens, amount, pool.pairDecimals[0]),
+                      onClaimLP(pool, amount, pool.pairDecimals[0]),
                   onFinish: onFinish,
                 )
         ],

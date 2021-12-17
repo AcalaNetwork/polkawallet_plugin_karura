@@ -1,3 +1,4 @@
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/types/aggregatedAssetsData.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
@@ -54,5 +55,72 @@ class AssetsUtils {
     list.removeWhere((i) => i.category == categoryLPFree);
 
     return list;
+  }
+
+  static Map currencyIdFromTokenData(
+      PluginKarura plugin, TokenBalanceData token) {
+    switch (token.type) {
+      case 'DexShare':
+        return {
+          'DEXShare': token.symbol
+              .toUpperCase()
+              .split('-')
+              .map((e) => currencyIdFromTokenSymbol(plugin, e))
+              .toList(),
+          'decimals': token.decimals
+        };
+      case 'ForeignAsset':
+        return {'ForeignAsset': token.id, 'decimals': token.decimals};
+      case 'Token':
+        return {
+          'Token': token.symbol.toUpperCase(),
+          'decimals': token.decimals
+        };
+      default:
+        return {
+          'Token': token.symbol.toUpperCase(),
+          'decimals': token.decimals
+        };
+    }
+  }
+
+  static String tokenSymbolFromCurrencyId(
+      Map<String, TokenBalanceData> tokenBalanceMap, Map currencyId) {
+    if (currencyId['token'] != null) {
+      return currencyId['token'];
+    }
+    if (currencyId['foreignAsset'] != null) {
+      return tokenBalanceMap.values
+          .firstWhere((e) => e.id == currencyId['foreignAsset'].toString())
+          .symbol;
+    }
+    return '';
+  }
+
+  static Map currencyIdFromTokenSymbol(
+      PluginKarura plugin, String tokenSymbol) {
+    return currencyIdFromTokenData(
+        plugin, getBalanceFromTokenSymbol(plugin, tokenSymbol));
+  }
+
+  static TokenBalanceData getBalanceFromTokenSymbol(
+      PluginKarura plugin, String tokenSymbol) {
+    final symbols = plugin.networkState.tokenSymbol;
+
+    if (tokenSymbol == symbols[0]) {
+      return TokenBalanceData(
+          id: tokenSymbol,
+          symbol: tokenSymbol,
+          type: 'Token',
+          decimals: plugin.networkState.tokenDecimals[0],
+          amount: (plugin.balances.native?.availableBalance ?? 0).toString());
+    }
+    return plugin.store.assets.tokenBalanceMap[tokenSymbol.toUpperCase()] ??
+        TokenBalanceData();
+  }
+
+  static List<TokenBalanceData> getBalancePairFromTokenSymbol(
+      PluginKarura plugin, List<String> tokenPair) {
+    return tokenPair.map((e) => getBalanceFromTokenSymbol(plugin, e)).toList();
   }
 }

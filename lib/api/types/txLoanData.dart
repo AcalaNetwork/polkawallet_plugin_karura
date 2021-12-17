@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxLoanData extends _TxLoanData {
@@ -11,14 +13,19 @@ class TxLoanData extends _TxLoanData {
   static const String actionTypePayback = 'payback';
   static const String actionTypeCreate = 'create';
   static const String actionLiquidate = 'liquidate';
-  static TxLoanData fromJson(Map json, String stableCoinSymbol,
-      int stableCoinDecimals, int tokenDecimals) {
+  static TxLoanData fromJson(
+      Map json,
+      String stableCoinSymbol,
+      int stableCoinDecimals,
+      int tokenDecimals,
+      Map<String, TokenBalanceData> tokenBalanceMap) {
     TxLoanData data = TxLoanData();
     data.event = json['type'];
     data.hash = json['extrinsic']['id'];
 
     final jsonData = json['data'] as List;
-    data.token = jsonDecode(jsonData[1]['value'])['token'];
+    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
+        tokenBalanceMap, jsonDecode(jsonData[1]['value']));
 
     data.collateral = Fmt.balanceInt(jsonData[2]['value'].toString());
     data.debit = jsonData.length > 4
