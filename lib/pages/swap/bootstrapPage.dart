@@ -8,6 +8,7 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -69,8 +70,9 @@ class _BootstrapPageState extends State<BootstrapPage> {
   void _onAmountChange(int index, String value) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final DexPoolData args = ModalRoute.of(context).settings.arguments;
-    final pair = args.tokens.map((e) => e['token'] as String).toList();
-    final balancePair = PluginFmt.getBalancePair(widget.plugin, pair);
+    final pair = args.getPoolId(widget.plugin);
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
     final balance = balancePair[index];
 
     final v = value.trim();
@@ -129,7 +131,10 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    final pair = pool.tokens.map((e) => e['token']).toList();
+    final pair = pool.getPoolId(widget.plugin);
+
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
 
     final left = _amountLeftCtrl.text.trim();
     final right = _amountRightCtrl.text.trim();
@@ -147,8 +152,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
       params: [
         pool.tokens[0],
         pool.tokens[1],
-        Fmt.tokenInt(leftAmount, pool.pairDecimals[0]).toString(),
-        Fmt.tokenInt(rightAmount, pool.pairDecimals[1]).toString(),
+        Fmt.tokenInt(leftAmount, balancePair[0].decimals).toString(),
+        Fmt.tokenInt(rightAmount, balancePair[1].decimals).toString(),
       ],
     );
   }
@@ -168,25 +173,28 @@ class _BootstrapPageState extends State<BootstrapPage> {
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final DexPoolData args = ModalRoute.of(context).settings.arguments;
-    final pair = args.tokens.map((e) => e['token'] as String).toList();
+    final pair = args.getPoolId(widget.plugin);
     final pairView = pair.map((e) => PluginFmt.tokenView(e)).toList();
 
     return Observer(builder: (_) {
       final pool = widget.plugin.store.earn.bootstraps.firstWhere(
-          (e) => e.tokens.map((e) => e['token']).join('-') == pair.join('-'));
+          (e) => e.getPoolId(widget.plugin).join('-') == pair.join('-'));
+
+      final balancePair =
+          AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
 
       final nowLeft = Fmt.balanceDouble(
           pool.provisioning.accumulatedProvision[0].toString(),
-          pool.pairDecimals[0]);
+          balancePair[0].decimals);
       final nowRight = Fmt.balanceDouble(
           pool.provisioning.accumulatedProvision[1].toString(),
-          pool.pairDecimals[1]);
+          balancePair[1].decimals);
       final myLeft = Fmt.balanceDouble(
           _userProvisioning != null ? _userProvisioning[0].toString() : '0',
-          pool.pairDecimals[0]);
+          balancePair[0].decimals);
       final myRight = Fmt.balanceDouble(
           _userProvisioning != null ? _userProvisioning[1].toString() : '0',
-          pool.pairDecimals[1]);
+          balancePair[1].decimals);
       final poolInfo =
           PluginFmt.calcLiquidityShare([nowLeft, nowRight], [myLeft, myRight]);
 
@@ -201,8 +209,6 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
       final estShareLabel = '${dic['boot.my.est']} ${dic['boot.my.share']}';
       final estTokenLabel = '${dic['boot.my.est']} LP Tokens';
-
-      final balancePair = PluginFmt.getBalancePair(widget.plugin, pair);
 
       final ratio =
           nowLeft > 0 ? (nowRight + addRight) / (nowLeft + addLeft) : 1.0;

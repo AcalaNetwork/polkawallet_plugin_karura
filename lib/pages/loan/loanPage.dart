@@ -12,6 +12,7 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -163,16 +164,14 @@ class _LoanPageState extends State<LoanPage> {
                                     ? ListView(
                                         padding: EdgeInsets.all(16),
                                         children: loans.map((loan) {
-                                          final tokenDecimals = widget.plugin
-                                                  .networkState.tokenDecimals[
-                                              widget.plugin.networkState
-                                                  .tokenSymbol
-                                                  .indexOf(loan.token)];
                                           return LoanOverviewCard(
                                             loan,
                                             karura_stable_coin,
                                             stableCoinDecimals,
-                                            tokenDecimals,
+                                            widget.plugin.store.assets.allTokens
+                                                .firstWhere((e) =>
+                                                    e.symbol == loan.token)
+                                                ?.decimals,
                                             widget.plugin.tokenIcons,
                                             widget.plugin.store.assets.prices,
                                           );
@@ -431,7 +430,7 @@ class CollateralIncentiveList extends StatelessWidget {
       BuildContext context, String token, String rewardView) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final pool = {
-      'Loans': {'Token': token}
+      'Loans': AssetsUtils.currencyIdFromTokenSymbol(plugin, token)
     };
     final params = TxConfirmParams(
       module: 'incentives',
@@ -450,11 +449,7 @@ class CollateralIncentiveList extends StatelessWidget {
       call: 'adjustLoan',
       txTitle: dic['loan.activate'],
       txDisplay: {'collateral': token},
-      params: [
-        {'token': token},
-        0,
-        0
-      ],
+      params: [AssetsUtils.currencyIdFromTokenSymbol(plugin, token), 0, 0],
     );
     Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
   }
@@ -516,7 +511,9 @@ class CollateralIncentiveList extends StatelessWidget {
           final bestNumber = plugin.store.gov.bestNumber;
           var blockNumber;
           dexIncentiveLoyaltyEndBlock.forEach((element) {
-            if (token == PluginFmt.getPool(element['pool'])) {
+            if (token ==
+                PluginFmt.getPool(
+                    plugin.store.assets.tokenBalanceMap, element['pool'])) {
               blockNumber = element['blockNumber'];
               return;
             }

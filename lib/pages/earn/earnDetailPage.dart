@@ -4,13 +4,14 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/LPStakePage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -32,10 +33,10 @@ class EarnDetailPage extends StatelessWidget {
   static const String route = '/karura/earn/detail';
 
   Future<void> _onStake(
-      BuildContext context, String action, String poolId) async {
+      BuildContext context, String action, DexPoolData pool) async {
     Navigator.of(context).pushNamed(
       LPStakePage.route,
-      arguments: LPStakePageParams(poolId, action),
+      arguments: LPStakePageParams(pool, action),
     );
   }
 
@@ -44,8 +45,9 @@ class EarnDetailPage extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final symbols = plugin.networkState.tokenSymbol;
 
-    final String poolId = ModalRoute.of(context).settings.arguments;
-    final pair = poolId.split('-');
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final pair = pool.getPoolId(plugin);
+    final poolId = pair.join('-');
     return Scaffold(
       appBar: AppBar(
         title: Text(dic['earn.title']),
@@ -54,7 +56,8 @@ class EarnDetailPage extends StatelessWidget {
       ),
       body: Observer(
         builder: (_) {
-          final balancePair = PluginFmt.getBalancePair(plugin, pair);
+          final balancePair =
+              AssetsUtils.getBalancePairFromTokenSymbol(plugin, pair);
 
           BigInt issuance = BigInt.zero;
           BigInt shareTotal = BigInt.zero;
@@ -127,7 +130,7 @@ class EarnDetailPage extends StatelessWidget {
                                     text: dic['earn.stake'],
                                     onPressed: balance > BigInt.zero
                                         ? () => _onStake(context,
-                                            LPStakePage.actionStake, poolId)
+                                            LPStakePage.actionStake, pool)
                                         : null,
                                   ),
                                 ),
@@ -140,13 +143,14 @@ class EarnDetailPage extends StatelessWidget {
                                       child: RoundedButton(
                                         text: dic['earn.unStake'],
                                         onPressed: () => _onStake(context,
-                                            LPStakePage.actionUnStake, poolId),
+                                            LPStakePage.actionUnStake, pool),
                                       ),
                                     ))
                               ],
                             ),
                           ),
                           _UserCard(
+                              plugin: plugin,
                               share: stakeShare,
                               poolInfo: poolInfo,
                               token: poolId,
@@ -182,7 +186,7 @@ class EarnDetailPage extends StatelessWidget {
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(
                                     AddLiquidityPage.route,
-                                    arguments: poolId,
+                                    arguments: pool,
                                   );
                                 }),
                           ),
@@ -200,7 +204,7 @@ class EarnDetailPage extends StatelessWidget {
                                   onPressed: () =>
                                       Navigator.of(context).pushNamed(
                                     WithdrawLiquidityPage.route,
-                                    arguments: poolId,
+                                    arguments: pool,
                                   ),
                                 ),
                               ),
@@ -289,6 +293,7 @@ class _SystemCard extends StatelessWidget {
 
 class _UserCard extends StatelessWidget {
   _UserCard({
+    this.plugin,
     this.share,
     this.poolInfo,
     this.token,
@@ -303,8 +308,9 @@ class _UserCard extends StatelessWidget {
     this.bestNumber,
     this.dexIncentiveLoyaltyEndBlock,
   });
+  final PluginKarura plugin;
   final double share;
-  final DexPoolInfoDataV2 poolInfo;
+  final DexPoolInfoData poolInfo;
   final String token;
   final double rewardAPY;
   final double rewardSavingAPY;
@@ -348,9 +354,7 @@ class _UserCard extends StatelessWidget {
   }
 
   void _onWithdrawReward(BuildContext context) {
-    final String poolId = ModalRoute.of(context).settings.arguments;
-    final pool =
-        jsonEncode(poolId.split('-').map((e) => ({'Token': e})).toList());
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
 
     Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
@@ -359,10 +363,10 @@ class _UserCard extends StatelessWidget {
           txTitle: I18n.of(context)
               .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
           txDisplay: {
-            "poolId": poolId,
+            "poolId": pool.getPoolId(plugin).join('-'),
           },
           params: [],
-          rawParams: '[{Dex: {DEXShare: $pool}}]',
+          rawParams: '[{Dex: {DEXShare: ${jsonEncode(pool.tokens)}}}]',
         ));
   }
 
@@ -386,7 +390,8 @@ class _UserCard extends StatelessWidget {
     );
 
     final savingRewardTokenMin = Fmt.balanceDouble(
-        existential_deposit[stableCoinSymbol], stableCoinDecimal);
+        plugin.store.assets.tokenBalanceMap[stableCoinSymbol].minBalance,
+        stableCoinDecimal);
     canClaim = rewardSaving > savingRewardTokenMin;
     final rewardV2 = poolInfo?.reward?.incentive?.map((e) {
       final amount = double.parse(e['amount']);
@@ -399,7 +404,9 @@ class _UserCard extends StatelessWidget {
 
     var blockNumber;
     dexIncentiveLoyaltyEndBlock?.forEach((element) {
-      if (token == PluginFmt.getPool(element['pool'])) {
+      if (token ==
+          PluginFmt.getPool(
+              plugin.store.assets.tokenBalanceMap, element['pool'])) {
         blockNumber = element['blockNumber'];
         return;
       }

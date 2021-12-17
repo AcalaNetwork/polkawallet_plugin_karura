@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -40,7 +41,7 @@ class _DexPoolListState extends State<DexPoolList> {
         'Promise.all([${pools.map((e) => 'api.query.dex.liquidityPool(${jsonEncode(e.tokens)})').join(',')}])');
     final poolInfoMap = {};
     pools.asMap().forEach((i, e) {
-      final poolId = e.tokens.map((e) => e['token']).toList().join('-');
+      final poolId = e.getPoolId(widget.plugin).join('-');
       poolInfoMap[poolId] = res[i];
     });
     if (mounted) {
@@ -83,10 +84,10 @@ class _DexPoolListState extends State<DexPoolList> {
                 padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
                 itemCount: dexPools.length,
                 itemBuilder: (_, i) {
-                  final poolId =
-                      dexPools[i].tokens.map((e) => e['token']).join('-');
+                  final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
                   final poolAmount = _poolInfoMap[poolId] as List;
                   return _DexPoolCard(
+                    plugin: widget.plugin,
                     pool: dexPools[i],
                     poolAmount: poolAmount,
                     tokenIcons: widget.plugin.tokenIcons,
@@ -99,8 +100,9 @@ class _DexPoolListState extends State<DexPoolList> {
 }
 
 class _DexPoolCard extends StatelessWidget {
-  _DexPoolCard({this.pool, this.poolAmount, this.tokenIcons});
+  _DexPoolCard({this.plugin, this.pool, this.poolAmount, this.tokenIcons});
 
+  final PluginKarura plugin;
   final DexPoolData pool;
   final List poolAmount;
   final Map<String, Widget> tokenIcons;
@@ -111,7 +113,10 @@ class _DexPoolCard extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final tokenPair = pool.tokens.map((e) => e['token']).toList();
+    final tokenPair = pool.getPoolId(plugin);
+    final decimalsPair = tokenPair
+        .map((e) => AssetsUtils.getBalanceFromTokenSymbol(plugin, e).decimals)
+        .toList();
     final tokenPairView =
         tokenPair.map((e) => PluginFmt.tokenView(e)).join('-');
     final poolId = tokenPair.join('-');
@@ -157,14 +162,14 @@ class _DexPoolCard extends StatelessWidget {
                   title: PluginFmt.tokenView(tokenPair[0]),
                   content: amountLeft == null
                       ? '--'
-                      : Fmt.priceFloorBigInt(amountLeft, pool.pairDecimals[0]),
+                      : Fmt.priceFloorBigInt(amountLeft, decimalsPair[0]),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   title: PluginFmt.tokenView(tokenPair[1]),
                   content: amountRight == null
                       ? '--'
-                      : Fmt.priceFloorBigInt(amountRight, pool.pairDecimals[1]),
+                      : Fmt.priceFloorBigInt(amountRight, decimalsPair[1]),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,9 +187,8 @@ class _DexPoolCard extends StatelessWidget {
                   content: dic['dex.lp.remove'],
                   active: false,
                   padding: EdgeInsets.only(top: 8, bottom: 8),
-                  onPressed: () => Navigator.of(context).pushNamed(
-                      WithdrawLiquidityPage.route,
-                      arguments: poolId),
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed(WithdrawLiquidityPage.route, arguments: pool),
                 ),
               ),
               Expanded(
@@ -193,7 +197,7 @@ class _DexPoolCard extends StatelessWidget {
                   active: true,
                   padding: EdgeInsets.only(top: 8, bottom: 8),
                   onPressed: () => Navigator.of(context)
-                      .pushNamed(AddLiquidityPage.route, arguments: poolId),
+                      .pushNamed(AddLiquidityPage.route, arguments: pool),
                 ),
               ),
             ],

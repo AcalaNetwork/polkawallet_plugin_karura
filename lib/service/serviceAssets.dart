@@ -55,11 +55,21 @@ class ServiceAssets {
     store.assets.setMarketPrices(prices);
   }
 
-  Future<void> updateTokenBalances(String tokenId) async {
-    String currencyId = '{Token: "$tokenId"}';
-    if (tokenId.contains('-')) {
-      final pair = tokenId.split('-');
-      currencyId = '{DEXShare: [{Token: "${pair[0]}"}, {Token: "${pair[1]}"}]}';
+  Future<void> updateTokenBalances(TokenBalanceData token) async {
+    final tokenSymbol = token.symbol.toUpperCase();
+    String currencyId;
+    switch (token.type) {
+      case 'Token':
+        currencyId = '{Token: "$tokenSymbol"}';
+        break;
+      case 'DexShare':
+        final pair = tokenSymbol.split('-');
+        currencyId =
+            '{DEXShare: [{Token: "${pair[0]}"}, {Token: "${pair[1]}"}]}';
+        break;
+      case 'ForeignAsset':
+        currencyId = '{ForeignAsset: "${token.id}"}';
+        break;
     }
     final res = await plugin.sdk.webView.evalJavascript(
         'api.query.tokens.accounts("${keyring.current.address}", $currencyId)');
@@ -67,16 +77,19 @@ class ServiceAssets {
     final balances =
         Map<String, TokenBalanceData>.from(store.assets.tokenBalanceMap);
     final data = TokenBalanceData(
-        id: balances[tokenId].id,
-        name: balances[tokenId].name,
-        symbol: balances[tokenId].symbol,
-        decimals: balances[tokenId].decimals,
+        id: token.id,
+        name: token.name,
+        fullName: token.fullName,
+        symbol: token.symbol,
+        type: token.type,
+        decimals: token.decimals,
+        minBalance: token.minBalance,
         amount: res['free'].toString(),
         locked: res['frozen'].toString(),
         reserved: res['reserved'].toString(),
-        detailPageRoute: balances[tokenId].detailPageRoute,
-        price: store.assets.marketPrices[tokenId]);
-    balances[tokenId] = data;
+        detailPageRoute: token.detailPageRoute,
+        price: store.assets.marketPrices[tokenSymbol]);
+    balances[tokenSymbol] = data;
 
     store.assets
         .setTokenBalanceMap(balances.values.toList(), keyring.current.pubKey);

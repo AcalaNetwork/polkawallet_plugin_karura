@@ -8,6 +8,7 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanCard.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanChart.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -98,10 +99,13 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
               'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
             },
             params: [
-              {'Token': loan.token},
+              AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, loan.token),
               loan.collaterals.toString(),
               output != null
-                  ? output.path.map((e) => ({'Token': e['name']})).toList()
+                  ? output.path
+                      .map((e) => AssetsUtils.currencyIdFromTokenSymbol(
+                          widget.plugin, e['name']))
+                      .toList()
                   : null
             ]),
       );
@@ -120,7 +124,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         final token = ModalRoute.of(context).settings.arguments;
         final loan = widget.plugin.store.loan.loans[token];
 
-        final balancePair = PluginFmt.getBalancePair(
+        final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
             widget.plugin, [token, karura_stable_coin]);
 
         final dataChartDebit = [

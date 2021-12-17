@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -47,18 +48,14 @@ class ServiceLoan {
     Map<String, BigInt> prices,
   ) {
     final data = Map<String, LoanData>();
-    final stableCoinDecimals = plugin.networkState.tokenDecimals[
-        plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
     loans.forEach((i) {
-      final String token = i['currency']['token'];
-      final tokenDecimals = plugin.networkState
-          .tokenDecimals[plugin.networkState.tokenSymbol.indexOf(token)];
+      final token = AssetsUtils.tokenSymbolFromCurrencyId(
+          plugin.store.assets.tokenBalanceMap, i['currency']);
       data[token] = LoanData.fromJson(
         Map<String, dynamic>.from(i),
         loanTypes.firstWhere((t) => t.token == token),
         prices[token] ?? BigInt.zero,
-        stableCoinDecimals,
-        tokenDecimals,
+        plugin,
       );
     });
     return data;
@@ -110,7 +107,7 @@ class ServiceLoan {
       store.assets.setPrices(prices);
 
       // 4. update collateral incentive rewards
-      queryCollateralRewardsV2(address);
+      queryCollateralRewards(address);
 
       // 4. we need loanTypes & prices to get account loans
       final loans = await api.loan.queryAccountLoans(address);
@@ -133,8 +130,8 @@ class ServiceLoan {
     store.loan.setTotalCDPs(res);
   }
 
-  Future<void> queryCollateralRewardsV2(String address) async {
-    final res = await api.loan.queryCollateralRewardsV2(
+  Future<void> queryCollateralRewards(String address) async {
+    final res = await api.loan.queryCollateralRewards(
         store.loan.loanTypes.map((e) => e.token).toList(), address);
     store.loan.setCollateralRewardsV2(res);
   }

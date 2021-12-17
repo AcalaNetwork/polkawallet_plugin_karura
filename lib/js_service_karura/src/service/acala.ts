@@ -2,7 +2,7 @@ import { FixedPointNumber, Token, createLPCurrencyName, forceToCurrencyIdName } 
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
-import { nft_image_config } from "../constants/acala";
+import { existential_deposit, nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 import { HomaLite } from "./homaLite";
@@ -97,27 +97,44 @@ async function queryLPTokens(api: ApiPromise, address: string) {
 }
 
 /**
+ * getAllTokens, with ForeignAssets
+ */
+async function getAllTokens(api: ApiPromise) {
+  const [{ tokenSymbol, tokenDecimals }, foreign] = await Promise.all([
+    api.rpc.system.properties(),
+    api.query.assetRegistry.assetMetadatas.entries(),
+  ]);
+  const tokens = [...api.registry.chainTokens];
+  tokens.shift();
+  const res = tokens.map((e) => ({
+    type: "Token",
+    symbol: e,
+    decimals: tokenDecimals.toJSON()[tokenSymbol.toJSON().indexOf(e)],
+    minBalance: existential_deposit[e],
+  }));
+  const res2 = foreign.map(([args, data]) => {
+    const json = data.toJSON();
+    return {
+      type: "ForeignAsset",
+      id: args.toHuman()[0],
+      ...(data.toHuman() as Object),
+      decimals: json["decimals"],
+      minBalance: json["minimalBalance"].toString(),
+    };
+  });
+  return [...res, ...res2];
+}
+
+/**
  * getAllTokenPairs
  */
 async function getTokenPairs(api: ApiPromise) {
   const tokenPairs = await api.query.dex.tradingPairStatuses.entries();
   return tokenPairs
     .filter((item) => (item[1] as any).isEnabled)
-    .map(
-      ([
-        {
-          args: [item],
-        },
-      ]) => {
-        const pair = item.toJSON() as any[];
-        const pairDecimals = [_getTokenDecimal(api, pair[0]?.token?.toString()), _getTokenDecimal(api, pair[1]?.token?.toString())];
-        return {
-          decimals: pairDecimals[0] > pairDecimals[1] ? pairDecimals[0] : pairDecimals[1],
-          pairDecimals,
-          tokens: pair,
-        };
-      }
-    );
+    .map(([{ args: [item] }]) => ({
+      tokens: item.toJSON(),
+    }));
 }
 
 /**
@@ -134,12 +151,8 @@ async function getBootstraps(api: ApiPromise) {
         },
         provisioning,
       ]) => {
-        const pair = item.toJSON() as any[];
-        const pairDecimals = [_getTokenDecimal(api, pair[0]?.token?.toString()), _getTokenDecimal(api, pair[1]?.token?.toString())];
         return {
-          decimals: pairDecimals[0] > pairDecimals[1] ? pairDecimals[0] : pairDecimals[1],
-          pairDecimals,
-          tokens: pair,
+          tokens: item.toJSON(),
           provisioning: (provisioning as any).asProvisioning,
         };
       }
@@ -152,37 +165,6 @@ async function getBootstraps(api: ApiPromise) {
  * @param {String} address
  */
 async function fetchCollateralRewards(api: ApiPromise, pool: any, address: string, decimals: number) {
-  const res = (await Promise.all([
-    api.query.rewards.pools({ LoansIncentive: pool }),
-    api.query.rewards.shareAndWithdrawnReward({ LoansIncentive: pool }, address),
-  ])) as any;
-  const pendingRewards = (!!api.query.incentives.pendingRewards
-    ? await api.query.incentives?.pendingRewards({ LoansIncentive: pool }, address)
-    : null) as any;
-  let proportion = new FixedPointNumber(0);
-  if (res[0] && res[1] && FPNum(res[0].totalShares).gt(new FixedPointNumber(0))) {
-    proportion = FPNum(res[1][0]).div(FPNum(res[0].totalShares));
-  }
-  const decimalsACA = 12;
-  return {
-    token: pool.Token,
-    sharesTotal: res[0].totalShares,
-    shares: res[1][0],
-    proportion: proportion.toNumber() || 0,
-    reward: FPNum(res[0].totalRewards, decimals)
-      .times(proportion)
-      .minus(FPNum(res[1][1], decimals))
-      .plus(FPNum(pendingRewards || 0, decimalsACA))
-      .toString(),
-  };
-}
-
-/**
- * fetchDexPoolInfo
- * @param {String} poolId
- * @param {String} address
- */
-async function fetchCollateralRewardsV2(api: ApiPromise, pool: any, address: string, decimals: number) {
   if (!walletPromise) {
     walletPromise = new WalletPromise(api);
   }
@@ -564,7 +546,7 @@ async function queryAggregatedAssets(api: ApiPromise, address: string) {
     Promise.all(
       loanTypes.map((e) => {
         const token = e.currency.toHuman().Token;
-        return fetchCollateralRewardsV2(api, { Token: token }, address, _getTokenDecimal(api, token));
+        return fetchCollateralRewards(api, { Token: token }, address, _getTokenDecimal(api, token));
       })
     ),
     queryIncentives(api),
@@ -740,15 +722,15 @@ async function queryRedeemRequest(api: ApiPromise, address: string) {
 async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
   const data = await api.query.scheduler.agenda.entries();
 
-  const result: { blockNumber: number; pool: PoolId }[] = [];
+  const result: { blockNumber: number; pool: any }[] = [];
 
   data.forEach(([key, value]) => {
     const blockNumber = key.args[0].toNumber();
 
-    const inner = (data: PalletSchedulerScheduledV2["call"]) => {
+    const inner = (data: any) => {
       if (data.method === "updateClaimRewardDeductionRates" && data.section === "incentives") {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        const args = (data.args as any) as Vec<Vec<ITuple<[PoolId, Rate]>>>;
+        const args = data.args as any;
 
         args.forEach((i) => {
           i.forEach((item) => {
@@ -766,7 +748,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
 
       if (data.method === "batchAll" && data.section === "utility") {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        ((data.args[0] as any) as PalletSchedulerScheduledV2["call"][]).forEach((item) => inner(item));
+        ((data.args[0] as any) as any[]).forEach((item) => inner(item));
       }
     };
 
@@ -779,10 +761,10 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
 export default {
   calcTokenSwapAmount,
   queryLPTokens,
+  getAllTokens,
   getTokenPairs,
   getBootstraps,
   fetchCollateralRewards,
-  fetchCollateralRewardsV2,
   fetchDexPoolInfo,
   fetchHomaUserInfo,
   queryNFTs,

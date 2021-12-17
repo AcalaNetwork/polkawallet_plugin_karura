@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class AcalaServiceLoan {
@@ -40,7 +41,8 @@ class AcalaServiceLoan {
     final loanTypes = plugin.store.loan.loanTypes;
     final data = await plugin.sdk.webView.evalJavascript(
         'Promise.all([${loanTypes.map((i) => 'api.query.incentives.payoutDeductionRates(${jsonEncode({
-                  'LoansIncentive': {'Token': i.token}
+                  'LoansIncentive':
+                      AssetsUtils.currencyIdFromTokenSymbol(plugin, i.token)
                 })})').join(',')}])');
     final Map<String, double> res = {};
     loanTypes.asMap().forEach((key, value) {
@@ -49,12 +51,12 @@ class AcalaServiceLoan {
     return res;
   }
 
-  Future<List> queryCollateralRewardsV2(
+  Future<List> queryCollateralRewards(
       List<String> collaterals, String address) async {
     final decimals = plugin.networkState.tokenDecimals[0];
     final query = collaterals
         .map((e) =>
-            'acala.fetchCollateralRewardsV2(api, {Token: "$e"}, "$address", $decimals)')
+            'acala.fetchCollateralRewards(api, ${jsonEncode(AssetsUtils.currencyIdFromTokenSymbol(plugin, e))}, "$address", $decimals)')
         .join(',');
     final List res =
         await plugin.sdk.webView.evalJavascript('Promise.all([$query])');

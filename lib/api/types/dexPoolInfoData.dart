@@ -1,10 +1,12 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 part 'dexPoolInfoData.g.dart';
 
 class DexPoolInfoData extends _DexPoolInfoData {
-  static DexPoolInfoData fromJson(Map<String, dynamic> json) {
+  static DexPoolInfoData fromJson(Map json) {
     DexPoolInfoData data = DexPoolInfoData();
     data.token = json['token'];
     // json['pool'] contains liquidity pool info
@@ -15,7 +17,7 @@ class DexPoolInfoData extends _DexPoolInfoData {
     data.shares = Fmt.balanceInt(json['shares'].toString());
     data.proportion = double.parse(json['proportion'].toString());
     data.reward = LPRewardData(
-      double.parse(json['reward']['incentive']),
+      List.of(json['reward']['incentive']),
       double.parse(json['reward']['saving']),
     );
     data.issuance = Fmt.balanceInt(json['issuance'].toString());
@@ -36,7 +38,7 @@ abstract class _DexPoolInfoData {
 
 class LPRewardData {
   LPRewardData(this.incentive, this.saving);
-  double incentive;
+  List incentive;
   double saving;
 }
 
@@ -45,12 +47,22 @@ class DexPoolData extends _DexPoolData {
   static DexPoolData fromJson(Map<String, dynamic> json) =>
       _$DexPoolDataFromJson(json);
   Map<String, dynamic> toJson() => _$DexPoolDataToJson(this);
+
+  List<String> _poolId;
+
+  List<String> getPoolId(PluginKarura plugin) {
+    if (_poolId == null && tokens != null) {
+      _poolId = tokens
+          .map((e) => AssetsUtils.tokenSymbolFromCurrencyId(
+              plugin.store.assets.tokenBalanceMap, e))
+          .toList();
+    }
+    return _poolId;
+  }
 }
 
 abstract class _DexPoolData {
-  int decimals;
   List tokens;
-  List<int> pairDecimals;
   ProvisioningData provisioning;
   double rewards;
   double rewardsLoyalty;

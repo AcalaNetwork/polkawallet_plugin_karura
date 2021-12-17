@@ -55,9 +55,7 @@ class SwapHistoryPage extends StatelessWidget {
             }
             final list = List.of(result.data['dexActions']['nodes'])
                 .map((i) => TxSwapData.fromJson(
-                    i as Map,
-                    plugin.networkState.tokenSymbol,
-                    plugin.networkState.tokenDecimals))
+                    i as Map, plugin.store.assets.tokenBalanceMap))
                 .toList();
 
             return ListView.builder(

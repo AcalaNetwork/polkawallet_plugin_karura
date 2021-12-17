@@ -9,7 +9,7 @@ import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/format.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -153,7 +153,7 @@ class _HomaPageState extends State<HomaPage> {
         final amountLeft = cap - staked;
         final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
 
-        final balances = PluginFmt.getBalancePair(
+        final balances = AssetsUtils.getBalancePairFromTokenSymbol(
             widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
         final balanceStakeToken =
             Fmt.balanceDouble(balances[0].amount, balances[0].decimals);

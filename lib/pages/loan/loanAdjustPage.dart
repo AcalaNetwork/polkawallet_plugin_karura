@@ -6,6 +6,7 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -250,6 +251,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   Future<Map> _getTxParams(LoanData loan, int stableCoinDecimals) async {
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
+    final currencyId =
+        AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, params.token);
     switch (params.actionType) {
       case LoanAdjustPage.actionTypeMint:
         // borrow min debit value if user's debit is empty
@@ -263,7 +266,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
             "amount": _amountCtrl2.text.trim(),
           },
           'params': [
-            {'token': params.token},
+            currencyId,
             0,
             debitAdd.toString(),
           ]
@@ -289,7 +292,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
             "amount": _amountCtrl2.text.trim(),
           },
           'params': [
-            {'token': params.token},
+            currencyId,
             _paybackAndCloseChecked
                 ? (BigInt.zero - loan.collaterals).toString()
                 : 0,
@@ -303,7 +306,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
           },
           'params': [
-            {'token': params.token},
+            currencyId,
             _amountCollateral.toString(),
             0,
           ]
@@ -315,7 +318,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
           },
           'params': [
-            {'token': params.token},
+            currencyId,
             (BigInt.zero - _amountCollateral).toString(),
             0,
           ]
@@ -348,11 +351,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final symbols = widget.plugin.networkState.tokenSymbol;
-      final decimals = widget.plugin.networkState.tokenDecimals;
-
-      final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
-
       final LoanAdjustPageParams params =
           ModalRoute.of(context).settings.arguments;
 
@@ -361,8 +359,15 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         _amountCollateral = loan.collaterals;
         _amountDebit = loan.debits;
       });
-      _updateState(loan.type, loan.collaterals, loan.debits, stableCoinDecimals,
-          decimals[symbols.indexOf(params.token)]);
+      _updateState(
+          loan.type,
+          loan.collaterals,
+          loan.debits,
+          AssetsUtils.getBalanceFromTokenSymbol(
+                  widget.plugin, karura_stable_coin)
+              .decimals,
+          AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, params.token)
+              .decimals);
     });
   }
 
@@ -381,8 +386,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
     final symbol = params.token;
-    final balancePair =
-        PluginFmt.getBalancePair(widget.plugin, [symbol, karura_stable_coin]);
+    final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
+        widget.plugin, [symbol, karura_stable_coin]);
 
     final loan = widget.plugin.store.loan.loans[symbol];
 

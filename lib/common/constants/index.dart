@@ -65,15 +65,6 @@ const xcm_dest_weight_kusama = '3000000000';
 const xcm_dest_weight_karura = '600000000';
 const xcm_dest_weight_v2 = '5000000000';
 
-const existential_deposit = {
-  'KSM': '100000000',
-  'KUSD': '10000000000',
-  'LKSM': '500000000',
-  'BNC': '8000000000',
-  'VSKSM': '100000000',
-  'PHA': '40000000000',
-};
-
 const acala_token_ids = [
   'KAR',
   'KUSD',
@@ -82,6 +73,8 @@ const acala_token_ids = [
   'BNC',
   'VSKSM',
   'PHA',
+  'RMRK',
+  'USDT',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',

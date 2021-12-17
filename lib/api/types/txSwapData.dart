@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
+
 class TxSwapData extends _TxSwapData {
   static TxSwapData fromJson(
-      Map json, List<String> symbols, List<int> decimals) {
+      Map json, Map<String, TokenBalanceData> tokenBalanceMap) {
     final data = TxSwapData();
     data.action = json['type'];
     data.hash = json['extrinsic']['id'];
@@ -10,8 +13,10 @@ class TxSwapData extends _TxSwapData {
     switch (data.action) {
       case "swap":
         final List path = jsonDecode(json['data'][1]['value']);
-        data.tokenPay = path[0]['token'];
-        data.tokenReceive = path[path.length - 1]['token'];
+        data.tokenPay =
+            AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, path[0]);
+        data.tokenReceive = AssetsUtils.tokenSymbolFromCurrencyId(
+            tokenBalanceMap, path[path.length - 1]);
         if (json['data'][2]['type'] == 'Balance') {
           data.amountPay = json['data'][2]['value'].toString();
           data.amountReceive = json['data'][3]['value'].toString();
@@ -24,8 +29,10 @@ class TxSwapData extends _TxSwapData {
       case "addProvision":
       case "addLiquidity":
       case "removeLiquidity":
-        data.tokenPay = jsonDecode(json['data'][1]['value'])['token'];
-        data.tokenReceive = jsonDecode(json['data'][3]['value'])['token'];
+        data.tokenPay = AssetsUtils.tokenSymbolFromCurrencyId(
+            tokenBalanceMap, jsonDecode(json['data'][1]['value']));
+        data.tokenReceive = AssetsUtils.tokenSymbolFromCurrencyId(
+            tokenBalanceMap, jsonDecode(json['data'][3]['value']));
         data.amountPay = json['data'][2]['value'];
         data.amountReceive = json['data'][4]['value'];
         data.amountShare =

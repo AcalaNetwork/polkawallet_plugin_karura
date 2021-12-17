@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class AcalaServiceAssets {
@@ -14,49 +16,48 @@ class AcalaServiceAssets {
   final tokenBalanceChannel = 'tokenBalance';
 
   Future<List> getAllTokenSymbols() async {
-    final res = await plugin.sdk.webView.evalJavascript(
-        'JSON.stringify(api.registry.chainTokens)',
-        wrapPromise: false);
-    if (res == null) return [];
-
-    final List tokens = jsonDecode(res);
-    tokens.removeWhere((e) => e == plugin.networkState.tokenSymbol[0]);
-    return tokens;
+    final List res =
+        await plugin.sdk.webView.evalJavascript('acala.getAllTokens(api)');
+    return res;
   }
 
   void unsubscribeTokenBalances(String address) async {
-    final tokens = await getAllTokenSymbols();
+    final tokens = await plugin.api.assets.getAllTokenSymbols();
     tokens.forEach((e) {
-      plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel$e');
+      plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel${e.symbol}');
     });
 
     final dexPairs = await plugin.api.swap.getTokenPairs();
     dexPairs.forEach((e) {
-      final lpToken = e.tokens.map((i) => i['token']).toList();
+      final lpToken = e.getPoolId(plugin);
       plugin.sdk.api
           .unsubscribeMessage('$tokenBalanceChannel${lpToken.join('')}');
     });
   }
 
-  Future<void> subscribeTokenBalances(
-      String address, List tokens, Function(Map) callback) async {
+  Future<void> subscribeTokenBalances(String address,
+      List<TokenBalanceData> tokens, Function(Map) callback) async {
     tokens.forEach((e) {
-      final channel = '$tokenBalanceChannel$e';
+      final channel = '$tokenBalanceChannel${e.symbol}';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
-        [
-          address,
-          {'token': e}
-        ],
+        [address, AssetsUtils.currencyIdFromTokenData(plugin, e)],
         channel,
         (Map data) {
-          callback({'symbol': e, 'balance': data});
+          callback({
+            'id': e.id,
+            'symbol': e.symbol,
+            'type': e.type,
+            'minBalance': e.minBalance,
+            'decimals': e.decimals,
+            'balance': data
+          });
         },
       );
     });
     final dexPairs = await plugin.api.swap.getTokenPairs();
     dexPairs.forEach((e) {
-      final lpToken = e.tokens.map((i) => i['token']).toList();
+      final lpToken = e.getPoolId(plugin);
       final tokenId = lpToken.join('-');
       final channel = '$tokenBalanceChannel${lpToken.join('')}';
       plugin.sdk.api.subscribeMessage(
@@ -67,8 +68,14 @@ class AcalaServiceAssets {
         ],
         channel,
         (Map data) {
-          callback(
-              {'symbol': tokenId, 'decimals': e.decimals, 'balance': data});
+          callback({
+            'symbol': tokenId,
+            'type': 'DexShare',
+            'decimals':
+                AssetsUtils.getBalanceFromTokenSymbol(plugin, lpToken[0])
+                    .decimals,
+            'balance': data
+          });
         },
       );
     });
@@ -100,7 +107,9 @@ class AcalaServiceAssets {
     if (res != null) {
       final prices = Map<String, BigInt>();
       res.forEach((e) {
-        prices[e[0]['token']] = Fmt.balanceInt(e[1]['value'].toString());
+        final token = AssetsUtils.tokenSymbolFromCurrencyId(
+            plugin.store.assets.tokenBalanceMap, e[0]);
+        prices[token] = Fmt.balanceInt(e[1]['value'].toString());
       });
       callback(prices);
     }

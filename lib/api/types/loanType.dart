@@ -2,12 +2,17 @@ import 'dart:math';
 
 import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class LoanType extends _LoanType {
-  static LoanType fromJson(Map<String, dynamic> json) {
+  static LoanType fromJson(Map<String, dynamic> json,
+      Map<String, TokenBalanceData> tokenBalanceMap) {
     LoanType data = LoanType();
-    data.token = json['currency']['token'];
+    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
+        tokenBalanceMap, json['currency']);
     data.debitExchangeRate = BigInt.parse(json['debitExchangeRate'].toString());
     data.liquidationPenalty =
         BigInt.parse(json['liquidationPenalty'].toString());
@@ -101,9 +106,14 @@ abstract class _LoanType {
 
 class LoanData extends _LoanData {
   static LoanData fromJson(Map<String, dynamic> json, LoanType type,
-      BigInt tokenPrice, int stableCoinDecimals, int collateralDecimals) {
+      BigInt tokenPrice, PluginKarura plugin) {
     LoanData data = LoanData();
-    data.token = json['currency']['token'];
+    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
+        plugin.store.assets.tokenBalanceMap, json['currency']);
+    final token = AssetsUtils.getBalanceFromTokenSymbol(plugin, data.token);
+    final stableCoinDecimals =
+        plugin.store.assets.tokenBalanceMap[karura_stable_coin].decimals;
+    final collateralDecimals = token.decimals;
     data.type = type;
     data.price = tokenPrice;
     data.stableCoinPrice = Fmt.tokenInt('1', stableCoinDecimals);

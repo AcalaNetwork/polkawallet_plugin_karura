@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
@@ -54,15 +56,17 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   TxFeeEstimateResult _fee;
 
   Future<void> _refreshData() async {
-    final String poolId = ModalRoute.of(context).settings.arguments;
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
 
     await widget.plugin.service.earn.updateAllDexPoolInfo();
 
     if (mounted) {
-      final tokenPair = poolId.toUpperCase().split('-');
-      final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
+      final tokenPair = pool.getPoolId(widget.plugin);
+      final balancePair =
+          AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, tokenPair);
       setState(() {
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+        final poolInfo =
+            widget.plugin.store.earn.dexPoolInfoMap[tokenPair.join('-')];
         _price = Fmt.bigIntToDouble(
                 poolInfo.amountRight, balancePair[0].decimals) /
             Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1].decimals);
@@ -114,9 +118,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (index == 1 && _maxInputRight != null) return null;
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    final String poolId = ModalRoute.of(context).settings.arguments;
-    final tokenPair = poolId.toUpperCase().split('-');
-    final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final tokenPair = pool.getPoolId(widget.plugin);
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, tokenPair);
 
     final v =
         index == 0 ? _amountLeftCtrl.text.trim() : _amountRightCtrl.text.trim();
@@ -141,14 +146,20 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
     // check if user's lp token balance meet existential deposit.
     final balanceLP = Fmt.balanceInt(widget
-        .plugin.store.assets.tokenBalanceMap[poolId.toUpperCase()]?.amount);
+        .plugin.store.assets.tokenBalanceMap[tokenPair.join('-')]?.amount);
     if (error == null && index == 0 && balanceLP == BigInt.zero) {
       double min = 0;
-      final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+      final poolInfo =
+          widget.plugin.store.earn.dexPoolInfoMap[tokenPair.join('-')];
       min = Fmt.balanceInt(
               tokenPair[0] == widget.plugin.networkState.tokenSymbol[0]
                   ? widget.plugin.networkConst['balances']['existentialDeposit']
-                  : existential_deposit[balance.symbol?.toUpperCase()]) /
+                  : widget
+                      .plugin
+                      .store
+                      .assets
+                      .tokenBalanceMap[balance.symbol?.toUpperCase()]
+                      .minBalance) /
           poolInfo.issuance *
           Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
 
@@ -209,15 +220,14 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   Future<void> _onSubmit(int decimalsLeft, int decimalsRight) async {
     if (_onValidate()) {
-      final String poolId = ModalRoute.of(context).settings.arguments;
-      final pair = poolId.toUpperCase().split('-');
+      final DexPoolData pool = ModalRoute.of(context).settings.arguments;
 
       final amountLeft = _amountLeftCtrl.text.trim();
       final amountRight = _amountRightCtrl.text.trim();
 
       final params = [
-        {'Token': pair[0]},
-        {'Token': pair[1]},
+        pool.tokens[0],
+        pool.tokens[1],
         _maxInputLeft != null
             ? _maxInputLeft.toString()
             : Fmt.tokenInt(amountLeft, decimalsLeft).toString(),
@@ -228,13 +238,13 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         _withStake,
       ];
 
+      final poolId = pool.getPoolId(widget.plugin).join('-');
       if (_withStakeAll) {
-        final pool = poolId.split('-').map((e) => ({'Token': e})).toList();
         final balance = widget.plugin.store.assets.tokenBalanceMap[poolId];
         final balanceInt = Fmt.balanceInt(balance.amount);
         final batchTxs = [
           'api.tx.dex.addLiquidity(...${jsonEncode(params)})',
-          'api.tx.incentives.depositDexShare({DEXShare: ${jsonEncode(pool)}}, "$balanceInt")',
+          'api.tx.incentives.depositDexShare({DEXShare: ${jsonEncode(pool.tokens)}}, "$balanceInt")',
         ];
         final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
             arguments: TxConfirmParams(
@@ -332,14 +342,15 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       builder: (BuildContext context) {
         final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
-        final String poolId = ModalRoute.of(context).settings.arguments;
-        final tokenPair = poolId.toUpperCase().split('-');
+        final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+        final tokenPair = pool.getPoolId(widget.plugin);
         final tokenPairView = [
           PluginFmt.tokenView(tokenPair[0]),
           PluginFmt.tokenView(tokenPair[1])
         ];
 
-        final balancePair = PluginFmt.getBalancePair(widget.plugin, tokenPair);
+        final balancePair =
+            AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, tokenPair);
         final nativeBalance = Fmt.balanceInt(
             widget.plugin.balances.native.availableBalance.toString());
         final accountED = PluginFmt.getAccountED(widget.plugin);
@@ -349,7 +360,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         double amountLeft = 0;
         double amountRight = 0;
 
-        final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+        final poolInfo =
+            widget.plugin.store.earn.dexPoolInfoMap[tokenPair.join('-')];
         if (poolInfo != null) {
           amountLeft =
               Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
@@ -515,7 +527,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                   padding: EdgeInsets.fromLTRB(8, 8, 8, 16),
                   child: StakeLPTips(
                     widget.plugin,
-                    poolId: poolId,
+                    poolId: tokenPair.join('-'),
                     switchActive: _withStake,
                     switch1Active: _withStakeAll,
                     onSwitch: (v) {
@@ -633,7 +645,7 @@ class StakeLPTips extends StatelessWidget {
                         ),
                       ),
                       CupertinoSwitch(
-                        value: switch1Active,
+                        value: switch1Active ?? false,
                         onChanged: onSwitch1,
                       ),
                     ],

@@ -14,7 +14,8 @@ class AcalaApiLoan {
   Future<List<LoanType>> queryLoanTypes() async {
     final List res = await service.queryLoanTypes();
     return res
-        .map((e) => LoanType.fromJson(Map<String, dynamic>.of(e)))
+        .map((e) => LoanType.fromJson(Map<String, dynamic>.of(e),
+            service.plugin.store.assets.tokenBalanceMap))
         .toList();
   }
 
@@ -37,9 +38,9 @@ class AcalaApiLoan {
     return service.queryCollateralLoyaltyBonus();
   }
 
-  Future<List<CollateralRewardDataV2>> queryCollateralRewardsV2(
+  Future<List<CollateralRewardDataV2>> queryCollateralRewards(
       List<String> collaterals, String address) async {
-    final res = await service.queryCollateralRewardsV2(collaterals, address);
+    final res = await service.queryCollateralRewards(collaterals, address);
     return res.map((e) => CollateralRewardDataV2.fromJson(e)).toList();
   }
 }

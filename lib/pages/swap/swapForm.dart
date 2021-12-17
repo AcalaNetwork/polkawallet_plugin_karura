@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
@@ -59,7 +60,7 @@ class _SwapFormState extends State<SwapForm> {
   // use another _timer to control swap amount query
   Timer _delayTimer;
 
-  bool rateExchange = false;
+  bool rateReversed = false;
 
   Future<void> _getTxFee({bool reload = false}) async {
     final sender = TxSenderData(
@@ -96,11 +97,10 @@ class _SwapFormState extends State<SwapForm> {
   }
 
   bool _onCheckBalance() {
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final v = _amountPayCtrl.text.trim();
-    final balancePair = PluginFmt.getBalancePair(widget.plugin, _swapPair);
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, _swapPair);
 
     String error = Fmt.validatePrice(v, context);
     String errorReceive;
@@ -121,9 +121,10 @@ class _SwapFormState extends State<SwapForm> {
       }
 
       // check if user's receive token balance meet existential deposit.
-      final decimalReceive = decimals[symbols.indexOf(_swapPair[1])];
-      final receiveMin =
-          Fmt.balanceDouble(existential_deposit[_swapPair[1]], decimalReceive);
+      final decimalReceive = balancePair[1].decimals;
+      final receiveMin = Fmt.balanceDouble(
+          widget.plugin.store.assets.tokenBalanceMap[_swapPair[1]].minBalance,
+          decimalReceive);
       if ((balancePair[1] == null ||
               Fmt.balanceDouble(balancePair[1].amount, decimalReceive) ==
                   0.0) &&
@@ -346,7 +347,10 @@ class _SwapFormState extends State<SwapForm> {
       }
 
       final params = [
-        _swapOutput.path.map((e) => ({'Token': e['name']})).toList(),
+        _swapOutput.path
+            .map((e) =>
+                AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, e['name']))
+            .toList(),
         input.toString(),
         Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0])
             .toString(),
@@ -433,7 +437,8 @@ class _SwapFormState extends State<SwapForm> {
           currencyOptionsRight.retainWhere((i) => i != swapPair[1]);
         }
 
-        final balancePair = PluginFmt.getBalancePair(widget.plugin, swapPair);
+        final balancePair =
+            AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, swapPair);
         final nativeBalance = Fmt.balanceInt(
             widget.plugin.balances.native.availableBalance.toString());
         final accountED = PluginFmt.getAccountED(widget.plugin);
@@ -560,11 +565,11 @@ class _SwapFormState extends State<SwapForm> {
                                   Text(dic['dex.rate'], style: labelStyle),
                                   Row(children: <Widget>[
                                     Text(
-                                        '1 ${PluginFmt.tokenView(swapPair[rateExchange ? 1 : 0])} = ${(rateExchange ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[rateExchange ? 0 : 1])}'),
+                                        '1 ${PluginFmt.tokenView(swapPair[rateReversed ? 1 : 0])} = ${(rateReversed ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[rateReversed ? 0 : 1])}'),
                                     GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            rateExchange = !rateExchange;
+                                            rateReversed = !rateReversed;
                                           });
                                         },
                                         child: Container(
@@ -741,7 +746,7 @@ class _SwapFormState extends State<SwapForm> {
                                       Text(dic['dex.fee'], style: labelStyle),
                                 ),
                                 Text(
-                                    '${_swapOutput?.fee} ${PluginFmt.tokenView(swapPair[0])}'),
+                                    '${_swapOutput?.fee} ${PluginFmt.tokenView(swapPair.length > 1 ? swapPair[0] : '')}'),
                               ],
                             ),
                           )),

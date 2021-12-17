@@ -11,8 +11,21 @@ class AcalaApiAssets {
 
   final Map _tokenBalances = {};
 
-  Future<List> getAllTokenSymbols() async {
-    return await service.getAllTokenSymbols();
+  Future<List<TokenBalanceData>> getAllTokenSymbols() async {
+    if (service.plugin.store.assets.allTokens.length > 0) {
+      return service.plugin.store.assets.allTokens.toList();
+    }
+
+    final res = (await service.getAllTokenSymbols())
+        .map((e) => TokenBalanceData(
+            id: e['id'],
+            type: e['type'],
+            symbol: e['symbol'],
+            decimals: e['decimals'],
+            minBalance: e['minBalance']))
+        .toList();
+    service.plugin.store.assets.setAllTokens(res);
+    return res;
   }
 
   void unsubscribeTokenBalances(String address) {
@@ -27,12 +40,12 @@ class AcalaApiAssets {
       final invisible =
           List.of(service.plugin.store.setting.tokensConfig['invisible']);
       if (invisible.length > 0) {
-        tokens.removeWhere((token) => invisible.contains(token));
+        tokens.removeWhere((token) => invisible.contains(token.symbol));
       }
     }
 
-    await service.plugin.service.assets
-        .queryMarketPrices(List<String>.from(tokens));
+    await service.plugin.service.assets.queryMarketPrices(
+        List<String>.from(tokens.map((e) => e.symbol).toList()));
     _tokenBalances.clear();
 
     await service.subscribeTokenBalances(address, tokens, (Map data) {
@@ -43,11 +56,12 @@ class AcalaApiAssets {
 
       callback(_tokenBalances.values.map((e) {
         final decimal = e['decimals'] ??
-            service.plugin.networkState.tokenDecimals[
-                service.plugin.networkState.tokenSymbol.indexOf(e['symbol'])];
+            tokens.firstWhere((t) => t.symbol == e['symbol']).decimals;
         return TokenBalanceData(
-          id: e['symbol'],
+          id: e['id'] ?? e['symbol'],
           symbol: e['symbol'],
+          type: e['type'],
+          minBalance: e['minBalance'],
           name: PluginFmt.tokenView(e['symbol']),
           fullName:
               service.plugin.store.setting.tokensConfig['tokenName'] != null
@@ -63,28 +77,6 @@ class AcalaApiAssets {
         );
       }).toList());
     });
-  }
-
-  Future<List<TokenBalanceData>> queryAirdropTokens(String address) async {
-    final symbolAll = service.plugin.networkState.tokenSymbol;
-    final decimalsAll = service.plugin.networkState.tokenDecimals;
-
-    final res = List<TokenBalanceData>.empty(growable: true);
-    final ls = await service.queryAirdropTokens(address);
-    if (ls['tokens'] != null) {
-      List.of(ls['tokens']).asMap().forEach((i, v) {
-        int decimal = decimalsAll[symbolAll.indexOf(v)];
-        if (v == symbolAll[0]) {
-          decimal = 12;
-        }
-        res.add(TokenBalanceData(
-            name: 'pre$v',
-            symbol: v,
-            decimals: decimal,
-            amount: ls['amount'][i].toString()));
-      });
-    }
-    return res;
   }
 
   Future<void> subscribeTokenPrices(

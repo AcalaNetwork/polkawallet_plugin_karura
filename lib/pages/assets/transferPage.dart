@@ -9,9 +9,11 @@ import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -46,7 +48,7 @@ class _TransferPageState extends State<TransferPage> {
 
   KeyPairData _accountTo;
   List<KeyPairData> _accountOptions = [];
-  String _token;
+  TokenBalanceData _token;
   String _chainTo;
 
   String _accountToError;
@@ -93,11 +95,13 @@ class _TransferPageState extends State<TransferPage> {
         widget.keyring.current.address, widget.keyring.current.pubKey);
     final txInfo =
         TxInfoData(isXCM ? 'xTokens' : 'currencies', 'transfer', sender);
+    final currencyId =
+        AssetsUtils.currencyIdFromTokenData(widget.plugin, _token);
     final fee = await widget.plugin.sdk.api.tx.estimateFees(
         txInfo,
         isXCM
             ? [
-                {'Token': _token},
+                currencyId,
                 '1000000000',
                 [
                   1,
@@ -113,11 +117,7 @@ class _TransferPageState extends State<TransferPage> {
                 // params.weight
                 xcm_dest_weight_kusama
               ]
-            : [
-                widget.keyring.current.address,
-                {'Token': _token, 'decimals': 12},
-                '1000000000'
-              ]);
+            : [widget.keyring.current.address, currencyId, '1000000000']);
     if (mounted) {
       setState(() {
         _fee = fee;
@@ -153,7 +153,9 @@ class _TransferPageState extends State<TransferPage> {
 
     final List tokenXcmConfig =
         widget.plugin.store.setting.tokensConfig['xcm'] != null
-            ? widget.plugin.store.setting.tokensConfig['xcm'][_token] ?? []
+            ? widget.plugin.store.setting.tokensConfig['xcm']
+                    [_token.symbol.toUpperCase()] ??
+                []
             : [];
     final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
@@ -224,9 +226,9 @@ class _TransferPageState extends State<TransferPage> {
     if (_accountToError == null &&
         _formKey.currentState.validate() &&
         !_submitting) {
-      final decimals =
-          widget.plugin.store.assets.tokenBalanceMap[_token].decimals;
-      final tokenView = PluginFmt.tokenView(_token);
+      final tokenView = PluginFmt.tokenView(_token.symbol);
+      final currencyId =
+          AssetsUtils.currencyIdFromTokenData(widget.plugin, _token);
 
       /// send XCM tx if cross chain
       if (chainTo != widget.plugin.basic.name) {
@@ -282,9 +284,10 @@ class _TransferPageState extends State<TransferPage> {
           },
           params: [
             // params.currencyId
-            {'Token': _token},
+            currencyId,
             // params.amount
-            (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
+            (_amountMax ??
+                    Fmt.tokenInt(_amountCtrl.text.trim(), _token.decimals))
                 .toString(),
             // params.dest
             isV2XCM ? {'V1': dest} : dest,
@@ -299,20 +302,13 @@ class _TransferPageState extends State<TransferPage> {
       }
 
       /// else return normal transfer
-      final dexShare = _token.toUpperCase().split('-');
-
       final params = [
         // params.to
         _accountTo.address,
         // params.currencyId
-        _token.contains('-')
-            ? {
-                'DEXShare': dexShare.map((e) => ({'Token': e})).toList(),
-                'decimals': decimals
-              }
-            : {'Token': _token.toUpperCase(), 'decimals': decimals},
+        currencyId,
         // params.amount
-        (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), decimals))
+        (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), _token.decimals))
             .toString(),
       ];
       return TxConfirmParams(
@@ -356,7 +352,7 @@ class _TransferPageState extends State<TransferPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final String token = ModalRoute.of(context).settings.arguments;
+      final TokenBalanceData token = ModalRoute.of(context).settings.arguments;
       setState(() {
         _token = token;
         _accountOptions = widget.keyring.allWithContacts.toList();
@@ -382,13 +378,14 @@ class _TransferPageState extends State<TransferPage> {
       builder: (_) {
         final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
         final dicAcala = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-        final String args = ModalRoute.of(context).settings.arguments;
+        final TokenBalanceData args = ModalRoute.of(context).settings.arguments;
         final token = _token ?? args;
-        final tokenView = PluginFmt.tokenView(token);
+        final tokenSymbol = token.symbol.toUpperCase();
+        final tokenView = PluginFmt.tokenView(token.symbol);
 
         final List tokenXcmConfig =
             widget.plugin.store.setting.tokensConfig['xcm'] != null
-                ? widget.plugin.store.setting.tokensConfig['xcm'][token]
+                ? widget.plugin.store.setting.tokensConfig['xcm'][tokenSymbol]
                 : [];
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
@@ -402,27 +399,29 @@ class _TransferPageState extends State<TransferPage> {
             Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
 
         final decimals =
-            widget.plugin.store.assets.tokenBalanceMap[token]?.decimals ?? 12;
+            widget.plugin.store.assets.tokenBalanceMap[tokenSymbol]?.decimals ??
+                12;
         final balanceData =
-            widget.plugin.store.assets.tokenBalanceMap[token.toUpperCase()];
+            widget.plugin.store.assets.tokenBalanceMap[tokenSymbol];
         final available = Fmt.balanceInt(balanceData?.amount) -
             Fmt.balanceInt(balanceData?.locked);
         final existDepositToken =
-            token.contains('-') ? token.split('-')[0] : token;
+            tokenSymbol.contains('-') ? tokenSymbol.split('-')[0] : tokenSymbol;
         final existDeposit = existDepositToken == nativeToken
             ? Fmt.balanceInt(widget
                 .plugin.networkConst['balances']['existentialDeposit']
                 .toString())
-            : Fmt.balanceInt(existential_deposit[existDepositToken]);
+            : Fmt.balanceInt(widget.plugin.store.assets
+                .tokenBalanceMap[existDepositToken].minBalance);
 
         final chainTo = _chainTo ?? widget.plugin.basic.name;
         final isCrossChain = widget.plugin.basic.name != chainTo;
         final destExistDeposit = isCrossChain
-            ? Fmt.balanceInt(
-                cross_chain_xcm_fees[chainTo][token]['existentialDeposit'])
+            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo][tokenSymbol]
+                ['existentialDeposit'])
             : BigInt.zero;
         final destFee = isCrossChain
-            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo][token]['fee'])
+            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo][tokenSymbol]['fee'])
             : BigInt.zero;
 
         final colorGrey = Theme.of(context).unselectedWidgetColor;
@@ -536,39 +535,41 @@ class _TransferPageState extends State<TransferPage> {
                         Container(
                           margin: EdgeInsets.only(top: 16, bottom: 16),
                           child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.only(bottom: 4),
-                                  child: Text(
-                                    dic['currency'],
-                                    style: TextStyle(
-                                        color: colorGrey, fontSize: 12),
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    CurrencyWithIcon(
-                                      tokenView,
-                                      TokenIcon(
-                                          token, widget.plugin.tokenIcons),
+                            child: Container(
+                              color: Theme.of(context).canvasColor,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    margin: EdgeInsets.only(bottom: 4),
+                                    child: Text(
+                                      dic['currency'],
+                                      style: TextStyle(
+                                          color: colorGrey, fontSize: 12),
                                     ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 18,
-                                      color: colorGrey,
-                                    )
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      CurrencyWithIcon(
+                                        tokenView,
+                                        TokenIcon(tokenSymbol,
+                                            widget.plugin.tokenIcons),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 18,
+                                        color: colorGrey,
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                             onTap: () async {
                               final tokens = widget
-                                  .plugin.store.assets.tokenBalanceMap.keys
+                                  .plugin.store.assets.tokenBalanceMap.values
                                   .toList();
                               if (widget.plugin.store.setting
                                           .tokensConfig['invisible'] !=
@@ -579,15 +580,15 @@ class _TransferPageState extends State<TransferPage> {
                                 tokens.removeWhere((e) =>
                                     List.of(widget.plugin.store.setting
                                             .tokensConfig['invisible'])
-                                        .contains(e) ||
+                                        .contains(e.symbol) ||
                                     List.of(widget.plugin.store.setting
                                             .tokensConfig['disabled'])
-                                        .contains(e));
+                                        .contains(e.symbol));
                               }
-                              final res = await Navigator.of(context).pushNamed(
-                                  CurrencySelectPage.route,
-                                  arguments: tokens);
-                              if (res != null && res != _token) {
+                              final res = (await Navigator.of(context)
+                                  .pushNamed(CurrencySelectPage.route,
+                                      arguments: tokens) as TokenBalanceData);
+                              if (res != null && res.symbol != _token.symbol) {
                                 // reload tx fee if user switch to normal transfer from XCM
                                 if (isCrossChain) {
                                   _getTxFee(isXCM: false, reload: true);
@@ -773,10 +774,10 @@ class _TransferPageState extends State<TransferPage> {
                         Visibility(
                             visible: canCrossChain,
                             child: _CrossChainTransferWarning(
-                              token: token,
+                              token: tokenSymbol,
                               chain: (widget.plugin.store.setting
                                       .tokensConfig['warning'] ??
-                                  {})[token],
+                                  {})[tokenSymbol],
                             )),
                       ],
                     ),

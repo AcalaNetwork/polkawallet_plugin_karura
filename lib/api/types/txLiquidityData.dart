@@ -1,13 +1,19 @@
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxDexLiquidityData extends _TxDexLiquidityData {
   static const String actionDeposit = 'addLiquidity';
   static const String actionWithdraw = 'removeLiquidity';
-  static TxDexLiquidityData fromJson(Map<String, dynamic> json,
-      String stableCoinSymbol, List<String> symbols, List<int> decimals) {
+  static TxDexLiquidityData fromJson(
+      Map<String, dynamic> json,
+      String stableCoinSymbol,
+      List<String> symbols,
+      List<int> decimals,
+      Map<String, TokenBalanceData> tokenBalanceMap) {
     final args = jsonDecode(json['args']);
 
     final data = TxDexLiquidityData();
@@ -19,7 +25,10 @@ class TxDexLiquidityData extends _TxDexLiquidityData {
       data.action = json['method'];
     }
 
-    final pair = [args[0]['token'], args[1]['token']];
+    final pair = [
+      AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, args[0]),
+      AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, args[1])
+    ];
     final pairView = pair.map((e) => PluginFmt.tokenView(e)).toList();
     final poolId = pair.join('-');
     final shareTokenView = PluginFmt.tokenView(poolId);

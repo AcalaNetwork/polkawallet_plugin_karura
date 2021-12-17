@@ -14,6 +14,8 @@ abstract class _AssetsStore with Store {
 
   final StoreCache cache;
 
+  List<TokenBalanceData> allTokens = [];
+
   @observable
   Map<String, TokenBalanceData> tokenBalanceMap =
       Map<String, TokenBalanceData>();
@@ -30,6 +32,10 @@ abstract class _AssetsStore with Store {
   @observable
   Map aggregatedAssets = {};
 
+  void setAllTokens(List<TokenBalanceData> tokens) {
+    allTokens = tokens;
+  }
+
   @action
   void setTokenBalanceMap(List<TokenBalanceData> list, String pubKey,
       {bool shouldCache = true}) {
@@ -42,8 +48,10 @@ abstract class _AssetsStore with Store {
         'id': e.id,
         'name': e.name,
         'symbol': e.symbol,
+        'type': e.type,
         'fullName': e.fullName,
         'decimals': e.decimals,
+        'minBalance': e.minBalance,
         'amount': e.amount,
         'detailPageRoute': e.detailPageRoute,
       };
@@ -93,8 +101,10 @@ abstract class _AssetsStore with Store {
               id: e['id'],
               name: e['name'],
               symbol: e['symbol'],
+              type: e['type'],
               fullName: e['fullName'],
               decimals: e['decimals'],
+              minBalance: e['minBalance'],
               amount: e['amount'],
               detailPageRoute: e['detailPageRoute']))),
           pubKey,

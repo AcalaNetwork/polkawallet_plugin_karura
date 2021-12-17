@@ -6,6 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -75,7 +76,7 @@ class _EarnDexListState extends State<EarnDexList> {
         final List<DexPoolData> datas = [];
         final List<DexPoolData> otherDatas = [];
         for (int i = 0; i < dexPools.length; i++) {
-          final poolId = dexPools[i].tokens.map((e) => e['token']).join('-');
+          final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
 
           double rewards = 0;
           double savingRewards = 0;
@@ -124,12 +125,14 @@ class _EarnDexListState extends State<EarnDexList> {
               padding: EdgeInsets.all(16),
               itemCount: dexPools.length,
               itemBuilder: (_, i) {
-                final poolId =
-                    dexPools[i].tokens.map((e) => e['token']).join('-');
+                final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
 
                 final BigInt sharesTotal = widget.plugin.store.earn
                         .dexPoolInfoMap[poolId]?.sharesTotal ??
                     BigInt.zero;
+                final shareDecimals = AssetsUtils.getBalanceFromTokenSymbol(
+                        widget.plugin, dexPools[i].getPoolId(widget.plugin)[0])
+                    .decimals;
 
                 final rewardsEmpty = incentivesV2.dex == null;
 
@@ -159,7 +162,7 @@ class _EarnDexListState extends State<EarnDexList> {
                             ),
                             Divider(height: 24),
                             Text(
-                              Fmt.token(sharesTotal, dexPools[i].decimals),
+                              Fmt.token(sharesTotal, shareDecimals),
                               style: Theme.of(context).textTheme.headline4,
                             ),
                             Container(
@@ -197,7 +200,7 @@ class _EarnDexListState extends State<EarnDexList> {
                     ),
                   ),
                   onTap: () => Navigator.of(context)
-                      .pushNamed(EarnDetailPage.route, arguments: poolId),
+                      .pushNamed(EarnDetailPage.route, arguments: dexPools[i]),
                 );
               },
             );

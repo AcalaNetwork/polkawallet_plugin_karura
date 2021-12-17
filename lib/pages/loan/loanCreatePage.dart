@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -50,7 +51,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
   void _updateState(LoanType loanType, BigInt collateral, BigInt debit,
       {int stableCoinDecimals, int collateralDecimals}) {
-    final tokenPrice = widget.plugin.store.assets.prices[_token];
+    final tokenPrice = widget.plugin.store.assets.prices[_token] ?? BigInt.zero;
     final collateralInUSD = loanType.tokenToUSD(collateral, tokenPrice,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
@@ -172,7 +173,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
         "debits": Fmt.token(_amountDebit, stableCoinDecimals),
       },
       'params': [
-        {'token': _token},
+        AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, _token),
         _amountCollateral.toString(),
         debitShare.toString(),
       ]
@@ -238,8 +239,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
       final token = _token ?? relay_chain_token_symbol;
 
-      final balancePair =
-          PluginFmt.getBalancePair(widget.plugin, [token, karura_stable_coin]);
+      final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
+          widget.plugin, [token, karura_stable_coin]);
 
       final pageTitle = '${dic['loan.create']} $token';
 

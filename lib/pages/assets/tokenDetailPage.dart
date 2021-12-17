@@ -44,8 +44,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final TokenBalanceData token = ModalRoute.of(context).settings.arguments;
-      widget.plugin.service.assets
-          .updateTokenBalances(token.symbol?.toUpperCase());
+      widget.plugin.service.assets.updateTokenBalances(token);
     });
   }
 
@@ -91,7 +90,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
             return RefreshIndicator(
               key: _refreshKey,
               onRefresh: () =>
-                  widget.plugin.service.assets.updateTokenBalances(tokenSymbol),
+                  widget.plugin.service.assets.updateTokenBalances(token),
               child: Column(
                 children: <Widget>[
                   Stack(
@@ -268,7 +267,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   Navigator.pushNamed(
                                     context,
                                     TransferPage.route,
-                                    arguments: tokenSymbol,
+                                    arguments: token,
                                   );
                                 },
                               ),

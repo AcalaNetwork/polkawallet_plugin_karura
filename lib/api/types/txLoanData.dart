@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxLoanData extends _TxLoanData {
@@ -11,14 +13,16 @@ class TxLoanData extends _TxLoanData {
   static const String actionTypePayback = 'payback';
   static const String actionTypeCreate = 'create';
   static const String actionLiquidate = 'liquidate';
-  static TxLoanData fromJson(Map json, String stableCoinSymbol,
-      int stableCoinDecimals, int tokenDecimals) {
+  static TxLoanData fromJson(
+      Map json, String stableCoinSymbol, PluginKarura plugin) {
     TxLoanData data = TxLoanData();
     data.event = json['type'];
     data.hash = json['extrinsic']['id'];
 
     final jsonData = json['data'] as List;
-    data.token = jsonDecode(jsonData[1]['value'])['token'];
+    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
+        plugin.store.assets.tokenBalanceMap, jsonDecode(jsonData[1]['value']));
+    final token = AssetsUtils.getBalanceFromTokenSymbol(plugin, data.token);
 
     data.collateral = Fmt.balanceInt(jsonData[2]['value'].toString());
     data.debit = jsonData.length > 4
@@ -28,8 +32,9 @@ class TxLoanData extends _TxLoanData {
             BigInt.from(pow(10, acala_price_decimals))
         : BigInt.zero;
     data.amountCollateral =
-        Fmt.priceFloorBigInt(BigInt.zero - data.collateral, tokenDecimals);
-    data.amountDebit = Fmt.priceCeilBigInt(data.debit, stableCoinDecimals);
+        Fmt.priceFloorBigInt(BigInt.zero - data.collateral, token.decimals);
+    data.amountDebit = Fmt.priceCeilBigInt(data.debit,
+        plugin.store.assets.tokenBalanceMap[karura_stable_coin].decimals);
     if (data.event == 'ConfiscateCollateralAndDebit') {
       data.actionType = actionLiquidate;
     } else if (data.collateral == BigInt.zero) {
