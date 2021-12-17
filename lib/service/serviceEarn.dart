@@ -4,6 +4,7 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -28,6 +29,9 @@ class ServiceEarn {
       }
       final pool = pools[poolIndex];
       final tokenPair = pool.getPoolId(plugin);
+      final decimalsPair = tokenPair
+          .map((e) => AssetsUtils.getBalanceFromTokenSymbol(plugin, e).decimals)
+          .toList();
 
       final poolInfo = store.earn.dexPoolInfoMap[k];
       final prices = store.assets.marketPrices;
@@ -35,9 +39,9 @@ class ServiceEarn {
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
       final stakingPoolValue = poolInfo.sharesTotal /
           poolInfo.issuance *
-          (Fmt.bigIntToDouble(poolInfo.amountLeft, pool.pairDecimals[0]) *
+          (Fmt.bigIntToDouble(poolInfo.amountLeft, decimalsPair[0]) *
                   (prices[tokenPair[0]] ?? 0) +
-              Fmt.bigIntToDouble(poolInfo.amountRight, pool.pairDecimals[1]) *
+              Fmt.bigIntToDouble(poolInfo.amountRight, decimalsPair[1]) *
                   (prices[tokenPair[1]] ?? 0));
 
       v.forEach((e) {

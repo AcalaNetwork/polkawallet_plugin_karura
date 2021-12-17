@@ -10,6 +10,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -196,12 +197,8 @@ class _BootstrapListState extends State<BootstrapList> {
                             widget.plugin.networkState.tokenSymbol[0]
                         ? widget.plugin.networkConst['balances']
                             ['existentialDeposit']
-                        : widget
-                            .plugin
-                            .store
-                            .assets
-                            .tokenBalanceMap[e.getPoolId(widget.plugin)[0]]
-                            .minBalance);
+                        : widget.plugin.store.assets
+                            .tokenBalanceMap[tokenPair[0]].minBalance);
                     return _BootStrapCardEnabled(
                       widget.plugin,
                       pool: e,
@@ -209,7 +206,9 @@ class _BootstrapListState extends State<BootstrapList> {
                       shareRate: _initialShareRates[poolId],
                       tokenIcons: widget.plugin.tokenIcons,
                       existentialDeposit: Fmt.priceCeilBigInt(
-                          existDeposit, e.pairDecimals[0],
+                          existDeposit,
+                          widget.plugin.store.assets
+                              .tokenBalanceMap[tokenPair[0]].decimals,
                           lengthMax: 6),
                       withStake: _withStake,
                       onWithStakeChange: (v) {
@@ -257,6 +256,8 @@ class _BootStrapCard extends StatelessWidget {
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final tokenPair = pool.getPoolId(plugin);
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(plugin, tokenPair);
     final poolId = tokenPair.join('-');
     final tokenPairView =
         tokenPair.map((e) => PluginFmt.tokenView(e ?? '')).toList();
@@ -337,7 +338,7 @@ class _BootStrapCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                          '${Fmt.priceCeilBigInt(targetLeft, pool.pairDecimals[0])} ${tokenPairView[0]}'),
+                          '${Fmt.priceCeilBigInt(targetLeft, balancePair[0].decimals)} ${tokenPairView[0]}'),
                       Text(
                         ' (${Fmt.ratio(progressLeft)} ${dic['boot.provision.met']})',
                         style: TextStyle(color: primaryColor),
@@ -354,7 +355,7 @@ class _BootStrapCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                          '${Fmt.priceCeilBigInt(targetRight, pool.pairDecimals[1])} ${tokenPairView[1]}'),
+                          '${Fmt.priceCeilBigInt(targetRight, balancePair[1].decimals)} ${tokenPairView[1]}'),
                       Text(
                         ' (${Fmt.ratio(progressRight)} ${dic['boot.provision.met']})',
                         style: TextStyle(color: primaryColor),
@@ -389,8 +390,8 @@ class _BootStrapCard extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 8),
             child: InfoItemRow(
                 dic['boot.total'],
-                '${Fmt.priceCeilBigInt(nowLeft, pool.pairDecimals[0])} ${tokenPairView[0]}\n'
-                '+ ${Fmt.priceCeilBigInt(nowRight, pool.pairDecimals[1])} ${tokenPairView[1]}'),
+                '${Fmt.priceCeilBigInt(nowLeft, balancePair[0].decimals)} ${tokenPairView[0]}\n'
+                '+ ${Fmt.priceCeilBigInt(nowRight, balancePair[1].decimals)} ${tokenPairView[1]}'),
           ),
           Container(
             margin: EdgeInsets.only(bottom: 16),
@@ -441,14 +442,16 @@ class _BootStrapCardEnabled extends StatelessWidget {
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final tokenPair = pool.getPoolId(plugin);
+    final balancePair =
+        AssetsUtils.getBalancePairFromTokenSymbol(plugin, tokenPair);
     final poolId = tokenPair.join('-');
     final tokenPairView =
         tokenPair.map((e) => PluginFmt.tokenView(e ?? '')).toList();
 
     final userLeft =
-        Fmt.balanceDouble(userProvision[0].toString(), pool.pairDecimals[0]);
+        Fmt.balanceDouble(userProvision[0].toString(), balancePair[0].decimals);
     final userRight =
-        Fmt.balanceDouble(userProvision[1].toString(), pool.pairDecimals[1]);
+        Fmt.balanceDouble(userProvision[1].toString(), balancePair[1].decimals);
     final ratio = Fmt.balanceDouble(shareRate[1].toString(), 18);
     final amount = userLeft + userRight * ratio;
 
@@ -555,7 +558,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
               : TxButton(
                   text: 'Claim LP Tokens',
                   getTxParams: () async =>
-                      onClaimLP(pool, amount, pool.pairDecimals[0]),
+                      onClaimLP(pool, amount, balancePair[0].decimals),
                   onFinish: onFinish,
                 )
         ],

@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -113,6 +114,9 @@ class _DexPoolCard extends StatelessWidget {
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final tokenPair = pool.getPoolId(plugin);
+    final decimalsPair = tokenPair
+        .map((e) => AssetsUtils.getBalanceFromTokenSymbol(plugin, e).decimals)
+        .toList();
     final tokenPairView =
         tokenPair.map((e) => PluginFmt.tokenView(e)).join('-');
     final poolId = tokenPair.join('-');
@@ -158,14 +162,14 @@ class _DexPoolCard extends StatelessWidget {
                   title: PluginFmt.tokenView(tokenPair[0]),
                   content: amountLeft == null
                       ? '--'
-                      : Fmt.priceFloorBigInt(amountLeft, pool.pairDecimals[0]),
+                      : Fmt.priceFloorBigInt(amountLeft, decimalsPair[0]),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   title: PluginFmt.tokenView(tokenPair[1]),
                   content: amountRight == null
                       ? '--'
-                      : Fmt.priceFloorBigInt(amountRight, pool.pairDecimals[1]),
+                      : Fmt.priceFloorBigInt(amountRight, decimalsPair[1]),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,

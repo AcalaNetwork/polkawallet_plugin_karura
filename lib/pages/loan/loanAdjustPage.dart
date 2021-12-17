@@ -252,7 +252,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
     final currencyId =
-        AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, params.token);
+        AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, params.token);
     switch (params.actionType) {
       case LoanAdjustPage.actionTypeMint:
         // borrow min debit value if user's debit is empty
@@ -351,11 +351,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final symbols = widget.plugin.networkState.tokenSymbol;
-      final decimals = widget.plugin.networkState.tokenDecimals;
-
-      final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
-
       final LoanAdjustPageParams params =
           ModalRoute.of(context).settings.arguments;
 
@@ -364,8 +359,15 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         _amountCollateral = loan.collaterals;
         _amountDebit = loan.debits;
       });
-      _updateState(loan.type, loan.collaterals, loan.debits, stableCoinDecimals,
-          decimals[symbols.indexOf(params.token)]);
+      _updateState(
+          loan.type,
+          loan.collaterals,
+          loan.debits,
+          AssetsUtils.getBalanceFromTokenSymbol(
+                  widget.plugin, karura_stable_coin)
+              .decimals,
+          AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, params.token)
+              .decimals);
     });
   }
 

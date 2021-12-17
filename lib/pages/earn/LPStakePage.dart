@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -116,21 +116,14 @@ class _LPStakePage extends State<LPStakePage> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
-
-    final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
 
     final LPStakePageParams args = ModalRoute.of(context).settings.arguments;
 
-    final token = args.pool
-        .getPoolId(widget.plugin)
-        .firstWhere((e) => e != karura_stable_coin);
-    final poolId = args.pool.getPoolId(widget.plugin).join('-');
-    final tokenDecimals = decimals[symbols.indexOf(token)];
-    final shareDecimals = stableCoinDecimals >= tokenDecimals
-        ? stableCoinDecimals
-        : tokenDecimals;
+    final tokenPair = args.pool.getPoolId(widget.plugin);
+    final poolId = tokenPair.join('-');
+    final shareDecimals =
+        AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, tokenPair[0])
+            .decimals;
 
     return Scaffold(
       appBar: AppBar(

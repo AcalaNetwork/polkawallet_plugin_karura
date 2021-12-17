@@ -164,16 +164,14 @@ class _LoanPageState extends State<LoanPage> {
                                     ? ListView(
                                         padding: EdgeInsets.all(16),
                                         children: loans.map((loan) {
-                                          final tokenDecimals = widget.plugin
-                                                  .networkState.tokenDecimals[
-                                              widget.plugin.networkState
-                                                  .tokenSymbol
-                                                  .indexOf(loan.token)];
                                           return LoanOverviewCard(
                                             loan,
                                             karura_stable_coin,
                                             stableCoinDecimals,
-                                            tokenDecimals,
+                                            widget.plugin.store.assets.allTokens
+                                                .firstWhere((e) =>
+                                                    e.symbol == loan.token)
+                                                ?.decimals,
                                             widget.plugin.tokenIcons,
                                             widget.plugin.store.assets.prices,
                                           );
@@ -451,12 +449,7 @@ class CollateralIncentiveList extends StatelessWidget {
       call: 'adjustLoan',
       txTitle: dic['loan.activate'],
       txDisplay: {'collateral': token},
-      params: [
-        AssetsUtils.currencyIdFromTokenData(
-            plugin, AssetsUtils.getBalanceFromTokenSymbol(plugin, token)),
-        0,
-        0
-      ],
+      params: [AssetsUtils.currencyIdFromTokenSymbol(plugin, token), 0, 0],
     );
     Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
   }

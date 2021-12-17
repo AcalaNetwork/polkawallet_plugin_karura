@@ -6,6 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -129,6 +130,9 @@ class _EarnDexListState extends State<EarnDexList> {
                 final BigInt sharesTotal = widget.plugin.store.earn
                         .dexPoolInfoMap[poolId]?.sharesTotal ??
                     BigInt.zero;
+                final shareDecimals = AssetsUtils.getBalanceFromTokenSymbol(
+                        widget.plugin, dexPools[i].getPoolId(widget.plugin)[0])
+                    .decimals;
 
                 final rewardsEmpty = incentivesV2.dex == null;
 
@@ -158,7 +162,7 @@ class _EarnDexListState extends State<EarnDexList> {
                             ),
                             Divider(height: 24),
                             Text(
-                              Fmt.token(sharesTotal, dexPools[i].decimals),
+                              Fmt.token(sharesTotal, shareDecimals),
                               style: Theme.of(context).textTheme.headline4,
                             ),
                             Container(

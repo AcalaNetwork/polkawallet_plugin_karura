@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -21,19 +22,16 @@ class SwapDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> dic =
         I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final decimals = plugin.networkState.tokenDecimals;
-    final symbols = plugin.networkState.tokenSymbol;
 
     final TxSwapData tx = ModalRoute.of(context).settings.arguments;
     final token0 = PluginFmt.tokenView(tx.tokenPay);
     final token1 = PluginFmt.tokenView(tx.tokenReceive);
+    final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
+        plugin, [tx.tokenPay, tx.tokenReceive]);
     final tokenLP = '$token0-$token1 LP';
-    final amount0 =
-        Fmt.balance(tx.amountPay, decimals[symbols.indexOf(tx.tokenPay)]);
-    final amount1 = Fmt.balance(
-        tx.amountReceive, decimals[symbols.indexOf(tx.tokenReceive)]);
-    final amountLP =
-        Fmt.balance(tx.amountShare, decimals[symbols.indexOf(tx.tokenPay)]);
+    final amount0 = Fmt.balance(tx.amountPay, balancePair[0].decimals);
+    final amount1 = Fmt.balance(tx.amountReceive, balancePair[1].decimals);
+    final amountLP = Fmt.balance(tx.amountShare, balancePair[0].decimals);
 
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 

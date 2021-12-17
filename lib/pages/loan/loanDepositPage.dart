@@ -79,7 +79,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     final LoanDepositPageParams params =
         ModalRoute.of(context).settings.arguments;
     final currencyId =
-        AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, params.token);
+        AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, params.token);
     switch (params.actionType) {
       case LoanDepositPage.actionTypeDeposit:
         return {
@@ -133,11 +133,6 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final symbols = widget.plugin.networkState.tokenSymbol;
-      final decimals = widget.plugin.networkState.tokenDecimals;
-
-      final stableCoinDecimals = decimals[symbols.indexOf(karura_stable_coin)];
-
       final LoanDepositPageParams params =
           ModalRoute.of(context).settings.arguments;
 

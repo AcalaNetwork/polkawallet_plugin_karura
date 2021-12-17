@@ -51,12 +51,12 @@ class AcalaServiceLoan {
     return res;
   }
 
-  Future<List> queryCollateralRewardsV2(
+  Future<List> queryCollateralRewards(
       List<String> collaterals, String address) async {
     final decimals = plugin.networkState.tokenDecimals[0];
     final query = collaterals
         .map((e) =>
-            'acala.fetchCollateralRewardsV2(api, ${jsonEncode(AssetsUtils.currencyIdFromTokenSymbol(plugin, e))}, "$address", $decimals)')
+            'acala.fetchCollateralRewards(api, ${jsonEncode(AssetsUtils.currencyIdFromTokenSymbol(plugin, e))}, "$address", $decimals)')
         .join(',');
     final List res =
         await plugin.sdk.webView.evalJavascript('Promise.all([$query])');

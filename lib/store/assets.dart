@@ -14,6 +14,8 @@ abstract class _AssetsStore with Store {
 
   final StoreCache cache;
 
+  List<TokenBalanceData> allTokens = [];
+
   @observable
   Map<String, TokenBalanceData> tokenBalanceMap =
       Map<String, TokenBalanceData>();
@@ -29,6 +31,10 @@ abstract class _AssetsStore with Store {
 
   @observable
   Map aggregatedAssets = {};
+
+  void setAllTokens(List<TokenBalanceData> tokens) {
+    allTokens = tokens;
+  }
 
   @action
   void setTokenBalanceMap(List<TokenBalanceData> list, String pubKey,

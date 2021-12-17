@@ -60,7 +60,7 @@ class _SwapFormState extends State<SwapForm> {
   // use another _timer to control swap amount query
   Timer _delayTimer;
 
-  bool rateExchange = false;
+  bool rateReversed = false;
 
   Future<void> _getTxFee({bool reload = false}) async {
     final sender = TxSenderData(
@@ -97,8 +97,6 @@ class _SwapFormState extends State<SwapForm> {
   }
 
   bool _onCheckBalance() {
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final v = _amountPayCtrl.text.trim();
     final balancePair =
@@ -123,7 +121,7 @@ class _SwapFormState extends State<SwapForm> {
       }
 
       // check if user's receive token balance meet existential deposit.
-      final decimalReceive = decimals[symbols.indexOf(_swapPair[1])];
+      final decimalReceive = balancePair[1].decimals;
       final receiveMin = Fmt.balanceDouble(
           widget.plugin.store.assets.tokenBalanceMap[_swapPair[1]].minBalance,
           decimalReceive);
@@ -567,11 +565,11 @@ class _SwapFormState extends State<SwapForm> {
                                   Text(dic['dex.rate'], style: labelStyle),
                                   Row(children: <Widget>[
                                     Text(
-                                        '1 ${PluginFmt.tokenView(swapPair[rateExchange ? 1 : 0])} = ${(rateExchange ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[rateExchange ? 0 : 1])}'),
+                                        '1 ${PluginFmt.tokenView(swapPair[rateReversed ? 1 : 0])} = ${(rateReversed ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[rateReversed ? 0 : 1])}'),
                                     GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            rateExchange = !rateExchange;
+                                            rateReversed = !rateReversed;
                                           });
                                         },
                                         child: Container(

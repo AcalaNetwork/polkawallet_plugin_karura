@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class AcalaServiceAssets {
@@ -21,9 +22,9 @@ class AcalaServiceAssets {
   }
 
   void unsubscribeTokenBalances(String address) async {
-    final tokens = await getAllTokenSymbols();
+    final tokens = await plugin.api.assets.getAllTokenSymbols();
     tokens.forEach((e) {
-      plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel${e['symbol']}');
+      plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel${e.symbol}');
     });
 
     final dexPairs = await plugin.api.swap.getTokenPairs();
@@ -34,26 +35,21 @@ class AcalaServiceAssets {
     });
   }
 
-  Future<void> subscribeTokenBalances(
-      String address, List tokens, Function(Map) callback) async {
+  Future<void> subscribeTokenBalances(String address,
+      List<TokenBalanceData> tokens, Function(Map) callback) async {
     tokens.forEach((e) {
-      final channel = '$tokenBalanceChannel${e['symbol']}';
+      final channel = '$tokenBalanceChannel${e.symbol}';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
-        [
-          address,
-          e['type'] == 'ForeignAsset'
-              ? {'ForeignAsset': e['id']}
-              : {'token': e['symbol']}
-        ],
+        [address, AssetsUtils.currencyIdFromTokenData(plugin, e)],
         channel,
         (Map data) {
           callback({
-            'id': e['id'],
-            'symbol': e['symbol'],
-            'type': e['type'],
-            'minBalance': e['minBalance'],
-            'decimals': e['decimals'],
+            'id': e.id,
+            'symbol': e.symbol,
+            'type': e.type,
+            'minBalance': e.minBalance,
+            'decimals': e.decimals,
             'balance': data
           });
         },
@@ -75,7 +71,9 @@ class AcalaServiceAssets {
           callback({
             'symbol': tokenId,
             'type': 'DexShare',
-            'decimals': e.decimals,
+            'decimals':
+                AssetsUtils.getBalanceFromTokenSymbol(plugin, lpToken[0])
+                    .decimals,
             'balance': data
           });
         },

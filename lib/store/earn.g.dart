@@ -74,13 +74,13 @@ mixin _$EarnStore on _EarnStore, Store {
   final _$dexPoolInfoMapV2Atom = Atom(name: '_EarnStore.dexPoolInfoMapV2');
 
   @override
-  ObservableMap<String, DexPoolInfoDataV2> get dexPoolInfoMap {
+  ObservableMap<String, DexPoolInfoData> get dexPoolInfoMap {
     _$dexPoolInfoMapV2Atom.reportRead();
     return super.dexPoolInfoMap;
   }
 
   @override
-  set dexPoolInfoMap(ObservableMap<String, DexPoolInfoDataV2> value) {
+  set dexPoolInfoMap(ObservableMap<String, DexPoolInfoData> value) {
     _$dexPoolInfoMapV2Atom.reportWrite(value, super.dexPoolInfoMap, () {
       super.dexPoolInfoMap = value;
     });
@@ -122,8 +122,7 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexPoolInfo(Map<String, DexPoolInfoDataV2> data,
-      {bool reset = false}) {
+  void setDexPoolInfo(Map<String, DexPoolInfoData> data, {bool reset = false}) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setDexPoolInfoV2');
     try {

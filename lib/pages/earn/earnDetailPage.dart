@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/LPStakePage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
@@ -311,7 +310,7 @@ class _UserCard extends StatelessWidget {
   });
   final PluginKarura plugin;
   final double share;
-  final DexPoolInfoDataV2 poolInfo;
+  final DexPoolInfoData poolInfo;
   final String token;
   final double rewardAPY;
   final double rewardSavingAPY;

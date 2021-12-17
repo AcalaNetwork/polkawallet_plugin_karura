@@ -1,7 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoDataV2.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 
@@ -26,8 +25,8 @@ abstract class _EarnStore with Store {
   List<DexPoolData> bootstraps = [];
 
   @observable
-  ObservableMap<String, DexPoolInfoDataV2> dexPoolInfoMap =
-      ObservableMap<String, DexPoolInfoDataV2>();
+  ObservableMap<String, DexPoolInfoData> dexPoolInfoMap =
+      ObservableMap<String, DexPoolInfoData>();
 
   @observable
   List<dynamic> dexIncentiveLoyaltyEndBlock;
@@ -48,10 +47,9 @@ abstract class _EarnStore with Store {
   }
 
   @action
-  void setDexPoolInfo(Map<String, DexPoolInfoDataV2> data,
-      {bool reset = false}) {
+  void setDexPoolInfo(Map<String, DexPoolInfoData> data, {bool reset = false}) {
     if (reset) {
-      dexPoolInfoMap = ObservableMap<String, DexPoolInfoDataV2>();
+      dexPoolInfoMap = ObservableMap<String, DexPoolInfoData>();
     } else {
       dexPoolInfoMap.addAll(data);
     }

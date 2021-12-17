@@ -4,8 +4,8 @@ import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
 class TxSwapData extends _TxSwapData {
-  static TxSwapData fromJson(Map json, List<String> symbols, List<int> decimals,
-      Map<String, TokenBalanceData> tokenBalanceMap) {
+  static TxSwapData fromJson(
+      Map json, Map<String, TokenBalanceData> tokenBalanceMap) {
     final data = TxSwapData();
     data.action = json['type'];
     data.hash = json['extrinsic']['id'];

@@ -8,11 +8,7 @@ part of 'dexPoolInfoData.dart';
 
 DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
   return DexPoolData()
-    ..decimals = json['decimals'] as int
     ..tokens = json['tokens'] as List<dynamic>
-    ..pairDecimals = json['pairDecimals'] != null
-        ? List<int>.from(json['pairDecimals'])
-        : null
     ..provisioning = json['provisioning'] == null
         ? null
         : ProvisioningData.fromJson(
@@ -21,9 +17,7 @@ DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$DexPoolDataToJson(DexPoolData instance) =>
     <String, dynamic>{
-      'decimals': instance.decimals,
       'tokens': instance.tokens,
-      'pairDecimals': instance.pairDecimals,
       'provisioning':
           instance.provisioning == null ? null : instance.provisioning.toJson(),
     };

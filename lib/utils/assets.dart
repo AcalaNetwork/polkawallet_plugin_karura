@@ -71,6 +71,8 @@ class AssetsUtils {
         };
       case 'ForeignAsset':
         return {'ForeignAsset': token.id, 'decimals': token.decimals};
+      case 'LiquidCroadloan':
+        return {'LiquidCroadloan': token.id, 'decimals': token.decimals};
       case 'Token':
         return {
           'Token': token.symbol.toUpperCase(),
@@ -94,6 +96,11 @@ class AssetsUtils {
           .firstWhere((e) => e.id == currencyId['foreignAsset'].toString())
           .symbol;
     }
+    if (currencyId['liquidCroadloan'] != null) {
+      return tokenBalanceMap.values
+          .firstWhere((e) => e.id == currencyId['liquidCroadloan'].toString())
+          .symbol;
+    }
     return '';
   }
 
@@ -115,8 +122,15 @@ class AssetsUtils {
           decimals: plugin.networkState.tokenDecimals[0],
           amount: (plugin.balances.native?.availableBalance ?? 0).toString());
     }
-    return plugin.store.assets.tokenBalanceMap[tokenSymbol.toUpperCase()] ??
-        TokenBalanceData();
+    if (plugin.store.assets.tokenBalanceMap[tokenSymbol.toUpperCase()] !=
+        null) {
+      return plugin.store.assets.tokenBalanceMap[tokenSymbol.toUpperCase()];
+    }
+    final tokenDataIndex = plugin.store.assets.allTokens
+        .indexWhere((e) => e.symbol == tokenSymbol);
+    return tokenDataIndex < 0
+        ? TokenBalanceData()
+        : plugin.store.assets.allTokens[tokenDataIndex];
   }
 
   static List<TokenBalanceData> getBalancePairFromTokenSymbol(

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -62,12 +61,7 @@ class EarnHistoryPage extends StatelessWidget {
             nodes.removeWhere(
                 (e) => jsonDecode(e['data'][1]['value'])['loans'] != null);
             final list = nodes
-                .map((i) => TxDexIncentiveData.fromJson(
-                    i as Map,
-                    karura_stable_coin,
-                    plugin.networkState.tokenSymbol,
-                    plugin.networkState.tokenDecimals,
-                    plugin.store.assets.tokenBalanceMap))
+                .map((i) => TxDexIncentiveData.fromJson(i as Map, plugin))
                 .toList();
 
             return ListView.builder(
