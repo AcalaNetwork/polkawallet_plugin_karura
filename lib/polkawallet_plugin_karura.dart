@@ -148,7 +148,13 @@ class PluginKarura extends PolkawalletPlugin {
     if (store == null) return null;
 
     return Observer(builder: (context) {
-      if (store.assets.aggregatedAssets.keys.length == 0) return null;
+      if (store.assets.aggregatedAssets.keys.length == 0)
+        return InstrumentWidget(
+          [InstrumentData(0, []), InstrumentData(0, []), InstrumentData(0, [])],
+          onSwitchBack,
+          onSwitchHideBalance,
+          hideBalance: hideBalance,
+        );
 
       final data = AssetsUtils.aggregatedAssetsDataFromJson(
           store.assets.aggregatedAssets, balances, store.assets.marketPrices);
@@ -334,8 +340,7 @@ class PluginKarura extends PolkawalletPlugin {
       balances.setTokens(data);
     }, transferEnabled: enabled);
 
-    // todo: queryAggregatedAssets is in dev
-    // _service.assets.queryAggregatedAssets();
+    _service.assets.queryAggregatedAssets();
 
     final nft = await _api.assets.queryNFTs(acc.address);
     if (nft != null) {
