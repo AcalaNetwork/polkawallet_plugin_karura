@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:polkawallet_ui/utils/format.dart';
-
 class InstrumentItemWidget extends StatefulWidget {
   final List<InstrumentData> datas;
   int initializeIndex;
@@ -97,7 +94,9 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
               widget.datas[j].items[i - 1].value /
               widget.datas[j].sumValue;
         }
-        if (double.parse(widget.datas[j].items[i].value.toStringAsFixed(widget.datas[j].lengthMax))>0) {
+        if (double.parse(widget.datas[j].items[i].value
+                .toStringAsFixed(widget.datas[j].lengthMax)) >
+            0) {
           var angleValue = j == widget.initializeIndex
               ? (angle * animationNumber + 2.35 * (1 - animationNumber))
               : (-3.85 * animationNumber + angle * (1 - animationNumber));
@@ -125,8 +124,15 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
             child: Transform.rotate(
               angle: angleValue,
               alignment: Alignment.bottomCenter,
-              origin: Offset(0, -(52.h / 167.h) * widget.size.height),
-              child: Image.asset(iconName),
+              origin: Offset(0, -(44 / 167) * widget.size.height),
+              child: Container(
+                child: Image.asset(
+                  iconName,
+                  fit: BoxFit.fill,
+                ),
+                width: widget.size.width,
+                height: widget.size.height,
+              ),
             )));
   }
 }
