@@ -64,7 +64,7 @@ class _SwapPageState extends State<SwapPage> {
               end: Alignment.bottomCenter,
               colors: [
                 Theme.of(context).primaryColor,
-                Theme.of(context).canvasColor
+                Theme.of(context).hoverColor
               ],
               stops: [0.4, 0.9],
             )),

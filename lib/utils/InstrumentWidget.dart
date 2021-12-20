@@ -99,7 +99,14 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                               width: 46.w,
                               height: 46.w,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
+                                gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Color(0xFFFF4646),
+                                      Color(0xFFFF5D4D),
+                                      Color(0xFF323133)
+                                    ]),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(46.w / 2)),
                               ),

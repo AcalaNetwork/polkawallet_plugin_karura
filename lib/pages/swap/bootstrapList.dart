@@ -540,7 +540,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
             margin: EdgeInsets.only(top: 8, bottom: 16),
             padding: EdgeInsets.fromLTRB(8, 8, 8, 16),
             decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
+                color: Theme.of(context).hoverColor,
                 border: Border.all(color: Colors.black12, width: 0.5),
                 borderRadius: BorderRadius.all(Radius.circular(8))),
             child: StakeLPTips(
