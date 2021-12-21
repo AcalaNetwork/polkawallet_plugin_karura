@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -37,7 +38,7 @@ class LoanAdjustPage extends StatefulWidget {
 class LoanAdjustPageParams {
   LoanAdjustPageParams(this.actionType, this.token);
   final String actionType;
-  final String token;
+  final TokenBalanceData token;
 }
 
 class _LoanAdjustPageState extends State<LoanAdjustPage> {
@@ -60,7 +61,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
 
-    final tokenPrice = widget.plugin.store.assets.prices[params.token];
+    final tokenPrice =
+        widget.plugin.store.assets.prices[params.token.tokenNameId];
     final collateralInUSD = loanType.tokenToUSD(collateral, tokenPrice,
         collateralDecimals: collateralDecimals,
         stableCoinDecimals: stableCoinDecimals);
@@ -78,7 +80,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         ModalRoute.of(context).settings.arguments;
     var collateralTotal = collateral;
     var debitTotal = debit;
-    final loan = widget.plugin.store.loan.loans[params.token];
+    final loan = widget.plugin.store.loan.loans[params.token.tokenNameId];
     switch (params.actionType) {
       case LoanAdjustPage.actionTypeDeposit:
         collateralTotal = loan.collaterals + collateral;
@@ -251,8 +253,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   Future<Map> _getTxParams(LoanData loan, int stableCoinDecimals) async {
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
-    final currencyId =
-        AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, params.token);
     switch (params.actionType) {
       case LoanAdjustPage.actionTypeMint:
         // borrow min debit value if user's debit is empty
@@ -266,7 +266,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
             "amount": _amountCtrl2.text.trim(),
           },
           'params': [
-            currencyId,
+            params.token.currencyId,
             0,
             debitAdd.toString(),
           ]
@@ -292,7 +292,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
             "amount": _amountCtrl2.text.trim(),
           },
           'params': [
-            currencyId,
+            params.token.currencyId,
             _paybackAndCloseChecked
                 ? (BigInt.zero - loan.collaterals).toString()
                 : 0,
@@ -302,11 +302,12 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       case LoanAdjustPage.actionTypeDeposit:
         return {
           'detail': {
-            "amount":
-                _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
+            "amount": _amountCtrl.text.trim() +
+                ' ' +
+                PluginFmt.tokenView(loan.token.symbol),
           },
           'params': [
-            currencyId,
+            params.token.currencyId,
             _amountCollateral.toString(),
             0,
           ]
@@ -314,11 +315,12 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       case LoanAdjustPage.actionTypeWithdraw:
         return {
           'detail': {
-            "amount":
-                _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
+            "amount": _amountCtrl.text.trim() +
+                ' ' +
+                PluginFmt.tokenView(loan.token.symbol),
           },
           'params': [
-            currencyId,
+            params.token.currencyId,
             (BigInt.zero - _amountCollateral).toString(),
             0,
           ]
@@ -354,7 +356,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       final LoanAdjustPageParams params =
           ModalRoute.of(context).settings.arguments;
 
-      final loan = widget.plugin.store.loan.loans[params.token];
+      final loan = widget.plugin.store.loan.loans[params.token.tokenNameId];
       setState(() {
         _amountCollateral = loan.collaterals;
         _amountDebit = loan.debits;
@@ -363,11 +365,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           loan.type,
           loan.collaterals,
           loan.debits,
-          AssetsUtils.getBalanceFromTokenSymbol(
+          AssetsUtils.getBalanceFromTokenNameId(
                   widget.plugin, karura_stable_coin)
               .decimals,
-          AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, params.token)
-              .decimals);
+          params.token.decimals);
     });
   }
 
@@ -385,16 +386,15 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
-    final symbol = params.token;
-    final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
-        widget.plugin, [symbol, karura_stable_coin]);
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        widget.plugin, [params.token.tokenNameId, karura_stable_coin]);
 
-    final loan = widget.plugin.store.loan.loans[symbol];
+    final loan = widget.plugin.store.loan.loans[params.token.tokenNameId];
 
-    final price = widget.plugin.store.assets.prices[symbol];
+    final price = widget.plugin.store.assets.prices[params.token.tokenNameId];
     final stableCoinPrice = Fmt.tokenInt('1', balancePair[1].decimals);
 
-    final symbolView = PluginFmt.tokenView(symbol);
+    final symbolView = PluginFmt.tokenView(params.token.symbol);
     final stableCoinView = karura_stable_coin_view;
     String titleSuffix = ' $symbolView';
     bool showCollateral = true;
@@ -492,7 +492,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                 hintText: assetDic['amount'],
                                 labelText:
                                     '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
-                                suffix: loan.token !=
+                                suffix: loan.token.symbol !=
                                             widget.plugin.networkState
                                                 .tokenSymbol[0] &&
                                         (params.actionType ==

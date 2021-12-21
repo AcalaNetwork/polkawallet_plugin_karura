@@ -54,16 +54,11 @@ class _LPStakePage extends State<LPStakePage> {
       return dic['amount.low'];
     }
     final LPStakePageParams args = ModalRoute.of(context).settings.arguments;
-    final poolTokenPair = args.pool.getPoolId(widget.plugin);
-    final balance = Fmt.balanceInt(widget.plugin.store.assets
-            .tokenBalanceMap[poolTokenPair.join('-')]?.amount ??
-        '0');
-    if (balance == BigInt.zero) {
-      final min = poolTokenPair[0] == widget.plugin.networkState.tokenSymbol[0]
-          ? Fmt.balanceInt(
-              widget.plugin.networkConst['balances']['existentialDeposit'])
-          : Fmt.balanceInt(widget.plugin.store.assets
-              .tokenBalanceMap[poolTokenPair[0]].minBalance);
+    final balance =
+        widget.plugin.store.assets.tokenBalanceMap[args.pool.tokenNameId];
+    final balanceInt = Fmt.balanceInt(balance?.amount ?? '0');
+    if (balanceInt == BigInt.zero) {
+      final min = Fmt.balanceInt(balance?.minBalance ?? '0');
       if (input < min) {
         return '${dic['amount.min']} ${Fmt.priceCeilBigInt(min, decimals, lengthMax: 6)}';
       }
@@ -85,7 +80,9 @@ class _LPStakePage extends State<LPStakePage> {
     final LPStakePageParams params = ModalRoute.of(context).settings.arguments;
     final isStake = params.action == LPStakePage.actionStake;
 
-    final poolId = params.pool.getPoolId(widget.plugin).join('-');
+    final poolSymbol = AssetsUtils.getBalanceFromTokenNameId(
+            widget.plugin, params.pool.tokenNameId)
+        .symbol;
     String input = _amountCtrl.text.trim();
     BigInt amount = Fmt.tokenInt(input, decimals);
     if (_isMax || max - amount < BigInt.one) {
@@ -97,9 +94,9 @@ class _LPStakePage extends State<LPStakePage> {
           module: 'incentives',
           call: isStake ? 'depositDexShare' : 'withdrawDexShare',
           txTitle:
-              '${dic['earn.${params.action}']} ${PluginFmt.tokenView(poolId)}',
+              '${dic['earn.${params.action}']} ${PluginFmt.tokenView(poolSymbol)}',
           txDisplay: {
-            "poolId": poolId,
+            "poolId": poolSymbol,
             "amount": input,
           },
           params: [
@@ -119,16 +116,13 @@ class _LPStakePage extends State<LPStakePage> {
 
     final LPStakePageParams args = ModalRoute.of(context).settings.arguments;
 
-    final tokenPair = args.pool.getPoolId(widget.plugin);
-    final poolId = tokenPair.join('-');
-    final shareDecimals =
-        AssetsUtils.getBalanceFromTokenSymbol(widget.plugin, tokenPair[0])
-            .decimals;
+    final poolToken = AssetsUtils.getBalanceFromTokenNameId(
+        widget.plugin, args.pool.tokenNameId);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            '${dic['earn.${args.action}']} ${PluginFmt.tokenView(poolId)}'),
+            '${dic['earn.${args.action}']} ${PluginFmt.tokenView(poolToken.symbol)}'),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -139,16 +133,17 @@ class _LPStakePage extends State<LPStakePage> {
 
             BigInt balance = BigInt.zero;
             if (!isStake) {
-              final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+              final poolInfo = widget
+                  .plugin.store.earn.dexPoolInfoMap[args.pool.tokenNameId];
               balance = poolInfo.shares;
             } else {
-              balance = Fmt.balanceInt(
-                  widget.plugin.store.assets.tokenBalanceMap[poolId]?.amount ??
-                      '0');
+              balance = Fmt.balanceInt(widget.plugin.store.assets
+                      .tokenBalanceMap[args.pool.tokenNameId]?.amount ??
+                  '0');
             }
 
             final balanceView =
-                Fmt.priceFloorBigInt(balance, shareDecimals, lengthMax: 6);
+                Fmt.priceFloorBigInt(balance, poolToken.decimals, lengthMax: 6);
             return Column(
               children: [
                 Expanded(
@@ -168,18 +163,19 @@ class _LPStakePage extends State<LPStakePage> {
                                 style: TextStyle(
                                     color: Theme.of(context).primaryColor),
                               ),
-                              onTap: () => _onSetMax(balance, shareDecimals),
+                              onTap: () =>
+                                  _onSetMax(balance, poolToken.decimals),
                             ),
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(shareDecimals)
+                            UI.decimalInputFormatter(poolToken.decimals)
                           ],
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           controller: _amountCtrl,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           validator: (v) =>
-                              _validateAmount(v, balance, shareDecimals),
+                              _validateAmount(v, balance, poolToken.decimals),
                           onChanged: (_) {
                             if (_isMax) {
                               setState(() {
@@ -196,7 +192,7 @@ class _LPStakePage extends State<LPStakePage> {
                   padding: EdgeInsets.all(16),
                   child: RoundedButton(
                     text: dic['earn.${args.action}'],
-                    onPressed: () => _onSubmit(balance, shareDecimals),
+                    onPressed: () => _onSubmit(balance, poolToken.decimals),
                   ),
                 )
               ],

@@ -8,11 +8,9 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class LoanType extends _LoanType {
-  static LoanType fromJson(Map<String, dynamic> json,
-      Map<String, TokenBalanceData> tokenBalanceMap) {
+  static LoanType fromJson(Map<String, dynamic> json, PluginKarura plugin) {
     LoanType data = LoanType();
-    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
-        tokenBalanceMap, json['currency']);
+    data.token = AssetsUtils.tokenDataFromCurrencyId(plugin, json['currency']);
     data.debitExchangeRate = BigInt.parse(json['debitExchangeRate'].toString());
     data.liquidationPenalty =
         BigInt.parse(json['liquidationPenalty'].toString());
@@ -92,7 +90,7 @@ class LoanType extends _LoanType {
 }
 
 abstract class _LoanType {
-  String token = '';
+  TokenBalanceData token;
   BigInt debitExchangeRate = BigInt.zero;
   BigInt liquidationPenalty = BigInt.zero;
   BigInt liquidationRatio = BigInt.zero;
@@ -108,12 +106,10 @@ class LoanData extends _LoanData {
   static LoanData fromJson(Map<String, dynamic> json, LoanType type,
       BigInt tokenPrice, PluginKarura plugin) {
     LoanData data = LoanData();
-    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
-        plugin.store.assets.tokenBalanceMap, json['currency']);
-    final token = AssetsUtils.getBalanceFromTokenSymbol(plugin, data.token);
+    data.token = AssetsUtils.tokenDataFromCurrencyId(plugin, json['currency']);
     final stableCoinDecimals =
         plugin.store.assets.tokenBalanceMap[karura_stable_coin].decimals;
-    final collateralDecimals = token.decimals;
+    final collateralDecimals = data.token.decimals;
     data.type = type;
     data.price = tokenPrice;
     data.stableCoinPrice = Fmt.tokenInt('1', stableCoinDecimals);
@@ -145,7 +141,7 @@ class LoanData extends _LoanData {
 }
 
 abstract class _LoanData {
-  String token = '';
+  TokenBalanceData token;
   LoanType type = LoanType();
   BigInt price = BigInt.zero;
   BigInt stableCoinPrice = BigInt.zero;
@@ -170,24 +166,24 @@ abstract class _LoanData {
 }
 
 class CollateralIncentiveData extends _CollateralIncentiveData {
-  static CollateralIncentiveData fromJson(List json, {bool isTC6 = false}) {
+  static CollateralIncentiveData fromJson(List json, PluginKarura plugin) {
     final data = CollateralIncentiveData();
-    data.token =
-        isTC6 ? json[0][0]['Token'] : json[0][0]['LoansIncentive']['Token'];
+    data.token = AssetsUtils.tokenDataFromCurrencyId(
+        plugin, json[0][0]['LoansIncentive']);
     data.incentive = Fmt.balanceInt(json[1].toString());
     return data;
   }
 }
 
 abstract class _CollateralIncentiveData {
-  String token;
+  TokenBalanceData token;
   BigInt incentive;
 }
 
 class TotalCDPData extends _TotalCDPData {
   static TotalCDPData fromJson(Map json) {
     final data = TotalCDPData();
-    data.token = json['token'];
+    data.tokenNameId = json['tokenNameId'];
     data.collateral = Fmt.balanceInt(json['collateral'].toString());
     data.debit = Fmt.balanceInt(json['debit'].toString());
     return data;
@@ -195,7 +191,7 @@ class TotalCDPData extends _TotalCDPData {
 }
 
 abstract class _TotalCDPData {
-  String token;
+  String tokenNameId;
   BigInt collateral;
   BigInt debit;
 }
@@ -203,27 +199,7 @@ abstract class _TotalCDPData {
 class CollateralRewardData extends _CollateralRewardData {
   static CollateralRewardData fromJson(Map json) {
     final data = CollateralRewardData();
-    data.token = json['token'];
-    data.sharesTotal = Fmt.balanceInt(json['sharesTotal'].toString());
-    data.shares = Fmt.balanceInt(json['shares'].toString());
-    data.proportion = double.parse(json['proportion'].toString());
-    data.reward = double.parse(json['reward']);
-    return data;
-  }
-}
-
-abstract class _CollateralRewardData {
-  String token;
-  BigInt sharesTotal;
-  BigInt shares;
-  double reward;
-  double proportion;
-}
-
-class CollateralRewardDataV2 extends _CollateralRewardDataV2 {
-  static CollateralRewardDataV2 fromJson(Map json) {
-    final data = CollateralRewardDataV2();
-    data.token = json['token'];
+    data.tokenNameId = json['tokenNameId'];
     data.sharesTotal = Fmt.balanceInt(json['sharesTotal'].toString());
     data.shares = Fmt.balanceInt(json['shares'].toString());
     data.proportion = double.parse(json['proportion'].toString());
@@ -232,8 +208,8 @@ class CollateralRewardDataV2 extends _CollateralRewardDataV2 {
   }
 }
 
-abstract class _CollateralRewardDataV2 {
-  String token;
+abstract class _CollateralRewardData {
+  String tokenNameId;
   BigInt sharesTotal;
   BigInt shares;
   List reward;

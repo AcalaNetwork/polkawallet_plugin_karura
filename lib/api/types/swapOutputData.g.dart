@@ -11,9 +11,7 @@ SwapOutputData _$SwapOutputDataFromJson(Map<String, dynamic> json) {
     ..path = json['path'] as List<dynamic>
     ..amount = (json['amount'] as num).toDouble()
     ..priceImpact = (json['priceImpact'] as num).toDouble()
-    ..fee = (json['fee'] as num).toDouble()
-    ..input = json['input'] as String
-    ..output = json['output'] as String;
+    ..fee = (json['fee'] as num).toDouble();
 }
 
 Map<String, dynamic> _$SwapOutputDataToJson(SwapOutputData instance) =>
@@ -22,8 +20,6 @@ Map<String, dynamic> _$SwapOutputDataToJson(SwapOutputData instance) =>
       'amount': instance.amount,
       'priceImpact': instance.priceImpact,
       'fee': instance.fee,
-      'input': instance.input,
-      'output': instance.output,
     };
 
 LPTokenData _$LPTokenDataFromJson(Map<String, dynamic> json) {

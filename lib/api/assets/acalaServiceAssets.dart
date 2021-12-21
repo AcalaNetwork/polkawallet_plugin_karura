@@ -29,7 +29,10 @@ class AcalaServiceAssets {
 
     final dexPairs = await plugin.api.swap.getTokenPairs();
     dexPairs.forEach((e) {
-      final lpToken = e.getPoolId(plugin);
+      final lpToken =
+          AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId)
+              .symbol
+              .split('-');
       plugin.sdk.api
           .unsubscribeMessage('$tokenBalanceChannel${lpToken.join('')}');
     });
@@ -41,12 +44,17 @@ class AcalaServiceAssets {
       final channel = '$tokenBalanceChannel${e.symbol}';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
-        [address, AssetsUtils.currencyIdFromTokenData(plugin, e)],
+        [
+          address,
+          e.currencyId ?? {'Token': e.symbol}
+        ],
         channel,
         (Map data) {
           callback({
             'id': e.id,
             'symbol': e.symbol,
+            'tokenNameId': e.tokenNameId,
+            'currencyId': e.currencyId,
             'type': e.type,
             'minBalance': e.minBalance,
             'decimals': e.decimals,
@@ -57,23 +65,24 @@ class AcalaServiceAssets {
     });
     final dexPairs = await plugin.api.swap.getTokenPairs();
     dexPairs.forEach((e) {
-      final lpToken = e.getPoolId(plugin);
-      final tokenId = lpToken.join('-');
-      final channel = '$tokenBalanceChannel${lpToken.join('')}';
+      final currencyId = {'DEXShare': e.tokens};
+      final lpToken = e.tokens
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+          .toList();
+      final tokenId = lpToken.map((e) => e.symbol).join('-');
+      final channel =
+          '$tokenBalanceChannel${lpToken.map((e) => e.symbol).join('')}';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
-        [
-          address,
-          {'DEXShare': e.tokens}
-        ],
+        [address, currencyId],
         channel,
         (Map data) {
           callback({
             'symbol': tokenId,
             'type': 'DexShare',
-            'decimals':
-                AssetsUtils.getBalanceFromTokenSymbol(plugin, lpToken[0])
-                    .decimals,
+            'tokenNameId': e.tokenNameId,
+            'currencyId': currencyId,
+            'decimals': lpToken[0].decimals,
             'balance': data
           });
         },
@@ -107,9 +116,9 @@ class AcalaServiceAssets {
     if (res != null) {
       final prices = Map<String, BigInt>();
       res.forEach((e) {
-        final token = AssetsUtils.tokenSymbolFromCurrencyId(
-            plugin.store.assets.tokenBalanceMap, e[0]);
-        prices[token] = Fmt.balanceInt(e[1]['value'].toString());
+        final tokenNameId =
+            AssetsUtils.tokenDataFromCurrencyId(plugin, e[0]).tokenNameId;
+        prices[tokenNameId] = Fmt.balanceInt(e[1]['value'].toString());
       });
       callback(prices);
     }
@@ -139,13 +148,13 @@ class AcalaServiceAssets {
 
   Future<bool> checkExistentialDepositForTransfer(
     String address,
-    String token,
+    Map currencyId,
     int decimal,
     String amount, {
     String direction = 'to',
   }) async {
     final res = await plugin.sdk.webView.evalJavascript(
-        'acala.checkExistentialDepositForTransfer(api, "$address", "$token", $decimal, $amount, "$direction")');
+        'acala.checkExistentialDepositForTransfer(api, "$address", ${jsonEncode(currencyId)}, $decimal, $amount, "$direction")');
     return res['result'] as bool;
   }
 }

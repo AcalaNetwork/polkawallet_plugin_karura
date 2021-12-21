@@ -20,9 +20,10 @@ class TxLoanData extends _TxLoanData {
     data.hash = json['extrinsic']['id'];
 
     final jsonData = json['data'] as List;
-    data.token = AssetsUtils.tokenSymbolFromCurrencyId(
-        plugin.store.assets.tokenBalanceMap, jsonDecode(jsonData[1]['value']));
-    final token = AssetsUtils.getBalanceFromTokenSymbol(plugin, data.token);
+    data.token = AssetsUtils.tokenDataFromCurrencyId(
+            plugin, jsonDecode(jsonData[1]['value']))
+        .symbol;
+    final token = AssetsUtils.getBalanceFromTokenNameId(plugin, data.token);
 
     data.collateral = Fmt.balanceInt(jsonData[2]['value'].toString());
     data.debit = jsonData.length > 4

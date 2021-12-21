@@ -57,84 +57,58 @@ class AssetsUtils {
     return list;
   }
 
-  static Map currencyIdFromTokenData(
-      PluginKarura plugin, TokenBalanceData token) {
-    switch (token.type) {
-      case 'DexShare':
-        return {
-          'DEXShare': token.symbol
-              .toUpperCase()
-              .split('-')
-              .map((e) => currencyIdFromTokenSymbol(plugin, e))
-              .toList(),
-          'decimals': token.decimals
-        };
-      case 'ForeignAsset':
-        return {'ForeignAsset': token.id, 'decimals': token.decimals};
-      case 'LiquidCroadloan':
-        return {'LiquidCroadloan': token.id, 'decimals': token.decimals};
-      case 'Token':
-        return {
-          'Token': token.symbol.toUpperCase(),
-          'decimals': token.decimals
-        };
-      default:
-        return {
-          'Token': token.symbol.toUpperCase(),
-          'decimals': token.decimals
-        };
+  static TokenBalanceData tokenDataFromCurrencyId(
+      PluginKarura plugin, Map currencyId) {
+    if (currencyId['token'] != null || currencyId['Token'] != null) {
+      return getBalanceFromTokenNameId(
+          plugin, currencyId['token'] ?? currencyId['Token']);
     }
+    if (currencyId['foreignAsset'] != null ||
+        currencyId['ForeignAsset'] != null) {
+      return plugin.store.assets.tokenBalanceMap.values.firstWhere((e) =>
+          e.type == 'ForeignAsset' &&
+          e.id ==
+              (currencyId['foreignAsset'] ?? currencyId['ForeignAsset'])
+                  .toString());
+    }
+    if (currencyId['liquidCroadloan'] != null ||
+        currencyId['LiquidCroadloan'] != null) {
+      return plugin.store.assets.tokenBalanceMap.values.firstWhere((e) =>
+          e.type == 'LiquidCroadloan' &&
+          e.id ==
+              (currencyId['liquidCroadloan'] ?? currencyId['LiquidCroadloan'])
+                  .toString());
+    }
+    return TokenBalanceData();
   }
 
-  static String tokenSymbolFromCurrencyId(
-      Map<String, TokenBalanceData> tokenBalanceMap, Map currencyId) {
-    if (currencyId['token'] != null) {
-      return currencyId['token'];
-    }
-    if (currencyId['foreignAsset'] != null) {
-      return tokenBalanceMap.values
-          .firstWhere((e) => e.id == currencyId['foreignAsset'].toString())
-          .symbol;
-    }
-    if (currencyId['liquidCroadloan'] != null) {
-      return tokenBalanceMap.values
-          .firstWhere((e) => e.id == currencyId['liquidCroadloan'].toString())
-          .symbol;
-    }
-    return '';
-  }
-
-  static Map currencyIdFromTokenSymbol(
-      PluginKarura plugin, String tokenSymbol) {
-    return currencyIdFromTokenData(
-        plugin, getBalanceFromTokenSymbol(plugin, tokenSymbol));
-  }
-
-  static TokenBalanceData getBalanceFromTokenSymbol(
-      PluginKarura plugin, String tokenSymbol) {
-    final symbols = plugin.networkState.tokenSymbol;
-
-    if (tokenSymbol == symbols[0]) {
+  static TokenBalanceData getBalanceFromTokenNameId(
+      PluginKarura plugin, String tokenNameId) {
+    if (tokenNameId == plugin.networkState.tokenSymbol[0]) {
       return TokenBalanceData(
-          id: tokenSymbol,
-          symbol: tokenSymbol,
+          id: tokenNameId,
+          symbol: tokenNameId,
+          tokenNameId: tokenNameId,
+          currencyId: {'Token': tokenNameId},
           type: 'Token',
+          minBalance: plugin.networkConst['balances']['existentialDeposit'],
           decimals: plugin.networkState.tokenDecimals[0],
           amount: (plugin.balances.native?.availableBalance ?? 0).toString());
     }
-    if (plugin.store.assets.tokenBalanceMap[tokenSymbol.toUpperCase()] !=
-        null) {
-      return plugin.store.assets.tokenBalanceMap[tokenSymbol.toUpperCase()];
+    if (plugin.store.assets.tokenBalanceMap[tokenNameId] != null) {
+      return plugin.store.assets.tokenBalanceMap[tokenNameId];
     }
     final tokenDataIndex = plugin.store.assets.allTokens
-        .indexWhere((e) => e.symbol == tokenSymbol);
+        .indexWhere((e) => e.tokenNameId == tokenNameId);
     return tokenDataIndex < 0
         ? TokenBalanceData()
         : plugin.store.assets.allTokens[tokenDataIndex];
   }
 
-  static List<TokenBalanceData> getBalancePairFromTokenSymbol(
-      PluginKarura plugin, List<String> tokenPair) {
-    return tokenPair.map((e) => getBalanceFromTokenSymbol(plugin, e)).toList();
+  static List<TokenBalanceData> getBalancePairFromTokenNameId(
+      PluginKarura plugin, List<String> tokenNameIdPair) {
+    return tokenNameIdPair
+        .map((e) => getBalanceFromTokenNameId(plugin, e))
+        .toList();
   }
 }

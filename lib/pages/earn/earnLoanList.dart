@@ -21,7 +21,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
         .queryLoanTypes(widget.keyring.current.address);
 
     final priceQueryTokens =
-        widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
+        widget.plugin.store.loan.loanTypes.map((e) => e.token.symbol).toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol[0]);
     widget.plugin.service.assets.queryMarketPrices(priceQueryTokens);
 
@@ -79,7 +79,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
                 tokenIcons: widget.plugin.tokenIcons,
                 totalCDPs: widget.plugin.store.loan.totalCDPs,
                 incentives: widget.plugin.store.earn.incentives.loans,
-                rewards: widget.plugin.store.loan.collateralRewardsV2,
+                rewards: widget.plugin.store.loan.collateralRewards,
                 marketPrices: widget.plugin.store.assets.marketPrices,
                 collateralDecimals: stableCoinDecimals,
                 incentiveTokenSymbol: incentiveTokenSymbol,

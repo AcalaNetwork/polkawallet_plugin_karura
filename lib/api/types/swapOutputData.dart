@@ -12,8 +12,6 @@ abstract class _SwapOutputData {
   double amount;
   double priceImpact;
   double fee;
-  String input;
-  String output;
 }
 
 @JsonSerializable()

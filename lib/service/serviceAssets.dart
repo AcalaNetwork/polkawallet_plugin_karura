@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -19,7 +21,8 @@ class ServiceAssets {
 
   Future<void> queryMarketPrices(List<String> tokens) async {
     final all = tokens.toList();
-    all.removeWhere((e) => e == karura_stable_coin);
+    all.removeWhere(
+        (e) => e == karura_stable_coin || e == 'L$relay_chain_token_symbol');
     if (all.length == 0) return;
 
     final List res =
@@ -45,7 +48,7 @@ class ServiceAssets {
     if (tokens.contains(para_chain_token_symbol_bifrost) &&
         prices[para_chain_token_symbol_bifrost] == null) {
       final dexPool = plugin.store.earn.dexPoolInfoMap[
-          '$karura_stable_coin-$para_chain_token_symbol_bifrost'];
+          'lp://$karura_stable_coin/$para_chain_token_symbol_bifrost'];
       if (dexPool != null) {
         final priceBNC = dexPool.amountLeft / dexPool.amountRight;
         prices[para_chain_token_symbol_bifrost] = priceBNC;
@@ -56,23 +59,8 @@ class ServiceAssets {
   }
 
   Future<void> updateTokenBalances(TokenBalanceData token) async {
-    final tokenSymbol = token.symbol.toUpperCase();
-    String currencyId;
-    switch (token.type) {
-      case 'Token':
-        currencyId = '{Token: "$tokenSymbol"}';
-        break;
-      case 'DexShare':
-        final pair = tokenSymbol.split('-');
-        currencyId =
-            '{DEXShare: [{Token: "${pair[0]}"}, {Token: "${pair[1]}"}]}';
-        break;
-      case 'ForeignAsset':
-        currencyId = '{ForeignAsset: "${token.id}"}';
-        break;
-    }
     final res = await plugin.sdk.webView.evalJavascript(
-        'api.query.tokens.accounts("${keyring.current.address}", $currencyId)');
+        'api.query.tokens.accounts("${keyring.current.address}", ${jsonEncode(token.currencyId)})');
 
     final balances =
         Map<String, TokenBalanceData>.from(store.assets.tokenBalanceMap);
@@ -81,6 +69,8 @@ class ServiceAssets {
         name: token.name,
         fullName: token.fullName,
         symbol: token.symbol,
+        tokenNameId: token.tokenNameId,
+        currencyId: token.currencyId,
         type: token.type,
         decimals: token.decimals,
         minBalance: token.minBalance,
@@ -88,8 +78,8 @@ class ServiceAssets {
         locked: res['frozen'].toString(),
         reserved: res['reserved'].toString(),
         detailPageRoute: token.detailPageRoute,
-        price: store.assets.marketPrices[tokenSymbol]);
-    balances[tokenSymbol] = data;
+        price: store.assets.marketPrices[token.symbol]);
+    balances[token.tokenNameId] = data;
 
     store.assets
         .setTokenBalanceMap(balances.values.toList(), keyring.current.pubKey);

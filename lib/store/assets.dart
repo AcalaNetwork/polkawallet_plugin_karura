@@ -42,13 +42,17 @@ abstract class _AssetsStore with Store {
     final data = Map<String, TokenBalanceData>();
     final dataForCache = {};
     list.forEach((e) {
-      data[e.symbol] = e;
+      if (e.tokenNameId == null) return;
 
-      dataForCache[e.symbol] = {
+      data[e.tokenNameId] = e;
+
+      dataForCache[e.tokenNameId] = {
         'id': e.id,
         'name': e.name,
         'symbol': e.symbol,
         'type': e.type,
+        'tokenNameId': e.tokenNameId,
+        'currencyId': e.currencyId,
         'fullName': e.fullName,
         'decimals': e.decimals,
         'minBalance': e.minBalance,
@@ -96,12 +100,15 @@ abstract class _AssetsStore with Store {
     final cachedTokens = cache.tokens.val;
     if (cachedTokens != null && cachedTokens[pubKey] != null) {
       final tokens = cachedTokens[pubKey].values.toList();
+      tokens.retainWhere((e) => e['tokenNameId'] != null);
       setTokenBalanceMap(
           List<TokenBalanceData>.from(tokens.map((e) => TokenBalanceData(
               id: e['id'],
               name: e['name'],
               symbol: e['symbol'],
               type: e['type'],
+              tokenNameId: e['tokenNameId'],
+              currencyId: e['currencyId'],
               fullName: e['fullName'],
               decimals: e['decimals'],
               minBalance: e['minBalance'],

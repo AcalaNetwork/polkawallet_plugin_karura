@@ -156,12 +156,12 @@ class LoanCollateralCard extends StatelessWidget {
                       Container(
                         margin: EdgeInsets.only(bottom: 8),
                         child: Text(
-                            '${dic['loan.collateral']}(${PluginFmt.tokenView(loan.token)})'),
+                            '${dic['loan.collateral']}(${PluginFmt.tokenView(loan.token.symbol)})'),
                       ),
                       Row(children: [
                         Container(
                             margin: EdgeInsets.only(right: 8),
-                            child: TokenIcon(loan.token, tokenIcons)),
+                            child: TokenIcon(loan.token.symbol, tokenIcons)),
                         Text(
                             Fmt.priceFloorBigInt(
                                 loan.collaterals, collateralDecimals),

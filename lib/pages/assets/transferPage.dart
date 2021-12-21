@@ -9,7 +9,6 @@ import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
@@ -95,13 +94,11 @@ class _TransferPageState extends State<TransferPage> {
         widget.keyring.current.address, widget.keyring.current.pubKey);
     final txInfo =
         TxInfoData(isXCM ? 'xTokens' : 'currencies', 'transfer', sender);
-    final currencyId =
-        AssetsUtils.currencyIdFromTokenData(widget.plugin, _token);
     final fee = await widget.plugin.sdk.api.tx.estimateFees(
         txInfo,
         isXCM
             ? [
-                currencyId,
+                _token.currencyId,
                 '1000000000',
                 [
                   1,
@@ -117,7 +114,11 @@ class _TransferPageState extends State<TransferPage> {
                 // params.weight
                 xcm_dest_weight_kusama
               ]
-            : [widget.keyring.current.address, currencyId, '1000000000']);
+            : [
+                widget.keyring.current.address,
+                _token.currencyId,
+                '1000000000'
+              ]);
     if (mounted) {
       setState(() {
         _fee = fee;
@@ -227,8 +228,6 @@ class _TransferPageState extends State<TransferPage> {
         _formKey.currentState.validate() &&
         !_submitting) {
       final tokenView = PluginFmt.tokenView(_token.symbol);
-      final currencyId =
-          AssetsUtils.currencyIdFromTokenData(widget.plugin, _token);
 
       /// send XCM tx if cross chain
       if (chainTo != widget.plugin.basic.name) {
@@ -284,7 +283,7 @@ class _TransferPageState extends State<TransferPage> {
           },
           params: [
             // params.currencyId
-            currencyId,
+            _token.currencyId,
             // params.amount
             (_amountMax ??
                     Fmt.tokenInt(_amountCtrl.text.trim(), _token.decimals))
@@ -306,7 +305,7 @@ class _TransferPageState extends State<TransferPage> {
         // params.to
         _accountTo.address,
         // params.currencyId
-        currencyId,
+        _token.currencyId,
         // params.amount
         (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), _token.decimals))
             .toString(),
@@ -390,7 +389,6 @@ class _TransferPageState extends State<TransferPage> {
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
-        final nativeToken = widget.plugin.networkState.tokenSymbol[0];
         final nativeTokenBalance =
             Fmt.balanceInt(widget.plugin.balances.native.freeBalance) -
                 Fmt.balanceInt(widget.plugin.balances.native.frozenFee);
@@ -398,21 +396,20 @@ class _TransferPageState extends State<TransferPage> {
         final isNativeTokenLow = nativeTokenBalance - accountED <
             Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
 
-        final decimals =
-            widget.plugin.store.assets.tokenBalanceMap[tokenSymbol]?.decimals ??
-                12;
-        final balanceData =
-            widget.plugin.store.assets.tokenBalanceMap[tokenSymbol];
+        final decimals = widget.plugin.store.assets
+                .tokenBalanceMap[token.tokenNameId ?? token.symbol]?.decimals ??
+            12;
+        final balanceData = widget.plugin.store.assets
+            .tokenBalanceMap[token.tokenNameId ?? tokenSymbol];
         final available = Fmt.balanceInt(balanceData?.amount) -
             Fmt.balanceInt(balanceData?.locked);
-        final existDepositToken =
-            tokenSymbol.contains('-') ? tokenSymbol.split('-')[0] : tokenSymbol;
-        final existDeposit = existDepositToken == nativeToken
+        final nativeToken = widget.plugin.networkState.tokenSymbol[0];
+        final existDeposit = token.tokenNameId == nativeToken
             ? Fmt.balanceInt(widget
                 .plugin.networkConst['balances']['existentialDeposit']
                 .toString())
             : Fmt.balanceInt(widget.plugin.store.assets
-                .tokenBalanceMap[existDepositToken].minBalance);
+                .tokenBalanceMap[token.tokenNameId].minBalance);
 
         final chainTo = _chainTo ?? widget.plugin.basic.name;
         final isCrossChain = widget.plugin.basic.name != chainTo;

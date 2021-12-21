@@ -21,6 +21,8 @@ class AcalaApiAssets {
             id: e['id'],
             type: e['type'],
             symbol: e['symbol'],
+            tokenNameId: e['tokenNameId'],
+            currencyId: e['currencyId'],
             decimals: e['decimals'],
             minBalance: e['minBalance']))
         .toList();
@@ -40,7 +42,9 @@ class AcalaApiAssets {
       final invisible =
           List.of(service.plugin.store.setting.tokensConfig['invisible']);
       if (invisible.length > 0) {
-        tokens.removeWhere((token) => invisible.contains(token.symbol));
+        tokens.removeWhere((token) =>
+            invisible.contains(token.tokenNameId) ||
+            invisible.contains(token.symbol));
       }
     }
 
@@ -49,7 +53,7 @@ class AcalaApiAssets {
     _tokenBalances.clear();
 
     await service.subscribeTokenBalances(address, tokens, (Map data) {
-      _tokenBalances[data['symbol']] = data;
+      _tokenBalances[data['tokenNameId']] = data;
 
       // do not callback if we did not receive enough data.
       if (_tokenBalances.keys.length < tokens.length) return;
@@ -61,6 +65,8 @@ class AcalaApiAssets {
           id: e['id'] ?? e['symbol'],
           symbol: e['symbol'],
           type: e['type'],
+          tokenNameId: e['tokenNameId'],
+          currencyId: e['currencyId'],
           minBalance: e['minBalance'],
           name: PluginFmt.tokenView(e['symbol']),
           fullName:
@@ -101,12 +107,12 @@ class AcalaApiAssets {
 
   Future<bool> checkExistentialDepositForTransfer(
     String address,
-    String token,
+    Map currencyId,
     int decimal,
     String amount, {
     String direction = 'to',
   }) async {
     return service.checkExistentialDepositForTransfer(
-        address, token, decimal, amount);
+        address, currencyId, decimal, amount);
   }
 }

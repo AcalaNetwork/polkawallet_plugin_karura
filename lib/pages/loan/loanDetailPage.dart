@@ -11,12 +11,12 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
-import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -34,11 +34,14 @@ class LoanDetailPage extends StatefulWidget {
 
 class _LoanDetailPageState extends State<LoanDetailPage> {
   Future<SwapOutputData> _queryReceiveAmount(
-      BuildContext ctx, String collateral, double debit) async {
+      BuildContext ctx, TokenBalanceData collateral, double debit) async {
     return widget.plugin.api.swap.queryTokenSwapAmount(
       null,
       debit.toStringAsFixed(2),
-      [collateral, karura_stable_coin],
+      [
+        {...collateral.currencyId, 'decimals': collateral.decimals},
+        {'Token': karura_stable_coin}
+      ],
       '0.01',
     );
   }
@@ -66,7 +69,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                             loan.collaterals, collateralDecimal) -
                         snapshot.data.amount;
                     return InfoItemRow(dic['loan.close.receive'],
-                        Fmt.priceFloor(left) + loan.token);
+                        Fmt.priceFloor(left) + loan.token.symbol);
                   } else {
                     return Container();
                   }
@@ -99,12 +102,13 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
               'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
             },
             params: [
-              AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, loan.token),
+              loan.token.currencyId,
               loan.collaterals.toString(),
               output != null
                   ? output.path
-                      .map((e) => AssetsUtils.currencyIdFromTokenSymbol(
-                          widget.plugin, e['name']))
+                      .map((e) => AssetsUtils.getBalanceFromTokenNameId(
+                              widget.plugin, e['name'])
+                          .currencyId)
                       .toList()
                   : null
             ]),
@@ -121,11 +125,10 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
 
     return Observer(
       builder: (_) {
-        final token = ModalRoute.of(context).settings.arguments;
-        final loan = widget.plugin.store.loan.loans[token];
+        final LoanData loan = ModalRoute.of(context).settings.arguments;
 
-        final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
-            widget.plugin, [token, karura_stable_coin]);
+        final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+            widget.plugin, [loan.token.tokenNameId, karura_stable_coin]);
 
         final dataChartDebit = [
           Fmt.bigIntToDouble(loan.debitInUSD, balancePair[1].decimals),
@@ -135,7 +138,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                   : BigInt.zero,
               balancePair[1].decimals),
         ];
-        final price = widget.plugin.store.assets.prices[token];
+        final price = widget.plugin.store.assets.prices[loan.token.tokenNameId];
         final dataChartPrice = [
           Fmt.bigIntToDouble(loan.liquidationPrice, balancePair[1].decimals),
           Fmt.bigIntToDouble(
@@ -171,10 +174,8 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
-            title: Text(PluginFmt.tokenView(token)),
-            centerTitle: true,
-            leading: BackBtn(),
-          ),
+              title: Text(PluginFmt.tokenView(loan.token.symbol)),
+              centerTitle: true),
           body: SafeArea(
             child: AccountCardLayout(
               widget.keyring.current,
@@ -228,7 +229,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                           Text(Fmt.priceFloorBigInt(price, 18),
                                               style: titleStyle),
                                           Text(
-                                              '${PluginFmt.tokenView(token)} ${dic['collateral.price']}(\$)',
+                                              '${PluginFmt.tokenView(loan.token.symbol)} ${dic['collateral.price']}(\$)',
                                               style: subtitleStyle)
                                         ],
                                       ))),

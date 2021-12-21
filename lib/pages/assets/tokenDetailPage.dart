@@ -68,7 +68,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
           builder: (_) {
             final tokenSymbol = token.symbol?.toUpperCase();
             final balance =
-                widget.plugin.store.assets.tokenBalanceMap[tokenSymbol];
+                widget.plugin.store.assets.tokenBalanceMap[token.tokenNameId];
             final free = Fmt.balanceInt(balance?.amount ?? '0');
             final locked = Fmt.balanceInt(balance?.locked ?? '0');
             final reserved = Fmt.balanceInt(balance?.reserved ?? '0');

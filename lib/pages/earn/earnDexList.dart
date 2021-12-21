@@ -76,19 +76,18 @@ class _EarnDexListState extends State<EarnDexList> {
         final List<DexPoolData> datas = [];
         final List<DexPoolData> otherDatas = [];
         for (int i = 0; i < dexPools.length; i++) {
-          final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
-
           double rewards = 0;
           double savingRewards = 0;
           double loyaltyBonus = 0;
           double savingLoyaltyBonus = 0;
 
           if (incentivesV2.dex != null) {
-            (incentivesV2.dex[poolId] ?? []).forEach((e) {
+            (incentivesV2.dex[dexPools[i].tokenNameId] ?? []).forEach((e) {
               rewards += e.apr;
               loyaltyBonus = e.deduction;
             });
-            (incentivesV2.dexSaving[poolId] ?? []).forEach((e) {
+            (incentivesV2.dexSaving[dexPools[i].tokenNameId] ?? [])
+                .forEach((e) {
               savingRewards += e.apr;
               savingLoyaltyBonus = e.deduction;
             });
@@ -98,7 +97,7 @@ class _EarnDexListState extends State<EarnDexList> {
           dexPools[i].rewardsLoyalty = rewards * (1 - loyaltyBonus) +
               savingRewards * (1 - savingLoyaltyBonus);
 
-          if (poolId.indexOf("KAR") >= 0) {
+          if (dexPools[i].tokenNameId.indexOf("KAR") >= 0) {
             datas.add(dexPools[i]);
           } else {
             otherDatas.add(dexPools[i]);
@@ -125,19 +124,17 @@ class _EarnDexListState extends State<EarnDexList> {
               padding: EdgeInsets.all(16),
               itemCount: dexPools.length,
               itemBuilder: (_, i) {
-                final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
+                final poolToken = AssetsUtils.getBalanceFromTokenNameId(
+                    widget.plugin, dexPools[i].tokenNameId);
 
                 final BigInt sharesTotal = widget.plugin.store.earn
-                        .dexPoolInfoMap[poolId]?.sharesTotal ??
+                        .dexPoolInfoMap[dexPools[i].tokenNameId]?.sharesTotal ??
                     BigInt.zero;
-                final shareDecimals = AssetsUtils.getBalanceFromTokenSymbol(
-                        widget.plugin, dexPools[i].getPoolId(widget.plugin)[0])
-                    .decimals;
 
                 final rewardsEmpty = incentivesV2.dex == null;
 
-                final poolInfo =
-                    widget.plugin.store.earn.dexPoolInfoMap[poolId];
+                final poolInfo = widget
+                    .plugin.store.earn.dexPoolInfoMap[dexPools[i].tokenNameId];
                 return GestureDetector(
                   child: RoundedCard(
                     margin: EdgeInsets.only(bottom: 16),
@@ -155,14 +152,15 @@ class _EarnDexListState extends State<EarnDexList> {
                         Column(
                           children: [
                             CurrencyWithIcon(
-                              PluginFmt.tokenView(poolId),
-                              TokenIcon(poolId, widget.plugin.tokenIcons),
+                              PluginFmt.tokenView(poolToken.symbol),
+                              TokenIcon(
+                                  poolToken.symbol, widget.plugin.tokenIcons),
                               textStyle: Theme.of(context).textTheme.headline4,
                               mainAxisAlignment: MainAxisAlignment.center,
                             ),
                             Divider(height: 24),
                             Text(
-                              Fmt.token(sharesTotal, shareDecimals),
+                              Fmt.token(sharesTotal, poolToken.decimals),
                               style: Theme.of(context).textTheme.headline4,
                             ),
                             Container(

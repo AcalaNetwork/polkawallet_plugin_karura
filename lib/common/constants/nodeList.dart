@@ -6,11 +6,11 @@ const node_list = [
   //   'ss58': ss58_prefix_karura,
   //   'endpoint': 'wss://pub.elara.patract.io/karura',
   // },
-  // {
-  //   'name': 'Karura (via Polkawallet)',
-  //   'ss58': ss58_prefix_karura,
-  //   'endpoint': 'wss://karura.polkawallet.io',
-  // },
+  {
+    'name': 'Karura (via Polkawallet)',
+    'ss58': ss58_prefix_karura,
+    'endpoint': 'wss://karura.polkawallet.io',
+  },
   // {
   //   'name': 'Karura (via Acala Foundation 0)',
   //   'ss58': ss58_prefix_karura,
@@ -31,11 +31,11 @@ const node_list = [
   //   'ss58': ss58_prefix_karura,
   //   'endpoint': 'wss://karura-rpc-3.aca-api.network/ws',
   // },
-  {
-    'name': 'Karura (via OnFinality)',
-    'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://karura.api.onfinality.io/public-ws',
-  },
+  // {
+  //   'name': 'Karura (via OnFinality)',
+  //   'ss58': ss58_prefix_karura,
+  //   'endpoint': 'wss://karura.api.onfinality.io/public-ws',
+  // },
   {
     'name': 'Karura (Polkawallet dev node)',
     'ss58': ss58_prefix_karura,

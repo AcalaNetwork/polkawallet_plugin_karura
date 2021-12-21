@@ -8,6 +8,7 @@ part of 'dexPoolInfoData.dart';
 
 DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
   return DexPoolData()
+    ..tokenNameId = json['tokenNameId'] as String
     ..tokens = json['tokens'] as List<dynamic>
     ..provisioning = json['provisioning'] == null
         ? null
@@ -17,6 +18,7 @@ DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$DexPoolDataToJson(DexPoolData instance) =>
     <String, dynamic>{
+      'tokenNameId': instance.tokenNameId,
       'tokens': instance.tokens,
       'provisioning':
           instance.provisioning == null ? null : instance.provisioning.toJson(),

@@ -1,11 +1,10 @@
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
-import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
 class TxSwapData extends _TxSwapData {
-  static TxSwapData fromJson(
-      Map json, Map<String, TokenBalanceData> tokenBalanceMap) {
+  static TxSwapData fromJson(Map json, PluginKarura plugin) {
     final data = TxSwapData();
     data.action = json['type'];
     data.hash = json['extrinsic']['id'];
@@ -14,9 +13,10 @@ class TxSwapData extends _TxSwapData {
       case "swap":
         final List path = jsonDecode(json['data'][1]['value']);
         data.tokenPay =
-            AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, path[0]);
-        data.tokenReceive = AssetsUtils.tokenSymbolFromCurrencyId(
-            tokenBalanceMap, path[path.length - 1]);
+            AssetsUtils.tokenDataFromCurrencyId(plugin, path[0]).symbol;
+        data.tokenReceive =
+            AssetsUtils.tokenDataFromCurrencyId(plugin, path[path.length - 1])
+                .symbol;
         if (json['data'][2]['type'] == 'Balance') {
           data.amountPay = json['data'][2]['value'].toString();
           data.amountReceive = json['data'][3]['value'].toString();
@@ -29,10 +29,12 @@ class TxSwapData extends _TxSwapData {
       case "addProvision":
       case "addLiquidity":
       case "removeLiquidity":
-        data.tokenPay = AssetsUtils.tokenSymbolFromCurrencyId(
-            tokenBalanceMap, jsonDecode(json['data'][1]['value']));
-        data.tokenReceive = AssetsUtils.tokenSymbolFromCurrencyId(
-            tokenBalanceMap, jsonDecode(json['data'][3]['value']));
+        data.tokenPay = AssetsUtils.tokenDataFromCurrencyId(
+                plugin, jsonDecode(json['data'][1]['value']))
+            .symbol;
+        data.tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
+                plugin, jsonDecode(json['data'][3]['value']))
+            .symbol;
         data.amountPay = json['data'][2]['value'];
         data.amountReceive = json['data'][4]['value'];
         data.amountShare =

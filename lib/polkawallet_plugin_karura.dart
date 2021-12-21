@@ -370,6 +370,7 @@ class PluginKarura extends PolkawalletPlugin {
       _store.loan.loadCache(acc.pubKey);
       _store.swap.loadCache(acc.pubKey);
       _store.earn.setDexPoolInfo({}, reset: true);
+      _store.earn.setBootstraps([]);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);

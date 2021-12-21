@@ -20,7 +20,8 @@ abstract class _IncentivesData {
 class IncentiveItemData extends _IncentiveItemData {
   static IncentiveItemData fromJson(Map json) {
     final res = new IncentiveItemData();
-    res.token = json['token'];
+    res.tokenNameId = json['tokenNameId'];
+    res.currencyId = json['currencyId'];
     res.amount = double.parse(json['amount']);
     res.deduction = double.parse(json['deduction']);
     return res;
@@ -28,7 +29,8 @@ class IncentiveItemData extends _IncentiveItemData {
 }
 
 abstract class _IncentiveItemData {
-  String token;
+  String tokenNameId;
+  Map currencyId;
   double amount;
   double deduction;
   double apr;

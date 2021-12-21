@@ -28,19 +28,19 @@ class SwapTokenInput extends StatelessWidget {
   final TextEditingController inputCtrl;
   final FocusNode focusNode;
   final TokenBalanceData balance;
-  final List<String> tokenOptions;
+  final List<TokenBalanceData> tokenOptions;
   final Map<String, Widget> tokenIconsMap;
   final double marketPrice;
   final Function(String) onInputChange;
-  final Function(String) onTokenChange;
+  final Function(TokenBalanceData) onTokenChange;
   final Function(BigInt) onSetMax;
   final Function onClear;
 
   Future<void> _selectCurrencyPay(BuildContext context) async {
-    var selected = await Navigator.of(context)
+    final selected = await Navigator.of(context)
         .pushNamed(CurrencySelectPage.route, arguments: tokenOptions);
     if (selected != null) {
-      onTokenChange(selected as String);
+      onTokenChange(selected as TokenBalanceData);
     }
   }
 

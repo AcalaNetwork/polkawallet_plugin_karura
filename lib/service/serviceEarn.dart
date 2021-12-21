@@ -22,15 +22,13 @@ class ServiceEarn {
   IncentivesData _calcIncentivesAPR(IncentivesData data) {
     final pools = plugin.store.earn.dexPools.toList();
     data.dex.forEach((k, v) {
-      final poolIndex =
-          pools.indexWhere((e) => e.getPoolId(plugin).join('-') == k);
+      final poolIndex = pools.indexWhere((e) => e.tokenNameId == k);
       if (poolIndex < 0) {
         return;
       }
       final pool = pools[poolIndex];
-      final tokenPair = pool.getPoolId(plugin);
-      final decimalsPair = tokenPair
-          .map((e) => AssetsUtils.getBalanceFromTokenSymbol(plugin, e).decimals)
+      final balancePair = pool.tokens
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
           .toList();
 
       final poolInfo = store.earn.dexPoolInfoMap[k];
@@ -39,14 +37,15 @@ class ServiceEarn {
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
       final stakingPoolValue = poolInfo.sharesTotal /
           poolInfo.issuance *
-          (Fmt.bigIntToDouble(poolInfo.amountLeft, decimalsPair[0]) *
-                  (prices[tokenPair[0]] ?? 0) +
-              Fmt.bigIntToDouble(poolInfo.amountRight, decimalsPair[1]) *
-                  (prices[tokenPair[1]] ?? 0));
+          (Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals) *
+                  (prices[balancePair[0].symbol] ?? 0) +
+              Fmt.bigIntToDouble(
+                      poolInfo.amountRight, balancePair[1].decimals) *
+                  (prices[balancePair[1].symbol] ?? 0));
 
       v.forEach((e) {
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
-        final rate = e.amount * (prices[e.token] ?? 0) / stakingPoolValue;
+        final rate = e.amount * (prices[e.tokenNameId] ?? 0) / stakingPoolValue;
         e.apr = rate > 0 ? rate : 0;
       });
     });
@@ -80,9 +79,8 @@ class ServiceEarn {
     store.earn.setIncentives(_calcIncentivesAPR(res));
   }
 
-  Future<void> queryDexPoolInfo(List<String> poolIds) async {
-    final info =
-        await api.swap.queryDexPoolInfo(poolIds, keyring.current.address);
+  Future<void> queryDexPoolInfo() async {
+    final info = await api.swap.queryDexPoolInfo(keyring.current.address);
     store.earn.setDexPoolInfo(info);
   }
 
@@ -99,14 +97,15 @@ class ServiceEarn {
     // 2. default poolId is the first pool or KAR-kUSD
     final tabNow = poolId ??
         (store.earn.dexPools.length > 0
-            ? store.earn.dexPools[0].getPoolId(plugin).join('-')
+            ? store.earn.dexPools[0].tokenNameId
             : (plugin.basic.name == plugin_name_karura
-                ? 'KAR-KUSD'
-                : 'ACA-AUSD'));
+                ? 'lp://KAR/KUSD'
+                : 'lp://ACA/AUSD'));
     // 3. query mining pool info
     await Future.wait([
-      queryDexPoolInfo([tabNow]),
-      plugin.service.assets.queryMarketPrices(PluginFmt.getAllDexTokens(plugin))
+      queryDexPoolInfo(),
+      plugin.service.assets.queryMarketPrices(
+          PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList())
     ]);
   }
 
@@ -115,11 +114,10 @@ class ServiceEarn {
       await getDexPools();
     }
 
-    plugin.service.assets.queryMarketPrices(PluginFmt.getAllDexTokens(plugin));
+    plugin.service.assets.queryMarketPrices(
+        PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList());
 
-    await queryDexPoolInfo((store.earn.dexPools
-        .map((e) => e.getPoolId(plugin).join('-'))
-        .toList()));
+    await queryDexPoolInfo();
 
     queryIncentives();
   }

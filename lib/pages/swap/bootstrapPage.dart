@@ -70,9 +70,9 @@ class _BootstrapPageState extends State<BootstrapPage> {
   void _onAmountChange(int index, String value) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final DexPoolData args = ModalRoute.of(context).settings.arguments;
-    final pair = args.getPoolId(widget.plugin);
-    final balancePair =
-        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
+    final balancePair = args.tokens
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
     final balance = balancePair[index];
 
     final v = value.trim();
@@ -131,10 +131,9 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    final pair = pool.getPoolId(widget.plugin);
-
-    final balancePair =
-        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
+    final balancePair = pool.tokens
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
 
     final left = _amountLeftCtrl.text.trim();
     final right = _amountRightCtrl.text.trim();
@@ -145,9 +144,9 @@ class _BootstrapPageState extends State<BootstrapPage> {
       module: 'dex',
       call: 'addProvision',
       txDisplay: {
-        'pool': pair.join('-'),
-        'amount${pair[0]}': leftAmount,
-        'amount${pair[1]}': rightAmount,
+        'pool': '${balancePair[0].symbol}-${balancePair[1].symbol}',
+        'amount${balancePair[0].symbol}': leftAmount,
+        'amount${balancePair[1].symbol}': rightAmount,
       },
       params: [
         pool.tokens[0],
@@ -172,16 +171,13 @@ class _BootstrapPageState extends State<BootstrapPage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final DexPoolData args = ModalRoute.of(context).settings.arguments;
-    final pair = args.getPoolId(widget.plugin);
-    final pairView = pair.map((e) => PluginFmt.tokenView(e)).toList();
-
+    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
     return Observer(builder: (_) {
-      final pool = widget.plugin.store.earn.bootstraps.firstWhere(
-          (e) => e.getPoolId(widget.plugin).join('-') == pair.join('-'));
-
-      final balancePair =
-          AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
+      final balancePair = pool.tokens
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+          .toList();
+      final pairView =
+          balancePair.map((e) => PluginFmt.tokenView(e.symbol)).toList();
 
       final nowLeft = Fmt.balanceDouble(
           pool.provisioning.accumulatedProvision[0].toString(),
@@ -217,7 +213,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
       String ratioView2 = '';
       final nativeToken = widget.plugin.networkState.tokenSymbol[0];
       final relayChainToken = relay_chain_token_symbol;
-      if (pair.join('-').toUpperCase() == '$nativeToken-$relayChainToken') {
+      if (balancePair.map((e) => e.symbol).join('-').toUpperCase() ==
+          '$nativeToken-$relayChainToken') {
         final relayChainTokenPrice =
             widget.plugin.store.assets.marketPrices[relayChainToken];
         final priceView = relayChainTokenPrice == null

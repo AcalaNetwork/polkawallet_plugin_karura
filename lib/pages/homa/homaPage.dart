@@ -153,7 +153,7 @@ class _HomaPageState extends State<HomaPage> {
         final amountLeft = cap - staked;
         final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
 
-        final balances = AssetsUtils.getBalancePairFromTokenSymbol(
+        final balances = AssetsUtils.getBalancePairFromTokenNameId(
             widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
         final balanceStakeToken =
             Fmt.balanceDouble(balances[0].amount, balances[0].decimals);

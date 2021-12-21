@@ -23,8 +23,8 @@ abstract class _LoanStore with Store {
   Map<String, LoanData> loans = Map<String, LoanData>();
 
   @observable
-  Map<String, CollateralRewardDataV2> collateralRewardsV2 =
-      Map<String, CollateralRewardDataV2>();
+  Map<String, CollateralRewardData> collateralRewards =
+      Map<String, CollateralRewardData>();
 
   @observable
   bool loansLoading = true;
@@ -38,18 +38,18 @@ abstract class _LoanStore with Store {
   void setTotalCDPs(List<TotalCDPData> list) {
     final dataMap = Map<String, TotalCDPData>();
     list.forEach((e) {
-      dataMap[e.token] = e;
+      dataMap[e.tokenNameId] = e;
     });
     totalCDPs = dataMap;
   }
 
   @action
-  void setCollateralRewardsV2(List<CollateralRewardDataV2> data) {
-    final dataMap = Map<String, CollateralRewardDataV2>();
+  void setCollateralRewards(List<CollateralRewardData> data) {
+    final dataMap = Map<String, CollateralRewardData>();
     data.forEach((e) {
-      dataMap[e.token] = e;
+      dataMap[e.tokenNameId] = e;
     });
-    collateralRewardsV2 = dataMap;
+    collateralRewards = dataMap;
   }
 
   @action
@@ -67,6 +67,6 @@ abstract class _LoanStore with Store {
     if (pubKey == null || pubKey.isEmpty) return;
 
     setAccountLoans(Map<String, LoanData>());
-    setCollateralRewardsV2([]);
+    setCollateralRewards([]);
   }
 }

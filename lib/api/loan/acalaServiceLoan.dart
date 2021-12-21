@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class AcalaServiceLoan {
@@ -21,42 +20,36 @@ class AcalaServiceLoan {
         .evalJavascript('api.derive.loan.allLoanTypes()');
   }
 
-  Future<List> queryTotalCDPs(List<String> pools) async {
+  Future<List> queryTotalCDPs(List<Map> pools) async {
     final query = pools
-        .map((e) => 'api.query.loans.totalPositions({Token: "$e"})')
+        .map((currencyId) =>
+            'api.query.loans.totalPositions(${jsonEncode(currencyId)})')
         .join(',');
     final List res =
         await plugin.sdk.webView.evalJavascript('Promise.all([$query])');
     return res;
   }
 
-  Future<List> queryCollateralIncentives() async {
-    final pools = await plugin.sdk.webView.evalJavascript(
-        'api.query.incentives.incentiveRewardAmount.entries()'
-        '.then(ls => ls.map(i => ([i[0].toHuman(), i[1]])).filter(i => !!i[0][0].LoansIncentive))');
-    return pools;
-  }
-
   Future<Map<String, double>> queryCollateralLoyaltyBonus() async {
     final loanTypes = plugin.store.loan.loanTypes;
     final data = await plugin.sdk.webView.evalJavascript(
         'Promise.all([${loanTypes.map((i) => 'api.query.incentives.payoutDeductionRates(${jsonEncode({
-                  'LoansIncentive':
-                      AssetsUtils.currencyIdFromTokenSymbol(plugin, i.token)
+                  'LoansIncentive': i.token.currencyId
                 })})').join(',')}])');
     final Map<String, double> res = {};
     loanTypes.asMap().forEach((key, value) {
-      res[value.token] = Fmt.balanceDouble(data[key], acala_price_decimals);
+      res[value.token.tokenNameId] =
+          Fmt.balanceDouble(data[key], acala_price_decimals);
     });
     return res;
   }
 
   Future<List> queryCollateralRewards(
-      List<String> collaterals, String address) async {
+      List<Map> collaterals, String address) async {
     final decimals = plugin.networkState.tokenDecimals[0];
     final query = collaterals
         .map((e) =>
-            'acala.fetchCollateralRewards(api, ${jsonEncode(AssetsUtils.currencyIdFromTokenSymbol(plugin, e))}, "$address", $decimals)')
+            'acala.fetchCollateralRewards(api, ${jsonEncode(e)}, "$address", $decimals)')
         .join(',');
     final List res =
         await plugin.sdk.webView.evalJavascript('Promise.all([$query])');

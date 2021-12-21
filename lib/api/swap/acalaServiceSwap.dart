@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/assets.dart';
 
 class AcalaServiceSwap {
   AcalaServiceSwap(this.plugin);
@@ -12,7 +11,7 @@ class AcalaServiceSwap {
   Future<Map> queryTokenSwapAmount(
     String supplyAmount,
     String targetAmount,
-    List<String> swapPair,
+    List<Map> swapPair,
     String slippage,
   ) async {
     final code =
@@ -29,71 +28,12 @@ class AcalaServiceSwap {
     return await plugin.sdk.webView.evalJavascript('acala.getBootstraps(api)');
   }
 
-  Future<Map> queryDexLiquidityPoolRewards(List<List> dexPools) async {
-    final pools =
-        dexPools.map((pool) => jsonEncode({'DEXShare': pool})).toList();
-    final incentiveQuery = pools
-        .map((i) =>
-            'api.query.incentives.incentiveRewardAmount({ DexIncentive: $i})')
-        .join(',');
-    final savingRateQuery = pools
-        .map(
-            (i) => 'api.query.incentives.dexSavingRewardRate({ DexSaving: $i})')
-        .join(',');
-    final res = await Future.wait([
-      plugin.sdk.webView.evalJavascript('Promise.all([$incentiveQuery])'),
-      plugin.sdk.webView.evalJavascript('Promise.all([$savingRateQuery])')
-    ]);
-    List deductions = [];
-    final deductionQuery = dexPools
-        .map((i) => 'api.query.incentives.payoutDeductionRates(${jsonEncode({
-                  'DexIncentive': {'DEXShare': i}
-                })})')
-        .join(',');
-    final deductionSavingQuery = dexPools
-        .map((i) => 'api.query.incentives.payoutDeductionRates(${jsonEncode({
-                  'DexSaving': {'DEXShare': i}
-                })})')
-        .join(',');
-    deductions = await Future.wait([
-      plugin.sdk.webView.evalJavascript('Promise.all([$deductionQuery])'),
-      plugin.sdk.webView.evalJavascript('Promise.all([$deductionSavingQuery])')
-    ]);
-    final incentives = Map<String, dynamic>();
-    final savingRates = Map<String, dynamic>();
-    final deductionRates = Map<String, dynamic>();
-    final deductionSavingRates = Map<String, dynamic>();
-    final tokenPairs = dexPools
-        .map((e) => e
-            .map((i) => AssetsUtils.tokenSymbolFromCurrencyId(
-                plugin.store.assets.tokenBalanceMap, i))
-            .join('-'))
-        .toList();
-    tokenPairs.asMap().forEach((k, v) {
-      incentives[v] = res[0][k];
-      savingRates[v] = res[1][k];
-      if (deductions.length > 0) {
-        deductionRates[v] = deductions[0][k];
-        deductionSavingRates[v] = deductions[1][k];
-      }
-    });
-    return {
-      'incentives': incentives,
-      'savingRates': savingRates,
-      'deductionRates': deductionRates,
-      'deductionSavingRates': deductionSavingRates,
-    };
-  }
+  Future<List> queryDexPoolInfo(address) async {
+    if (plugin.store.earn.dexPools.length == 0) return [];
 
-  Future<List> queryDexPoolInfo(List<String> pools, address) async {
-    final query = pools
-        .map((e) => 'acala.fetchDexPoolInfo(api, ${jsonEncode({
-                  'DexShare': e
-                      .split('-')
-                      .map((e) =>
-                          AssetsUtils.currencyIdFromTokenSymbol(plugin, e))
-                      .toList()
-                })}, "$address")')
+    final query = plugin.store.earn.dexPools
+        .map((e) =>
+            'acala.fetchDexPoolInfo(api, {DEXShare: ${jsonEncode(e.tokens)}}, "$address")')
         .join(',');
     final List info =
         await plugin.sdk.webView.evalJavascript('Promise.all([$query])');

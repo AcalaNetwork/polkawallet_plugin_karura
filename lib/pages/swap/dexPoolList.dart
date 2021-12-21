@@ -41,8 +41,7 @@ class _DexPoolListState extends State<DexPoolList> {
         'Promise.all([${pools.map((e) => 'api.query.dex.liquidityPool(${jsonEncode(e.tokens)})').join(',')}])');
     final poolInfoMap = {};
     pools.asMap().forEach((i, e) {
-      final poolId = e.getPoolId(widget.plugin).join('-');
-      poolInfoMap[poolId] = res[i];
+      poolInfoMap[e.tokenNameId] = res[i];
     });
     if (mounted) {
       setState(() {
@@ -84,8 +83,8 @@ class _DexPoolListState extends State<DexPoolList> {
                 padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
                 itemCount: dexPools.length,
                 itemBuilder: (_, i) {
-                  final poolId = dexPools[i].getPoolId(widget.plugin).join('-');
-                  final poolAmount = _poolInfoMap[poolId] as List;
+                  final poolAmount =
+                      _poolInfoMap[dexPools[i].tokenNameId] as List;
                   return _DexPoolCard(
                     plugin: widget.plugin,
                     pool: dexPools[i],
@@ -110,16 +109,13 @@ class _DexPoolCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final tokenPair = pool.getPoolId(plugin);
-    final decimalsPair = tokenPair
-        .map((e) => AssetsUtils.getBalanceFromTokenSymbol(plugin, e).decimals)
+    final balancePair = pool.tokens
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
     final tokenPairView =
-        tokenPair.map((e) => PluginFmt.tokenView(e)).join('-');
-    final poolId = tokenPair.join('-');
+        balancePair.map((e) => PluginFmt.tokenView(e.symbol)).join('-');
 
     BigInt amountLeft;
     BigInt amountRight;
@@ -138,7 +134,8 @@ class _DexPoolCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(poolId, tokenIcons),
+                child: TokenIcon(
+                    balancePair.map((e) => e.symbol).join('-'), tokenIcons),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
@@ -159,17 +156,19 @@ class _DexPoolCard extends StatelessWidget {
               children: [
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  title: PluginFmt.tokenView(tokenPair[0]),
+                  title: PluginFmt.tokenView(balancePair[0].symbol),
                   content: amountLeft == null
                       ? '--'
-                      : Fmt.priceFloorBigInt(amountLeft, decimalsPair[0]),
+                      : Fmt.priceFloorBigInt(
+                          amountLeft, balancePair[0].decimals),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  title: PluginFmt.tokenView(tokenPair[1]),
+                  title: PluginFmt.tokenView(balancePair[1].symbol),
                   content: amountRight == null
                       ? '--'
-                      : Fmt.priceFloorBigInt(amountRight, decimalsPair[1]),
+                      : Fmt.priceFloorBigInt(
+                          amountRight, balancePair[1].decimals),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,

@@ -46,8 +46,7 @@ class EarnDetailPage extends StatelessWidget {
     final symbols = plugin.networkState.tokenSymbol;
 
     final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    final pair = pool.getPoolId(plugin);
-    final poolId = pair.join('-');
+    final poolId = pool.tokenNameId;
     return Scaffold(
       appBar: AppBar(
         title: Text(dic['earn.title']),
@@ -56,8 +55,9 @@ class EarnDetailPage extends StatelessWidget {
       ),
       body: Observer(
         builder: (_) {
-          final balancePair =
-              AssetsUtils.getBalancePairFromTokenSymbol(plugin, pair);
+          final balancePair = pool.tokens
+              .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+              .toList();
 
           BigInt issuance = BigInt.zero;
           BigInt shareTotal = BigInt.zero;
@@ -67,7 +67,7 @@ class EarnDetailPage extends StatelessWidget {
 
           String lpAmountString = '~';
 
-          final poolInfo = plugin.store.earn.dexPoolInfoMap[poolId];
+          final poolInfo = plugin.store.earn.dexPoolInfoMap[pool.tokenNameId];
           if (poolInfo != null) {
             issuance = poolInfo.issuance;
             shareTotal = poolInfo.sharesTotal;
@@ -82,7 +82,7 @@ class EarnDetailPage extends StatelessWidget {
                     poolInfo.amountRight, balancePair[1].decimals) *
                 poolShare;
             lpAmountString =
-                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(pair[0])} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(pair[1])}';
+                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0].symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1].symbol)}';
           }
 
           double rewardAPR = 0;
@@ -91,19 +91,19 @@ class EarnDetailPage extends StatelessWidget {
           double savingLoyaltyBonus = 0;
           final incentiveV2 = plugin.store.earn.incentives;
           if (incentiveV2.dex != null) {
-            (incentiveV2.dex[poolId] ?? []).forEach((e) {
+            (incentiveV2.dex[pool.tokenNameId] ?? []).forEach((e) {
               rewardAPR += e.apr;
               loyaltyBonus = e.deduction;
             });
-            (incentiveV2.dexSaving[poolId] ?? []).forEach((e) {
+            (incentiveV2.dexSaving[pool.tokenNameId] ?? []).forEach((e) {
               savingRewardAPR += e.apr;
               savingLoyaltyBonus = e.deduction;
             });
           }
 
-          final balance = Fmt.balanceInt(plugin
-                  .store.assets.tokenBalanceMap[poolId.toUpperCase()]?.amount ??
-              '0');
+          final balance = Fmt.balanceInt(
+              plugin.store.assets.tokenBalanceMap[pool.tokenNameId]?.amount ??
+                  '0');
 
           Color cardColor = Theme.of(context).cardColor;
           Color primaryColor = Theme.of(context).primaryColor;
@@ -117,7 +117,8 @@ class EarnDetailPage extends StatelessWidget {
                       child: ListView(
                         children: <Widget>[
                           _SystemCard(
-                            token: poolId,
+                            poolSymbol:
+                                balancePair.map((e) => e.symbol).join('-'),
                             total: shareTotal,
                             userStaked: share,
                             decimals: balancePair[0].decimals,
@@ -222,14 +223,14 @@ class EarnDetailPage extends StatelessWidget {
 
 class _SystemCard extends StatelessWidget {
   _SystemCard({
-    this.token,
+    this.poolSymbol,
     this.total,
     this.userStaked,
     this.decimals,
     this.lpAmountString,
     this.actions,
   });
-  final String token;
+  final String poolSymbol;
   final BigInt total;
   final BigInt userStaked;
   final int decimals;
@@ -252,7 +253,7 @@ class _SystemCard extends StatelessWidget {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text('${dic['earn.staked']} ${PluginFmt.tokenView(token)}'),
+              Text('${dic['earn.staked']} ${PluginFmt.tokenView(poolSymbol)}'),
               Padding(
                 padding: EdgeInsets.only(top: 16, bottom: 8),
                 child: Text(
@@ -363,7 +364,9 @@ class _UserCard extends StatelessWidget {
           txTitle: I18n.of(context)
               .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
           txDisplay: {
-            "poolId": pool.getPoolId(plugin).join('-'),
+            "poolId":
+                AssetsUtils.getBalanceFromTokenNameId(plugin, pool.tokenNameId)
+                    .symbol,
           },
           params: [],
           rawParams: '[{Dex: {DEXShare: ${jsonEncode(pool.tokens)}}}]',
@@ -399,14 +402,12 @@ class _UserCard extends StatelessWidget {
         canClaim = true;
       }
       return Fmt.priceFloor(amount * (1 - (loyaltyBonus ?? 0)), lengthMax: 4) +
-          ' ${e['token']}';
+          ' ${e['tokenNameId']}';
     })?.join(' + ');
 
     var blockNumber;
     dexIncentiveLoyaltyEndBlock?.forEach((element) {
-      if (token ==
-          PluginFmt.getPool(
-              plugin.store.assets.tokenBalanceMap, element['pool'])) {
+      if (token == PluginFmt.getPool(plugin, element['pool'])) {
         blockNumber = element['blockNumber'];
         return;
       }

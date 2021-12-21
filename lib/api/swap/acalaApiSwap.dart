@@ -10,7 +10,7 @@ class AcalaApiSwap {
   Future<SwapOutputData> queryTokenSwapAmount(
     String supplyAmount,
     String targetAmount,
-    List<String> swapPair,
+    List<Map> swapPair,
     String slippage,
   ) async {
     final output = await service.queryTokenSwapAmount(
@@ -31,17 +31,11 @@ class AcalaApiSwap {
     return pairs.map((e) => DexPoolData.fromJson(e)).toList();
   }
 
-  Future<Map> queryDexLiquidityPoolRewards(List<DexPoolData> dexPools) async {
-    return await service
-        .queryDexLiquidityPoolRewards(dexPools.map((e) => e.tokens).toList());
-  }
-
-  Future<Map<String, DexPoolInfoData>> queryDexPoolInfo(
-      List<String> pools, address) async {
-    final List info = await service.queryDexPoolInfo(pools, address);
+  Future<Map<String, DexPoolInfoData>> queryDexPoolInfo(address) async {
+    final List info = await service.queryDexPoolInfo(address);
     final Map<String, DexPoolInfoData> res = {};
     info.forEach((e) {
-      res[e['token']] = DexPoolInfoData.fromJson(Map.of(e));
+      res[e['tokenNameId']] = DexPoolInfoData.fromJson(Map.of(e));
     });
     return res;
   }

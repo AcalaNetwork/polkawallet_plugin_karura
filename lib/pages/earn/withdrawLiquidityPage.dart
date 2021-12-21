@@ -51,9 +51,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   }
 
   Future<void> _refreshData() async {
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    await widget.plugin.service.earn
-        .queryDexPoolInfo([pool.getPoolId(widget.plugin).join('-')]);
+    await widget.plugin.service.earn.queryDexPoolInfo();
     if (mounted) {
       _timer = Timer(Duration(seconds: 30), () {
         if (mounted) {
@@ -82,16 +80,15 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
     final symbols = widget.plugin.networkState.tokenSymbol;
     final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    final pair = pool.getPoolId(widget.plugin);
-    final balancePair =
-        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
-    final poolId = pair.join('-');
+    final balancePair = pool.tokens
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
 
-    final poolInfo = _getPoolInfoData(poolId);
+    final poolInfo = _getPoolInfoData(pool.tokenNameId);
 
     final shareInputInt = Fmt.tokenInt(v, balancePair[0].decimals);
-    final shareFree = Fmt.balanceInt(widget
-        .plugin.store.assets.tokenBalanceMap[poolId.toUpperCase()].amount);
+    final shareFree = Fmt.balanceInt(
+        widget.plugin.store.assets.tokenBalanceMap[pool.tokenNameId].amount);
     final shareBalance = _fromPool ? shareFree + poolInfo.shares : shareFree;
     if (shareInputInt > shareBalance) {
       return dic['amount.low'];
@@ -99,17 +96,15 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
     final shareInput = double.parse(v.trim());
     double min = 0;
-    if (pair[0] != symbols[0] &&
+    if (balancePair[0].symbol != symbols[0] &&
         Fmt.balanceInt(balancePair[0].amount) == BigInt.zero) {
-      min = Fmt.balanceInt(
-              widget.plugin.store.assets.tokenBalanceMap[pair[0]].minBalance) /
+      min = Fmt.balanceInt(balancePair[0].minBalance) /
           poolInfo.amountLeft *
           Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
     }
-    if (pair[1] != symbols[0] &&
+    if (balancePair[0].symbol != symbols[0] &&
         Fmt.balanceInt(balancePair[1].amount) == BigInt.zero) {
-      final min2 = Fmt.balanceInt(
-              widget.plugin.store.assets.tokenBalanceMap[pair[1]].minBalance) /
+      final min2 = Fmt.balanceInt(balancePair[1].minBalance) /
           poolInfo.amountRight *
           Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
       min = min > min2 ? min : min2;
@@ -135,11 +130,11 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   Future<void> _onSubmit(int shareDecimals) async {
     if (_formKey.currentState.validate()) {
       final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-      final poolId = pool.getPoolId(widget.plugin).join('-');
+      final poolToken = AssetsUtils.getBalanceFromTokenNameId(
+          widget.plugin, pool.tokenNameId);
       final amount = _amountCtrl.text.trim();
       final amountInt = Fmt.tokenInt(amount, shareDecimals);
-      final free = Fmt.balanceInt(widget
-          .plugin.store.assets.tokenBalanceMap[poolId.toUpperCase()].amount);
+      final free = Fmt.balanceInt(poolToken.amount);
 
       TxConfirmParams txParams = TxConfirmParams(
         module: 'dex',
@@ -147,7 +142,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         txTitle: I18n.of(context)
             .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
         txDisplay: {
-          "poolId": poolId,
+          "poolId": poolToken.symbol,
           "amount": amount,
           "fromPool": false,
         },
@@ -161,7 +156,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txTitle: I18n.of(context)
                 .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
             txDisplay: {
-              "poolId": poolId,
+              "poolId": poolToken.symbol,
               "amount": amount,
               "fromPool": true,
             },
@@ -178,7 +173,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txTitle: I18n.of(context)
                 .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
             txDisplay: {
-              "poolId": poolId,
+              "poolId": poolToken.symbol,
               "amount": amount,
               "fromPool": _fromPool,
             },
@@ -225,12 +220,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
         final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-        final pair = pool.getPoolId(widget.plugin);
-        final poolId = pair.join('-');
-        final pairView = pair.map((e) => PluginFmt.tokenView(e)).toList();
 
-        final balancePair =
-            AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, pair);
+        final poolToken = AssetsUtils.getBalanceFromTokenNameId(
+            widget.plugin, pool.tokenNameId);
+        final balancePair = pool.tokens
+            .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+            .toList();
+        final pairView =
+            balancePair.map((e) => PluginFmt.tokenView(e.symbol)).toList();
 
         double shareInput = 0;
         BigInt shareInputInt = BigInt.zero;
@@ -254,12 +251,11 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         double amountLeft = 0;
         double amountRight = 0;
 
-        final poolInfo = _getPoolInfoData(poolId);
+        final poolInfo = _getPoolInfoData(pool.tokenNameId);
         if (poolInfo != null) {
           exchangeRate = poolInfo.amountLeft / poolInfo.amountRight;
 
-          shareFreeInt = Fmt.balanceInt(widget.plugin.store.assets
-              .tokenBalanceMap[poolId.toUpperCase()].amount);
+          shareFreeInt = Fmt.balanceInt(poolToken.amount);
           shareStakedInt = poolInfo.shares;
           shareFromInt =
               _fromPool ? shareFreeInt + shareStakedInt : shareFreeInt;
@@ -300,7 +296,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
                             child: Text(
-                                '${PluginFmt.tokenView(poolId)} ${dicAssets['balance']}'),
+                                '${PluginFmt.tokenView(poolToken.symbol)} ${dicAssets['balance']}'),
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 4),

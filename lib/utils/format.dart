@@ -43,11 +43,12 @@ class PluginFmt {
     return LiquidityShareInfo(userShare, userShare / totalShare);
   }
 
-  static List<String> getAllDexTokens(PluginKarura plugin) {
-    final List<String> tokens = [];
+  static List<TokenBalanceData> getAllDexTokens(PluginKarura plugin) {
+    final List<TokenBalanceData> tokens = [];
     plugin.store.earn.dexPools.forEach((e) {
-      e.getPoolId(plugin).forEach((token) {
-        if (tokens.indexOf(token) < 0) {
+      e.tokens.forEach((currencyId) {
+        final token = AssetsUtils.tokenDataFromCurrencyId(plugin, currencyId);
+        if (tokens.indexWhere((i) => i.tokenNameId == token.tokenNameId) < 0) {
           tokens.add(token);
         }
       });
@@ -64,11 +65,10 @@ class PluginFmt {
     return unavailable > nativeED ? BigInt.zero : (nativeED - unavailable);
   }
 
-  static String getPool(
-      Map<String, TokenBalanceData> tokenBalanceMap, dynamic pool) {
+  static String getPool(PluginKarura plugin, dynamic pool) {
     if (pool['dex'] != null) {
       return List.from(pool['dex']['dexShare'])
-          .map((e) => AssetsUtils.tokenSymbolFromCurrencyId(tokenBalanceMap, e))
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
           .join('-');
     } else if (pool['loans'] != null) {
       return pool['loans']['token'];

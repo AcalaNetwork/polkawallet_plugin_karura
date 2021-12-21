@@ -87,13 +87,12 @@ class _BootstrapListState extends State<BootstrapList> {
     final Map<String, List> provisions = {};
     final Map<String, List> shareRates = {};
     widget.plugin.store.earn.dexPools.asMap().forEach((i, e) {
-      final poolId = e.getPoolId(widget.plugin).join('-');
       final provision = res[i][0] as List;
       if (BigInt.parse(provision[0].toString()) > BigInt.zero ||
           BigInt.parse(provision[1].toString()) > BigInt.zero) {
-        provisions[poolId] = provision;
+        provisions[e.tokenNameId] = provision;
       }
-      shareRates[poolId] = res[i][1] as List;
+      shareRates[e.tokenNameId] = res[i][1] as List;
     });
     if (mounted) {
       setState(() {
@@ -125,7 +124,9 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'utility',
         call: 'batch',
         txDisplay: {
-          'pool': pool.getPoolId(widget.plugin).join('-'),
+          'pool': AssetsUtils.getBalanceFromTokenNameId(
+                  widget.plugin, pool.tokenNameId)
+              .symbol,
           'amount': Fmt.priceFloor(amount, lengthMax: 4),
           'withStake': true,
         },
@@ -138,7 +139,9 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'dex',
         call: 'claimDexShare',
         txDisplay: {
-          'pool': pool.getPoolId(widget.plugin).join('-'),
+          'pool': AssetsUtils.getBalanceFromTokenNameId(
+                  widget.plugin, pool.tokenNameId)
+              .symbol,
           'amount': Fmt.priceFloor(amount, lengthMax: 4),
         },
         params: [
@@ -162,8 +165,7 @@ class _BootstrapListState extends State<BootstrapList> {
     return Observer(builder: (_) {
       final bootstraps = widget.plugin.store.earn.bootstraps.toList();
       final dexPools = widget.plugin.store.earn.dexPools.toList();
-      dexPools.retainWhere((e) =>
-          _userProvisions.keys.contains(e.getPoolId(widget.plugin).join('-')));
+      dexPools.retainWhere((e) => _userProvisions.keys.contains(e.tokenNameId));
 
       return RefreshIndicator(
         key: _refreshKey,
@@ -191,24 +193,19 @@ class _BootstrapListState extends State<BootstrapList> {
                     );
                   }).toList(),
                   ...dexPools.map((e) {
-                    final tokenPair = e.getPoolId(widget.plugin);
-                    final poolId = tokenPair.join('-');
-                    final existDeposit = Fmt.balanceInt(tokenPair[0] ==
-                            widget.plugin.networkState.tokenSymbol[0]
-                        ? widget.plugin.networkConst['balances']
-                            ['existentialDeposit']
-                        : widget.plugin.store.assets
-                            .tokenBalanceMap[tokenPair[0]].minBalance);
+                    final balancePair = e.tokens
+                        .map((e) => AssetsUtils.tokenDataFromCurrencyId(
+                            widget.plugin, e))
+                        .toList();
                     return _BootStrapCardEnabled(
                       widget.plugin,
                       pool: e,
-                      userProvision: _userProvisions[poolId],
-                      shareRate: _initialShareRates[poolId],
+                      userProvision: _userProvisions[e.tokenNameId],
+                      shareRate: _initialShareRates[e.tokenNameId],
                       tokenIcons: widget.plugin.tokenIcons,
                       existentialDeposit: Fmt.priceCeilBigInt(
-                          existDeposit,
-                          widget.plugin.store.assets
-                              .tokenBalanceMap[tokenPair[0]].decimals,
+                          Fmt.balanceInt(balancePair[0].minBalance),
+                          balancePair[0].decimals,
                           lengthMax: 6),
                       withStake: _withStake,
                       onWithStakeChange: (v) {
@@ -255,12 +252,12 @@ class _BootStrapCard extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final tokenPair = pool.getPoolId(plugin);
-    final balancePair =
-        AssetsUtils.getBalancePairFromTokenSymbol(plugin, tokenPair);
-    final poolId = tokenPair.join('-');
+    final balancePair = pool.tokens
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+        .toList();
+    final poolSymbol = balancePair.map((e) => e.symbol).join('-');
     final tokenPairView =
-        tokenPair.map((e) => PluginFmt.tokenView(e ?? '')).toList();
+        balancePair.map((e) => PluginFmt.tokenView(e.symbol ?? '')).toList();
 
     final targetLeft =
         Fmt.balanceInt(pool.provisioning.targetProvision[0].toString());
@@ -281,7 +278,7 @@ class _BootStrapCard extends StatelessWidget {
 
     String ratioView =
         '1 ${tokenPairView[0]} : ${Fmt.priceCeil(ratio, lengthMax: 6)} ${tokenPairView[1]}';
-    if (poolId == 'KAR-KSM') {
+    if (poolSymbol == 'KAR-KSM') {
       final priceView = relayChainTokenPrice == null
           ? '--.--'
           : Fmt.priceFloor(relayChainTokenPrice * ratio);
@@ -295,7 +292,7 @@ class _BootStrapCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(poolId, tokenIcons),
+                child: TokenIcon(poolSymbol, tokenIcons),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
@@ -441,12 +438,13 @@ class _BootStrapCardEnabled extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final tokenPair = pool.getPoolId(plugin);
-    final balancePair =
-        AssetsUtils.getBalancePairFromTokenSymbol(plugin, tokenPair);
-    final poolId = tokenPair.join('-');
+    final poolToken =
+        AssetsUtils.getBalanceFromTokenNameId(plugin, pool.tokenNameId);
+    final balancePair = pool.tokens
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+        .toList();
     final tokenPairView =
-        tokenPair.map((e) => PluginFmt.tokenView(e ?? '')).toList();
+        balancePair.map((e) => PluginFmt.tokenView(e.symbol ?? '')).toList();
 
     final userLeft =
         Fmt.balanceDouble(userProvision[0].toString(), balancePair[0].decimals);
@@ -463,7 +461,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(poolId, tokenIcons),
+                child: TokenIcon(poolToken.symbol, tokenIcons),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
@@ -545,7 +543,8 @@ class _BootStrapCardEnabled extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(8))),
             child: StakeLPTips(
               plugin,
-              poolId: poolId,
+              pool: pool,
+              poolSymbol: poolToken.symbol,
               switchActive: withStake,
               onSwitch: onWithStakeChange,
             ),

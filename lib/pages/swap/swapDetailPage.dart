@@ -26,7 +26,7 @@ class SwapDetailPage extends StatelessWidget {
     final TxSwapData tx = ModalRoute.of(context).settings.arguments;
     final token0 = PluginFmt.tokenView(tx.tokenPay);
     final token1 = PluginFmt.tokenView(tx.tokenReceive);
-    final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         plugin, [tx.tokenPay, tx.tokenReceive]);
     final tokenLP = '$token0-$token1 LP';
     final amount0 = Fmt.balance(tx.amountPay, balancePair[0].decimals);

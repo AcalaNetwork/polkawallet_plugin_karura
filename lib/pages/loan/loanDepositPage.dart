@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
@@ -33,13 +34,13 @@ class LoanDepositPage extends StatefulWidget {
 class LoanDepositPageParams {
   LoanDepositPageParams(this.actionType, this.token);
   final String actionType;
-  final String token;
+  final TokenBalanceData token;
 }
 
 class _LoanDepositPageState extends State<LoanDepositPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String _token;
+  TokenBalanceData _token;
 
   final TextEditingController _amountCtrl = new TextEditingController();
 
@@ -78,17 +79,16 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
   Future<Map> _getTxParams(LoanData loan, int stableCoinDecimals) async {
     final LoanDepositPageParams params =
         ModalRoute.of(context).settings.arguments;
-    final currencyId =
-        AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, params.token);
     switch (params.actionType) {
       case LoanDepositPage.actionTypeDeposit:
         return {
           'detail': {
-            "amount":
-                _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
+            "amount": _amountCtrl.text.trim() +
+                ' ' +
+                PluginFmt.tokenView(loan.token.symbol),
           },
           'params': [
-            currencyId,
+            params.token.currencyId,
             _amountCollateral.toString(),
             0,
           ]
@@ -96,11 +96,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
       case LoanDepositPage.actionTypeWithdraw:
         return {
           'detail': {
-            "amount":
-                _amountCtrl.text.trim() + ' ' + PluginFmt.tokenView(loan.token),
+            "amount": _amountCtrl.text.trim() +
+                ' ' +
+                PluginFmt.tokenView(loan.token.symbol),
           },
           'params': [
-            currencyId,
+            params.token.currencyId,
             (BigInt.zero - _amountCollateral).toString(),
             0,
           ]
@@ -136,7 +137,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
       final LoanDepositPageParams params =
           ModalRoute.of(context).settings.arguments;
 
-      final loan = widget.plugin.store.loan.loans[params.token];
+      final loan = widget.plugin.store.loan.loans[params.token.tokenNameId];
       setState(() {
         _amountCollateral = loan.collaterals;
         _token = params.token;
@@ -157,10 +158,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
     final LoanDepositPageParams params =
         ModalRoute.of(context).settings.arguments;
-    final symbol = _token ?? params.token;
+    final token = _token ?? params.token;
 
-    final balancePair = AssetsUtils.getBalancePairFromTokenSymbol(
-        widget.plugin, [symbol, karura_stable_coin]);
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        widget.plugin, [token.tokenNameId, karura_stable_coin]);
 
     final tokenOptions =
         widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
@@ -171,10 +172,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           (incentive[e][0].amount ?? 0) > 0;
     });
 
-    final loan = widget.plugin.store.loan.loans[symbol];
-    final price = widget.plugin.store.assets.prices[symbol];
+    final loan = widget.plugin.store.loan.loans[token.tokenNameId];
+    final price = widget.plugin.store.assets.prices[token.tokenNameId];
 
-    final symbolView = PluginFmt.tokenView(symbol);
+    final symbolView = PluginFmt.tokenView(token.symbol);
     String titleSuffix = ' $symbolView';
 
     final BigInt balance = Fmt.balanceInt(balancePair[0].amount);
@@ -205,8 +206,8 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
               CurrencySelector(
                 tokenOptions: tokenOptions,
                 tokenIcons: widget.plugin.tokenIcons,
-                token: symbol,
-                price: widget.plugin.store.assets.prices[symbol],
+                token: token,
+                price: widget.plugin.store.assets.prices[token.tokenNameId],
                 onSelect: (res) {
                   if (res != null && _token != res) {
                     setState(() {
@@ -228,7 +229,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                             hintText: assetDic['amount'],
                             labelText:
                                 '${assetDic['amount']} (${assetDic['amount.available']}: $availableView $symbolView)',
-                            suffix: loan.token !=
+                            suffix: loan.token.symbol !=
                                         widget.plugin.networkState
                                             .tokenSymbol[0] &&
                                     (params.actionType ==

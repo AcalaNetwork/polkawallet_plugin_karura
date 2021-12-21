@@ -62,7 +62,7 @@ class _SwapFormState extends State<SwapForm> {
 
   bool rateReversed = false;
 
-  Future<void> _getTxFee({bool reload = false}) async {
+  Future<void> _getTxFee() async {
     final sender = TxSenderData(
         widget.keyring.current.address, widget.keyring.current.pubKey);
     final txInfo = TxInfoData('balances', 'transfer', sender);
@@ -100,7 +100,7 @@ class _SwapFormState extends State<SwapForm> {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
     final v = _amountPayCtrl.text.trim();
     final balancePair =
-        AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, _swapPair);
+        AssetsUtils.getBalancePairFromTokenNameId(widget.plugin, _swapPair);
 
     String error = Fmt.validatePrice(v, context);
     String errorReceive;
@@ -123,7 +123,8 @@ class _SwapFormState extends State<SwapForm> {
       // check if user's receive token balance meet existential deposit.
       final decimalReceive = balancePair[1].decimals;
       final receiveMin = Fmt.balanceDouble(
-          widget.plugin.store.assets.tokenBalanceMap[_swapPair[1]].minBalance,
+          AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1])
+              .minBalance,
           decimalReceive);
       if ((balancePair[1] == null ||
               Fmt.balanceDouble(balancePair[1].amount, decimalReceive) ==
@@ -210,7 +211,11 @@ class _SwapFormState extends State<SwapForm> {
         final output = await widget.plugin.api.swap.queryTokenSwapAmount(
           supply,
           target.isEmpty ? '1' : target,
-          _swapPair,
+          _swapPair.map((e) {
+            final token =
+                AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
+            return {...token.currencyId, 'decimals': token.decimals};
+          }).toList(),
           _slippage.toString(),
         );
         if (mounted) {
@@ -238,7 +243,11 @@ class _SwapFormState extends State<SwapForm> {
         final output = await widget.plugin.api.swap.queryTokenSwapAmount(
           supply.isEmpty ? '1' : supply,
           target,
-          _swapPair,
+          _swapPair.map((e) {
+            final token =
+                AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
+            return {...token.currencyId, 'decimals': token.decimals};
+          }).toList(),
           _slippage.toString(),
         );
         if (mounted) {
@@ -349,7 +358,8 @@ class _SwapFormState extends State<SwapForm> {
       final params = [
         _swapOutput.path
             .map((e) =>
-                AssetsUtils.currencyIdFromTokenSymbol(widget.plugin, e['name']))
+                AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e['name'])
+                    .currencyId)
             .toList(),
         input.toString(),
         Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0])
@@ -393,7 +403,7 @@ class _SwapFormState extends State<SwapForm> {
         final tokens = PluginFmt.getAllDexTokens(widget.plugin);
         if (tokens.length > 1) {
           setState(() {
-            _swapPair = tokens.sublist(0, 2);
+            _swapPair = tokens.sublist(0, 2).map((e) => e.tokenNameId).toList();
           });
         }
       }
@@ -429,16 +439,19 @@ class _SwapFormState extends State<SwapForm> {
         final List<String> swapPair = _swapPair.length > 1
             ? _swapPair
             : currencyOptionsLeft.length > 2
-                ? currencyOptionsLeft.sublist(0, 2)
+                ? currencyOptionsLeft
+                    .sublist(0, 2)
+                    .map((e) => e.tokenNameId)
+                    .toList()
                 : [];
 
         if (swapPair.length > 1) {
-          currencyOptionsLeft.retainWhere((i) => i != swapPair[0]);
-          currencyOptionsRight.retainWhere((i) => i != swapPair[1]);
+          currencyOptionsLeft.retainWhere((i) => i.tokenNameId != swapPair[0]);
+          currencyOptionsRight.retainWhere((i) => i.tokenNameId != swapPair[1]);
         }
 
         final balancePair =
-            AssetsUtils.getBalancePairFromTokenSymbol(widget.plugin, swapPair);
+            AssetsUtils.getBalancePairFromTokenNameId(widget.plugin, swapPair);
         final nativeBalance = Fmt.balanceInt(
             widget.plugin.balances.native.availableBalance.toString());
         final accountED = PluginFmt.getAccountED(widget.plugin);
@@ -447,7 +460,7 @@ class _SwapFormState extends State<SwapForm> {
         final isNativeTokenLow = nativeBalance < nativeKeepAlive;
 
         double minMax = 0;
-        if (_swapOutput.output != null) {
+        if (_swapOutput.amount != null) {
           minMax = _swapMode == 0
               ? _swapOutput.amount * (1 - _slippage)
               : _swapOutput.amount * (1 + _slippage);
@@ -481,15 +494,15 @@ class _SwapFormState extends State<SwapForm> {
                           balance: balancePair[0],
                           tokenOptions: currencyOptionsLeft,
                           tokenIconsMap: widget.plugin.tokenIcons,
-                          marketPrice: widget
-                              .plugin.store.assets.marketPrices[swapPair[0]],
+                          marketPrice: widget.plugin.store.assets
+                              .marketPrices[balancePair[0].symbol],
                           onInputChange: _onSupplyAmountChange,
-                          onTokenChange: (String token) {
+                          onTokenChange: (token) {
                             if (token != null) {
                               setState(() {
-                                _swapPair = token == swapPair[1]
-                                    ? [token, swapPair[0]]
-                                    : [token, swapPair[1]];
+                                _swapPair = token.tokenNameId == swapPair[1]
+                                    ? [token.tokenNameId, swapPair[0]]
+                                    : [token.tokenNameId, swapPair[1]];
                                 _maxInput = null;
                               });
                               widget.plugin.store.swap.setSwapPair(
@@ -528,15 +541,15 @@ class _SwapFormState extends State<SwapForm> {
                             balance: balancePair[1],
                             tokenOptions: currencyOptionsRight,
                             tokenIconsMap: widget.plugin.tokenIcons,
-                            marketPrice: widget
-                                .plugin.store.assets.marketPrices[swapPair[1]],
+                            marketPrice: widget.plugin.store.assets
+                                .marketPrices[balancePair[1].symbol],
                             onInputChange: _onTargetAmountChange,
-                            onTokenChange: (String token) {
+                            onTokenChange: (token) {
                               if (token != null) {
                                 setState(() {
-                                  _swapPair = token == swapPair[0]
-                                      ? [swapPair[1], token]
-                                      : [swapPair[0], token];
+                                  _swapPair = token.tokenNameId == swapPair[0]
+                                      ? [swapPair[1], token.tokenNameId]
+                                      : [swapPair[0], token.tokenNameId];
                                   _maxInput = null;
                                 });
                                 widget.plugin.store.swap.setSwapPair(
@@ -717,7 +730,7 @@ class _SwapFormState extends State<SwapForm> {
                                   style: labelStyle),
                             ),
                             Text(
-                                '${minMax.toStringAsFixed(6)} ${PluginFmt.tokenView(_swapMode == 0 ? _swapOutput?.output ?? "" : _swapOutput?.input ?? "")}'),
+                                '${minMax.toStringAsFixed(6)} ${showExchangeRate ? PluginFmt.tokenView(_swapMode == 0 ? _swapPair[0] : _swapPair[1]) : ''}'),
                           ],
                         ),
                       ),

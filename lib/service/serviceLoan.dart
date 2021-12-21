@@ -1,7 +1,6 @@
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
@@ -36,11 +35,11 @@ class ServiceLoan {
         plugin.networkState.tokenDecimals[0]);
   }
 
-  Future<double> _fetchNativeTokenPrice() async {
-    final output = await api.swap.queryTokenSwapAmount('1', null,
-        [plugin.networkState.tokenSymbol[0], karura_stable_coin], '0.1');
-    return output.amount;
-  }
+  // Future<double> _fetchNativeTokenPrice() async {
+  //   final output = await api.swap.queryTokenSwapAmount('1', null,
+  //       [plugin.networkState.tokenSymbol[0], karura_stable_coin], '0.1');
+  //   return output.amount;
+  // }
 
   Map<String, LoanData> _calcLoanData(
     List loans,
@@ -49,33 +48,15 @@ class ServiceLoan {
   ) {
     final data = Map<String, LoanData>();
     loans.forEach((i) {
-      final token = AssetsUtils.tokenSymbolFromCurrencyId(
-          plugin.store.assets.tokenBalanceMap, i['currency']);
-      data[token] = LoanData.fromJson(
+      final token = AssetsUtils.tokenDataFromCurrencyId(plugin, i['currency']);
+      data[token.tokenNameId] = LoanData.fromJson(
         Map<String, dynamic>.from(i),
-        loanTypes.firstWhere((t) => t.token == token),
-        prices[token] ?? BigInt.zero,
+        loanTypes.firstWhere((t) => t.token.tokenNameId == token.tokenNameId),
+        prices[token.symbol] ?? BigInt.zero,
         plugin,
       );
     });
     return data;
-  }
-
-  Map<String, double> _calcCollateralIncentiveRate(
-      List<CollateralIncentiveData> incentives) {
-    final blockTime = plugin.networkConst['babe'] == null
-        ? BLOCK_TIME_DEFAULT
-        : int.parse(plugin.networkConst['babe']['expectedBlockTime']);
-    final epoch =
-        int.parse(plugin.networkConst['incentives']['accumulatePeriod']);
-    final epochOfYear = SECONDS_OF_YEAR * 1000 / blockTime / epoch;
-    final res = Map<String, double>();
-    incentives.forEach((e) {
-      res[e.token] = Fmt.bigIntToDouble(
-              e.incentive, plugin.networkState.tokenDecimals[0]) *
-          epochOfYear;
-    });
-    return res;
   }
 
   Future<void> queryLoanTypes(String address) async {
@@ -125,15 +106,15 @@ class ServiceLoan {
   }
 
   Future<void> queryTotalCDPs() async {
-    final res = await api.loan
-        .queryTotalCDPs(store.loan.loanTypes.map((e) => e.token).toList());
+    final res = await api.loan.queryTotalCDPs(
+        store.loan.loanTypes.map((e) => e.token.currencyId).toList());
     store.loan.setTotalCDPs(res);
   }
 
   Future<void> queryCollateralRewards(String address) async {
     final res = await api.loan.queryCollateralRewards(
-        store.loan.loanTypes.map((e) => e.token).toList(), address);
-    store.loan.setCollateralRewardsV2(res);
+        store.loan.loanTypes.map((e) => e.token.currencyId).toList(), address);
+    store.loan.setCollateralRewards(res);
   }
 
   void unsubscribeAccountLoans() {
