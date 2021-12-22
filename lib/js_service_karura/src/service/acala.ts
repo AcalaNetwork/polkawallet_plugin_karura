@@ -14,6 +14,7 @@ const ONE = FixedPointNumber.ONE;
 const ACA_SYS_BLOCK_TIME = new BN(12000);
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
 const KSM_DECIMAL = 12;
+const native_token = "KAR";
 
 let walletPromise: WalletPromise;
 let homaApi: HomaLite;
@@ -26,14 +27,16 @@ function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
   );
 }
 
-function _getTokenDecimal(api: ApiPromise, token: string): number {
-  let res = 18;
-  api.registry.chainTokens.forEach((t, i) => {
-    if (token === t) {
-      res = api.registry.chainDecimals[i];
-    }
-  });
-  return res;
+function _getTokenDecimal(allTokens: any[], tokenNameId: string): number {
+  if (tokenNameId == native_token) return 12;
+
+  return allTokens.find((i) => i.tokenNameId === tokenNameId)?.decimals || 18;
+}
+
+function _getTokenSymbol(allTokens: any[], tokenNameId: string): string {
+  if (tokenNameId == native_token) return native_token;
+
+  return allTokens.find((i) => i.tokenNameId === tokenNameId)?.symbol;
 }
 
 // let swapper: SwapPromise;
@@ -160,13 +163,11 @@ async function getBootstraps(api: ApiPromise) {
  * @param {String} poolId
  * @param {String} address
  */
-async function fetchCollateralRewards(api: ApiPromise, pool: any, address: string, decimals: number) {
-  if (!walletPromise) {
-    walletPromise = new WalletPromise(api);
-  }
+async function fetchCollateralRewards(api: ApiPromise, pool: any, address: string) {
   const res = (await Promise.all([
     api.query.rewards.poolInfos({ Loans: pool }),
     api.query.rewards.sharesAndWithdrawnRewards({ Loans: pool }, address),
+    getAllTokens(api),
   ])) as any;
   const pendingRewards = (!!api.query.incentives.pendingMultiRewards
     ? await api.query.incentives?.pendingMultiRewards({ Loans: pool }, address)
@@ -177,27 +178,27 @@ async function fetchCollateralRewards(api: ApiPromise, pool: any, address: strin
   }
   const withdrawns = Array.from(res[1][1].entries()).map((entry) => {
     const currencyId = forceToCurrencyId(api, entry[0]);
-    const token = walletPromise.getToken(currencyId);
-    const amount = FPNum(entry[1].toString(), token.decimal);
-    return { tokenNameId: token.name, amount };
+    const tokenNameId = forceToCurrencyName(currencyId);
+    const amount = FPNum(entry[1].toString(), _getTokenDecimal(res[2], tokenNameId));
+    return { tokenNameId, currencyId, amount };
   });
   const pendings = Array.from(pendingRewards.entries()).map((entry) => {
     const currencyId = forceToCurrencyId(api, entry[0]);
-    const token = walletPromise.getToken(currencyId);
-    const amount = FPNum(entry[1].toString(), token.decimal);
-    return { tokenNameId: token.name, currencyId, amount };
+    const tokenNameId = forceToCurrencyName(currencyId);
+    const amount = FPNum(entry[1].toString(), _getTokenDecimal(res[2], tokenNameId));
+    return { tokenNameId, currencyId, amount };
   });
   const incentives = Array.from(res[0].rewards.entries()).map((e: any) => {
     const currencyId = forceToCurrencyId(api, e[0]);
-    const token = walletPromise.getToken(currencyId);
+    const tokenNameId = forceToCurrencyName(currencyId);
     return {
-      tokenNameId: token.name,
+      tokenNameId,
       currencyId,
       amount: (
-        FPNum(e[1][0], token.decimal)
+        FPNum(e[1][0], _getTokenDecimal(res[2], tokenNameId))
           .times(proportion)
-          .minus(withdrawns.find((i) => i.tokenNameId === token.name)?.amount || new FixedPointNumber(0))
-          .plus(pendings.find((i) => i.tokenNameId === token.name)?.amount || new FixedPointNumber(0))
+          .minus(withdrawns.find((i) => i.tokenNameId === tokenNameId)?.amount || new FixedPointNumber(0))
+          .plus(pendings.find((i) => i.tokenNameId === tokenNameId)?.amount || new FixedPointNumber(0))
           .toNumber() || 0
       ).toString(),
     };
@@ -227,14 +228,12 @@ async function fetchCollateralRewards(api: ApiPromise, pool: any, address: strin
  * @param {String} address
  */
 async function fetchDexPoolInfo(api: ApiPromise, pool: any, address: string) {
-  if (!walletPromise) {
-    walletPromise = new WalletPromise(api);
-  }
   const res = (await Promise.all([
     api.query.dex.liquidityPool(pool.DEXShare),
     api.query.rewards.poolInfos({ Dex: pool }),
     api.query.rewards.sharesAndWithdrawnRewards({ Dex: pool }, address),
     api.query.tokens.totalIssuance(pool),
+    getAllTokens(api),
   ])) as any;
   const pendingRewards = (!!api.query.incentives.pendingMultiRewards
     ? await api.query.incentives?.pendingMultiRewards({ Dex: pool }, address)
@@ -245,31 +244,31 @@ async function fetchDexPoolInfo(api: ApiPromise, pool: any, address: string) {
   }
   const withdrawns = Array.from(res[2][1].entries()).map((entry) => {
     const currencyId = forceToCurrencyId(api, entry[0]);
-    const token = walletPromise.getToken(currencyId);
-    const amount = FPNum(entry[1].toString(), token.decimal);
-    return { tokenNameId: token.name, amount };
+    const tokenNameId = forceToCurrencyName(currencyId);
+    const amount = FPNum(entry[1].toString(), _getTokenDecimal(res[4], tokenNameId));
+    return { tokenNameId, amount };
   });
   const pendings = Array.from(pendingRewards.entries()).map((entry) => {
     const currencyId = forceToCurrencyId(api, entry[0]);
-    const token = walletPromise.getToken(currencyId);
-    const amount = FPNum(entry[1].toString(), token.decimal);
-    return { tokenNameId: token.name, amount };
+    const tokenNameId = forceToCurrencyName(currencyId);
+    const amount = FPNum(entry[1].toString(), _getTokenDecimal(res[4], tokenNameId));
+    return { tokenNameId, amount };
   });
   let saving = "0";
   const incentives = Array.from(res[1].rewards.entries()).map((e: any) => {
     const currencyId = forceToCurrencyId(api, e[0]);
-    const token = walletPromise.getToken(currencyId);
+    const tokenNameId = forceToCurrencyName(currencyId);
     const data = {
-      tokenNameId: token.name,
+      tokenNameId,
       amount: (
-        FPNum(e[1][0], token.decimal)
+        FPNum(e[1][0], _getTokenDecimal(res[4], tokenNameId))
           .times(proportion)
-          .minus(withdrawns.find((i) => i.tokenNameId === token.name)?.amount || new FixedPointNumber(0))
-          .plus(pendings.find((i) => i.tokenNameId === token.name)?.amount || new FixedPointNumber(0))
+          .minus(withdrawns.find((i) => i.tokenNameId === tokenNameId)?.amount || new FixedPointNumber(0))
+          .plus(pendings.find((i) => i.tokenNameId === tokenNameId)?.amount || new FixedPointNumber(0))
           .toNumber() || 0
       ).toString(),
     };
-    if (token.symbol === "KUSD") {
+    if (tokenNameId === "KUSD") {
       saving = data.amount;
       return;
     }
@@ -448,14 +447,11 @@ async function checkExistentialDepositForTransfer(
 }
 
 async function queryIncentives(api: ApiPromise) {
-  if (!walletPromise) {
-    walletPromise = new WalletPromise(api);
-  }
-
   const pools = await Promise.all([
     api.query.incentives.incentiveRewardAmounts.entries(),
     api.query.incentives.claimRewardDeductionRates.entries(),
     api.query.incentives.dexSavingRewardRates.entries(),
+    getAllTokens(api),
   ]);
   const res: IncentiveResult = {
     Dex: {},
@@ -492,13 +488,14 @@ async function queryIncentives(api: ApiPromise) {
           )
         : forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id));
     const incentiveToken = e[0].args[1];
-    const incentiveTokenDecimal = walletPromise.getToken(incentiveToken as any).decimal;
+    const incentiveTokenNameId = forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, incentiveToken));
+    const incentiveTokenDecimal = _getTokenDecimal(pools[3], incentiveTokenNameId);
 
     if (!res[incentiveType][idString]) {
       res[incentiveType][idString] = [];
     }
     res[incentiveType][idString].push({
-      tokenNameId: forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, incentiveToken)),
+      tokenNameId: incentiveTokenNameId,
       currencyId: incentiveToken.toHuman(),
       amount: FPNum(epochOfYear.mul(new BN(e[1].toString())), incentiveTokenDecimal).toString(),
       deduction: deductions.find((e) => e.incentiveType === incentiveType && e.idString === idString)?.value || "0",
@@ -537,23 +534,23 @@ async function queryIncentives(api: ApiPromise) {
 }
 
 async function queryAggregatedAssets(api: ApiPromise, address: string) {
-  const [dexPools, loanTypes] = await Promise.all([getTokenPairs(api), api.derive.loan.allLoanTypes()]);
+  const [allTokens, dexPools, loanTypes] = await Promise.all([getAllTokens(api), getTokenPairs(api), api.derive.loan.allLoanTypes()]);
   const [loans, nativeToken, tokens, poolInfos, loanRewards, incentives] = await Promise.all([
     api.derive.loan.allLoans(address),
     api.query.system.account(address),
     api.query.tokens.accounts.entries(address),
-    Promise.all(dexPools.map((e) => fetchDexPoolInfo(api, { DexShare: e.tokens.map((i) => ({ Token: i.token })) }, address))),
+    Promise.all(dexPools.map((e) => fetchDexPoolInfo(api, { DEXShare: e.tokens }, address))),
     Promise.all(
       loanTypes.map((e) => {
-        const token = e.currency.toHuman().Token;
-        return fetchCollateralRewards(api, { Token: token }, address, _getTokenDecimal(api, token));
+        const tokenNameId = forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, e.currency));
+        return fetchCollateralRewards(api, e.currency, address, _getTokenDecimal(allTokens, tokenNameId));
       })
     ),
     queryIncentives(api),
   ]);
-  const [loansMap, loanRewardsMap] = _calcLoanAssets(api, loanTypes, loans, loanRewards, incentives);
-  const [tokensMap, lpTokensMap] = _calcFreeTokens(api, nativeToken, tokens);
-  const [lpStakedMap, lpFreemap, lpRewardsMap] = _calcLPAssets(api, poolInfos, lpTokensMap, incentives);
+  const [loansMap, loanRewardsMap] = _calcLoanAssets(api, allTokens, loanTypes, loans, loanRewards, incentives);
+  const [tokensMap, lpTokensMap] = _calcFreeTokens(api, allTokens, nativeToken, tokens);
+  const [lpStakedMap, lpFreemap, lpRewardsMap] = _calcLPAssets(api, allTokens, poolInfos, lpTokensMap, incentives);
   Object.keys(loanRewardsMap).forEach((token) => {
     if (!lpRewardsMap[token]) {
       lpRewardsMap[token] = loanRewardsMap[token];
@@ -569,31 +566,32 @@ async function queryAggregatedAssets(api: ApiPromise, address: string) {
     Rewards: lpRewardsMap,
   };
 }
-function _addAsset(assetsMap: object, token: string, value: number) {
-  if (assetsMap[token] == undefined) {
-    assetsMap[token] = 0;
+function _addAsset(assetsMap: object, tokenSymbol: string, value: number) {
+  if (assetsMap[tokenSymbol] == undefined) {
+    assetsMap[tokenSymbol] = 0;
   }
-  assetsMap[token] += value;
+  assetsMap[tokenSymbol] += value;
 }
-function _calcLoanAssets(api: ApiPromise, loanTypes: any[], loans: any[], loanRewards: any[], incentives: any) {
+function _calcLoanAssets(api: ApiPromise, allTokens: any[], loanTypes: any[], loans: any[], loanRewards: any[], incentives: any) {
   const karura_stable_coin = "KUSD";
   const res = {};
   const rewardsMap = {};
   loans.forEach((e) => {
-    const token = e.currency.toHuman().Token;
-    _addAsset(res, token, FPNum(e.collateral, _getTokenDecimal(api, token)).toNumber());
+    const currencyId = api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, e.currency);
+    const tokenNameId = forceToCurrencyName(currencyId);
+    _addAsset(res, _getTokenSymbol(allTokens, tokenNameId), FPNum(e.collateral, _getTokenDecimal(allTokens, tokenNameId)).toNumber());
     _addAsset(
       res,
       karura_stable_coin,
       0 -
-        FPNum(e.debit, _getTokenDecimal(api, karura_stable_coin))
+        FPNum(e.debit, _getTokenDecimal(allTokens, karura_stable_coin))
           .times(FPNum(loanTypes.find((t) => t.currency == e.currency).debitExchangeRate))
           .toNumber()
     );
 
-    const reward = loanRewards.find((e) => e.token === token);
-    if (!!reward && !!incentives.Loans[token]) {
-      const loyalty = incentives.Loans[token][0].deduction;
+    const reward = loanRewards.find((e) => e.tokenNameId === tokenNameId);
+    if (!!reward && !!incentives.Loans[tokenNameId]) {
+      const loyalty = incentives.Loans[tokenNameId][0].deduction;
       reward.reward.forEach((i) => {
         _addAsset(rewardsMap, "KAR", i.amount * (1 - loyalty));
       });
@@ -601,12 +599,11 @@ function _calcLoanAssets(api: ApiPromise, loanTypes: any[], loans: any[], loanRe
   });
   return [res, rewardsMap];
 }
-function _calcFreeTokens(api: ApiPromise, native: any, tokens: any[]) {
-  const native_token = "KAR";
+function _calcFreeTokens(api: ApiPromise, allTokens: any[], native: any, tokens: any[]) {
   const res = {};
   const lpTokens = {};
 
-  res[native_token] = FPNum(native.data.free.add(native.data.reserved), _getTokenDecimal(api, native_token)).toNumber();
+  res[native_token] = FPNum(native.data.free.add(native.data.reserved), _getTokenDecimal(allTokens, native_token)).toNumber();
   tokens.forEach(
     ([
       {
@@ -614,36 +611,44 @@ function _calcFreeTokens(api: ApiPromise, native: any, tokens: any[]) {
       },
       v,
     ]) => {
-      const token = currency.toHuman()["Token"];
-      if (!token) {
-        lpTokens[
-          currency
-            .toHuman()
-            ["DexShare"].map((e) => e.Token)
-            .join("-")
-        ] = v.free.add(v.reserved);
+      const tokenHuman = currency.toHuman();
+      if (!!tokenHuman["DexShare"]) {
+        const tokenNameId = createDexShareName(
+          forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, tokenHuman["DexShare"][0])),
+          forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, tokenHuman["DexShare"][1]))
+        );
+        lpTokens[tokenNameId] = v.free.add(v.reserved);
       } else {
-        _addAsset(res, token, FPNum(v.free.add(v.reserved), _getTokenDecimal(api, token)).toNumber());
+        const tokenNameId = forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currency));
+        _addAsset(
+          res,
+          _getTokenSymbol(allTokens, tokenNameId),
+          FPNum(v.free.add(v.reserved), _getTokenDecimal(allTokens, tokenNameId)).toNumber()
+        );
       }
     }
   );
   return [res, lpTokens];
 }
-function _calcLPAssets(api: ApiPromise, poolInfos: any[], lpTokensMap: any, incentives: any) {
+function _calcLPAssets(api: ApiPromise, allTokens: any[], poolInfos: any[], lpTokensMap: any, incentives: any) {
   const res = {};
   const lpTokensFree = {};
   const lpRewards = {};
 
   poolInfos.map((e) => {
-    const pair = e.token.split("-");
-    const decimalPair = [_getTokenDecimal(api, pair[0]), _getTokenDecimal(api, pair[1])];
-    [e.shares, lpTokensMap[e.token]].forEach((amount, i) => {
+    const currencyId0 = api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, e.tokenPair[0]);
+    const currencyId1 = api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, e.tokenPair[1]);
+    const pair0 = forceToCurrencyName(currencyId0);
+    const pair1 = forceToCurrencyName(currencyId1);
+    const poolNameId = createDexShareName(pair0, pair1);
+    const decimalPair = [_getTokenDecimal(allTokens, pair0), _getTokenDecimal(allTokens, pair1)];
+    [e.shares, lpTokensMap[poolNameId]].forEach((amount, i) => {
       if (!!amount && amount.gt(new BN(0))) {
         const proportion = FPNum(amount).div(FPNum(e.issuance));
-        pair.forEach((token, index) => {
+        [pair0, pair1].forEach((tokenNameId, index) => {
           _addAsset(
             i === 0 ? res : lpTokensFree,
-            token,
+            _getTokenSymbol(allTokens, tokenNameId),
             index === 0
               ? FPNum(e.pool[0], decimalPair[0])
                   .times(proportion)
@@ -656,10 +661,10 @@ function _calcLPAssets(api: ApiPromise, poolInfos: any[], lpTokensMap: any, ince
       }
     });
 
-    const loyalty = incentives.Dex[e.token] ? incentives.Dex[e.token][0].deduction : 0;
-    const savingLoyalty = !!incentives.DexSaving[e.token] ? incentives.DexSaving[e.token][0].deduction : 0;
+    const loyalty = incentives.Dex[poolNameId] ? incentives.Dex[poolNameId][0].deduction : 0;
+    const savingLoyalty = !!incentives.DexSaving[poolNameId] ? incentives.DexSaving[poolNameId][0].deduction : 0;
     e.reward.incentive.forEach((i) => {
-      _addAsset(lpRewards, i.token, i.amount * (1 - loyalty));
+      _addAsset(lpRewards, _getTokenSymbol(allTokens, i.tokenNameId), i.amount * (1 - loyalty));
     });
     if ((e.reward.saving || 0) > 0) {
       _addAsset(lpRewards, "KUSD", (e.reward.saving || 0) * (1 - savingLoyalty));

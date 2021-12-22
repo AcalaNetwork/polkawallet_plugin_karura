@@ -11,8 +11,9 @@ class AcalaApiAssets {
 
   final Map _tokenBalances = {};
 
-  Future<List<TokenBalanceData>> getAllTokenSymbols() async {
-    if (service.plugin.store.assets.allTokens.length > 0) {
+  Future<List<TokenBalanceData>> getAllTokenSymbols(
+      {bool withCache = false}) async {
+    if (withCache) {
       return service.plugin.store.assets.allTokens.toList();
     }
 

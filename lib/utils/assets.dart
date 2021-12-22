@@ -11,17 +11,7 @@ class AssetsUtils {
 
   static List<AggregatedAssetsData> aggregatedAssetsDataFromJson(
       Map assetsMap, BalancesStore balances, Map<String, double> marketPrices) {
-    final lpFreeMapInt = {};
-    balances.tokens?.forEach((e) {
-      if (e.id.contains('-')) {
-        final amount = BigInt.tryParse(e.amount) ?? BigInt.zero;
-        if (amount > BigInt.zero) {
-          lpFreeMapInt[e.id] = amount;
-        }
-      }
-    });
-
-    final List<AggregatedAssetsData> list = assetsMap.keys.map((k) {
+    AggregatedAssetsData _getDataItem(String k) {
       final data = AggregatedAssetsData();
       data.category = k;
       data.assets =
@@ -36,7 +26,25 @@ class AssetsUtils {
           ? data.assets.map((e) => e.value).reduce((v, e) => v + e)
           : 0;
       return data;
-    }).toList();
+    }
+
+    final lpFreeMapInt = {};
+    balances.tokens?.forEach((e) {
+      if (e.id.contains('-')) {
+        final amount = BigInt.tryParse(e.amount) ?? BigInt.zero;
+        if (amount > BigInt.zero) {
+          lpFreeMapInt[e.id] = amount;
+        }
+      }
+    });
+
+    final List<AggregatedAssetsData> list = [
+      _getDataItem(categoryRewards),
+      _getDataItem(categoryLP),
+      _getDataItem(categoryVaults),
+      _getDataItem(categoryTokens),
+      _getDataItem(categoryLPFree),
+    ];
 
     if (assetsMap[categoryLPFree].keys.length > 0) {
       final lpFreeValueItem = AggregatedAssetsItemData();
@@ -52,9 +60,7 @@ class AssetsUtils {
       tokensData.value += lpFreeValueItem.value;
     }
 
-    list.removeWhere((i) => i.category == categoryLPFree);
-
-    return list;
+    return list.sublist(0, 4);
   }
 
   static TokenBalanceData tokenDataFromCurrencyId(

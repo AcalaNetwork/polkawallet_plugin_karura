@@ -21,13 +21,15 @@ class ServiceAssets {
 
   Future<void> queryMarketPrices(List<String> tokens) async {
     final all = tokens.toList();
-    all.removeWhere(
-        (e) => e == karura_stable_coin || e == 'L$relay_chain_token_symbol');
+    all.removeWhere((e) =>
+        e == karura_stable_coin ||
+        e == 'L$relay_chain_token_symbol' ||
+        e == 'USDT');
     if (all.length == 0) return;
 
     final List res =
         await Future.wait(all.map((e) => WalletApi.getTokenPrice(e)).toList());
-    final Map<String, double> prices = {karura_stable_coin: 1.0};
+    final Map<String, double> prices = {karura_stable_coin: 1.0, 'USDT': 1.0};
     res.asMap().forEach((k, e) {
       if (e != null && e['data'] != null) {
         prices[all[k]] = double.parse(e['data']['price'][0].toString());

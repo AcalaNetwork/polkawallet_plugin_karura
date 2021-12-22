@@ -22,7 +22,7 @@ class AcalaServiceAssets {
   }
 
   void unsubscribeTokenBalances(String address) async {
-    final tokens = await plugin.api.assets.getAllTokenSymbols();
+    final tokens = await plugin.api.assets.getAllTokenSymbols(withCache: true);
     tokens.forEach((e) {
       plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel${e.symbol}');
     });
