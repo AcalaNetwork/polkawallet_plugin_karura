@@ -52,4 +52,8 @@ const Map<String, String> enCommon = {
   'asset.transferable': 'Transferable',
   'action.disable':
       'action is disabled due to runtime upgrade, try again later.',
+  'upgrading': 'Upgrading',
+  'upgrading.context':
+      'The function of this module is temporarily unavailable for it is leveling up.',
+  'upgrading.btn': 'Got it',
 };

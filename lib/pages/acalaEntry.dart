@@ -113,16 +113,38 @@ class _AcalaEntryState extends State<AcalaEntry> {
                           child: GestureDetector(
                             child: EntryPageCard(
                               dic['$e.title'],
-                              enabled ? dic['$e.brief'] : dic['coming'],
+                              dic['$e.brief'],
                               SvgPicture.asset(
                                 module_icons_uri[e],
                                 height: 88,
                               ),
                               color: Colors.transparent,
                             ),
-                            onTap: () => Navigator.of(context).pushNamed(
-                                _liveModuleRoutes[e],
-                                arguments: enabled),
+                            onTap: () {
+                              if (enabled) {
+                                Navigator.of(context).pushNamed(
+                                    _liveModuleRoutes[e],
+                                    arguments: enabled);
+                              } else {
+                                showCupertinoDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return CupertinoAlertDialog(
+                                      title: Text(dic['upgrading']),
+                                      content: Text(dic['upgrading.context']),
+                                      actions: <Widget>[
+                                        CupertinoDialogAction(
+                                          child: Text(dic['upgrading.btn']),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
                           ),
                         );
                       }).toList(),
