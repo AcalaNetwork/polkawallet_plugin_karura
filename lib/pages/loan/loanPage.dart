@@ -434,7 +434,13 @@ class CollateralIncentiveList extends StatelessWidget {
       module: 'incentives',
       call: 'claimRewards',
       txTitle: dic['earn.claim'],
-      txDisplay: {'pool': pool, 'amount': '$rewardView $incentiveTokenSymbol'},
+      txDisplay: {dic['earn.stake.pool']: token.symbol},
+      txDisplayBold: {
+        dic['loan.amount']: Text(
+          '$rewardView $incentiveTokenSymbol',
+          style: Theme.of(context).textTheme.headline1,
+        )
+      },
       params: [pool],
     );
     Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);

@@ -79,13 +79,15 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
   Future<Map> _getTxParams(LoanData loan, int stableCoinDecimals) async {
     final LoanDepositPageParams params =
         ModalRoute.of(context).settings.arguments;
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     switch (params.actionType) {
       case LoanDepositPage.actionTypeDeposit:
         return {
           'detail': {
-            "amount": _amountCtrl.text.trim() +
-                ' ' +
-                PluginFmt.tokenView(loan.token.symbol),
+            dic['loan.deposit']: Text(
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan.token.symbol)}',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           'params': [
             params.token.currencyId,
@@ -96,9 +98,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
       case LoanDepositPage.actionTypeWithdraw:
         return {
           'detail': {
-            "amount": _amountCtrl.text.trim() +
-                ' ' +
-                PluginFmt.tokenView(loan.token.symbol),
+            dic['loan.withdraw']: Text(
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan.token.symbol)}',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           'params': [
             params.token.currencyId,
@@ -121,7 +124,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           module: 'honzon',
           call: 'adjustLoan',
           txTitle: title,
-          txDisplay: params['detail'],
+          txDisplayBold: params['detail'],
           params: params['params'],
         ))) as Map;
     if (res != null) {

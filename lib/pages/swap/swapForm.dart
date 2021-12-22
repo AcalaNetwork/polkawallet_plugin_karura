@@ -341,6 +341,8 @@ class _SwapFormState extends State<SwapForm> {
 
   Future<void> _onSubmit(List<int> pairDecimals, double minMax) async {
     if (_onCheckBalance()) {
+      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+
       final pay = _amountPayCtrl.text.trim();
       final receive = _amountReceiveCtrl.text.trim();
 
@@ -370,13 +372,16 @@ class _SwapFormState extends State<SwapForm> {
             module: 'dex',
             call:
                 _swapMode == 0 ? 'swapWithExactSupply' : 'swapWithExactTarget',
-            txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_karura, 'acala')['dex.title'],
-            txDisplay: {
-              "currencyPay": _swapPair[0],
-              "amountPay": pay,
-              "currencyReceive": _swapPair[1],
-              "amountReceive": receive,
+            txTitle: dic['dex.title'],
+            txDisplayBold: {
+              dic['dex.pay']: Text(
+                '$pay ${AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0]).symbol}',
+                style: Theme.of(context).textTheme.headline1,
+              ),
+              dic['dex.receive']: Text(
+                '$receive ${AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1]).symbol}',
+                style: Theme.of(context).textTheme.headline1,
+              ),
             },
             params: params,
           ));

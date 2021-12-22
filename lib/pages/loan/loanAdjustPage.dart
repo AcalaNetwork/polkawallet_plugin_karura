@@ -253,6 +253,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   Future<Map> _getTxParams(LoanData loan, int stableCoinDecimals) async {
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     switch (params.actionType) {
       case LoanAdjustPage.actionTypeMint:
         // borrow min debit value if user's debit is empty
@@ -263,7 +264,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 : _amountDebit);
         return {
           'detail': {
-            "amount": _amountCtrl2.text.trim(),
+            dic['loan.mint']: Text(
+              '${_amountCtrl2.text.trim()} $karura_stable_coin_view',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           'params': [
             params.token.currencyId,
@@ -289,7 +293,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         }
         return {
           'detail': {
-            "amount": _amountCtrl2.text.trim(),
+            dic['loan.payback']: Text(
+              '${_amountCtrl2.text.trim()} $karura_stable_coin_view',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           'params': [
             params.token.currencyId,
@@ -302,9 +309,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       case LoanAdjustPage.actionTypeDeposit:
         return {
           'detail': {
-            "amount": _amountCtrl.text.trim() +
-                ' ' +
-                PluginFmt.tokenView(loan.token.symbol),
+            dic['loan.deposit']: Text(
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan.token.symbol)}',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           'params': [
             params.token.currencyId,
@@ -315,9 +323,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       case LoanAdjustPage.actionTypeWithdraw:
         return {
           'detail': {
-            "amount": _amountCtrl.text.trim() +
-                ' ' +
-                PluginFmt.tokenView(loan.token.symbol),
+            dic['loan.withdraw']: Text(
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan.token.symbol)}',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           'params': [
             params.token.currencyId,
@@ -340,7 +349,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           module: 'honzon',
           call: 'adjustLoan',
           txTitle: title,
-          txDisplay: params['detail'],
+          txDisplayBold: params['detail'],
           params: params['params'],
         ))) as Map;
     if (res != null) {
@@ -420,6 +429,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         maxToBorrow = balanceStableCoin > loan.debits
             ? loan.debits
             : (balanceStableCoin - BigInt.from(100000000000));
+        if (maxToBorrow < BigInt.zero) {
+          maxToBorrow = BigInt.zero;
+        }
         maxToBorrowView = balanceStableCoin > loan.debits
             ? Fmt.priceCeilBigInt(maxToBorrow, balancePair[1].decimals)
             : Fmt.priceFloorBigInt(maxToBorrow, balancePair[1].decimals);

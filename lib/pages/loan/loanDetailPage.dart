@@ -17,6 +17,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -111,8 +112,6 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
       final isRuntimeOld = await widget.plugin.sdk.webView.evalJavascript(
           '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
           wrapPromise: false);
-      print('isRuntimeOld');
-      print(isRuntimeOld);
       final res = await Navigator.of(context).pushNamed(
         TxConfirmPage.route,
         arguments: TxConfirmParams(
@@ -186,8 +185,10 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
-              title: Text(PluginFmt.tokenView(loan.token.symbol)),
-              centerTitle: true),
+            title: Text(PluginFmt.tokenView(loan.token.symbol)),
+            centerTitle: true,
+            leading: BackBtn(),
+          ),
           body: SafeArea(
             child: AccountCardLayout(
               widget.keyring.current,

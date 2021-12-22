@@ -165,17 +165,24 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
   Map _getTxParams(LoanType loanType,
       {int stableCoinDecimals, int collateralDecimals}) {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final debitShare = loanType.debitToDebitShare(
         _amountDebit <= loanType.minimumDebitValue
             ? (loanType.minimumDebitValue + BigInt.from(10000))
             : _amountDebit);
     return {
       'detail': {
-        "colleterals": Fmt.token(_amountCollateral, collateralDecimals),
-        "debits": Fmt.token(_amountDebit, stableCoinDecimals),
+        dic['loan.collateral']: Text(
+          '${Fmt.token(_amountCollateral, collateralDecimals)} ${PluginFmt.tokenView(_token.symbol)}',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+        dic['loan.mint']: Text(
+          '${Fmt.token(_amountDebit, stableCoinDecimals)} $karura_stable_coin_view',
+          style: Theme.of(context).textTheme.headline1,
+        ),
       },
       'params': [
-        _token,
+        _token.currencyId,
         _amountCollateral.toString(),
         debitShare.toString(),
       ]
@@ -206,7 +213,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
           module: 'honzon',
           call: 'adjustLoan',
           txTitle: pageTitle,
-          txDisplay: params['detail'],
+          txDisplayBold: params['detail'],
           params: params['params'],
         ))) as Map;
     if (res != null) {
@@ -338,7 +345,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                           decoration: InputDecoration(
                             hintText: assetDic['amount'],
                             labelText:
-                                '${assetDic['amount']}(${dic['loan.max']}: $maxToBorrow)',
+                                '${assetDic['amount']} (${dic['loan.max']}: $maxToBorrow $karura_stable_coin_view)',
                           ),
                           inputFormatters: [
                             UI.decimalInputFormatter(balancePair[1].decimals)
