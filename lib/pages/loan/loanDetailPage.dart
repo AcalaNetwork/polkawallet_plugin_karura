@@ -40,7 +40,12 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
       debit.toStringAsFixed(2),
       [
         {...collateral.currencyId, 'decimals': collateral.decimals},
-        {'Token': karura_stable_coin}
+        {
+          'Token': karura_stable_coin,
+          'decimals': AssetsUtils.getBalanceFromTokenNameId(
+                  widget.plugin, karura_stable_coin)
+              .decimals
+        }
       ],
       '0.01',
     );
@@ -91,6 +96,23 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
       },
     );
     if (confirmed) {
+      final params = [
+        loan.token.currencyId,
+        loan.collaterals.toString(),
+        output != null
+            ? output.path
+                .map((e) => AssetsUtils.getBalanceFromTokenNameId(
+                        widget.plugin, e['name'])
+                    .currencyId)
+                .toList()
+            : null
+      ];
+
+      final isRuntimeOld = await widget.plugin.sdk.webView.evalJavascript(
+          '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
+          wrapPromise: false);
+      print('isRuntimeOld');
+      print(isRuntimeOld);
       final res = await Navigator.of(context).pushNamed(
         TxConfirmPage.route,
         arguments: TxConfirmParams(
@@ -98,20 +120,10 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
             call: 'closeLoanHasDebitByDex',
             txTitle: dic['loan.close'],
             txDisplay: {
-              'collateral': loan.token,
+              'collateral': loan.token.symbol,
               'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
             },
-            params: [
-              loan.token.currencyId,
-              loan.collaterals.toString(),
-              output != null
-                  ? output.path
-                      .map((e) => AssetsUtils.getBalanceFromTokenNameId(
-                              widget.plugin, e['name'])
-                          .currencyId)
-                      .toList()
-                  : null
-            ]),
+            params: isRuntimeOld ? params : params.sublist(0, 2)),
       );
       if (res != null) {
         Navigator.of(context).pop(res);
