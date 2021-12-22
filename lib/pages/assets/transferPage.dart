@@ -532,8 +532,8 @@ class _TransferPageState extends State<TransferPage> {
                         Container(
                           margin: EdgeInsets.only(top: 16, bottom: 16),
                           child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             child: Container(
-                              color: Theme.of(context).hoverColor,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
