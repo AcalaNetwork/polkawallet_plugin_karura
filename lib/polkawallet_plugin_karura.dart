@@ -174,7 +174,11 @@ class PluginKarura extends PolkawalletPlugin {
       List<AggregatedAssetsData> data, BuildContext context,
       {String priceCurrency = 'USD'}) {
     final List<InstrumentData> datas = [];
-    InstrumentData totalBalance1 = InstrumentData(0, []);
+    InstrumentData totalBalance1 = InstrumentData(0, [],
+        title:
+            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')["v3.myDefi"],
+        prompt: I18n.of(context)
+            .getDic(i18n_full_dic_karura, 'acala')["v3.switchBack"]);
     datas.add(totalBalance1);
 
     final total = data.map((e) => e.value).reduce((a, b) => a + b);

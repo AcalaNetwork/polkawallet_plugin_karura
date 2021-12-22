@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:polkawallet_plugin_karura/utils/InstrumentItemWidget.dart';
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/components/SkaletonList.dart';
 
 class InstrumentWidget extends StatefulWidget {
   InstrumentWidget(this.datas, this.onSwitchChange, this.onSwitchHideBalance,
@@ -72,7 +73,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                               : "",
                           style: TextStyle(
                               fontFamily: "TitilliumWeb",
-                              fontSize: 14.sp,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: Theme.of(context)
                                   .textSelectionTheme
@@ -87,7 +88,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                   : "${widget.datas[index].currencySymbol}${Fmt.priceFloor(widget.datas[index].sumValue, lengthMax: widget.datas[index].lengthMax)}",
                               style: TextStyle(
                                   fontFamily: "SF_Pro",
-                                  fontSize: 18.sp,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
                                       .textSelectionTheme
@@ -159,74 +160,76 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                 )
               ],
             )),
-        widget.datas.length < 2
-            ? Container(
-                margin: EdgeInsets.only(bottom: 8),
-              )
-            : Container(
-                margin: EdgeInsets.only(top: 4, bottom: 8),
-                child: Text(widget.datas[index].prompt,
-                    style: TextStyle(
-                        fontFamily: "SF_Pro",
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .textSelectionTheme
-                            .selectionColor)),
-              ),
-        Row(
-          children: [
-            ...widget.datas[index].items.reversed
-                .map((e) => Expanded(
-                        child: RoundedCard(
-                      margin: EdgeInsets.symmetric(horizontal: 3.w),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                margin: EdgeInsets.only(right: 3),
-                                decoration: BoxDecoration(
-                                    color: e.color,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(10 / 2))),
-                              ),
-                              Text(
-                                e.name,
-                                style: TextStyle(
-                                    fontFamily: "TitilliumWeb",
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context)
-                                        .textSelectionTheme
-                                        .selectionColor),
-                              )
-                            ],
-                          ),
-                          Text(
-                            widget.hideBalance
-                                ? "******"
-                                : "${widget.datas[index].currencySymbol}${Fmt.priceFloor(e.value, lengthMax: widget.datas[index].lengthMax)}",
-                            style: TextStyle(
-                                fontFamily: "TitilliumWeb",
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context)
-                                    .textSelectionTheme
-                                    .selectionColor),
-                          )
-                        ],
-                      ),
-                    )))
-                .toList(),
-          ],
-        )
+        Container(
+          margin: EdgeInsets.only(top: 4, bottom: 8),
+          child: Text(widget.datas[index].prompt,
+              style: TextStyle(
+                  fontFamily: "SF_Pro",
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).textSelectionTheme.selectionColor)),
+        ),
+        getRoundedCardItem(),
       ],
     );
+  }
+
+  Widget getRoundedCardItem() {
+    if (widget.datas[index].items.length > 0) {
+      return Row(
+        children: [
+          ...widget.datas[index].items.reversed
+              .map((e) => Expanded(
+                      child: RoundedCard(
+                    margin: EdgeInsets.symmetric(horizontal: 3.w),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              margin: EdgeInsets.only(right: 3),
+                              decoration: BoxDecoration(
+                                  color: e.color,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(10 / 2))),
+                            ),
+                            Text(
+                              e.name,
+                              style: TextStyle(
+                                  fontFamily: "TitilliumWeb",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .textSelectionTheme
+                                      .selectionColor),
+                            )
+                          ],
+                        ),
+                        Text(
+                          widget.hideBalance
+                              ? "******"
+                              : "${widget.datas[index].currencySymbol}${Fmt.priceFloor(e.value, lengthMax: widget.datas[index].lengthMax)}",
+                          style: TextStyle(
+                              fontFamily: "TitilliumWeb",
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context)
+                                  .textSelectionTheme
+                                  .selectionColor),
+                        )
+                      ],
+                    ),
+                  )))
+              .toList(),
+        ],
+      );
+    } else {
+      return SkaletionRow(items: 4);
+    }
   }
 }
