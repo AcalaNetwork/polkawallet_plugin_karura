@@ -40,17 +40,10 @@ class TransferDetailPage extends StatelessWidget {
       networkName: networkName,
       infoItems: <TxDetailInfoItem>[
         TxDetailInfoItem(
-          label: 'Event',
-          content: Text(
-            txType,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        TxDetailInfoItem(
           label: dic['amount'],
           content: Text(
-            '${tx.amount} ${PluginFmt.tokenView(tx.token)}',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            '${tx.from == keyring.current.address ? '-' : '+'}${tx.amount} ${PluginFmt.tokenView(tx.token)}',
+            style: Theme.of(context).textTheme.headline1,
           ),
         ),
         TxDetailInfoItem(

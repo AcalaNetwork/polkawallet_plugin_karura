@@ -300,15 +300,12 @@ class TransferListItem extends StatelessWidget {
   final String crossChain;
   final bool isOut;
 
-  final colorIn = Color(0xFF62CFE4);
-  final colorOut = Color(0xFF3394FF);
-
   @override
   Widget build(BuildContext context) {
     final address = isOut ? data.to : data.from;
     final title = Fmt.address(address) ?? Fmt.address(data.hash);
-    final colorFailed = Theme.of(context).unselectedWidgetColor;
     return ListTile(
+      dense: true,
       leading: data.isSuccess
           ? isOut
               ? TransferIcon(type: TransferIconType.rollOut)
@@ -323,13 +320,11 @@ class TransferListItem extends StatelessWidget {
             Expanded(
               child: Text(
                 '${isOut ? '-' : '+'} ${data.amount}',
-                style: TextStyle(
+                style: Theme.of(context).textTheme.headline5.copyWith(
                     color: data.isSuccess
-                        ? isOut
-                            ? colorOut
-                            : colorIn
-                        : colorFailed,
-                    fontSize: 16),
+                        ? Theme.of(context).toggleableActiveColor
+                        : Theme.of(context).unselectedWidgetColor,
+                    fontWeight: FontWeight.w600),
                 textAlign: TextAlign.right,
               ),
             ),
