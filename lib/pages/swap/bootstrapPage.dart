@@ -142,9 +142,17 @@ class _BootstrapPageState extends State<BootstrapPage> {
       module: 'dex',
       call: 'addProvision',
       txDisplay: {
-        'pool': '${balancePair[0].symbol}-${balancePair[1].symbol}',
-        'amount${balancePair[0].symbol}': leftAmount,
-        'amount${balancePair[1].symbol}': rightAmount,
+        dic['earn.pool']: '${balancePair[0].symbol}-${balancePair[1].symbol}',
+      },
+      txDisplayBold: {
+        "Token 1": Text(
+          '$leftAmount ${balancePair[0].symbol}',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+        "Token 2": Text(
+          '$rightAmount ${balancePair[1].symbol}',
+          style: Theme.of(context).textTheme.headline1,
+        ),
       },
       params: [
         pool.tokens[0],
@@ -207,8 +215,6 @@ class _BootstrapPageState extends State<BootstrapPage> {
       final addRight = double.parse(_amountRightCtrl.text.trim().isEmpty
           ? '0'
           : _amountRightCtrl.text.trim());
-      print(addLeft);
-      print(addRight);
       final poolInfoAfter = PluginFmt.calcLiquidityShare(
           [nowLeft + addLeft, nowRight + addRight], [addLeft, addRight]);
 

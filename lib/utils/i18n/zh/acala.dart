@@ -29,7 +29,7 @@ const Map<String, String> zhDex = {
   'boot.provision.condition.2': '时间达到',
   'boot.provision.or': '或',
   'boot.provision.met': '达成',
-  'boot.provision.add': '添加流动性',
+  'boot.provision.add': '添加初始流动性',
   'boot.ratio': '当前配比',
   'boot.total': '总量',
   'boot.my': '我提供的流动性',

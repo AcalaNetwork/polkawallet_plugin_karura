@@ -116,7 +116,9 @@ class _MintPageState extends State<MintPage> {
 
     if (_error != null || pay.isEmpty) return;
 
-    final call = _data.suggestRedeemRequests != null &&
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+
+    final call = _data?.suggestRedeemRequests != null &&
             _data.suggestRedeemRequests.length > 0
         ? 'mintForRequests'
         : 'mint';
@@ -126,7 +128,7 @@ class _MintPageState extends State<MintPage> {
           ? _maxInput.toString()
           : Fmt.tokenInt(pay, stakeDecimal).toString()
     ];
-    if (_data.suggestRedeemRequests != null &&
+    if (_data?.suggestRedeemRequests != null &&
         _data.suggestRedeemRequests.length > 0) {
       params.add(_data.suggestRedeemRequests);
     }
@@ -134,11 +136,17 @@ class _MintPageState extends State<MintPage> {
         arguments: TxConfirmParams(
           module: 'homaLite',
           call: call,
-          txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_karura, 'acala')['homa.mint'],
-          txDisplay: {
-            "amountPay": pay,
-            "amountReceive": _amountReceive,
+          txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
+          txDisplay: {},
+          txDisplayBold: {
+            dic['dex.pay']: Text(
+              '$pay $relay_chain_token_symbol',
+              style: Theme.of(context).textTheme.headline1,
+            ),
+            dic['dex.receive']: Text(
+              '≈ $_amountReceive L$relay_chain_token_symbol',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           params: params,
         ))) as Map;

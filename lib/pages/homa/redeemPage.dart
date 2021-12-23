@@ -155,22 +155,24 @@ class _RedeemPageState extends State<RedeemPage> {
 
     if (_error != null || pay.isEmpty || _data == null) return;
 
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+
     var params = [_data.newRedeemBalance, 0];
     var module = 'homaLite';
     var call = 'requestRedeem';
-    var txDisplay = {
-      "amountPay": pay,
-      "amountReceive": _data.expected,
+    final txDisplay = {
+      dic['dex.pay']: Text(
+        '$pay L$stakeToken',
+        style: Theme.of(context).textTheme.headline1,
+      ),
+      dic['dex.receive']: Text(
+        '≈ ${_data.expected} $stakeToken',
+        style: Theme.of(context).textTheme.headline1,
+      ),
     };
     if (homaNow) {
       module = 'dex';
       call = 'swapWithExactSupply';
-      txDisplay = {
-        "currencyPay": 'L$stakeToken',
-        "amountPay": pay,
-        "currencyReceive": stakeToken,
-        "amountReceive": _data.expected,
-      };
       params = [
         [
           {'Token': 'L$stakeToken'},
@@ -184,9 +186,8 @@ class _RedeemPageState extends State<RedeemPage> {
         arguments: TxConfirmParams(
           module: module,
           call: call,
-          txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_karura, 'acala')['homa.redeem'],
-          txDisplay: txDisplay,
+          txTitle: dic['homa.redeem'],
+          txDisplayBold: txDisplay,
           params: params,
         ))) as Map;
 

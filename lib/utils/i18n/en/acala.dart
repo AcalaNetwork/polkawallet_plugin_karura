@@ -20,7 +20,7 @@ const Map<String, String> enDex = {
   'dex.swap': 'Swap',
   'dex.addLiquidity': 'Add Liquidity',
   'dex.removeLiquidity': 'Remove Liquidity',
-  'dex.addProvision': 'Add addProvisioning',
+  'dex.addProvision': 'Add Provision',
   'boot.title': 'Bootstrap',
   'boot.provision': 'Provisioning',
   'boot.enabled': 'Enabled',
