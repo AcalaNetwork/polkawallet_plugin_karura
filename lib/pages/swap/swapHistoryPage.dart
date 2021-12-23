@@ -82,7 +82,8 @@ class SwapHistoryPage extends StatelessWidget {
                   ),
                   child: ListTile(
                     dense: true,
-                    title: Text(detail.action, style: TextStyle(fontSize: 14)),
+                    title: Text(dic['dex.${detail.action}'],
+                        style: TextStyle(fontSize: 14)),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),

@@ -446,19 +446,6 @@ class CollateralIncentiveList extends StatelessWidget {
     Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
   }
 
-  Future<void> _activateRewards(
-      BuildContext context, TokenBalanceData token) async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final params = TxConfirmParams(
-      module: 'honzon',
-      call: 'adjustLoan',
-      txTitle: dic['loan.activate'],
-      txDisplay: {'collateral': token},
-      params: [token.currencyId, 0, 0],
-    );
-    Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
-  }
-
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
@@ -518,8 +505,6 @@ class CollateralIncentiveList extends StatelessWidget {
                   return '${Fmt.priceFloor(amount * (1 - loyaltyBonus))}';
                 }).join(' + ')
               : '0.00';
-          final shouldActivate =
-              reward?.shares != loans[token.tokenNameId]?.collaterals;
 
           final bestNumber = plugin.store.gov.bestNumber;
           var blockNumber;
@@ -590,36 +575,6 @@ class CollateralIncentiveList extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
-                Visibility(
-                    visible: rewardView.isNotEmpty && shouldActivate,
-                    child: Container(
-                      margin: EdgeInsets.only(top: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            child: Text(
-                              dic['loan.activate.1'],
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                fontStyle: FontStyle.italic,
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onTap: () => _activateRewards(context, token),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(left: 4),
-                            child: Text(
-                              dic['loan.activate.2'],
-                              style: TextStyle(fontSize: 10),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
                 Container(
                   margin: EdgeInsets.only(top: 8),
                   child: Row(

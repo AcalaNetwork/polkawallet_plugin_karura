@@ -32,7 +32,16 @@ class HomaTxDetailPage extends StatelessWidget {
 
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-    final infoItems = <TxDetailInfoItem>[];
+    final infoItems = <TxDetailInfoItem>[
+      TxDetailInfoItem(
+        label: 'Event',
+        content: Text(tx.action, style: amountStyle),
+      ),
+      TxDetailInfoItem(
+        label: dic['txs.action'],
+        content: Text(dic['homa.${tx.action}'], style: amountStyle),
+      )
+    ];
 
     switch (tx.action) {
       case TxHomaData.actionMint:
@@ -79,7 +88,7 @@ class HomaTxDetailPage extends StatelessWidget {
     return TxDetail(
       current: keyring.current,
       success: tx.isSuccess,
-      action: tx.action,
+      action: dic['homa.${tx.action}'],
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
       blockTime:

@@ -102,7 +102,7 @@ class EarnHistoryPage extends StatelessWidget {
                             .parse(detail.time, true))),
                     leading: TransferIcon(type: icon),
                     trailing: Text(
-                      detail.event,
+                      dic['earn.${detail.event}'],
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
                     ),

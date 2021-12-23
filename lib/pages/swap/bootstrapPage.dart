@@ -38,8 +38,6 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
   final TextEditingController _amountLeftCtrl = new TextEditingController();
   final TextEditingController _amountRightCtrl = new TextEditingController();
-  final _leftFocusNode = FocusNode();
-  final _rightFocusNode = FocusNode();
 
   int _addTab = 0;
 
@@ -167,12 +165,21 @@ class _BootstrapPageState extends State<BootstrapPage> {
   }
 
   @override
+  void dispose() {
+    _amountLeftCtrl.dispose();
+    _amountRightCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final DexPoolData args = ModalRoute.of(context).settings.arguments;
     return Observer(builder: (_) {
+      final pool = widget.plugin.store.earn.bootstraps
+          .firstWhere((e) => e.tokenNameId == args.tokenNameId);
       final balancePair = pool.tokens
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();
@@ -200,6 +207,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
       final addRight = double.parse(_amountRightCtrl.text.trim().isEmpty
           ? '0'
           : _amountRightCtrl.text.trim());
+      print(addLeft);
+      print(addRight);
       final poolInfoAfter = PluginFmt.calcLiquidityShare(
           [nowLeft + addLeft, nowRight + addRight], [addLeft, addRight]);
 
@@ -343,11 +352,16 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                       child: SwapTokenInput(
                                         title: dic['earn.add'],
                                         inputCtrl: _amountLeftCtrl,
-                                        focusNode: _leftFocusNode,
                                         balance: balancePair[0],
                                         tokenIconsMap: widget.plugin.tokenIcons,
                                         onInputChange: (v) =>
                                             _onAmountChange(0, v),
+                                        onClear: () {
+                                          setState(() {
+                                            _amountLeftCtrl.text = '';
+                                          });
+                                          _onAmountChange(0, '0');
+                                        },
                                       ),
                                     ),
                                     ErrorMessage(_leftAmountError),
@@ -364,11 +378,16 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                       child: SwapTokenInput(
                                         title: dic['earn.add'],
                                         inputCtrl: _amountRightCtrl,
-                                        focusNode: _rightFocusNode,
                                         balance: balancePair[1],
                                         tokenIconsMap: widget.plugin.tokenIcons,
                                         onInputChange: (v) =>
                                             _onAmountChange(1, v),
+                                        onClear: () {
+                                          setState(() {
+                                            _amountRightCtrl.text = '';
+                                          });
+                                          _onAmountChange(1, '0');
+                                        },
                                       ),
                                     ),
                                     ErrorMessage(_rightAmountError),

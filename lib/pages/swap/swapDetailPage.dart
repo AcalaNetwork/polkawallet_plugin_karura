@@ -39,7 +39,16 @@ class SwapDetailPage extends StatelessWidget {
     if (plugin.basic.isTestNet) {
       networkName = '${networkName.split('-')[0]}-testnet';
     }
-    final List<TxDetailInfoItem> items = [];
+    final List<TxDetailInfoItem> items = [
+      TxDetailInfoItem(
+        label: 'Event',
+        content: Text(tx.action, style: amountStyle),
+      ),
+      TxDetailInfoItem(
+        label: dic['txs.action'],
+        content: Text(dic['dex.${tx.action}'], style: amountStyle),
+      )
+    ];
     switch (tx.action) {
       case "swap":
         items.addAll([
@@ -98,7 +107,7 @@ class SwapDetailPage extends StatelessWidget {
 
     return TxDetail(
       success: tx.isSuccess,
-      action: tx.action,
+      action: dic['dex.${tx.action}'],
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
       blockTime:

@@ -31,8 +31,6 @@ class MintPage extends StatefulWidget {
 class _MintPageState extends State<MintPage> {
   final TextEditingController _amountPayCtrl = new TextEditingController();
 
-  final _payFocusNode = FocusNode();
-
   String _error;
   String _amountReceive = '';
   BigInt _maxInput;
@@ -153,7 +151,6 @@ class _MintPageState extends State<MintPage> {
   @override
   void dispose() {
     _amountPayCtrl.dispose();
-    _payFocusNode.dispose();
     super.dispose();
   }
 
@@ -203,7 +200,6 @@ class _MintPageState extends State<MintPage> {
                       SwapTokenInput(
                         title: dic['dex.pay'],
                         inputCtrl: _amountPayCtrl,
-                        focusNode: _payFocusNode,
                         balance: widget
                             .plugin.store.assets.tokenBalanceMap[stakeToken],
                         tokenIconsMap: widget.plugin.tokenIcons,

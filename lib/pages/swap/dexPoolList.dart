@@ -183,7 +183,7 @@ class _DexPoolCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButtonSmall(
-                  content: dic['dex.lp.remove'],
+                  content: dic['dex.removeLiquidity'],
                   active: false,
                   padding: EdgeInsets.only(top: 8, bottom: 8),
                   onPressed: () => Navigator.of(context)
@@ -192,7 +192,7 @@ class _DexPoolCard extends StatelessWidget {
               ),
               Expanded(
                 child: OutlinedButtonSmall(
-                  content: dic['dex.lp.add'],
+                  content: dic['dex.addLiquidity'],
                   active: true,
                   padding: EdgeInsets.only(top: 8, bottom: 8),
                   onPressed: () => Navigator.of(context)

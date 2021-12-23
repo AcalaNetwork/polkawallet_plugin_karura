@@ -10,11 +10,10 @@ import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
-class SwapTokenInput extends StatelessWidget {
+class SwapTokenInput extends StatefulWidget {
   SwapTokenInput({
     this.title,
     this.inputCtrl,
-    this.focusNode,
     this.balance,
     this.tokenOptions = const [],
     this.tokenIconsMap,
@@ -26,7 +25,6 @@ class SwapTokenInput extends StatelessWidget {
   });
   final String title;
   final TextEditingController inputCtrl;
-  final FocusNode focusNode;
   final TokenBalanceData balance;
   final List<TokenBalanceData> tokenOptions;
   final Map<String, Widget> tokenIconsMap;
@@ -36,11 +34,18 @@ class SwapTokenInput extends StatelessWidget {
   final Function(BigInt) onSetMax;
   final Function onClear;
 
+  @override
+  _SwapTokenInputState createState() => _SwapTokenInputState();
+}
+
+class _SwapTokenInputState extends State<SwapTokenInput> {
+  bool _hasFocus = false;
+
   Future<void> _selectCurrencyPay(BuildContext context) async {
     final selected = await Navigator.of(context)
-        .pushNamed(CurrencySelectPage.route, arguments: tokenOptions);
+        .pushNamed(CurrencySelectPage.route, arguments: widget.tokenOptions);
     if (selected != null) {
-      onTokenChange(selected as TokenBalanceData);
+      widget.onTokenChange(selected as TokenBalanceData);
     }
   }
 
@@ -49,16 +54,17 @@ class SwapTokenInput extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final dicAssets = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
 
-    final max = Fmt.balanceInt(balance?.amount);
+    final max = Fmt.balanceInt(widget.balance?.amount);
 
-    bool priceVisible = marketPrice != null && inputCtrl.text.isNotEmpty;
+    bool priceVisible =
+        widget.marketPrice != null && widget.inputCtrl.text.isNotEmpty;
     double inputAmount = 0;
     try {
-      inputAmount = double.parse(inputCtrl.text.trim());
+      inputAmount = double.parse(widget.inputCtrl.text.trim());
     } catch (e) {
       priceVisible = false;
     }
-    final price = priceVisible ? marketPrice * inputAmount : null;
+    final price = priceVisible ? widget.marketPrice * inputAmount : null;
 
     final colorGray = Theme.of(context).unselectedWidgetColor;
     final colorLightGray = Theme.of(context).disabledColor;
@@ -77,19 +83,19 @@ class SwapTokenInput extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(title ?? '')),
+                Expanded(child: Text(widget.title ?? '')),
                 Text(
-                  '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(max, balance?.decimals ?? 12, lengthMax: 4)}',
+                  '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(max, widget.balance?.decimals ?? 12, lengthMax: 4)}',
                   style: TextStyle(color: colorGray, fontSize: 14),
                 ),
                 Visibility(
-                    visible: onSetMax != null,
+                    visible: widget.onSetMax != null,
                     child: GestureDetector(
                       child: Padding(
                         padding: EdgeInsets.only(left: 8),
                         child: TextTag(dic['loan.max']),
                       ),
-                      onTap: () => onSetMax(max),
+                      onTap: () => widget.onSetMax(max),
                     ))
               ],
             ),
@@ -101,56 +107,62 @@ class SwapTokenInput extends StatelessWidget {
                 margin: EdgeInsets.only(bottom: priceVisible ? 8 : 0),
                 child: Row(children: [
                   Expanded(
-                    child: TextFormField(
-                      focusNode: focusNode,
-                      decoration: InputDecoration(
-                        hintText: '0.0',
-                        hintStyle: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: colorLightGray),
-                        errorStyle: TextStyle(height: 0.3),
-                        contentPadding: EdgeInsets.all(0),
-                        border: InputBorder.none,
-                        suffix: focusNode != null &&
-                                focusNode.hasFocus &&
-                                inputCtrl.text.isNotEmpty
-                            ? IconButton(
-                                padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                icon: Icon(Icons.cancel,
-                                    size: 16, color: colorGray),
-                                onPressed: onClear,
-                              )
-                            : null,
-                      ),
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      inputFormatters: [
-                        UI.decimalInputFormatter(balance.decimals)
-                      ],
-                      controller: inputCtrl,
-                      keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (value) {
-                        try {
-                          double.parse(value);
-                          onInputChange(value);
-                        } catch (e) {
-                          inputCtrl.text = "";
-                        }
+                    child: Focus(
+                      onFocusChange: (v) {
+                        setState(() {
+                          _hasFocus = v;
+                        });
                       },
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          hintText: '0.0',
+                          hintStyle: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: colorLightGray),
+                          errorStyle: TextStyle(height: 0.3),
+                          contentPadding: EdgeInsets.all(0),
+                          border: InputBorder.none,
+                          suffix: _hasFocus && widget.inputCtrl.text.isNotEmpty
+                              ? IconButton(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                  icon: Icon(Icons.cancel,
+                                      size: 16, color: colorGray),
+                                  onPressed: widget.onClear,
+                                )
+                              : null,
+                        ),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                        inputFormatters: [
+                          UI.decimalInputFormatter(widget.balance.decimals)
+                        ],
+                        controller: widget.inputCtrl,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        onChanged: (value) {
+                          try {
+                            double.parse(value);
+                            widget.onInputChange(value);
+                          } catch (e) {
+                            widget.inputCtrl.text = "";
+                          }
+                        },
+                      ),
                     ),
                   ),
                   GestureDetector(
                     child: CurrencyWithIcon(
-                      balance.symbol,
-                      TokenIcon(balance.symbol, tokenIconsMap, small: true),
+                      widget.balance.symbol,
+                      TokenIcon(widget.balance.symbol, widget.tokenIconsMap,
+                          small: true),
                       textStyle: Theme.of(context).textTheme.headline4,
-                      trailing: onTokenChange != null
+                      trailing: widget.onTokenChange != null
                           ? Icon(Icons.keyboard_arrow_down)
                           : null,
                     ),
-                    onTap: onTokenChange != null && tokenOptions.length > 0
+                    onTap: widget.onTokenChange != null &&
+                            widget.tokenOptions.length > 0
                         ? () => _selectCurrencyPay(context)
                         : null,
                   )

@@ -30,7 +30,7 @@ class EarnTxDetailPage extends StatelessWidget {
     return TxDetail(
       current: keyring.current,
       success: tx.isSuccess,
-      action: tx.event,
+      action: dic['earn.${tx.event}'],
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
       blockTime:
@@ -40,6 +40,10 @@ class EarnTxDetailPage extends StatelessWidget {
         TxDetailInfoItem(
           label: 'Event',
           content: Text(tx.event, style: amountStyle),
+        ),
+        TxDetailInfoItem(
+          label: dic['txs.action'],
+          content: Text(dic['earn.${tx.event}'], style: amountStyle),
         ),
         TxDetailInfoItem(
           label: dic['earn.stake.pool'],

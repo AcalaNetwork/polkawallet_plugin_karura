@@ -38,8 +38,6 @@ class _SwapFormState extends State<SwapForm> {
   final TextEditingController _amountReceiveCtrl = new TextEditingController();
   final TextEditingController _amountSlippageCtrl = new TextEditingController();
 
-  final _payFocusNode = FocusNode();
-  final _receiveFocusNode = FocusNode();
   final _slippageFocusNode = FocusNode();
 
   String _error;
@@ -86,13 +84,7 @@ class _SwapFormState extends State<SwapForm> {
     });
     widget.plugin.store.swap
         .setSwapPair(_swapPair, widget.keyring.current.pubKey);
-    if (_payFocusNode.hasFocus) {
-      _payFocusNode.unfocus();
-      _receiveFocusNode.requestFocus();
-    } else if (_receiveFocusNode.hasFocus) {
-      _receiveFocusNode.unfocus();
-      _payFocusNode.requestFocus();
-    }
+
     await _updateSwapAmount();
   }
 
@@ -410,6 +402,13 @@ class _SwapFormState extends State<SwapForm> {
           setState(() {
             _swapPair = tokens.sublist(0, 2).map((e) => e.tokenNameId).toList();
           });
+        } else {
+          setState(() {
+            _swapPair = [
+              widget.plugin.networkState.tokenSymbol[0],
+              relay_chain_token_symbol
+            ];
+          });
         }
       }
 
@@ -421,8 +420,6 @@ class _SwapFormState extends State<SwapForm> {
   void dispose() {
     _amountPayCtrl.dispose();
     _amountReceiveCtrl.dispose();
-    _payFocusNode.dispose();
-    _receiveFocusNode.dispose();
     _slippageFocusNode.dispose();
 
     if (_timer != null) {
@@ -495,7 +492,6 @@ class _SwapFormState extends State<SwapForm> {
                         SwapTokenInput(
                           title: dic['dex.pay'],
                           inputCtrl: _amountPayCtrl,
-                          focusNode: _payFocusNode,
                           balance: balancePair[0],
                           tokenOptions: currencyOptionsLeft,
                           tokenIconsMap: widget.plugin.tokenIcons,
@@ -515,8 +511,11 @@ class _SwapFormState extends State<SwapForm> {
                               _updateSwapAmount();
                             }
                           },
-                          onSetMax: (v) => _onSetMax(v, balancePair[0].decimals,
-                              nativeKeepAlive: nativeKeepAlive),
+                          onSetMax: Fmt.balanceInt(balancePair[0].amount) >
+                                  BigInt.zero
+                              ? (v) => _onSetMax(v, balancePair[0].decimals,
+                                  nativeKeepAlive: nativeKeepAlive)
+                              : null,
                           onClear: () {
                             setState(() {
                               _maxInput = null;
@@ -542,7 +541,6 @@ class _SwapFormState extends State<SwapForm> {
                           child: SwapTokenInput(
                             title: dic['dex.receive'],
                             inputCtrl: _amountReceiveCtrl,
-                            focusNode: _receiveFocusNode,
                             balance: balancePair[1],
                             tokenOptions: currencyOptionsRight,
                             tokenIconsMap: widget.plugin.tokenIcons,

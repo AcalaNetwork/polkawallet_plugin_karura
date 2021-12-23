@@ -35,8 +35,6 @@ class _RedeemPageState extends State<RedeemPage> {
 
   bool homaNow = false;
 
-  final _payFocusNode = FocusNode();
-
   String _error;
   BigInt _maxInput;
 
@@ -232,7 +230,6 @@ class _RedeemPageState extends State<RedeemPage> {
   @override
   void dispose() {
     _amountPayCtrl.dispose();
-    _payFocusNode.dispose();
     if (_timer != null) {
       _timer.cancel();
       _timer = null;
@@ -266,7 +263,6 @@ class _RedeemPageState extends State<RedeemPage> {
                       SwapTokenInput(
                         title: dic['dex.pay'],
                         inputCtrl: _amountPayCtrl,
-                        focusNode: _payFocusNode,
                         balance: widget.plugin.store.assets
                             .tokenBalanceMap["L$stakeToken"],
                         tokenIconsMap: widget.plugin.tokenIcons,

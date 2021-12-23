@@ -39,9 +39,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   final TextEditingController _amountLeftCtrl = new TextEditingController();
   final TextEditingController _amountRightCtrl = new TextEditingController();
 
-  final _leftFocusNode = FocusNode();
-  final _rightFocusNode = FocusNode();
-
   Timer _timer;
   double _price = 0;
   bool _withStake = false;
@@ -213,6 +210,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   Future<void> _onSubmit(int decimalsLeft, int decimalsRight) async {
     if (_onValidate()) {
+      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
       final DexPoolData pool = ModalRoute.of(context).settings.arguments;
 
       final amountLeft = _amountLeftCtrl.text.trim();
@@ -234,6 +232,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       final poolSymbol =
           AssetsUtils.getBalanceFromTokenNameId(widget.plugin, pool.tokenNameId)
               .symbol;
+      final tokenPair = pool.tokens
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+          .toList();
       if (_withStakeAll) {
         final balance =
             widget.plugin.store.assets.tokenBalanceMap[pool.tokenNameId];
@@ -249,7 +250,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               txTitle: I18n.of(context)
                   .getDic(i18n_full_dic_karura, 'acala')['earn.add'],
               txDisplay: {
-                "poolId": poolSymbol,
+                dic['earn.pool']:
+                    '${tokenPair[0].symbol}-${tokenPair[1].symbol}',
                 "amount": [amountLeft, amountRight],
                 "withStake": _withStake,
                 "stakeAll": '+ ' +
@@ -257,6 +259,14 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                         lengthMax: 4) +
                     ' LP',
               },
+              // txDisplayBold: {
+              //   "amount": [amountLeft, amountRight],
+              //   "withStake": _withStake,
+              //   "stakeAll": '+ ' +
+              //       Fmt.priceFloorBigInt(balanceInt, balance.decimals,
+              //           lengthMax: 4) +
+              //       ' LP',
+              // },
               params: [],
               rawParams: '[[${batchTxs.join(',')}]]',
             ))) as Map;
@@ -327,8 +337,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
     _amountLeftCtrl.dispose();
     _amountRightCtrl.dispose();
-    _leftFocusNode.dispose();
-    _rightFocusNode.dispose();
     super.dispose();
   }
 
@@ -400,7 +408,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                       SwapTokenInput(
                         title: 'token 1',
                         inputCtrl: _amountLeftCtrl,
-                        focusNode: _leftFocusNode,
                         balance: tokenPair[0],
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) => _onSupplyAmountChange(v),
@@ -438,7 +445,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                       SwapTokenInput(
                         title: 'token 2',
                         inputCtrl: _amountRightCtrl,
-                        focusNode: _rightFocusNode,
                         balance: tokenPair[1],
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) => _onTargetAmountChange(v),

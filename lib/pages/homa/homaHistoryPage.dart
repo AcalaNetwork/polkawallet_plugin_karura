@@ -24,13 +24,13 @@ class HomaHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final symbols = plugin.networkState.tokenSymbol;
     final decimals = plugin.networkState.tokenDecimals;
     final symbol = relay_chain_token_symbol;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['loan.txs']),
+        title: Text(dic['loan.txs']),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -76,26 +76,26 @@ class HomaHistoryPage extends StatelessWidget {
 
                 final detail = list[i];
 
-                String amountPay = '';
-                String amountReceive = '';
+                String amountTail = '';
+                String amountTitle = '';
 
                 switch (detail.action) {
                   case TxHomaData.actionMint:
-                    amountPay =
+                    amountTail =
                         '${Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal)} $symbol';
-                    amountReceive =
+                    amountTitle =
                         '${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeem:
-                    amountPay =
+                    amountTail =
                         '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeemed:
-                    amountReceive =
+                    amountTail =
                         '${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeemCancel:
-                    amountPay =
+                    amountTail =
                         '${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
                 }
 
@@ -106,7 +106,7 @@ class HomaHistoryPage extends StatelessWidget {
                   ),
                   child: ListTile(
                     dense: true,
-                    title: Text('${detail.action} $amountReceive'),
+                    title: Text('${dic['homa.${detail.action}']} $amountTitle'),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
@@ -117,7 +117,7 @@ class HomaHistoryPage extends StatelessWidget {
                           : TransferIconType.rollIn,
                     ),
                     trailing: Text(
-                      amountPay,
+                      amountTail,
                       style: Theme.of(context).textTheme.headline4,
                       textAlign: TextAlign.end,
                     ),

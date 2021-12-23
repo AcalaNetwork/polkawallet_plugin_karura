@@ -25,10 +25,10 @@ class LoanHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['loan.txs']),
+        title: Text(dic['loan.txs']),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -88,7 +88,7 @@ class LoanHistoryPage extends StatelessWidget {
                     ),
                     child: ListTile(
                       dense: true,
-                      title: Text(detail.actionType,
+                      title: Text(dic['loan.${detail.actionType}'],
                           style: TextStyle(fontSize: 14)),
                       subtitle: Text(Fmt.dateTime(
                           DateFormat("yyyy-MM-ddTHH:mm:ss")
