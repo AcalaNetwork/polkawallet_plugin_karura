@@ -252,21 +252,22 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               txDisplay: {
                 dic['earn.pool']:
                     '${tokenPair[0].symbol}-${tokenPair[1].symbol}',
-                "amount": [amountLeft, amountRight],
-                "withStake": _withStake,
-                "stakeAll": '+ ' +
+                "": dic['earn.withStake.info'],
+                dic['earn.withStake.all']: '+ ' +
                     Fmt.priceFloorBigInt(balanceInt, balance.decimals,
                         lengthMax: 4) +
                     ' LP',
               },
-              // txDisplayBold: {
-              //   "amount": [amountLeft, amountRight],
-              //   "withStake": _withStake,
-              //   "stakeAll": '+ ' +
-              //       Fmt.priceFloorBigInt(balanceInt, balance.decimals,
-              //           lengthMax: 4) +
-              //       ' LP',
-              // },
+              txDisplayBold: {
+                "Token 1": Text(
+                  '$amountLeft ${tokenPair[0].symbol}',
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+                "Token 2": Text(
+                  '$amountRight ${tokenPair[1].symbol}',
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+              },
               params: [],
               rawParams: '[[${batchTxs.join(',')}]]',
             ))) as Map;
@@ -274,16 +275,26 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           Navigator.of(context).pop(res);
         }
       } else {
+        final txDisplay = {dic['earn.pool']: poolSymbol};
+        if (_withStake) {
+          txDisplay[''] = dic['earn.withStake.info'];
+        }
         final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
             arguments: TxConfirmParams(
               module: 'dex',
               call: 'addLiquidity',
               txTitle: I18n.of(context)
                   .getDic(i18n_full_dic_karura, 'acala')['earn.add'],
-              txDisplay: {
-                "poolId": poolSymbol,
-                "amount": [amountLeft, amountRight],
-                "withStake": _withStake,
+              txDisplay: txDisplay,
+              txDisplayBold: {
+                "Token 1": Text(
+                  '$amountLeft ${tokenPair[0].symbol}',
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+                "Token 2": Text(
+                  '$amountRight ${tokenPair[1].symbol}',
+                  style: Theme.of(context).textTheme.headline1,
+                ),
               },
               params: params,
             ))) as Map;

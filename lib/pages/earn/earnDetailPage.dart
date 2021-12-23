@@ -324,7 +324,8 @@ class _UserCard extends StatelessWidget {
   final BigInt bestNumber;
   final List<dynamic> dexIncentiveLoyaltyEndBlock;
 
-  Future<void> _onClaim(BuildContext context) async {
+  Future<void> _onClaim(
+      BuildContext context, String rewardV2, double rewardSaving) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     showCupertinoDialog(
       context: context,
@@ -345,7 +346,7 @@ class _UserCard extends StatelessWidget {
                   .getDic(i18n_full_dic_karura, 'common')['ok']),
               onPressed: () {
                 Navigator.of(ctx).pop();
-                _onWithdrawReward(context);
+                _onWithdrawReward(context, rewardV2, rewardSaving);
               },
             ),
           ],
@@ -354,17 +355,22 @@ class _UserCard extends StatelessWidget {
     );
   }
 
-  void _onWithdrawReward(BuildContext context) {
+  void _onWithdrawReward(
+      BuildContext context, String rewardV2, double rewardSaving) {
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final DexPoolData pool = ModalRoute.of(context).settings.arguments;
 
     Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'incentives',
           call: 'claimRewards',
-          txTitle: I18n.of(context)
-              .getDic(i18n_full_dic_karura, 'acala')['earn.claim'],
+          txTitle: dic['earn.claim'],
           txDisplay: {
-            "poolId":
+            dic['loan.amount']: '≈ $rewardV2' +
+                (rewardSaving >= 0.01
+                    ? ' + ${Fmt.priceFloor(rewardSaving)} $karura_stable_coin_view'
+                    : ''),
+            dic['earn.pool']:
                 AssetsUtils.getBalanceFromTokenNameId(plugin, pool.tokenNameId)
                     .symbol,
           },
@@ -572,7 +578,8 @@ class _UserCard extends StatelessWidget {
                     margin: EdgeInsets.only(top: 16),
                     child: RoundedButton(
                         text: dic['earn.claim'],
-                        onPressed: () => _onClaim(context)),
+                        onPressed: () =>
+                            _onClaim(context, rewardV2, rewardSaving)),
                   )),
             ],
           ),

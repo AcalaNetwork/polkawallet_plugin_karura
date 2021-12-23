@@ -96,8 +96,13 @@ class _LPStakePage extends State<LPStakePage> {
           txTitle:
               '${dic['earn.${params.action}']} ${PluginFmt.tokenView(poolSymbol)}',
           txDisplay: {
-            "poolId": poolSymbol,
-            "amount": input,
+            dic['earn.pool']: poolSymbol,
+          },
+          txDisplayBold: {
+            dic['loan.amount']: Text(
+              '$input LP',
+              style: Theme.of(context).textTheme.headline1,
+            ),
           },
           params: [
             {'DEXShare': params.pool.tokens},

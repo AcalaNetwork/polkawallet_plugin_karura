@@ -129,6 +129,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
   Future<void> _onSubmit(int shareDecimals) async {
     if (_formKey.currentState.validate()) {
+      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
       final DexPoolData pool = ModalRoute.of(context).settings.arguments;
       final poolToken = AssetsUtils.getBalanceFromTokenNameId(
           widget.plugin, pool.tokenNameId);
@@ -141,10 +142,12 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         call: 'removeLiquidity',
         txTitle: I18n.of(context)
             .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
-        txDisplay: {
-          "poolId": poolToken.symbol,
-          "amount": amount,
-          "fromPool": false,
+        txDisplay: {dic['earn.pool']: poolToken.symbol},
+        txDisplayBold: {
+          dic['loan.amount']: Text(
+            '$amount LP',
+            style: Theme.of(context).textTheme.headline1,
+          ),
         },
         params: _getTxParams(amountInt, false),
       );
@@ -156,9 +159,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txTitle: I18n.of(context)
                 .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
             txDisplay: {
-              "poolId": poolToken.symbol,
-              "amount": amount,
-              "fromPool": true,
+              dic['earn.pool']: poolToken.symbol,
+              "": dic['earn.fromPool'],
+            },
+            txDisplayBold: {
+              dic['loan.amount']: Text(
+                '$amount LP',
+                style: Theme.of(context).textTheme.headline1,
+              ),
             },
             params: _getTxParams(amountInt, true),
           );
@@ -173,9 +181,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txTitle: I18n.of(context)
                 .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
             txDisplay: {
-              "poolId": poolToken.symbol,
-              "amount": amount,
-              "fromPool": _fromPool,
+              dic['earn.pool']: poolToken.symbol,
+              "": dic['earn.fromPool'],
+            },
+            txDisplayBold: {
+              dic['loan.amount']: Text(
+                '$amount LP',
+                style: Theme.of(context).textTheme.headline1,
+              ),
             },
             params: [],
             rawParams: '[[${batchTxs.join(',')}]]',

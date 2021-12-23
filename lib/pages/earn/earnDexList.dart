@@ -152,7 +152,7 @@ class _EarnDexListState extends State<EarnDexList> {
                         Column(
                           children: [
                             CurrencyWithIcon(
-                              PluginFmt.tokenView(poolToken.symbol),
+                              PluginFmt.tokenView(poolToken.symbol ?? ''),
                               TokenIcon(
                                   poolToken.symbol, widget.plugin.tokenIcons),
                               textStyle: Theme.of(context).textTheme.headline4,
@@ -160,7 +160,7 @@ class _EarnDexListState extends State<EarnDexList> {
                             ),
                             Divider(height: 24),
                             Text(
-                              Fmt.token(sharesTotal, poolToken.decimals),
+                              Fmt.token(sharesTotal, poolToken.decimals ?? 18),
                               style: Theme.of(context).textTheme.headline4,
                             ),
                             Container(
