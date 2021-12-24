@@ -402,6 +402,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           validator: _validateInput,
+                          onChanged: (v) {
+                            setState(() {});
+                          },
                         ),
                       ),
                       Padding(

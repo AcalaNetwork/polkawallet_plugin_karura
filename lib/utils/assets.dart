@@ -71,7 +71,7 @@ class AssetsUtils {
     }
     if (currencyId['foreignAsset'] != null ||
         currencyId['ForeignAsset'] != null) {
-      final list = (plugin.store.assets.tokenBalanceMap.values.length >
+      final list = (plugin.store.assets.tokenBalanceMap.values.length >=
                   plugin.store.assets.allTokens.length
               ? plugin.store.assets.tokenBalanceMap.values
               : plugin.store.assets.allTokens)
@@ -85,7 +85,7 @@ class AssetsUtils {
     }
     if (currencyId['liquidCroadloan'] != null ||
         currencyId['LiquidCroadloan'] != null) {
-      final list = (plugin.store.assets.tokenBalanceMap.values.length >
+      final list = (plugin.store.assets.tokenBalanceMap.values.length >=
                   plugin.store.assets.allTokens.length
               ? plugin.store.assets.tokenBalanceMap.values
               : plugin.store.assets.allTokens)

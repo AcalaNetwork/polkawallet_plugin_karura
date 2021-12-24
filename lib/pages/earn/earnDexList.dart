@@ -153,8 +153,8 @@ class _EarnDexListState extends State<EarnDexList> {
                           children: [
                             CurrencyWithIcon(
                               PluginFmt.tokenView(poolToken.symbol ?? ''),
-                              TokenIcon(
-                                  poolToken.symbol, widget.plugin.tokenIcons),
+                              TokenIcon(poolToken.symbol ?? '',
+                                  widget.plugin.tokenIcons),
                               textStyle: Theme.of(context).textTheme.headline4,
                               mainAxisAlignment: MainAxisAlignment.center,
                             ),

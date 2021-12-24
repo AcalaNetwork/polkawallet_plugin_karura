@@ -18,7 +18,7 @@ class PluginFmt {
     if (token == 'VSKSM') {
       return 'vsKSM';
     }
-    if (token.contains('-')) {
+    if (token?.contains('-') ?? false) {
       return '${token.split('-').map((e) => PluginFmt.tokenView(e)).join('-')} LP';
     }
     return token ?? '';
