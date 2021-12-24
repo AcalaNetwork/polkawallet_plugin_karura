@@ -111,11 +111,11 @@ class HomaHistoryPage extends StatelessWidget {
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
                     leading: TransferIcon(
-                      type: detail.action == TxHomaData.actionMint ||
-                              detail.action == TxHomaData.actionRedeemCancel
-                          ? TransferIconType.rollOut
-                          : TransferIconType.rollIn,
-                    ),
+                        type: detail.action == TxHomaData.actionMint ||
+                                detail.action == TxHomaData.actionRedeemCancel
+                            ? TransferIconType.rollOut
+                            : TransferIconType.rollIn,
+                        bgColor: Theme.of(context).cardColor),
                     trailing: Text(
                       amountTail,
                       style: Theme.of(context).textTheme.headline4,

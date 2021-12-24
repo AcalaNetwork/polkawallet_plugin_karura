@@ -738,7 +738,7 @@ class _SwapFormState extends State<SwapForm> {
                                   style: labelStyle),
                             ),
                             Text(
-                                '${minMax.toStringAsFixed(6)} ${showExchangeRate ? PluginFmt.tokenView(balancePair[_swapMode].symbol) : ''}'),
+                                '${minMax.toStringAsFixed(6)} ${showExchangeRate ? PluginFmt.tokenView(balancePair[_swapMode == 0 ? 1 : 0].symbol) : ''}'),
                           ],
                         ),
                       ),

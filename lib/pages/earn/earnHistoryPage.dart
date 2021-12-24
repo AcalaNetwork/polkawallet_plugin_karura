@@ -100,7 +100,8 @@ class EarnHistoryPage extends StatelessWidget {
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
-                    leading: TransferIcon(type: icon),
+                    leading: TransferIcon(
+                        type: icon, bgColor: Theme.of(context).cardColor),
                     trailing: Text(
                       dic['earn.${detail.event}'],
                       style: TextStyle(fontWeight: FontWeight.bold),

@@ -94,12 +94,14 @@ class LoanHistoryPage extends StatelessWidget {
                           DateFormat("yyyy-MM-ddTHH:mm:ss")
                               .parse(detail.time, true))),
                       leading: TransferIcon(
-                        type: detail.isSuccess
-                            ? isOut
-                                ? TransferIconType.rollOut
-                                : TransferIconType.rollIn
-                            : TransferIconType.failure,
-                      ),
+                          type: detail.isSuccess
+                              ? isOut
+                                  ? TransferIconType.rollOut
+                                  : TransferIconType.rollIn
+                              : TransferIconType.failure,
+                          bgColor: detail.isSuccess
+                              ? Theme.of(context).cardColor
+                              : Color(0xFFD7D7D7)),
                       trailing: FittedBox(
                         child: Text(
                           '$amount $token',

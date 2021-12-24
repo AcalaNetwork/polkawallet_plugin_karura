@@ -308,9 +308,14 @@ class TransferListItem extends StatelessWidget {
       dense: true,
       leading: data.isSuccess
           ? isOut
-              ? TransferIcon(type: TransferIconType.rollOut)
-              : TransferIcon(type: TransferIconType.rollIn)
-          : TransferIcon(type: TransferIconType.failure),
+              ? TransferIcon(
+                  type: TransferIconType.rollOut,
+                  bgColor: Theme.of(context).cardColor)
+              : TransferIcon(
+                  type: TransferIconType.rollIn,
+                  bgColor: Theme.of(context).cardColor)
+          : TransferIcon(
+              type: TransferIconType.failure, bgColor: Color(0xFFD7D7D7)),
       title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
       subtitle: Text(Fmt.dateTime(DateTime.parse(data.timestamp))),
       trailing: Container(
