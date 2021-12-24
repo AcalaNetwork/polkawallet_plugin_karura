@@ -61,7 +61,7 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
       call: 'second',
       txTitle: dic['proposal.second'],
       txDisplay: {
-        "proposal": BigInt.parse(proposal.index.toString()).toInt(),
+        dic["proposal"]: '#${BigInt.parse(proposal.index.toString()).toInt()}',
         "seconds": proposal.seconds.length,
       },
       params: [

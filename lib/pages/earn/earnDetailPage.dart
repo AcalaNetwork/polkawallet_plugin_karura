@@ -154,7 +154,12 @@ class EarnDetailPage extends StatelessWidget {
                               plugin: plugin,
                               share: stakeShare,
                               poolInfo: poolInfo,
-                              token: poolId,
+                              poolSymbol: pool.tokens
+                                  .map((e) =>
+                                      AssetsUtils.tokenDataFromCurrencyId(
+                                              plugin, e)
+                                          .symbol)
+                                  .join('-'),
                               rewardAPY: rewardAPR,
                               rewardSavingAPY: savingRewardAPR,
                               loyaltyBonus: loyaltyBonus,
@@ -297,7 +302,7 @@ class _UserCard extends StatelessWidget {
     this.plugin,
     this.share,
     this.poolInfo,
-    this.token,
+    this.poolSymbol,
     this.rewardAPY,
     this.rewardSavingAPY,
     this.loyaltyBonus,
@@ -312,7 +317,7 @@ class _UserCard extends StatelessWidget {
   final PluginKarura plugin;
   final double share;
   final DexPoolInfoData poolInfo;
-  final String token;
+  final String poolSymbol;
   final double rewardAPY;
   final double rewardSavingAPY;
   final double loyaltyBonus;
@@ -412,9 +417,9 @@ class _UserCard extends StatelessWidget {
     })?.join(' + ');
 
     var blockNumber;
-    dexIncentiveLoyaltyEndBlock?.forEach((element) {
-      if (token == PluginFmt.getPool(plugin, element['pool'])) {
-        blockNumber = element['blockNumber'];
+    dexIncentiveLoyaltyEndBlock?.forEach((e) {
+      if (poolSymbol == PluginFmt.getPool(plugin, e['pool'])) {
+        blockNumber = e['blockNumber'];
         return;
       }
     });

@@ -387,14 +387,19 @@ class _SwapFormState extends State<SwapForm> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _getTxFee();
 
-      if (widget.plugin.store.swap.swapPair != null &&
-          widget.plugin.store.swap
-                  .swapPair(widget.keyring.current.pubKey)
-                  .length >
-              0) {
+      final cachedSwapPair =
+          widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey);
+      if (cachedSwapPair.length > 0 &&
+          AssetsUtils.getBalanceFromTokenNameId(
+                      widget.plugin, cachedSwapPair[0])
+                  .symbol !=
+              null &&
+          AssetsUtils.getBalanceFromTokenNameId(
+                      widget.plugin, cachedSwapPair[1])
+                  .symbol !=
+              null) {
         setState(() {
-          _swapPair =
-              widget.plugin.store.swap.swapPair(widget.keyring.current.pubKey);
+          _swapPair = cachedSwapPair;
         });
       } else {
         final tokens = PluginFmt.getAllDexTokens(widget.plugin);
@@ -581,7 +586,7 @@ class _SwapFormState extends State<SwapForm> {
                                   Text(dic['dex.rate'], style: labelStyle),
                                   Row(children: <Widget>[
                                     Text(
-                                        '1 ${PluginFmt.tokenView(swapPair[rateReversed ? 1 : 0])} = ${(rateReversed ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(swapPair[rateReversed ? 0 : 1])}'),
+                                        '1 ${PluginFmt.tokenView(balancePair[rateReversed ? 1 : 0].symbol)} = ${(rateReversed ? 1 / _swapRatio : _swapRatio).toStringAsFixed(6)} ${PluginFmt.tokenView(balancePair[rateReversed ? 0 : 1].symbol)}'),
                                     GestureDetector(
                                         onTap: () {
                                           setState(() {
@@ -733,7 +738,7 @@ class _SwapFormState extends State<SwapForm> {
                                   style: labelStyle),
                             ),
                             Text(
-                                '${minMax.toStringAsFixed(6)} ${showExchangeRate ? PluginFmt.tokenView(_swapMode == 0 ? _swapPair[0] : _swapPair[1]) : ''}'),
+                                '${minMax.toStringAsFixed(6)} ${showExchangeRate ? PluginFmt.tokenView(balancePair[_swapMode].symbol) : ''}'),
                           ],
                         ),
                       ),
@@ -762,7 +767,7 @@ class _SwapFormState extends State<SwapForm> {
                                       Text(dic['dex.fee'], style: labelStyle),
                                 ),
                                 Text(
-                                    '${_swapOutput?.fee} ${PluginFmt.tokenView(swapPair.length > 1 ? swapPair[0] : '')}'),
+                                    '${_swapOutput?.fee} ${PluginFmt.tokenView(swapPair.length > 1 ? balancePair[0].symbol : '')}'),
                               ],
                             ),
                           )),

@@ -71,36 +71,31 @@ class AssetsUtils {
     }
     if (currencyId['foreignAsset'] != null ||
         currencyId['ForeignAsset'] != null) {
-      final i = (plugin.store.assets.tokenBalanceMap.values.length >
+      final list = (plugin.store.assets.tokenBalanceMap.values.length >
                   plugin.store.assets.allTokens.length
               ? plugin.store.assets.tokenBalanceMap.values
               : plugin.store.assets.allTokens)
-          .toList()
-          .indexWhere((e) =>
-              e.type == 'ForeignAsset' &&
-              e.id ==
-                  (currencyId['foreignAsset'] ?? currencyId['ForeignAsset'])
-                      .toString());
-      return i > -1
-          ? plugin.store.assets.tokenBalanceMap.values.toList()[i]
-          : TokenBalanceData();
+          .toList();
+      final i = list.indexWhere((e) =>
+          e.type == 'ForeignAsset' &&
+          e.id ==
+              (currencyId['foreignAsset'] ?? currencyId['ForeignAsset'])
+                  .toString());
+      return i > -1 ? list[i] : TokenBalanceData();
     }
     if (currencyId['liquidCroadloan'] != null ||
         currencyId['LiquidCroadloan'] != null) {
-      final i = (plugin.store.assets.tokenBalanceMap.values.length >
+      final list = (plugin.store.assets.tokenBalanceMap.values.length >
                   plugin.store.assets.allTokens.length
               ? plugin.store.assets.tokenBalanceMap.values
               : plugin.store.assets.allTokens)
-          .toList()
-          .indexWhere((e) =>
-              e.type == 'LiquidCroadloan' &&
-              e.id ==
-                  (currencyId['liquidCroadloan'] ??
-                          currencyId['LiquidCroadloan'])
-                      .toString());
-      return i > -1
-          ? plugin.store.assets.tokenBalanceMap.values.toList()[i]
-          : TokenBalanceData();
+          .toList();
+      final i = list.toList().indexWhere((e) =>
+          e.type == 'LiquidCroadloan' &&
+          e.id ==
+              (currencyId['liquidCroadloan'] ?? currencyId['LiquidCroadloan'])
+                  .toString());
+      return i > -1 ? list[i] : TokenBalanceData();
     }
     return TokenBalanceData();
   }

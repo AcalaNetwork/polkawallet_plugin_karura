@@ -68,10 +68,11 @@ class PluginFmt {
   static String getPool(PluginKarura plugin, dynamic pool) {
     if (pool['dex'] != null) {
       return List.from(pool['dex']['dexShare'])
-          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
           .join('-');
     } else if (pool['loans'] != null) {
-      return pool['loans']['token'];
+      return AssetsUtils.tokenDataFromCurrencyId(plugin, pool['loans'])
+          .tokenNameId;
     } else {
       return null;
     }

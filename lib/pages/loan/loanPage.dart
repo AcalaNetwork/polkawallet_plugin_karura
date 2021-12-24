@@ -505,9 +505,9 @@ class CollateralIncentiveList extends StatelessWidget {
 
           final bestNumber = plugin.store.gov.bestNumber;
           var blockNumber;
-          dexIncentiveLoyaltyEndBlock.forEach((element) {
-            if (token.symbol == PluginFmt.getPool(plugin, element['pool'])) {
-              blockNumber = element['blockNumber'];
+          dexIncentiveLoyaltyEndBlock.forEach((e) {
+            if (token.tokenNameId == PluginFmt.getPool(plugin, e['pool'])) {
+              blockNumber = e['blockNumber'];
               return;
             }
           });
