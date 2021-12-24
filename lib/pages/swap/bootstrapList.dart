@@ -106,6 +106,7 @@ class _BootstrapListState extends State<BootstrapList> {
     setState(() {
       _claimSubmitting = true;
     });
+    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final params = [
       widget.keyring.current.address,
       pool.tokens[0],
@@ -124,11 +125,16 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'utility',
         call: 'batch',
         txDisplay: {
-          'pool': AssetsUtils.getBalanceFromTokenNameId(
+          dic['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
                   widget.plugin, pool.tokenNameId)
               .symbol,
-          'amount': Fmt.priceFloor(amount, lengthMax: 4),
-          'withStake': true,
+          "": dic['earn.withStake.info'],
+        },
+        txDisplayBold: {
+          dic['loan.amount']: Text(
+            '${Fmt.priceFloor(amount, lengthMax: 4)} LP',
+            style: Theme.of(context).textTheme.headline1,
+          ),
         },
         params: [],
         rawParams: '[[${batchTxs.join(',')}]]',
@@ -139,10 +145,15 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'dex',
         call: 'claimDexShare',
         txDisplay: {
-          'pool': AssetsUtils.getBalanceFromTokenNameId(
+          dic['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
                   widget.plugin, pool.tokenNameId)
               .symbol,
-          'amount': Fmt.priceFloor(amount, lengthMax: 4),
+        },
+        txDisplayBold: {
+          dic['loan.amount']: Text(
+            '${Fmt.priceFloor(amount, lengthMax: 4)} LP',
+            style: Theme.of(context).textTheme.headline1,
+          ),
         },
         params: [
           widget.keyring.current.address,
@@ -538,7 +549,6 @@ class _BootStrapCardEnabled extends StatelessWidget {
             margin: EdgeInsets.only(top: 8, bottom: 16),
             padding: EdgeInsets.fromLTRB(8, 8, 8, 16),
             decoration: BoxDecoration(
-                color: Theme.of(context).hoverColor,
                 border: Border.all(color: Colors.black12, width: 0.5),
                 borderRadius: BorderRadius.all(Radius.circular(8))),
             child: StakeLPTips(

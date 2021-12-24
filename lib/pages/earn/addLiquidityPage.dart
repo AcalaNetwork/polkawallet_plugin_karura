@@ -41,7 +41,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   Timer _timer;
   double _price = 0;
-  bool _withStake = false;
+  bool _withStake = true;
   bool _withStakeAll = false;
 
   int _inputIndex = 0;

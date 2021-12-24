@@ -71,19 +71,36 @@ class AssetsUtils {
     }
     if (currencyId['foreignAsset'] != null ||
         currencyId['ForeignAsset'] != null) {
-      return plugin.store.assets.tokenBalanceMap.values.firstWhere((e) =>
-          e.type == 'ForeignAsset' &&
-          e.id ==
-              (currencyId['foreignAsset'] ?? currencyId['ForeignAsset'])
-                  .toString());
+      final i = (plugin.store.assets.tokenBalanceMap.values.length >
+                  plugin.store.assets.allTokens.length
+              ? plugin.store.assets.tokenBalanceMap.values
+              : plugin.store.assets.allTokens)
+          .toList()
+          .indexWhere((e) =>
+              e.type == 'ForeignAsset' &&
+              e.id ==
+                  (currencyId['foreignAsset'] ?? currencyId['ForeignAsset'])
+                      .toString());
+      return i > -1
+          ? plugin.store.assets.tokenBalanceMap.values.toList()[i]
+          : TokenBalanceData();
     }
     if (currencyId['liquidCroadloan'] != null ||
         currencyId['LiquidCroadloan'] != null) {
-      return plugin.store.assets.tokenBalanceMap.values.firstWhere((e) =>
-          e.type == 'LiquidCroadloan' &&
-          e.id ==
-              (currencyId['liquidCroadloan'] ?? currencyId['LiquidCroadloan'])
-                  .toString());
+      final i = (plugin.store.assets.tokenBalanceMap.values.length >
+                  plugin.store.assets.allTokens.length
+              ? plugin.store.assets.tokenBalanceMap.values
+              : plugin.store.assets.allTokens)
+          .toList()
+          .indexWhere((e) =>
+              e.type == 'LiquidCroadloan' &&
+              e.id ==
+                  (currencyId['liquidCroadloan'] ??
+                          currencyId['LiquidCroadloan'])
+                      .toString());
+      return i > -1
+          ? plugin.store.assets.tokenBalanceMap.values.toList()[i]
+          : TokenBalanceData();
     }
     return TokenBalanceData();
   }
