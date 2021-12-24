@@ -143,6 +143,7 @@ class PluginKarura extends PolkawalletPlugin {
   Widget getAggregatedAssetsWidget(
       {String priceCurrency = 'USD',
       bool hideBalance = false,
+      double rate = 1.0,
       @required Function onSwitchBack,
       @required Function onSwitchHideBalance}) {
     if (store == null) return null;
@@ -155,9 +156,13 @@ class PluginKarura extends PolkawalletPlugin {
           onSwitchHideBalance,
           hideBalance: hideBalance,
         );
+      final Map<String, double> marketPrices = Map<String, double>();
+      store.assets.marketPrices.forEach((key, value) {
+        marketPrices[key] = value * rate;
+      });
 
       final data = AssetsUtils.aggregatedAssetsDataFromJson(
-          store.assets.aggregatedAssets, balances, store.assets.marketPrices);
+          store.assets.aggregatedAssets, balances, marketPrices);
       // // data.forEach((element) => print(element));
       // final total = data.map((e) => e.value).reduce((a, b) => a + b);
       // return Text('total: ${hideBalance ? '***' : total}');
