@@ -15,7 +15,13 @@ function send(path: string, data: any) {
 send("log", "acala main js loaded");
 (<any>window).send = send;
 
+async function connectAll(nodes: string[]) {
+  return Promise.race(nodes.map(node => connect([node])));
+}
+
 async function connect(nodes: string[]) {
+  (<any>window).api = undefined;
+
   return new Promise(async (resolve, reject) => {
     const wsProvider = new WsProvider(nodes);
     try {
@@ -25,11 +31,18 @@ async function connect(nodes: string[]) {
         })
       );
       await res.isReady;
-      (<any>window).api = res;
-      // (<any>window).apiWallet = new WalletPromise(res);
-      const url = nodes[(<any>res)._options.provider.__private_16_endpointIndex];
-      send("log", `${url} wss connected success`);
-      resolve(url);
+      if (!(<any>window).api) {
+        (<any>window).api = res;
+        // (<any>window).apiWallet = new WalletPromise(res);
+        const url = nodes[(<any>res)._options.provider.__private_16_endpointIndex];
+        send("log", `${url} wss connected success`);
+        resolve(url);
+      } else {
+        res.disconnect();
+        const url = nodes[(<any>res)._options.provider.__private_16_endpointIndex];
+        send("log", `${url} wss success and disconnected`);
+        resolve(url);
+      }
     } catch (err) {
       send("log", `connect failed`);
       wsProvider.disconnect();
@@ -39,6 +52,7 @@ async function connect(nodes: string[]) {
 }
 
 (<any>window).settings = {
+  connectAll,
   connect,
   getNetworkConst,
   getNetworkProperties,
