@@ -75,6 +75,8 @@ const acala_token_ids = [
   'PHA',
   'RMRK',
   'USDT',
+  'KBTC',
+  'KINT',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
