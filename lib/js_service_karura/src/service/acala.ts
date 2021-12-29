@@ -747,8 +747,9 @@ async function queryHomaNewEnv(api: ApiPromise) {
   }
   if (!homa) {
     const walletAdapter = {
-      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+      subscribeToken: (token: any) => of(walletPromise.getToken(token))
     };
+
     homa = new Homa(api, walletAdapter);
   }
 
@@ -762,7 +763,7 @@ async function calcHomaNewMintAmount(api: ApiPromise, amount: number) {
   }
   if (!homa) {
     const walletAdapter = {
-      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+      subscribeToken: (token: any) => of(walletPromise.getToken(token))
     };
     homa = new Homa(api, walletAdapter);
   }
@@ -781,7 +782,7 @@ async function calcHomaNewRedeemAmount(api: ApiPromise, amount: number, isFastRe
   }
   if (!homa) {
     const walletAdapter = {
-      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+      subscribeToken: (token: any) => of(walletPromise.getToken(token))
     };
     homa = new Homa(api, walletAdapter);
   }
@@ -801,7 +802,7 @@ async function queryHomaPendingRedeem(api: ApiPromise, address: string) {
   }
   if (!homa) {
     const walletAdapter = {
-      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+      subscribeToken: (token: any) => of(walletPromise.getToken(token))
     };
     homa = new Homa(api, walletAdapter);
   }
