@@ -10,7 +10,7 @@ import { Homa } from "@acala-network/sdk";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
 import { HomaLiteMintResult, HomaLiteRedeemResult } from "./homaLite/types";
-import { lastValueFrom, of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 
 const ONE = FixedPointNumber.ONE;
@@ -752,7 +752,7 @@ async function queryHomaNewEnv(api: ApiPromise) {
     homa = new Homa(api, walletAdapter);
   }
 
-  const result = await lastValueFrom(homa.subscribeEnv());
+  const result = await firstValueFrom(homa.subscribeEnv());
   return _formatHomaEnv(result);
 }
 
@@ -766,8 +766,8 @@ async function calcHomaNewMintAmount(api: ApiPromise, amount: number) {
     };
     homa = new Homa(api, walletAdapter);
   }
+  const result = await firstValueFrom(homa.subscribeEstimateMintResult(new FixedPointNumber(amount, KSM_DECIMAL)));
 
-  const result = await lastValueFrom(homa.subscribeEstimateMintResult(new FixedPointNumber(amount, KSM_DECIMAL)));
   return {
     pay: result.pay.toNumber(),
     receive: result.receive.toNumber(),
@@ -786,7 +786,7 @@ async function calcHomaNewRedeemAmount(api: ApiPromise, amount: number, isFastRe
     homa = new Homa(api, walletAdapter);
   }
 
-  const result = await lastValueFrom(homa.subscribeEstimateRedeemResult(new FixedPointNumber(amount, KSM_DECIMAL), isFastRedeem));
+  const result = await firstValueFrom(homa.subscribeEstimateRedeemResult(new FixedPointNumber(amount, KSM_DECIMAL), isFastRedeem));
   return {
     request: result.request.toNumber(),
     receive: result.receive.toNumber(),
@@ -806,7 +806,7 @@ async function queryHomaPendingRedeem(api: ApiPromise, address: string) {
     homa = new Homa(api, walletAdapter);
   }
 
-  const result = await lastValueFrom(homa.subscribeUserLiquidTokenSummary(address));
+  const result = await firstValueFrom(homa.subscribeUserLiquidTokenSummary(address));
   return {
     totalUnbonding: result.totalUnbonding.toNumber(),
     claimable: result.claimable.toNumber(),
