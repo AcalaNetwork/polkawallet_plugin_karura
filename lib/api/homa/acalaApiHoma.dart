@@ -27,22 +27,38 @@ class AcalaApiHoma {
   Future<HomaRedeemAmountData> queryHomaRedeemAmount(
       double input, int redeemType, era) async {
     final Map res = await service.queryHomaRedeemAmount(input, redeemType, era);
+    // final Map res = await service.queryHomaPendingRedeem(input, redeemType, era);
     return HomaRedeemAmountData.fromJson(res);
   }
 
   Future<CalcHomaMintAmountData> calcHomaMintAmount(double input) async {
-    final Map res = await service.calcHomaMintAmount(input);
+    print("calcHomaMintAmount===");
+    // final Map res = await service.calcHomaMintAmount(input);
+    final Map res = await service.calcHomaNewMintAmount(input);
+    print("calcHomaNewMintAmount=======${res}");
     return CalcHomaMintAmountData.fromJson(res);
   }
 
   Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
       String address, double input, bool isByDex) async {
-    final Map res = await service.calcHomaRedeemAmount(address, input, isByDex);
+    // final Map res = await service.calcHomaRedeemAmount(address, input, isByDex);
+    final Map res = await service.calcHomaNewRedeemAmount(input);
+    print("calcHomaNewRedeemAmount=======${res}");
     return CalcHomaRedeemAmount.fromJson(res);
   }
 
   Future<dynamic> redeemRequested(String address) async {
     final dynamic res = await service.redeemRequested(address);
+    return res;
+  }
+
+  Future<dynamic> specVersion() async {
+    final dynamic res = await service.specVersion();
+    return res;
+  }
+
+  Future<dynamic> queryHomaNewEnv() async {
+    final dynamic res = await service.queryHomaNewEnv();
     return res;
   }
 }

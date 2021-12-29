@@ -37,6 +37,7 @@ class _MintPageState extends State<MintPage> {
   CalcHomaMintAmountData _data;
 
   Future<void> _updateReceiveAmount(double input) async {
+    print("_updateReceiveAmount===");
     if (mounted) {
       var data = await widget.plugin.api.homa.calcHomaMintAmount(input);
 

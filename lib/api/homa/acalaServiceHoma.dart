@@ -47,4 +47,37 @@ class AcalaServiceHoma {
         .evalJavascript('acala.queryRedeemRequest(api,"$address")');
     return res;
   }
+
+  Future<dynamic> specVersion() async {
+    final dynamic res = await plugin.sdk.webView
+        .evalJavascript('api.runtimeVersion.specVersion', wrapPromise: false);
+    return res;
+  }
+
+  Future<dynamic> queryHomaNewEnv() async {
+    final dynamic res =
+        await plugin.sdk.webView.evalJavascript('acala.queryHomaNewEnv(api)');
+    return res;
+  }
+
+  Future<Map> calcHomaNewMintAmount(double input) async {
+    print("calcHomaNewMintAmount====service");
+    final Map res = await plugin.sdk.webView
+        .evalJavascript('acala.calcHomaNewMintAmount(api, $input)');
+    print("calcHomaNewMintAmount====service===${res}");
+    return res;
+  }
+
+  Future<Map> calcHomaNewRedeemAmount(double input,
+      {bool isFastRedeem = false}) async {
+    final Map res = await plugin.sdk.webView.evalJavascript(
+        'acala.calcHomaNewRedeemAmount(api,$input,isFastRedeem:$isFastRedeem)');
+    return res;
+  }
+
+  Future<dynamic> queryHomaPendingRedeem(String address) async {
+    final dynamic res = await plugin.sdk.webView
+        .evalJavascript('acala.queryHomaPendingRedeem(api,"$address")');
+    return res;
+  }
 }
