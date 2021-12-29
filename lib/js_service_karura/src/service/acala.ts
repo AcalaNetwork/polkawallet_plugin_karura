@@ -6,9 +6,12 @@ import { existential_deposit, nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { WalletPromise } from "@acala-network/sdk-wallet";
 import { HomaLite } from "./homaLite";
+import { Homa } from "@acala-network/sdk";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
 import { HomaLiteMintResult, HomaLiteRedeemResult } from "./homaLite/types";
+import { lastValueFrom, of } from "rxjs";
+import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 
 const ONE = FixedPointNumber.ONE;
 const ACA_SYS_BLOCK_TIME = new BN(12000);
@@ -18,6 +21,7 @@ const native_token = "KAR";
 
 let walletPromise: WalletPromise;
 let homaApi: HomaLite;
+let homa: Homa;
 
 function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
   return ONE.minus(
@@ -724,6 +728,97 @@ async function queryRedeemRequest(api: ApiPromise, address: string) {
   return (data[0] || FixedPointNumber.ZERO).toNumber().toFixed(8);
 }
 
+function _formatHomaEnv(env: HomaEnvironment) {
+  return {
+    totalStaking: env.totalStaking.toNumber(),
+    totalLiquidity: env.totalLiquidity.toNumber(),
+    exchangeRate: env.exchangeRate.toNumber(),
+    apy: env.apy,
+    fastMatchFeeRate: env.fastMatchFeeRate.toNumber(),
+    mintThreshold: env.mintThreshold.toNumber(),
+    redeemThreshold: env.redeemThreshold.toNumber(),
+    stakingSoftCap: env.stakingSoftCap.toNumber(),
+  };
+}
+
+async function queryHomaNewEnv(api: ApiPromise) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+  if (!homa) {
+    const walletAdapter = {
+      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+    };
+    homa = new Homa(api, walletAdapter);
+  }
+
+  const result = await lastValueFrom(homa.subscribeEnv());
+  return _formatHomaEnv(result);
+}
+
+async function calcHomaNewMintAmount(api: ApiPromise, amount: number) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+  if (!homa) {
+    const walletAdapter = {
+      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+    };
+    homa = new Homa(api, walletAdapter);
+  }
+
+  const result = await lastValueFrom(homa.subscribeEstimateMintResult(new FixedPointNumber(amount, KSM_DECIMAL)));
+  return {
+    pay: result.pay.toNumber(),
+    receive: result.receive.toNumber(),
+    env: _formatHomaEnv(result.env),
+  };
+}
+
+async function calcHomaNewRedeemAmount(api: ApiPromise, amount: number, isFastRedeem: boolean) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+  if (!homa) {
+    const walletAdapter = {
+      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+    };
+    homa = new Homa(api, walletAdapter);
+  }
+
+  const result = await lastValueFrom(homa.subscribeEstimateRedeemResult(new FixedPointNumber(amount, KSM_DECIMAL), isFastRedeem));
+  return {
+    request: result.request.toNumber(),
+    receive: result.receive.toNumber(),
+    fee: result.fee.toNumber(),
+    env: _formatHomaEnv(result.env),
+  };
+}
+
+async function queryHomaPendingRedeem(api: ApiPromise, address: string) {
+  if (!walletPromise) {
+    walletPromise = new WalletPromise(api);
+  }
+  if (!homa) {
+    const walletAdapter = {
+      subscribeToken: (token: any) => of(Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, token))),
+    };
+    homa = new Homa(api, walletAdapter);
+  }
+
+  const result = await lastValueFrom(homa.subscribeUserLiquidTokenSummary(address));
+  return {
+    totalUnbonding: result.totalUnbonding.toNumber(),
+    claimable: result.claimable.toNumber(),
+    unbondings: result.unbondings.map((e) => ({ era: e.era, amount: e.amount.toNumber() })),
+    redeemRequest: {
+      amount: result.redeemRequest.amount.toNumber(),
+      fastRedeem: result.redeemRequest.fastRedeem,
+    },
+    currentRelayEra: result.currentRelayEra,
+  };
+}
+
 async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
   const data = await api.query.scheduler.agenda.entries();
 
@@ -780,6 +875,11 @@ export default {
   calcHomaMintAmount,
   calcHomaRedeemAmount,
   queryRedeemRequest,
+  // homa new
+  queryHomaNewEnv,
+  calcHomaNewMintAmount,
+  calcHomaNewRedeemAmount,
+  queryHomaPendingRedeem,
 
   queryDexIncentiveLoyaltyEndBlock,
 };
