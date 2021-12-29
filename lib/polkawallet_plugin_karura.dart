@@ -102,9 +102,7 @@ class PluginKarura extends PolkawalletPlugin {
 
   @override
   List<NetworkParams> get nodeList {
-    return _randomList(node_list)
-        .map((e) => NetworkParams.fromJson(e))
-        .toList();
+    return node_list.map((e) => NetworkParams.fromJson(e)).toList();
   }
 
   Map<String, Widget> _getTokenIcons() {
@@ -422,17 +420,5 @@ class PluginKarura extends PolkawalletPlugin {
       _api.assets.unsubscribeTokenBalances(acc.address);
       _subscribeTokenBalances(acc);
     }
-  }
-
-  List _randomList(List input) {
-    final data = input.toList();
-    final res = [];
-    final _random = Random();
-    for (var i = 0; i < input.length; i++) {
-      final item = data[_random.nextInt(data.length)];
-      res.add(item);
-      data.remove(item);
-    }
-    return res;
   }
 }
