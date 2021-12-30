@@ -4,6 +4,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
@@ -36,6 +37,8 @@ class HomaPage extends StatefulWidget {
 class _HomaPageState extends State<HomaPage> {
   Timer _timer;
   String _unlockingKsm;
+  HomaNewEnvData _homaNewEnvData;
+  int _specVersion;
 
   Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api.homa
@@ -52,8 +55,23 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   Future<void> _refreshAllData() async {
+    final specVersion = await widget.plugin.api.homa.specVersion();
     _refreshData();
-    _refreshRedeem();
+    if (specVersion > homa_specVersion) {
+      _refreshHomeNewData();
+    } else {
+      _refreshRedeem();
+    }
+    setState(() {
+      _specVersion = specVersion;
+    });
+  }
+
+  Future<void> _refreshHomeNewData() async {
+    final data = await widget.plugin.api.homa.queryHomaNewEnv();
+    setState(() {
+      _homaNewEnvData = data;
+    });
   }
 
   Future<void> _refreshData() async {
@@ -148,8 +166,12 @@ class _HomaPageState extends State<HomaPage> {
         final stakeSymbol = relay_chain_token_symbol;
 
         final poolInfo = widget.plugin.store.homa.poolInfo;
-        final staked = poolInfo.staked ?? BigInt.zero;
-        final cap = poolInfo.cap ?? BigInt.zero;
+        final staked = _homaNewEnvData != null
+            ? BigInt.from(_homaNewEnvData.totalStaking)
+            : poolInfo.staked ?? BigInt.zero;
+        final cap = _homaNewEnvData != null
+            ? BigInt.from(_homaNewEnvData.stakingSoftCap)
+            : poolInfo.cap ?? BigInt.zero;
         final amountLeft = cap - staked;
         final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
 
@@ -159,11 +181,14 @@ class _HomaPageState extends State<HomaPage> {
             Fmt.balanceDouble(balances[0].amount, balances[0].decimals);
         final balanceLiquidToken =
             Fmt.balanceDouble(balances[1].amount, balances[1].decimals);
-        final exchangeRate = staked > BigInt.zero
-            ? (liquidTokenIssuance / staked)
-            : Fmt.balanceDouble(
-                widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
-                acala_price_decimals);
+        final exchangeRate = _homaNewEnvData != null
+            ? 1 / _homaNewEnvData.exchangeRate
+            : staked > BigInt.zero
+                ? (liquidTokenIssuance / staked)
+                : Fmt.balanceDouble(
+                    widget.plugin.networkConst['homaLite']
+                        ['defaultExchangeRate'],
+                    acala_price_decimals);
 
         final List<charts.Series> seriesList = [
           new charts.Series<num, int>(
@@ -266,7 +291,12 @@ class _HomaPageState extends State<HomaPage> {
                                             style: TextStyle(fontSize: 12),
                                           ),
                                           Text(
-                                            Fmt.token(staked, nativeDecimal),
+                                            _homaNewEnvData != null
+                                                ? Fmt.doubleFormat(
+                                                    _homaNewEnvData
+                                                        .totalStaking)
+                                                : Fmt.token(
+                                                    staked, nativeDecimal),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4,
@@ -279,7 +309,12 @@ class _HomaPageState extends State<HomaPage> {
                                             ),
                                           ),
                                           Text(
-                                            Fmt.token(cap, nativeDecimal),
+                                            _homaNewEnvData != null
+                                                ? Fmt.doubleFormat(
+                                                    _homaNewEnvData
+                                                            .stakingSoftCap *
+                                                        1.0)
+                                                : Fmt.token(cap, nativeDecimal),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4,
@@ -301,13 +336,15 @@ class _HomaPageState extends State<HomaPage> {
                                           CrossAxisAlignment.center,
                                       title: dic['homa.pool.min'],
                                       content:
-                                          '> ${Fmt.token(minStake, nativeDecimal)}',
+                                          '> ${_homaNewEnvData != null ? _homaNewEnvData.mintThreshold : Fmt.token(minStake, nativeDecimal)}',
                                     ),
                                     InfoItem(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       title: 'APR',
-                                      content: '≈ 16%',
+                                      content: _homaNewEnvData != null
+                                          ? "≈ ${(_homaNewEnvData.apy * 100).toInt()}%"
+                                          : '≈ 16%',
                                     ),
                                   ],
                                 )
@@ -515,9 +552,11 @@ class _HomaPageState extends State<HomaPage> {
                                       ? () async {
                                           // if (!(await _confirmMint())) return;
 
-                                          Navigator.of(context)
-                                              .pushNamed(MintPage.route)
-                                              .then((value) {
+                                          Navigator.of(context).pushNamed(
+                                              MintPage.route,
+                                              arguments: {
+                                                "specVersion": _specVersion
+                                              }).then((value) {
                                             if (value != null) {
                                               _refreshAllData();
                                             }

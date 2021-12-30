@@ -1,9 +1,11 @@
 import 'package:polkawallet_plugin_karura/api/homa/acalaServiceHoma.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
+import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaRedeemAmountData.dart';
 import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'dart:convert';
 
 class AcalaApiHoma {
   AcalaApiHoma(this.service);
@@ -31,12 +33,14 @@ class AcalaApiHoma {
     return HomaRedeemAmountData.fromJson(res);
   }
 
-  Future<CalcHomaMintAmountData> calcHomaMintAmount(double input) async {
-    print("calcHomaMintAmount===");
-    // final Map res = await service.calcHomaMintAmount(input);
+  Future<Map> calcHomaMintAmount(double input) async {
+    final Map res = await service.calcHomaMintAmount(input);
+    return res;
+  }
+
+  Future<Map> calcHomaNewMintAmount(double input) async {
     final Map res = await service.calcHomaNewMintAmount(input);
-    print("calcHomaNewMintAmount=======${res}");
-    return CalcHomaMintAmountData.fromJson(res);
+    return res;
   }
 
   Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
@@ -54,11 +58,11 @@ class AcalaApiHoma {
 
   Future<dynamic> specVersion() async {
     final dynamic res = await service.specVersion();
-    return res;
+    return res['words'][0];
   }
 
-  Future<dynamic> queryHomaNewEnv() async {
+  Future<HomaNewEnvData> queryHomaNewEnv() async {
     final dynamic res = await service.queryHomaNewEnv();
-    return res;
+    return HomaNewEnvData.fromJson(res);
   }
 }

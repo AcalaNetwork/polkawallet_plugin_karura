@@ -36,16 +36,35 @@ class _MintPageState extends State<MintPage> {
   BigInt _maxInput;
   CalcHomaMintAmountData _data;
 
+  int _specVersion;
+
   Future<void> _updateReceiveAmount(double input) async {
-    print("_updateReceiveAmount===");
     if (mounted) {
-      var data = await widget.plugin.api.homa.calcHomaMintAmount(input);
+      var data = await (_specVersion > homa_specVersion
+          ? widget.plugin.api.homa.calcHomaNewMintAmount(input)
+          : widget.plugin.api.homa.calcHomaMintAmount(input));
 
       setState(() {
-        _amountReceive = data?.received ?? '';
-        _data = data;
+        _amountReceive =
+            "${_specVersion > homa_specVersion ? data['receive'] : data['received']}";
+        _data = _specVersion > homa_specVersion
+            ? CalcHomaMintAmountData("", "", null)
+            : CalcHomaMintAmountData.fromJson(data);
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // todo: fix this after new acala online
+      final data = ModalRoute.of(context).settings.arguments as Map;
+      setState(() {
+        _specVersion = data["specVersion"];
+      });
+    });
   }
 
   void _onSupplyAmountChange(String v, double balance, double minStake) {
@@ -135,7 +154,7 @@ class _MintPageState extends State<MintPage> {
     }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: 'homaLite',
+          module: _specVersion > 2011 ? 'homa' : 'homaLite',
           call: call,
           txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
           txDisplay: {},

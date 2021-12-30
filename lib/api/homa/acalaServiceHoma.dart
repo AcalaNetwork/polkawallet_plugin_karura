@@ -68,10 +68,12 @@ class AcalaServiceHoma {
     return res;
   }
 
-  Future<Map> calcHomaNewRedeemAmount(double input,
+  Future<dynamic> calcHomaNewRedeemAmount(double input,
       {bool isFastRedeem = false}) async {
-    final Map res = await plugin.sdk.webView.evalJavascript(
-        'acala.calcHomaNewRedeemAmount(api,$input,isFastRedeem:$isFastRedeem)');
+    print("calcHomaNewRedeemAmount====service");
+    final dynamic res = await plugin.sdk.webView.evalJavascript(
+        'acala.calcHomaNewRedeemAmount(api,$input,$isFastRedeem)');
+    print("calcHomaNewRedeemAmount====service===${res}");
     return res;
   }
 

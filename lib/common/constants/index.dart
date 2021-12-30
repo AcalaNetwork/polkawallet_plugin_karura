@@ -130,3 +130,5 @@ const cross_chain_icons = {
   para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
   para_chain_name_khala: '$image_assets_uri/tokens/PHA.png',
 };
+
+const homa_specVersion = 2011;
