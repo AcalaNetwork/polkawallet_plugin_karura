@@ -1,11 +1,9 @@
 import 'package:polkawallet_plugin_karura/api/homa/acalaServiceHoma.dart';
-import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
-import 'package:polkawallet_plugin_karura/api/types/homaRedeemAmountData.dart';
+import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
 import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'dart:convert';
 
 class AcalaApiHoma {
   AcalaApiHoma(this.service);
@@ -21,18 +19,6 @@ class AcalaApiHoma {
     );
   }
 
-  // Future<HomaUserInfoData> queryHomaUserInfo(String address) async {
-  //   final Map res = await service.queryHomaUserInfo(address);
-  //   return HomaUserInfoData.fromJson(Map<String, dynamic>.of(res));
-  // }
-
-  Future<HomaRedeemAmountData> queryHomaRedeemAmount(
-      double input, int redeemType, era) async {
-    final Map res = await service.queryHomaRedeemAmount(input, redeemType, era);
-    // final Map res = await service.queryHomaPendingRedeem(input, redeemType, era);
-    return HomaRedeemAmountData.fromJson(res);
-  }
-
   Future<Map> calcHomaMintAmount(double input) async {
     final Map res = await service.calcHomaMintAmount(input);
     return res;
@@ -45,10 +31,12 @@ class AcalaApiHoma {
 
   Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
       String address, double input, bool isByDex) async {
-    // final Map res = await service.calcHomaRedeemAmount(address, input, isByDex);
-    final Map res = await service.calcHomaNewRedeemAmount(input);
-    print("calcHomaNewRedeemAmount=======${res}");
+    final Map res = await service.calcHomaRedeemAmount(address, input, isByDex);
     return CalcHomaRedeemAmount.fromJson(res);
+  }
+
+  Future<Map> calcHomaNewRedeemAmount(double input, bool isFastRedeem) async {
+    return service.calcHomaNewRedeemAmount(input, isFastRedeem: isFastRedeem);
   }
 
   Future<dynamic> redeemRequested(String address) async {
@@ -56,13 +44,18 @@ class AcalaApiHoma {
     return res;
   }
 
-  Future<dynamic> specVersion() async {
-    final dynamic res = await service.specVersion();
-    return res['words'][0];
+  Future<int> specVersion() async {
+    final String res = await service.specVersion();
+    return int.tryParse(res);
   }
 
   Future<HomaNewEnvData> queryHomaNewEnv() async {
     final dynamic res = await service.queryHomaNewEnv();
     return HomaNewEnvData.fromJson(res);
+  }
+
+  Future<HomaPendingRedeemData> queryHomaPendingRedeem(String address) async {
+    final res = await service.queryHomaPendingRedeem(address);
+    return HomaPendingRedeemData.fromJson(res);
   }
 }

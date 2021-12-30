@@ -17,15 +17,9 @@ class AcalaServiceHoma {
     return res;
   }
 
-  // Future<Map> queryHomaUserInfo(String address) async {
-  //   final Map res = await plugin.sdk.webView
-  //       .evalJavascript('acala.fetchHomaUserInfo(api, "$address")');
-  //   return res;
-  // }
-
   Future<Map> queryHomaRedeemAmount(double input, int redeemType, era) async {
     final Map res = await plugin.sdk.webView.evalJavascript(
-        'acala.queryHomaRedeemAmount(api, $input, $redeemType, $era)');
+        'acala.calcHomaNewRedeemAmount(api, $input, $redeemType, $era)');
     return res;
   }
 
@@ -48,9 +42,10 @@ class AcalaServiceHoma {
     return res;
   }
 
-  Future<dynamic> specVersion() async {
-    final dynamic res = await plugin.sdk.webView
-        .evalJavascript('api.runtimeVersion.specVersion', wrapPromise: false);
+  Future<String> specVersion() async {
+    final String res = await plugin.sdk.webView.evalJavascript(
+        'api.runtimeVersion.specVersion.toString()',
+        wrapPromise: false);
     return res;
   }
 
@@ -61,24 +56,20 @@ class AcalaServiceHoma {
   }
 
   Future<Map> calcHomaNewMintAmount(double input) async {
-    print("calcHomaNewMintAmount====service");
     final Map res = await plugin.sdk.webView
         .evalJavascript('acala.calcHomaNewMintAmount(api, $input)');
-    print("calcHomaNewMintAmount====service===${res}");
     return res;
   }
 
-  Future<dynamic> calcHomaNewRedeemAmount(double input,
+  Future<Map> calcHomaNewRedeemAmount(double input,
       {bool isFastRedeem = false}) async {
-    print("calcHomaNewRedeemAmount====service");
-    final dynamic res = await plugin.sdk.webView.evalJavascript(
+    final Map res = await plugin.sdk.webView.evalJavascript(
         'acala.calcHomaNewRedeemAmount(api,$input,$isFastRedeem)');
-    print("calcHomaNewRedeemAmount====service===${res}");
     return res;
   }
 
-  Future<dynamic> queryHomaPendingRedeem(String address) async {
-    final dynamic res = await plugin.sdk.webView
+  Future<Map> queryHomaPendingRedeem(String address) async {
+    final Map res = await plugin.sdk.webView
         .evalJavascript('acala.queryHomaPendingRedeem(api,"$address")');
     return res;
   }

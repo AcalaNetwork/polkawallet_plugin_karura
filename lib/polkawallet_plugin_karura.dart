@@ -1,7 +1,5 @@
 library polkawallet_plugin_karura;
 
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -378,6 +376,7 @@ class PluginKarura extends PolkawalletPlugin {
       _store.swap.loadCache(acc.pubKey);
       _store.earn.setDexPoolInfo({}, reset: true);
       _store.earn.setBootstraps([]);
+      _store.homa.setUserInfo(null);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);

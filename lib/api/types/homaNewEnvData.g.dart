@@ -15,7 +15,8 @@ HomaNewEnvData _$HomaNewEnvDataFromJson(Map<String, dynamic> json) {
       json['fastMatchFeeRate'] as double,
       json['mintThreshold'] as double,
       json['redeemThreshold'] as double,
-      json['stakingSoftCap'] as int);
+      json['stakingSoftCap'] as int,
+      json['eraFrequency'] as int);
 }
 
 Map<String, dynamic> _$HomaNewEnvDataToJson(HomaNewEnvData instance) =>
@@ -27,5 +28,6 @@ Map<String, dynamic> _$HomaNewEnvDataToJson(HomaNewEnvData instance) =>
       'fastMatchFeeRate': instance.fastMatchFeeRate,
       'mintThreshold': instance.mintThreshold,
       'redeemThreshold': instance.redeemThreshold,
-      'stakingSoftCap': instance.stakingSoftCap
+      'stakingSoftCap': instance.stakingSoftCap,
+      'eraFrequency': instance.eraFrequency
     };

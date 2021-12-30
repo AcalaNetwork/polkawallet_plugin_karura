@@ -12,6 +12,7 @@ class HomaNewEnvData {
   double mintThreshold;
   double redeemThreshold;
   int stakingSoftCap;
+  int eraFrequency;
 
   HomaNewEnvData(
       this.totalStaking,
@@ -21,7 +22,8 @@ class HomaNewEnvData {
       this.fastMatchFeeRate,
       this.mintThreshold,
       this.redeemThreshold,
-      this.stakingSoftCap);
+      this.stakingSoftCap,
+      this.eraFrequency);
 
   factory HomaNewEnvData.fromJson(Map<String, dynamic> json) =>
       _$HomaNewEnvDataFromJson(json);

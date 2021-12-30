@@ -6,11 +6,11 @@ const node_list = [
   //   'ss58': ss58_prefix_karura,
   //   'endpoint': 'wss://pub.elara.patract.io/karura',
   // },
-  // {
-  //   'name': 'Karura (via Polkawallet)',
-  //   'ss58': ss58_prefix_karura,
-  //   'endpoint': 'wss://karura.polkawallet.io',
-  // },
+  {
+    'name': 'Karura (via Polkawallet)',
+    'ss58': ss58_prefix_karura,
+    'endpoint': 'wss://karura.polkawallet.io',
+  },
   // {
   //   'name': 'Karura (via Acala Foundation 0)',
   //   'ss58': ss58_prefix_karura,

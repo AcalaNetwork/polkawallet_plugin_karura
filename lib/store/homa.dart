@@ -1,6 +1,7 @@
 import 'package:mobx/mobx.dart';
+import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
+import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
 import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
-// import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 
 part 'homa.g.dart';
@@ -17,8 +18,24 @@ abstract class _HomaStore with Store {
   @observable
   HomaLitePoolInfoData poolInfo = HomaLitePoolInfoData();
 
+  @observable
+  HomaNewEnvData env;
+
+  @observable
+  HomaPendingRedeemData userInfo;
+
   @action
   void setHomaLitePoolInfoData(HomaLitePoolInfoData data) {
     poolInfo = data;
+  }
+
+  @action
+  void setHomaEnv(HomaNewEnvData data) {
+    env = data;
+  }
+
+  @action
+  void setUserInfo(HomaPendingRedeemData data) {
+    userInfo = data;
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swap/swapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -14,6 +15,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:polkawallet_ui/components/textTag.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
@@ -33,12 +35,14 @@ class RedeemPage extends StatefulWidget {
 class _RedeemPageState extends State<RedeemPage> {
   final TextEditingController _amountPayCtrl = new TextEditingController();
 
-  bool homaNow = false;
+  bool _isFastRedeem = false;
 
   String _error;
   BigInt _maxInput;
 
   CalcHomaRedeemAmount _data;
+  num _receiveAmount = 0;
+  num _fastFee = 0;
 
   List<String> symbols;
   final stakeToken = relay_chain_token_symbol;
@@ -50,7 +54,7 @@ class _RedeemPageState extends State<RedeemPage> {
   int stakeDecimal;
   double balanceDouble;
 
-  double minStake;
+  double minRedeem;
 
   Timer _timer;
 
@@ -69,19 +73,32 @@ class _RedeemPageState extends State<RedeemPage> {
     stakeDecimal = decimals[symbols.indexOf("L$stakeToken")];
     balanceDouble = Fmt.balanceDouble(balanceData.amount, stakeDecimal);
 
-    minStake = Fmt.balanceDouble(
-        widget.plugin.networkConst['homaLite']['minimumRedeemThreshold']
-            .toString(),
-        stakeDecimal);
+    minRedeem = widget.plugin.store.homa.env != null
+        ? widget.plugin.store.homa.env.redeemThreshold
+        : Fmt.balanceDouble(
+            widget.plugin.networkConst['homaLite']['minimumRedeemThreshold']
+                .toString(),
+            stakeDecimal);
   }
 
   Future<void> _updateReceiveAmount(double input) async {
-    if (mounted) {
-      var data = await widget.plugin.api.homa
-          .calcHomaRedeemAmount(widget.keyring.current.address, input, homaNow);
-      setState(() {
-        _data = data;
-      });
+    if (mounted && input != null) {
+      final runtimeVersion =
+          (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+      if (runtimeVersion > homa_specVersion) {
+        var data = await widget.plugin.api.homa
+            .calcHomaNewRedeemAmount(input, _isFastRedeem);
+        setState(() {
+          _receiveAmount = data['receive'];
+          _fastFee = data['fee'] ?? 0;
+        });
+      } else {
+        var data = await widget.plugin.api.homa.calcHomaRedeemAmount(
+            widget.keyring.current.address, input, _isFastRedeem);
+        setState(() {
+          _data = data;
+        });
+      }
     }
   }
 
@@ -102,7 +119,7 @@ class _RedeemPageState extends State<RedeemPage> {
     if (error != null) {
       return;
     }
-    _updateReceiveAmount(double.parse(supply));
+    _updateReceiveAmount(double.tryParse(supply));
   }
 
   String _validateInput(String supply) {
@@ -117,10 +134,14 @@ class _RedeemPageState extends State<RedeemPage> {
       return dic['amount.low'];
     }
 
-    if (pay <= minStake && !homaNow) {
+    final runtimeVersion =
+        (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+    if (pay <= minRedeem) {
+      if (runtimeVersion <= homa_specVersion && _isFastRedeem) return null;
+
       final minLabel = I18n.of(context)
           .getDic(i18n_full_dic_karura, 'acala')['homa.pool.redeem'];
-      return '$minLabel > ${minStake.toStringAsFixed(4)}';
+      return '$minLabel > ${minRedeem.toStringAsFixed(4)}';
     }
 
     final symbols = widget.plugin.networkState.tokenSymbol;
@@ -153,42 +174,56 @@ class _RedeemPageState extends State<RedeemPage> {
   Future<void> _onSubmit() async {
     final pay = _amountPayCtrl.text.trim();
 
-    if (_error != null || pay.isEmpty || _data == null) return;
+    if (_error != null || pay.isEmpty || (_data == null && _receiveAmount == 0))
+      return;
 
+    final runtimeVersion =
+        (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
-    var params = [_data.newRedeemBalance, 0];
-    var module = 'homaLite';
-    var call = 'requestRedeem';
     final txDisplay = {
       dic['dex.pay']: Text(
         '$pay L$stakeToken',
         style: Theme.of(context).textTheme.headline1,
       ),
       dic['dex.receive']: Text(
-        '≈ ${_data.expected} $stakeToken',
+        '≈ ${runtimeVersion > homa_specVersion ? Fmt.priceFloor(_receiveAmount) : Fmt.priceFloor(double.tryParse(_data.expected))} $stakeToken',
         style: Theme.of(context).textTheme.headline1,
       ),
     };
-    if (homaNow) {
-      module = 'dex';
-      call = 'swapWithExactSupply';
-      params = [
-        [
-          {'Token': 'L$stakeToken'},
-          {'Token': stakeToken}
-        ],
-        Fmt.tokenInt(pay, stakeDecimal).toString(),
-        "0",
-      ];
-    }
+
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: module,
-          call: call,
+          module: runtimeVersion > homa_specVersion
+              ? 'homa'
+              : _isFastRedeem
+                  ? 'dex'
+                  : 'homaLite',
+          call: runtimeVersion <= homa_specVersion && _isFastRedeem
+              ? 'swapWithExactSupply'
+              : 'requestRedeem',
           txTitle: dic['homa.redeem'],
+          txDisplay: _isFastRedeem
+              ? {
+                  dic['homa.fast']: '',
+                }
+              : {},
           txDisplayBold: txDisplay,
-          params: params,
+          params: runtimeVersion > homa_specVersion
+              ? [
+                  Fmt.tokenInt(pay, stakeDecimal).toString(),
+                  _isFastRedeem,
+                ]
+              : _isFastRedeem
+                  ? [
+                      [
+                        {'Token': 'L$stakeToken'},
+                        {'Token': stakeToken}
+                      ],
+                      Fmt.tokenInt(pay, stakeDecimal).toString(),
+                      "0",
+                    ]
+                  : [_data.newRedeemBalance, 0],
         ))) as Map;
 
     if (res != null) {
@@ -198,12 +233,12 @@ class _RedeemPageState extends State<RedeemPage> {
 
   void _switchActon(bool value) {
     setState(() {
-      homaNow = value;
+      _isFastRedeem = value;
     });
-    if (homaNow) {
+    if (_isFastRedeem) {
       if (_timer == null) {
         _timer = Timer.periodic(Duration(seconds: 20), (timer) {
-          _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
+          _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
         });
       }
     } else {
@@ -224,7 +259,7 @@ class _RedeemPageState extends State<RedeemPage> {
       if (error != null) {
         return;
       }
-      _updateReceiveAmount(double.parse(_amountPayCtrl.text.trim()));
+      _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
     }
   }
 
@@ -240,11 +275,17 @@ class _RedeemPageState extends State<RedeemPage> {
 
   @override
   Widget build(_) {
+    final runtimeVersion =
+        (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+
     final grey = Theme.of(context).unselectedWidgetColor;
     final labelStyle = TextStyle(color: grey, fontSize: 13);
     return Observer(
       builder: (BuildContext context) {
         final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+
+        final pendingRedeemReq =
+            (widget.plugin.store.homa.userInfo?.redeemRequest ?? {})['amount'];
 
         return Scaffold(
           appBar: AppBar(
@@ -261,6 +302,15 @@ class _RedeemPageState extends State<RedeemPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      Visibility(
+                          visible:
+                              pendingRedeemReq != null && pendingRedeemReq > 0,
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 8),
+                            child: TextTag(dic['homa.redeem.pending'] +
+                                '$pendingRedeemReq $relay_chain_token_symbol' +
+                                '\n${dic['homa.redeem.replace']}'),
+                          )),
                       SwapTokenInput(
                         title: dic['dex.pay'],
                         inputCtrl: _amountPayCtrl,
@@ -288,12 +338,12 @@ class _RedeemPageState extends State<RedeemPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(dic['homa.now'],
+                            Text(dic['homa.fast'],
                                 style: TextStyle(fontSize: 13)),
                             Container(
                               margin: EdgeInsets.only(left: 5),
                               child: CupertinoSwitch(
-                                value: homaNow,
+                                value: _isFastRedeem,
                                 onChanged: (res) => _switchActon(res),
                               ),
                             )
@@ -312,27 +362,29 @@ class _RedeemPageState extends State<RedeemPage> {
                         child: Column(
                           children: [
                             Visibility(
-                                visible: !homaNow,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(dic['homa.redeem.unbonding'],
-                                        style: labelStyle),
-                                    Text("10 ${dic['homa.redeem.day']}")
-                                  ],
-                                )),
+                              visible: !_isFastRedeem ||
+                                  runtimeVersion > homa_specVersion,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(dic['homa.redeem.unbonding'],
+                                      style: labelStyle),
+                                  Text("8 ${dic['homa.redeem.day']}")
+                                ],
+                              ),
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(dic['homa.redeem.receive'],
                                     style: labelStyle),
                                 Text(
-                                    "${_data != null ? _data.expected : 0} $stakeToken")
+                                    "${_data != null ? _data.expected : (_receiveAmount ?? 0)} $stakeToken")
                               ],
                             ),
                             Visibility(
-                                visible: homaNow,
+                                visible: _isFastRedeem,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -340,12 +392,40 @@ class _RedeemPageState extends State<RedeemPage> {
                                     Text(dic['homa.redeem.fee'],
                                         style: labelStyle),
                                     Text(
-                                        "${_data != null ? _data.fee : 0} $stakeToken")
+                                        "${_data != null ? _data.fee : (_fastFee ?? 0)} $stakeToken")
                                   ],
                                 )),
                           ],
                         ),
-                      )
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(dic['homa.now'],
+                                style: TextStyle(fontSize: 13)),
+                            GestureDetector(
+                              child: Container(
+                                padding: EdgeInsets.only(left: 5),
+                                child: Text(
+                                  'Swap',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontStyle: FontStyle.italic,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.popUntil(
+                                    context, ModalRoute.withName('/'));
+                                Navigator.of(context).pushNamed(SwapPage.route);
+                              },
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -24,6 +24,21 @@ mixin _$HomaStore on _HomaStore, Store {
     });
   }
 
+  final _$envAtom = Atom(name: '_HomaStore.env');
+
+  @override
+  HomaNewEnvData get env {
+    _$envAtom.reportRead();
+    return super.env;
+  }
+
+  @override
+  set env(HomaNewEnvData value) {
+    _$envAtom.reportWrite(value, super.env, () {
+      super.env = value;
+    });
+  }
+
   final _$_HomaStoreActionController = ActionController(name: '_HomaStore');
 
   @override
@@ -38,9 +53,21 @@ mixin _$HomaStore on _HomaStore, Store {
   }
 
   @override
+  void setHomaEnv(HomaNewEnvData data) {
+    final _$actionInfo =
+        _$_HomaStoreActionController.startAction(name: '_HomaStore.setHomaEnv');
+    try {
+      return super.setHomaEnv(data);
+    } finally {
+      _$_HomaStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-poolInfo: ${poolInfo}
+poolInfo: ${poolInfo},
+env: ${env},
     ''';
   }
 }

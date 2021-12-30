@@ -36,35 +36,22 @@ class _MintPageState extends State<MintPage> {
   BigInt _maxInput;
   CalcHomaMintAmountData _data;
 
-  int _specVersion;
-
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
-      var data = await (_specVersion > homa_specVersion
+      final runtimeVersion =
+          (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+      var data = await (runtimeVersion > homa_specVersion
           ? widget.plugin.api.homa.calcHomaNewMintAmount(input)
           : widget.plugin.api.homa.calcHomaMintAmount(input));
 
       setState(() {
         _amountReceive =
-            "${_specVersion > homa_specVersion ? data['receive'] : data['received']}";
-        _data = _specVersion > homa_specVersion
+            "${runtimeVersion > homa_specVersion ? data['receive'] : data['received']}";
+        _data = runtimeVersion > homa_specVersion
             ? CalcHomaMintAmountData("", "", null)
             : CalcHomaMintAmountData.fromJson(data);
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // todo: fix this after new acala online
-      final data = ModalRoute.of(context).settings.arguments as Map;
-      setState(() {
-        _specVersion = data["specVersion"];
-      });
-    });
   }
 
   void _onSupplyAmountChange(String v, double balance, double minStake) {
@@ -138,6 +125,9 @@ class _MintPageState extends State<MintPage> {
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
+    final runtimeVersion =
+        (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+
     final call = _data?.suggestRedeemRequests != null &&
             _data.suggestRedeemRequests.length > 0
         ? 'mintForRequests'
@@ -154,7 +144,7 @@ class _MintPageState extends State<MintPage> {
     }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: _specVersion > 2011 ? 'homa' : 'homaLite',
+          module: runtimeVersion > 2011 ? 'homa' : 'homaLite',
           call: call,
           txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
           txDisplay: {},
@@ -202,13 +192,17 @@ class _MintPageState extends State<MintPage> {
         final balanceDouble =
             Fmt.balanceDouble(balanceData.amount, stakeDecimal);
 
-        final minStake = Fmt.balanceDouble(
-                widget.plugin.networkConst['homaLite']['minimumMintThreshold']
-                    .toString(),
-                stakeDecimal) +
-            Fmt.balanceDouble(
-                widget.plugin.networkConst['homaLite']['mintFee'].toString(),
-                stakeDecimal);
+        final minStake = widget.plugin.store.homa.env != null
+            ? widget.plugin.store.homa.env.mintThreshold
+            : (Fmt.balanceDouble(
+                    widget
+                        .plugin.networkConst['homaLite']['minimumMintThreshold']
+                        .toString(),
+                    stakeDecimal) +
+                Fmt.balanceDouble(
+                    widget.plugin.networkConst['homaLite']['mintFee']
+                        .toString(),
+                    stakeDecimal));
 
         return Scaffold(
           appBar: AppBar(
