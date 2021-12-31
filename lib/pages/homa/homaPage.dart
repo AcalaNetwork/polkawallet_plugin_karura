@@ -358,6 +358,7 @@ class _HomaPageState extends State<HomaPage> {
                                   address: widget.keyring.current.address,
                                   bestNumber:
                                       widget.plugin.store.gov.bestNumber,
+                                  onClaimed: _refreshData,
                                 ),
                           RoundedCard(
                             margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
@@ -669,16 +670,18 @@ class _HomaUserInfoCard extends StatelessWidget {
     this.address,
     this.env,
     this.bestNumber,
+    this.onClaimed,
   });
 
   String address;
   HomaPendingRedeemData userInfo;
   HomaNewEnvData env;
   BigInt bestNumber;
+  Function() onClaimed;
 
-  void _claimRedeem(BuildContext context, num claimable) {
+  Future<void> _claimRedeem(BuildContext context, num claimable) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    Navigator.of(context).pushNamed(
+    final res = await Navigator.of(context).pushNamed(
       TxConfirmPage.route,
       arguments: TxConfirmParams(
         module: 'homa',
@@ -694,6 +697,9 @@ class _HomaUserInfoCard extends StatelessWidget {
         params: [address],
       ),
     );
+    if (res != null) {
+      onClaimed();
+    }
   }
 
   void _showUnbondings(BuildContext context, List unbundings) {
@@ -741,7 +747,10 @@ class _HomaUserInfoCard extends StatelessWidget {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
     final redeemRequest = double.parse(
         ((userInfo?.redeemRequest ?? {})['amount'] ?? 0).toString());
-    final double unbonding = (userInfo?.totalUnbonding ?? 0) - redeemRequest;
+    double unbonding = 0;
+    (userInfo?.unbondings ?? []).forEach((e) {
+      unbonding += e['amount'];
+    });
     final claimable = (userInfo?.claimable ?? 0).toDouble();
     final labelStyle = TextStyle(fontSize: 12);
     final contentStyle = TextStyle(
@@ -763,74 +772,78 @@ class _HomaUserInfoCard extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 24),
             child: Text(dic['homa.user.stats']),
           ),
-          Row(
-            children: [
-              InfoItem(
-                title:
-                    dic['homa.RedeemRequest'] + ' (L$relay_chain_token_symbol)',
-                content: Fmt.priceFloor(redeemRequest, lengthMax: 4),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                            dic['homa.unbonding'] +
-                                ' ($relay_chain_token_symbol)',
-                            style: labelStyle),
-                        Visibility(
-                          visible: unbonding > 0,
-                          child: GestureDetector(
-                            child: Text(
-                              I18n.of(context).getDic(
-                                  i18n_full_dic_karura, 'common')['detail'],
-                              style: linkStyle,
-                            ),
-                            onTap: () =>
-                                _showUnbondings(context, userInfo?.unbondings),
-                          ),
-                        )
-                      ],
-                    ),
-                    Text(
-                      Fmt.priceFloor(unbonding, lengthMax: 4),
-                      style: contentStyle,
-                    )
-                  ],
+          Container(
+            margin: EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                InfoItem(
+                  title: dic['homa.RedeemRequest'] +
+                      ' (L$relay_chain_token_symbol)',
+                  content: Fmt.priceFloor(redeemRequest, lengthMax: 4),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                            dic['homa.claimable'] +
-                                ' ($relay_chain_token_symbol)',
-                            style: labelStyle),
-                        Visibility(
-                          visible: claimable > 0,
-                          child: GestureDetector(
-                            child: Text(
-                              dic['homa.claim'],
-                              style: linkStyle,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              dic['homa.unbonding'] +
+                                  ' ($relay_chain_token_symbol)',
+                              style: labelStyle),
+                          Visibility(
+                            visible: userInfo?.unbondings != null &&
+                                ((userInfo?.unbondings?.length ?? 0) > 0),
+                            child: GestureDetector(
+                              child: Text(
+                                I18n.of(context).getDic(
+                                    i18n_full_dic_karura, 'common')['detail'],
+                                style: linkStyle,
+                              ),
+                              onTap: () => _showUnbondings(
+                                  context, userInfo?.unbondings),
                             ),
-                            onTap: () => _claimRedeem(context, claimable),
-                          ),
-                        )
-                      ],
-                    ),
-                    Text(
-                      Fmt.priceFloor(claimable, lengthMax: 4),
-                      style: contentStyle,
-                    )
-                  ],
+                          )
+                        ],
+                      ),
+                      Text(
+                        Fmt.priceFloor(unbonding, lengthMax: 4),
+                        style: contentStyle,
+                      )
+                    ],
+                  ),
                 ),
-              )
-            ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              dic['homa.claimable'] +
+                                  ' ($relay_chain_token_symbol)',
+                              style: labelStyle),
+                          Visibility(
+                            visible: claimable > 0,
+                            child: GestureDetector(
+                              child: Text(
+                                dic['homa.claim'],
+                                style: linkStyle,
+                              ),
+                              onTap: () => _claimRedeem(context, claimable),
+                            ),
+                          )
+                        ],
+                      ),
+                      Text(
+                        Fmt.priceFloor(claimable, lengthMax: 4),
+                        style: contentStyle,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           )
         ],
       ),
