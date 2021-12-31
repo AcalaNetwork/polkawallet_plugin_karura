@@ -85,9 +85,9 @@ class _RedeemPageState extends State<RedeemPage> {
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted && input != null) {
-      final runtimeVersion =
-          (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
-      if (runtimeVersion > homa_specVersion) {
+      final isHomaAlive =
+          (ModalRoute.of(context).settings.arguments as Map)['isHomaAlive'];
+      if (isHomaAlive) {
         final data = await widget.plugin.api.homa
             .calcHomaNewRedeemAmount(input, _isFastRedeem);
         final canFast = data['canTryFastReddem'] ?? false;
@@ -275,7 +275,7 @@ class _RedeemPageState extends State<RedeemPage> {
     String paramsRaw;
     if (_isFastRedeem) {
       if (_canFastRedeem) {
-        module = 'utils';
+        module = 'utility';
         call = 'batch';
         paramsRaw = '[['
             'api.tx.homa.requestRedeem(...${jsonEncode(params)}),'
@@ -322,19 +322,23 @@ class _RedeemPageState extends State<RedeemPage> {
     });
     if (_amountPayCtrl.text.trim().isEmpty) return;
 
-    _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
-    if (_isFastRedeem) {
-      if (_timer == null) {
-        _timer = Timer.periodic(Duration(seconds: 20), (timer) {
-          _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
-        });
-      }
+    if (_maxInput != null) {
+      _onSetMax(_maxInput);
     } else {
-      if (_timer != null) {
-        _timer.cancel();
-        _timer = null;
-      }
+      _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
     }
+    // if (_isFastRedeem) {
+    //   if (_timer == null) {
+    //     _timer = Timer.periodic(Duration(seconds: 20), (timer) {
+    //       _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
+    //     });
+    //   }
+    // } else {
+    //   if (_timer != null) {
+    //     _timer.cancel();
+    //     _timer = null;
+    //   }
+    // }
   }
 
   @override
@@ -349,8 +353,8 @@ class _RedeemPageState extends State<RedeemPage> {
 
   @override
   Widget build(_) {
-    final runtimeVersion =
-        (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+    final isHomaAlive =
+        (ModalRoute.of(context).settings.arguments as Map)['isHomaAlive'];
 
     final grey = Theme.of(context).unselectedWidgetColor;
     final labelStyle = TextStyle(color: grey, fontSize: 13);
@@ -361,6 +365,13 @@ class _RedeemPageState extends State<RedeemPage> {
         final pendingRedeemReq =
             (widget.plugin.store.homa.userInfo?.redeemRequest ?? {})['amount'];
 
+        final lTokenBalance =
+            widget.plugin.store.assets.tokenBalanceMap["L$stakeToken"];
+        int unbondEras = 28;
+        if (widget.plugin.networkConst['homa'] != null) {
+          unbondEras =
+              int.parse(widget.plugin.networkConst['homa']['bondingDuration']);
+        }
         return Scaffold(
           appBar: AppBar(
             title: Text('${dic['homa.redeem']} $stakeToken'),
@@ -377,19 +388,37 @@ class _RedeemPageState extends State<RedeemPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Visibility(
-                          visible:
-                              pendingRedeemReq != null && pendingRedeemReq > 0,
+                          visible: pendingRedeemReq != null &&
+                              pendingRedeemReq > 0 &&
+                              !_isFastRedeem,
                           child: Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: TextTag(dic['homa.redeem.pending'] +
-                                '$pendingRedeemReq $relay_chain_token_symbol' +
-                                '\n${dic['homa.redeem.replace']}'),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: TextTag(
+                                  dic['homa.redeem.pending'] +
+                                      ' $pendingRedeemReq L$relay_chain_token_symbol' +
+                                      '\n${dic['homa.redeem.replace']}',
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                ))
+                              ],
+                            ),
                           )),
                       SwapTokenInput(
                         title: dic['dex.pay'],
                         inputCtrl: _amountPayCtrl,
-                        balance: widget.plugin.store.assets
-                            .tokenBalanceMap["L$stakeToken"],
+                        balance: _isFastRedeem
+                            ? lTokenBalance
+                            : TokenBalanceData(
+                                symbol: lTokenBalance.symbol,
+                                amount: (Fmt.balanceInt(lTokenBalance.amount) +
+                                        Fmt.tokenInt(
+                                            (pendingRedeemReq ?? 0).toString(),
+                                            lTokenBalance.decimals))
+                                    .toString(),
+                                decimals: lTokenBalance.decimals),
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) => _onSupplyAmountChange(v),
                         onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,
@@ -436,15 +465,17 @@ class _RedeemPageState extends State<RedeemPage> {
                         child: Column(
                           children: [
                             Visibility(
-                              visible: !_isFastRedeem ||
-                                  runtimeVersion > homa_specVersion,
+                              visible: isHomaAlive
+                                  ? (!_isFastRedeem ||
+                                      (_isFastRedeem && _canFastRedeem))
+                                  : !_isFastRedeem,
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(dic['homa.redeem.unbonding'],
                                       style: labelStyle),
-                                  Text("8 ${dic['homa.redeem.day']}")
+                                  Text("$unbondEras Kusama Eras")
                                 ],
                               ),
                             ),
@@ -466,7 +497,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                     Text(dic['homa.redeem.fee'],
                                         style: labelStyle),
                                     Text(
-                                        "${_data != null ? _data.fee : (_fastFee ?? 0)} $stakeToken")
+                                        "${_data != null ? _data.fee : (_fastFee ?? 0)} L$stakeToken")
                                   ],
                                 )),
                           ],
@@ -479,9 +510,7 @@ class _RedeemPageState extends State<RedeemPage> {
                   padding: EdgeInsets.only(top: 24),
                   child: RoundedButton(
                     text: dic['homa.redeem'],
-                    onPressed: runtimeVersion > homa_specVersion
-                        ? _onSubmit
-                        : _submitRedeemOld,
+                    onPressed: isHomaAlive ? _onSubmit : _submitRedeemOld,
                   ),
                 )
               ],

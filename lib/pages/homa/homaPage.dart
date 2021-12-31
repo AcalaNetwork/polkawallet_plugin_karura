@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
@@ -39,7 +38,7 @@ class HomaPage extends StatefulWidget {
 class _HomaPageState extends State<HomaPage> {
   Timer _timer;
   String _unlockingKsm;
-  int _specVersion = homa_specVersion;
+  bool _isHomaAlive = false;
 
   Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api.homa
@@ -61,7 +60,7 @@ class _HomaPageState extends State<HomaPage> {
     widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
     widget.plugin.service.gov.updateBestNumber();
 
-    if (_specVersion > homa_specVersion) {
+    if (_isHomaAlive) {
       await widget.plugin.service.homa.queryHomaEnv();
       widget.plugin.service.homa.queryHomaPendingRedeem();
     } else {
@@ -133,9 +132,9 @@ class _HomaPageState extends State<HomaPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final specVersion = await widget.plugin.api.homa.specVersion();
+      final isHomaAlive = await widget.plugin.api.homa.isHomaAlive();
       setState(() {
-        _specVersion = specVersion;
+        _isHomaAlive = isHomaAlive;
       });
 
       _refreshData();
@@ -162,7 +161,7 @@ class _HomaPageState extends State<HomaPage> {
         final decimals = widget.plugin.networkState.tokenDecimals;
 
         final stakeSymbol = relay_chain_token_symbol;
-        final isOldVersion = _specVersion <= homa_specVersion;
+        final isOldVersion = !_isHomaAlive;
 
         final poolInfo = widget.plugin.store.homa.poolInfo;
         final env = widget.plugin.store.homa.env;
@@ -614,7 +613,7 @@ class _HomaPageState extends State<HomaPage> {
                                   ),
                                   onPressed: () => Navigator.of(context)
                                       .pushNamed(RedeemPage.route, arguments: {
-                                    "specVersion": _specVersion
+                                    "isHomaAlive": _isHomaAlive
                                   }).then((value) {
                                     if (value != null) {
                                       _refreshData();
@@ -640,7 +639,7 @@ class _HomaPageState extends State<HomaPage> {
                                           Navigator.of(context).pushNamed(
                                               MintPage.route,
                                               arguments: {
-                                                "specVersion": _specVersion
+                                                "isHomaAlive": _isHomaAlive
                                               }).then((value) {
                                             if (value != null) {
                                               _refreshData();
@@ -711,24 +710,25 @@ class _HomaUserInfoCard extends StatelessWidget {
           title: Text(dic['homa.unbonding']),
           message: Column(
             children: unbundings.map((e) {
-              final blocksLeft =
-                  (e['era'] as int) * env.eraFrequency - bestNumber.toInt();
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${Fmt.priceFloor(e['amount'], lengthMax: 4)} $relay_chain_token_symbol',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).unselectedWidgetColor),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 16),
-                    child:
-                        Text(Fmt.blockToTime(blocksLeft, BLOCK_TIME_DEFAULT)),
-                  )
-                ],
+              return Container(
+                margin: EdgeInsets.only(bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${Fmt.priceFloor(e['amount'], lengthMax: 4)} $relay_chain_token_symbol',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).unselectedWidgetColor),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(left: 16),
+                      child:
+                          Text('${(e['era'] - userInfo.currentRelayEra)} Eras'),
+                    )
+                  ],
+                ),
               );
             }).toList(),
           ),

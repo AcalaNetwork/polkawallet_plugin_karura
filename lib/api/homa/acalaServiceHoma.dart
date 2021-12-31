@@ -42,10 +42,9 @@ class AcalaServiceHoma {
     return res;
   }
 
-  Future<String> specVersion() async {
-    final String res = await plugin.sdk.webView.evalJavascript(
-        'api.runtimeVersion.specVersion.toString()',
-        wrapPromise: false);
+  Future<bool> isHomaAlive() async {
+    final bool res = await plugin.sdk.webView
+        .evalJavascript('!!api.consts.homa;', wrapPromise: false);
     return res;
   }
 

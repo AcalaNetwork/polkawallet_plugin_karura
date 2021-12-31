@@ -8,13 +8,13 @@ part of 'homaNewEnvData.dart';
 
 HomaNewEnvData _$HomaNewEnvDataFromJson(Map<String, dynamic> json) {
   return HomaNewEnvData(
-      json['totalStaking'] as double,
-      json['totalLiquidity'] as double,
-      json['exchangeRate'] as double,
-      json['apy'] as double,
-      json['fastMatchFeeRate'] as double,
-      json['mintThreshold'] as double,
-      json['redeemThreshold'] as double,
+      (json['totalStaking'] as num).toDouble(),
+      (json['totalLiquidity'] as num).toDouble(),
+      (json['exchangeRate'] as num).toDouble(),
+      (json['apy'] as num).toDouble(),
+      (json['fastMatchFeeRate'] as num).toDouble(),
+      (json['mintThreshold'] as num).toDouble(),
+      (json['redeemThreshold'] as num).toDouble(),
       json['stakingSoftCap'] as int,
       json['eraFrequency'] as int);
 }

@@ -91,19 +91,19 @@ const module_name_nft = 'nft';
 const config_modules = {
   module_name_assets: {
     'visible': true,
-    'enabled': false,
+    'enabled': true,
   },
   module_name_loan: {
     'visible': true,
-    'enabled': false,
+    'enabled': true,
   },
   module_name_swap: {
     'visible': true,
-    'enabled': false,
+    'enabled': true,
   },
   module_name_earn: {
     'visible': true,
-    'enabled': false,
+    'enabled': true,
   },
   module_name_homa: {
     'visible': true,
@@ -130,5 +130,3 @@ const cross_chain_icons = {
   para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
   para_chain_name_khala: '$image_assets_uri/tokens/PHA.png',
 };
-
-const homa_specVersion = 2011;

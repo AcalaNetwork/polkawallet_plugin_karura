@@ -44,9 +44,8 @@ class AcalaApiHoma {
     return res;
   }
 
-  Future<int> specVersion() async {
-    final String res = await service.specVersion();
-    return int.tryParse(res);
+  Future<bool> isHomaAlive() async {
+    return service.isHomaAlive();
   }
 
   Future<HomaNewEnvData> queryHomaNewEnv() async {

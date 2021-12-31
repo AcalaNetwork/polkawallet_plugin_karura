@@ -38,16 +38,15 @@ class _MintPageState extends State<MintPage> {
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
-      final runtimeVersion =
-          (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
-      var data = await (runtimeVersion > homa_specVersion
+      final isHomaAlive =
+          (ModalRoute.of(context).settings.arguments as Map)['isHomaAlive'];
+      var data = await (isHomaAlive
           ? widget.plugin.api.homa.calcHomaNewMintAmount(input)
           : widget.plugin.api.homa.calcHomaMintAmount(input));
 
       setState(() {
-        _amountReceive =
-            "${runtimeVersion > homa_specVersion ? data['receive'] : data['received']}";
-        _data = runtimeVersion > homa_specVersion
+        _amountReceive = "${isHomaAlive ? data['receive'] : data['received']}";
+        _data = isHomaAlive
             ? CalcHomaMintAmountData("", "", null)
             : CalcHomaMintAmountData.fromJson(data);
       });
@@ -125,8 +124,8 @@ class _MintPageState extends State<MintPage> {
 
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
 
-    final runtimeVersion =
-        (ModalRoute.of(context).settings.arguments as Map)['specVersion'];
+    final isHomaAlive =
+        (ModalRoute.of(context).settings.arguments as Map)['isHomaAlive'];
 
     final call = _data?.suggestRedeemRequests != null &&
             _data.suggestRedeemRequests.length > 0
@@ -144,7 +143,7 @@ class _MintPageState extends State<MintPage> {
     }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: runtimeVersion > 2011 ? 'homa' : 'homaLite',
+          module: isHomaAlive ? 'homa' : 'homaLite',
           call: call,
           txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
           txDisplay: {},
@@ -154,7 +153,7 @@ class _MintPageState extends State<MintPage> {
               style: Theme.of(context).textTheme.headline1,
             ),
             dic['dex.receive']: Text(
-              '≈ $_amountReceive L$relay_chain_token_symbol',
+              '≈ ${Fmt.priceFloor(double.tryParse(_amountReceive), lengthMax: 4)} L$relay_chain_token_symbol',
               style: Theme.of(context).textTheme.headline1,
             ),
           },
