@@ -5,6 +5,9 @@ class TxHomaData extends _TxHomaData {
   static const String actionRedeemed = 'Redeemed';
   static const String actionRedeem = 'RedeemRequest';
   static const String actionRedeemCancel = 'RedeemRequestCancelled';
+  static const String actionRedeemedByFastMatch = 'RedeemedByFastMatch';
+  static const String actionWithdrawRedemption = 'WithdrawRedemption';
+  static const String actionRedeemedByUnbond = 'RedeemedByUnbond';
 
   static TxHomaData fromJson(Map<String, dynamic> json) {
     TxHomaData data = TxHomaData();
@@ -25,8 +28,18 @@ class TxHomaData extends _TxHomaData {
         break;
       case actionRedeemed:
       case actionRedeemCancel:
+      case actionWithdrawRedemption:
         data.amountReceive =
             Fmt.balanceInt(json['data'][1]['value'].toString());
+        break;
+      case actionRedeemedByFastMatch:
+        data.amountPay = Fmt.balanceInt(json['data'][2]['value'].toString());
+        data.amountReceive =
+            Fmt.balanceInt(json['data'][3]['value'].toString());
+        break;
+      case actionRedeemedByUnbond:
+        data.amountReceive =
+            Fmt.balanceInt(json['data'][3]['value'].toString());
     }
 
     data.time = (json['timestamp'] as String).replaceAll(' ', '');
