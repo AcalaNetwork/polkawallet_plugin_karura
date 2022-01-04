@@ -1,3 +1,8 @@
+## [0.4.0] - 20220104
+- update homa module.
+- ui v3 update.
+- rebuild all token types.
+
 ## [0.3.8] - 20211208
 - bump polkawallet_sdk v0.3.8.
 - update js api data types.
