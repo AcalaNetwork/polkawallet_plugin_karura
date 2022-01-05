@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/walletApi.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -37,15 +38,9 @@ class ServiceAssets {
     });
 
     if (prices[relay_chain_token_symbol] != null) {
-      await plugin.service.homa.queryHomaLiteStakingPool();
-      final poolInfo = plugin.store.homa.poolInfo;
-      final exchangeRate = (poolInfo.staked ?? BigInt.zero) > BigInt.zero
-          ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
-          : Fmt.balanceDouble(
-              plugin.networkConst['homaLite']['defaultExchangeRate'],
-              acala_price_decimals);
+      final homaEnv = await plugin.service.homa.queryHomaEnv();
       prices['L$relay_chain_token_symbol'] =
-          prices[relay_chain_token_symbol] / exchangeRate;
+          prices[relay_chain_token_symbol] * homaEnv.exchangeRate;
     }
     if (tokens.contains(para_chain_token_symbol_bifrost) &&
         prices[para_chain_token_symbol_bifrost] == null) {
@@ -93,5 +88,23 @@ class ServiceAssets {
     final data =
         await plugin.api.assets.queryAggregatedAssets(keyring.current.address);
     plugin.store.assets.setAggregatedAssets(data, keyring.current.pubKey);
+  }
+
+  void calcLPTokenPrices() {
+    final Map<String, double> prices = {};
+    plugin.store.earn.dexPoolInfoMap.values.forEach((e) {
+      final pool = plugin.store.earn.dexPools
+          .firstWhere((i) => i.tokenNameId == e.tokenNameId);
+      final tokenPair = pool.tokens
+          .map((id) => AssetsUtils.tokenDataFromCurrencyId(plugin, id))
+          .toList();
+      prices[tokenPair.map((e) => e.symbol).join('-')] =
+          (Fmt.bigIntToDouble(e.amountLeft, tokenPair[0].decimals) *
+                      plugin.store.assets.marketPrices[tokenPair[0].symbol] +
+                  Fmt.bigIntToDouble(e.amountRight, tokenPair[1].decimals) *
+                      plugin.store.assets.marketPrices[tokenPair[1].symbol]) /
+              Fmt.bigIntToDouble(e.issuance, tokenPair[0].decimals);
+    });
+    plugin.store.assets.setMarketPrices(prices);
   }
 }

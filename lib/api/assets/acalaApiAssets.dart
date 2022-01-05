@@ -49,8 +49,10 @@ class AcalaApiAssets {
       }
     }
 
-    await service.plugin.service.assets.queryMarketPrices(
-        List<String>.from(tokens.map((e) => e.symbol).toList()));
+    /// update dexPoolInfo & homa env before balance query
+    /// so we can calculate price of LP Tokens.
+    await service.plugin.service.earn.updateAllDexPoolInfo();
+    service.plugin.service.assets.calcLPTokenPrices();
     _tokenBalances.clear();
 
     await service.subscribeTokenBalances(address, tokens, (Map data) {

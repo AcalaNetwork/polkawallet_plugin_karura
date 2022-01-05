@@ -1,7 +1,6 @@
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
-import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
@@ -18,23 +17,6 @@ class ServiceLoan {
   final Keyring keyring;
   final AcalaApi api;
   final PluginStore store;
-
-  void _calcLiquidTokenPriceOld(
-      Map<String, BigInt> prices, HomaLitePoolInfoData poolInfo) {
-    // LDOT price may lost precision here
-    final relayToken = relay_chain_token_symbol;
-    final exchangeRate = poolInfo.staked > BigInt.zero
-        ? (poolInfo.liquidTokenIssuance / poolInfo.staked)
-        : Fmt.balanceDouble(
-            plugin.networkConst['homaLite']['defaultExchangeRate'],
-            acala_price_decimals);
-    prices['L$relayToken'] = Fmt.tokenInt(
-        (Fmt.bigIntToDouble(
-                    prices[relayToken], plugin.networkState.tokenDecimals[0]) /
-                exchangeRate)
-            .toString(),
-        plugin.networkState.tokenDecimals[0]);
-  }
 
   void _calcLiquidTokenPrice(
       Map<String, BigInt> prices, HomaNewEnvData homaEnv) {
@@ -90,18 +72,8 @@ class ServiceLoan {
     // 1. subscribe all token prices, callback triggers per 5s.
     api.assets.subscribeTokenPrices((Map<String, BigInt> prices) async {
       // 2. we need homa staking pool info to calculate price of LDOT
-      if (await api.homa.isHomaAlive()) {
-        final homaEnv = await plugin.service.homa.queryHomaEnv();
-        _calcLiquidTokenPrice(prices, homaEnv);
-      } else {
-        final stakingPoolInfo =
-            await plugin.service.homa.queryHomaLiteStakingPool();
-        _calcLiquidTokenPriceOld(prices, stakingPoolInfo);
-      }
-
-      // we may not need ACA/KAR prices
-      // prices['ACA'] = Fmt.tokenInt(data[1].toString(), acala_price_decimals);
-
+      final homaEnv = await plugin.service.homa.queryHomaEnv();
+      _calcLiquidTokenPrice(prices, homaEnv);
       store.assets.setPrices(prices);
 
       // 3. update collateral incentive rewards

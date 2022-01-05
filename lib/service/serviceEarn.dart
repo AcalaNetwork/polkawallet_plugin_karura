@@ -1,7 +1,6 @@
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -89,35 +88,16 @@ class ServiceEarn {
         plugin.networkConst['dex']['getExchangeFee'][1];
   }
 
-  Future<void> updateDexPoolInfo({String poolId}) async {
-    // 1. query all dexPools
-    if (store.earn.dexPools.length == 0) {
-      await getDexPools();
-    }
-    // 2. default poolId is the first pool or KAR-kUSD
-    final tabNow = poolId ??
-        (store.earn.dexPools.length > 0
-            ? store.earn.dexPools[0].tokenNameId
-            : (plugin.basic.name == plugin_name_karura
-                ? 'lp://KAR/KUSD'
-                : 'lp://ACA/AUSD'));
-    // 3. query mining pool info
-    await Future.wait([
-      queryDexPoolInfo(),
-      plugin.service.assets.queryMarketPrices(
-          PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList())
-    ]);
-  }
-
   Future<void> updateAllDexPoolInfo() async {
     if (store.earn.dexPools.length == 0) {
       await getDexPools();
     }
 
-    plugin.service.assets.queryMarketPrices(
-        PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList());
-
-    await queryDexPoolInfo();
+    await Future.wait([
+      queryDexPoolInfo(),
+      plugin.service.assets.queryMarketPrices(
+          PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList())
+    ]);
 
     queryIncentives();
   }
