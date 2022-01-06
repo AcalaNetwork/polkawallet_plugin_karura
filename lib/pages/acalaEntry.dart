@@ -127,143 +127,143 @@ class _AcalaEntryState extends State<AcalaEntry> {
     //       )),
     // );
 
-    // return MetaHubPage(
-    //   pluginName: widget.plugin.basic.name,
-    //   metaItems: getMetaItems(),
-    // );
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    dic['karura'],
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).cardColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Expanded(
-              child: Observer(
-                builder: (_) {
-                  if (widget.plugin.sdk.api?.connectedNode == null) {
-                    return Column(children: [
-                      Container(
-                        height: 68,
-                        margin: EdgeInsets.only(bottom: 16),
-                        child: SvgPicture.asset(
-                            'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
-                            color: Colors.white70),
-                      ),
-                      Expanded(
-                          child: SkaletonList(
-                        items: _liveModuleRoutes.length,
-                      ))
-                    ]);
-                    // return Container(
-                    //   padding: EdgeInsets.only(
-                    //       top: MediaQuery.of(context).size.width / 2),
-                    //   child: Column(
-                    //     children: [
-                    //       CupertinoActivityIndicator(),
-                    //       Text(dic['node.connecting']),
-                    //     ],
-                    //   ),
-                    // );
-                  }
-                  final modulesConfig = widget.plugin.store.setting.liveModules;
-                  final List liveModules =
-                      modulesConfig.keys.toList().sublist(1);
-
-                  liveModules?.retainWhere((e) => modulesConfig[e]['visible']);
-
-                  return ListView(
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    children: <Widget>[
-                      Container(
-                        height: 68,
-                        margin: EdgeInsets.only(bottom: 16),
-                        child: SvgPicture.asset(
-                            'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
-                            color: Colors.white70),
-                      ),
-                      ...liveModules.map((e) {
-                        final enabled = modulesConfig[e]['enabled'];
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: 16),
-                          child: GestureDetector(
-                            child: EntryPageCard(
-                              dic['$e.title'],
-                              dic['$e.brief'],
-                              SvgPicture.asset(
-                                module_icons_uri[e],
-                                height: 88,
-                              ),
-                              color: Colors.transparent,
-                            ),
-                            onTap: () {
-                              if (enabled) {
-                                Navigator.of(context).pushNamed(
-                                    _liveModuleRoutes[e],
-                                    arguments: enabled);
-                              } else {
-                                showCupertinoDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return CupertinoAlertDialog(
-                                      title: Text(dic['upgrading']),
-                                      content: Text(dic['upgrading.context']),
-                                      actions: <Widget>[
-                                        CupertinoDialogAction(
-                                          child: Text(dic['upgrading.btn']),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                          ),
-                        );
-                      }).toList(),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 16),
-                        child: GestureDetector(
-                          child: EntryPageCard(
-                            dicGov['democracy'],
-                            dicGov['democracy.brief'],
-                            SvgPicture.asset(
-                              'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
-                              height: 88,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            color: Colors.transparent,
-                          ),
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(DemocracyPage.route),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            )
-          ],
-        ),
-      ),
+    return MetaHubPage(
+      pluginName: widget.plugin.basic.name,
+      metaItems: getMetaItems(),
     );
+
+    // return Scaffold(
+    //   backgroundColor: Colors.transparent,
+    //   body: SafeArea(
+    //     child: Column(
+    //       children: <Widget>[
+    //         Padding(
+    //           padding: EdgeInsets.all(16),
+    //           child: Row(
+    //             mainAxisAlignment: MainAxisAlignment.center,
+    //             children: <Widget>[
+    //               Text(
+    //                 dic['karura'],
+    //                 style: TextStyle(
+    //                   fontSize: 20,
+    //                   color: Theme.of(context).cardColor,
+    //                   fontWeight: FontWeight.w500,
+    //                 ),
+    //               )
+    //             ],
+    //           ),
+    //         ),
+    //         Expanded(
+    //           child: Observer(
+    //             builder: (_) {
+    //               if (widget.plugin.sdk.api?.connectedNode == null) {
+    //                 return Column(children: [
+    //                   Container(
+    //                     height: 68,
+    //                     margin: EdgeInsets.only(bottom: 16),
+    //                     child: SvgPicture.asset(
+    //                         'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
+    //                         color: Colors.white70),
+    //                   ),
+    //                   Expanded(
+    //                       child: SkaletonList(
+    //                     items: _liveModuleRoutes.length,
+    //                   ))
+    //                 ]);
+    //                 // return Container(
+    //                 //   padding: EdgeInsets.only(
+    //                 //       top: MediaQuery.of(context).size.width / 2),
+    //                 //   child: Column(
+    //                 //     children: [
+    //                 //       CupertinoActivityIndicator(),
+    //                 //       Text(dic['node.connecting']),
+    //                 //     ],
+    //                 //   ),
+    //                 // );
+    //               }
+    //               final modulesConfig = widget.plugin.store.setting.liveModules;
+    //               final List liveModules =
+    //                   modulesConfig.keys.toList().sublist(1);
+
+    //               liveModules?.retainWhere((e) => modulesConfig[e]['visible']);
+
+    //               return ListView(
+    //                 padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+    //                 children: <Widget>[
+    //                   Container(
+    //                     height: 68,
+    //                     margin: EdgeInsets.only(bottom: 16),
+    //                     child: SvgPicture.asset(
+    //                         'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
+    //                         color: Colors.white70),
+    //                   ),
+    //                   ...liveModules.map((e) {
+    //                     final enabled = modulesConfig[e]['enabled'];
+    //                     return Padding(
+    //                       padding: EdgeInsets.only(bottom: 16),
+    //                       child: GestureDetector(
+    //                         child: EntryPageCard(
+    //                           dic['$e.title'],
+    //                           dic['$e.brief'],
+    //                           SvgPicture.asset(
+    //                             module_icons_uri[e],
+    //                             height: 88,
+    //                           ),
+    //                           color: Colors.transparent,
+    //                         ),
+    //                         onTap: () {
+    //                           if (enabled) {
+    //                             Navigator.of(context).pushNamed(
+    //                                 _liveModuleRoutes[e],
+    //                                 arguments: enabled);
+    //                           } else {
+    //                             showCupertinoDialog(
+    //                               context: context,
+    //                               builder: (context) {
+    //                                 return CupertinoAlertDialog(
+    //                                   title: Text(dic['upgrading']),
+    //                                   content: Text(dic['upgrading.context']),
+    //                                   actions: <Widget>[
+    //                                     CupertinoDialogAction(
+    //                                       child: Text(dic['upgrading.btn']),
+    //                                       onPressed: () {
+    //                                         Navigator.of(context).pop();
+    //                                       },
+    //                                     ),
+    //                                   ],
+    //                                 );
+    //                               },
+    //                             );
+    //                           }
+    //                         },
+    //                       ),
+    //                     );
+    //                   }).toList(),
+    //                   Padding(
+    //                     padding: EdgeInsets.only(bottom: 16),
+    //                     child: GestureDetector(
+    //                       child: EntryPageCard(
+    //                         dicGov['democracy'],
+    //                         dicGov['democracy.brief'],
+    //                         SvgPicture.asset(
+    //                           'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
+    //                           height: 88,
+    //                           color: Theme.of(context).primaryColor,
+    //                         ),
+    //                         color: Colors.transparent,
+    //                       ),
+    //                       onTap: () => Navigator.of(context)
+    //                           .pushNamed(DemocracyPage.route),
+    //                     ),
+    //                   ),
+    //                 ],
+    //               );
+    //             },
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 }
