@@ -4,9 +4,6 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-// import 'package:flutter_mobx/flutter_mobx.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-// import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/gov/democracyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaPage.dart';
@@ -19,8 +16,6 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/SkaletonList.dart';
 import 'package:polkawallet_ui/components/entryPageCard.dart';
-// import 'package:polkawallet_ui/components/SkaletonList.dart';
-// import 'package:polkawallet_ui/components/entryPageCard.dart';
 import 'package:polkawallet_ui/components/v3/plugin/metaHubPage.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginItemCard.dart';
 

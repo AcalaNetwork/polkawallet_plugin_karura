@@ -73,7 +73,7 @@ class _RedeemPageState extends State<RedeemPage> {
     balanceData = widget.plugin.store.assets.tokenBalanceMap["L$stakeToken"];
 
     stakeDecimal = decimals[symbols.indexOf("L$stakeToken")];
-    balanceDouble = Fmt.balanceDouble(balanceData.amount, stakeDecimal);
+    balanceDouble = Fmt.balanceDouble(balanceData?.amount ?? "0", stakeDecimal);
 
     minRedeem = widget.plugin.store.homa.env != null
         ? widget.plugin.store.homa.env.redeemThreshold
@@ -400,13 +400,14 @@ class _RedeemPageState extends State<RedeemPage> {
                         balance: _isFastRedeem
                             ? lTokenBalance
                             : TokenBalanceData(
-                                symbol: lTokenBalance.symbol,
-                                amount: (Fmt.balanceInt(lTokenBalance.amount) +
+                                symbol: lTokenBalance?.symbol ?? "",
+                                amount: (Fmt.balanceInt(
+                                            lTokenBalance?.amount ?? "0") +
                                         Fmt.tokenInt(
                                             (pendingRedeemReq ?? 0).toString(),
-                                            lTokenBalance.decimals))
+                                            lTokenBalance?.decimals ?? 0))
                                     .toString(),
-                                decimals: lTokenBalance.decimals),
+                                decimals: lTokenBalance?.decimals ?? 0),
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) => _onSupplyAmountChange(v),
                         onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,

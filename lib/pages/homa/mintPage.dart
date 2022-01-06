@@ -189,7 +189,7 @@ class _MintPageState extends State<MintPage> {
 
         final stakeDecimal = decimals[symbols.indexOf(stakeToken)];
         final balanceDouble =
-            Fmt.balanceDouble(balanceData.amount, stakeDecimal);
+            Fmt.balanceDouble(balanceData?.amount ?? "0", stakeDecimal);
 
         final minStake = widget.plugin.store.homa.env != null
             ? widget.plugin.store.homa.env.mintThreshold

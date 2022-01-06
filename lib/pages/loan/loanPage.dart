@@ -644,15 +644,16 @@ class CollateralIncentiveList extends StatelessWidget {
                         active: false,
                         padding: EdgeInsets.only(top: 8, bottom: 8),
                         margin: EdgeInsets.only(right: 8),
-                        onPressed:
-                            loans[token.tokenNameId].collaterals > BigInt.zero
-                                ? () => Navigator.of(context).pushNamed(
-                                      LoanDepositPage.route,
-                                      arguments: LoanDepositPageParams(
-                                          LoanDepositPage.actionTypeWithdraw,
-                                          token),
-                                    )
-                                : null,
+                        onPressed: (loans[token.tokenNameId]?.collaterals ??
+                                    BigInt.zero) >
+                                BigInt.zero
+                            ? () => Navigator.of(context).pushNamed(
+                                  LoanDepositPage.route,
+                                  arguments: LoanDepositPageParams(
+                                      LoanDepositPage.actionTypeWithdraw,
+                                      token),
+                                )
+                            : null,
                       ),
                     ),
                     Expanded(
