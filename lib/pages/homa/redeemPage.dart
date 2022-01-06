@@ -168,7 +168,7 @@ class _RedeemPageState extends State<RedeemPage> {
       return dic['amount.low'];
     }
 
-    if (pay <= minRedeem && !_isFastRedeem) {
+    if (pay <= minRedeem) {
       final minLabel = I18n.of(context)
           .getDic(i18n_full_dic_karura, 'acala')['homa.pool.redeem'];
       return '$minLabel > ${minRedeem.toStringAsFixed(4)}';
@@ -312,7 +312,8 @@ class _RedeemPageState extends State<RedeemPage> {
     if (_maxInput != null) {
       _onSetMax(_maxInput);
     } else {
-      _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
+      _onSupplyAmountChange(_amountPayCtrl.text.trim());
+      // _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
     }
     // if (_isFastRedeem) {
     //   if (_timer == null) {
