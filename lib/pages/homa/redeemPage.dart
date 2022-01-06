@@ -174,23 +174,10 @@ class _RedeemPageState extends State<RedeemPage> {
       return '$minLabel > ${minRedeem.toStringAsFixed(4)}';
     }
 
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
-    final stakeDecimal = decimals[symbols.indexOf(relay_chain_token_symbol)];
-    final poolInfo = widget.plugin.store.homa.poolInfo;
-    if (Fmt.tokenInt(supply, stakeDecimal) + poolInfo.staked > poolInfo.cap) {
-      return I18n.of(context)
-          .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
-    }
     return error;
   }
 
   void _onSetMax(BigInt max) {
-    final poolInfo = widget.plugin.store.homa.poolInfo;
-    if (poolInfo.staked + max > poolInfo.cap) {
-      max = poolInfo.cap - poolInfo.staked;
-    }
-
     final amount = Fmt.bigIntToDouble(max, stakeDecimal);
     setState(() {
       _amountPayCtrl.text = amount.toStringAsFixed(6);

@@ -91,6 +91,9 @@ class HomaHistoryPage extends StatelessWidget {
                         '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeemed:
+                  case TxHomaData.actionRedeemedByFastMatch:
+                  case TxHomaData.actionRedeemedByUnbond:
+                  case TxHomaData.actionWithdrawRedemption:
                     amountTail =
                         '${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
                     break;

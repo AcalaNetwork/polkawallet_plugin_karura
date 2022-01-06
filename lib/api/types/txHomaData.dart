@@ -33,7 +33,7 @@ class TxHomaData extends _TxHomaData {
             Fmt.balanceInt(json['data'][1]['value'].toString());
         break;
       case actionRedeemedByFastMatch:
-        data.amountPay = Fmt.balanceInt(json['data'][2]['value'].toString());
+        data.amountPay = Fmt.balanceInt(json['data'][1]['value'].toString());
         data.amountReceive =
             Fmt.balanceInt(json['data'][3]['value'].toString());
         break;
