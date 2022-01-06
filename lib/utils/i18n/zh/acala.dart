@@ -127,6 +127,7 @@ const Map<String, String> zhDex = {
   'homa.mint': '生成',
   'homa.redeem': '提取',
   'homa.fast': '快速取回',
+  'homa.now': '或者你可以使用',
   'homa.era': '指定 Era',
   'homa.confirm': '确定',
   'homa.unbond': '等待 DOT 解锁',

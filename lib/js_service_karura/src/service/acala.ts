@@ -810,7 +810,7 @@ async function queryHomaPendingRedeem(api: ApiPromise, address: string) {
     claimable: result.claimable.toNumber(),
     unbondings: result.unbondings.map((e) => ({ era: e.era, amount: e.amount.toNumber() })),
     redeemRequest: {
-      amount: result.redeemRequest.amount.toNumber(),
+      amount: result.redeemRequest.amount.toChainData(),
       fastRedeem: result.redeemRequest.fastRedeem,
     },
     currentRelayEra: result.currentRelayEra,

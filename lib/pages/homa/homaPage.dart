@@ -357,6 +357,7 @@ class _HomaPageState extends State<HomaPage> {
                                   address: widget.keyring.current.address,
                                   bestNumber:
                                       widget.plugin.store.gov.bestNumber,
+                                  stakeTokenDecimals: balances[0].decimals,
                                   onClaimed: _refreshData,
                                 ),
                           RoundedCard(
@@ -669,6 +670,7 @@ class _HomaUserInfoCard extends StatelessWidget {
     this.address,
     this.env,
     this.bestNumber,
+    this.stakeTokenDecimals,
     this.onClaimed,
   });
 
@@ -676,6 +678,7 @@ class _HomaUserInfoCard extends StatelessWidget {
   HomaPendingRedeemData userInfo;
   HomaNewEnvData env;
   BigInt bestNumber;
+  int stakeTokenDecimals;
   Function() onClaimed;
 
   Future<void> _claimRedeem(BuildContext context, num claimable) async {
@@ -745,8 +748,8 @@ class _HomaUserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final redeemRequest = double.parse(
-        ((userInfo?.redeemRequest ?? {})['amount'] ?? 0).toString());
+    final redeemRequest = Fmt.balanceDouble(
+        (userInfo?.redeemRequest ?? {})['amount'] ?? '0', stakeTokenDecimals);
     double unbonding = 0;
     (userInfo?.unbondings ?? []).forEach((e) {
       unbonding += e['amount'];

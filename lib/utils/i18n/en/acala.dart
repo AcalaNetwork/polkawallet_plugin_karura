@@ -136,6 +136,7 @@ const Map<String, String> enDex = {
   'homa.mint': 'Mint',
   'homa.redeem': 'Redeem',
   'homa.fast': 'Fast Redeem',
+  'homa.now': 'or you can use the',
   'homa.era': 'Redeem in Era',
   'homa.confirm': 'Confirm',
   'homa.unbond': 'Wait for Unbounding',
