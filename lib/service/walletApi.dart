@@ -8,8 +8,8 @@ class WalletApi {
 
   static Future<Map> getLiveModules() async {
     try {
-      Response res = await get(Uri.parse(
-          'https://api.polkawallet.io/devConfiguration/config/modules.json'));
+      Response res =
+          await get(Uri.parse('$_configEndpoint/config/modules.json'));
       if (res == null) {
         return null;
       } else {
