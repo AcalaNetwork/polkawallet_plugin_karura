@@ -39,6 +39,7 @@ import 'package:polkawallet_plugin_karura/pages/loan/loanDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanTxDetailPage.dart';
+import 'package:polkawallet_plugin_karura/pages/newUIRoutes.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftBurnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftPage.dart';
@@ -317,6 +318,9 @@ class PluginKarura extends PolkawalletPlugin {
       DemocracyPage.route: (_) => DemocracyPage(this, keyring),
       ReferendumVotePage.route: (_) => ReferendumVotePage(this, keyring),
       ProposalDetailPage.route: (_) => ProposalDetailPage(this, keyring),
+
+      //new ui
+      ...getNewUiRoutes(this, keyring)
     };
   }
 

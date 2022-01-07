@@ -24,7 +24,6 @@ import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
-import 'package:rive/rive.dart';
 
 class HomaPage extends StatefulWidget {
   HomaPage(this.plugin, this.keyring);
@@ -165,632 +164,515 @@ class _HomaPageState extends State<HomaPage> {
 
   @override
   Widget build(_) {
-    return Observer(builder: (BuildContext context) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-      final stakeSymbol = relay_chain_token_symbol;
-      final symbols = widget.plugin.networkState.tokenSymbol;
-      final decimals = widget.plugin.networkState.tokenDecimals;
+    return Observer(
+      builder: (BuildContext context) {
+        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        final dicAssets =
+            I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+        final symbols = widget.plugin.networkState.tokenSymbol;
+        final decimals = widget.plugin.networkState.tokenDecimals;
 
-      final poolInfo = widget.plugin.store.homa.poolInfo;
-      final env = widget.plugin.store.homa.env;
-      final staked = env != null
-          ? BigInt.from(env.totalStaking)
-          : poolInfo.staked ?? BigInt.zero;
+        final stakeSymbol = relay_chain_token_symbol;
+        final isOldVersion = !_isHomaAlive;
 
-      final nativeDecimal = decimals[symbols.indexOf(stakeSymbol)];
+        final poolInfo = widget.plugin.store.homa.poolInfo;
+        final env = widget.plugin.store.homa.env;
+        final staked = env != null
+            ? BigInt.from(env.totalStaking)
+            : poolInfo.staked ?? BigInt.zero;
+        final cap = env != null
+            ? BigInt.from(env.stakingSoftCap)
+            : poolInfo.cap ?? BigInt.zero;
+        final amountLeft = cap - staked;
+        final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
 
-      final paddingHorizontal = 16.0;
-      final riveTop = 22.0;
-      final riveWidget =
-          MediaQuery.of(context).size.width - paddingHorizontal * 2;
-      final riveHeight = riveWidget / 360 * 292;
+        final balances = AssetsUtils.getBalancePairFromTokenNameId(
+            widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
+        final balanceStakeToken =
+            Fmt.balanceDouble(balances[0].amount, balances[0].decimals);
+        final balanceLiquidToken =
+            Fmt.balanceDouble(balances[1].amount, balances[1].decimals);
+        final exchangeRate = env != null
+            ? 1 / env.exchangeRate
+            : staked > BigInt.zero
+                ? ((poolInfo.liquidTokenIssuance ?? BigInt.zero) / staked)
+                : Fmt.balanceDouble(
+                    widget.plugin.networkConst['homaLite']
+                        ['defaultExchangeRate'],
+                    acala_price_decimals);
 
-      final aprValue = env != null
-          ? "${Fmt.priceFloor(env.apy * 100, lengthFixed: 0)}%"
-          : '20%';
-      final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          height: 0.9,
-          color: Colors.white);
+        final List<charts.Series> seriesList = [
+          new charts.Series<num, int>(
+            id: 'chartData',
+            domainFn: (_, i) => i,
+            colorFn: (_, i) => i == 0
+                ? charts.MaterialPalette.red.shadeDefault
+                : charts.MaterialPalette.gray.shade100,
+            measureFn: (num i, _) => i,
+            data: [
+              staked.toDouble(),
+              (amountLeft > BigInt.zero ? amountLeft : BigInt.zero).toDouble(),
+            ],
+          )
+        ];
 
-      return PluginScaffold(
-        appBar: PluginAppBar(
-          title: Text('${dic['homa.title']} $stakeSymbol'),
-        ),
-        body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            margin: EdgeInsets.only(top: 20),
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
-            child: Stack(
-              children: [
-                Container(
-                    width: double.infinity,
-                    height: riveHeight,
-                    margin: EdgeInsets.only(top: riveTop),
-                    child: RiveAnimation.asset(
-                      'packages/polkawallet_plugin_karura/assets/images/new_file.riv',
-                      animations: const [
-                        'Animation 1',
-                        'Animation 2',
-                        'Animation 3',
-                        'Animation 4'
-                      ],
-                    )),
-                Row(
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                      child: Text(
-                        dic['homa.pool.bonded'],
-                        style: Theme.of(context)
-                            .appBarTheme
-                            .titleTextStyle
-                            ?.copyWith(fontSize: 16, color: Color(0xFF292929)),
+        final nativeDecimal = decimals[symbols.indexOf(stakeSymbol)];
+
+        final minStake = env != null
+            ? env.mintThreshold
+            : (Fmt.balanceInt(widget
+                    .plugin.networkConst['homaLite']['minimumMintThreshold']
+                    .toString()) +
+                Fmt.balanceInt(widget.plugin.networkConst['homaLite']['mintFee']
+                    .toString()));
+
+        final primary = Theme.of(context).primaryColor;
+        final white = Theme.of(context).cardColor;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('${dic['homa.title']} $stakeSymbol'),
+            centerTitle: true,
+            elevation: 0.0,
+            leading: BackBtn(),
+            actions: [
+              Container(
+                margin: EdgeInsets.only(right: 16),
+                child: v3.IconButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
+                  icon: Icon(Icons.history, size: 18),
+                  isBlueBg: true,
+                ),
+              )
+            ],
+          ),
+          body: Stack(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 180,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [primary, white],
+                  stops: [0.4, 0.9],
+                )),
+              ),
+              SafeArea(
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: ListView(
+                        children: <Widget>[
+                          RoundedCard(
+                            margin: EdgeInsets.all(16),
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              children: <Widget>[
+                                Text('$stakeSymbol ${dic['homa.pool']}'),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Stack(
+                                        alignment: AlignmentDirectional.center,
+                                        children: [
+                                          Container(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            child: charts.PieChart(seriesList,
+                                                animate: false,
+                                                defaultRenderer: new charts
+                                                        .ArcRendererConfig(
+                                                    arcWidth: 10)),
+                                          ),
+                                          TokenIcon(stakeSymbol,
+                                              widget.plugin.tokenIcons),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            dic['homa.pool.bonded'],
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                          Text(
+                                            env != null
+                                                ? Fmt.doubleFormat(
+                                                    env.totalStaking)
+                                                : Fmt.token(
+                                                    staked, nativeDecimal),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4,
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(top: 8),
+                                            child: Text(
+                                              dic['homa.pool.cap'],
+                                              style: TextStyle(fontSize: 12),
+                                            ),
+                                          ),
+                                          Text(
+                                            env != null
+                                                ? Fmt.doubleFormat(
+                                                    env.stakingSoftCap * 1.0)
+                                                : Fmt.token(cap, nativeDecimal),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '1 KSM ≈ ${Fmt.priceFloor(exchangeRate, lengthMax: 4)} LKSM',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                                Divider(height: 24),
+                                Row(
+                                  children: <Widget>[
+                                    InfoItem(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      title: dic['homa.pool.min'],
+                                      content:
+                                          '> ${env != null ? env.mintThreshold : Fmt.token(minStake, nativeDecimal)}',
+                                    ),
+                                    InfoItem(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      title: 'APR',
+                                      content: env != null
+                                          ? "≈ ${Fmt.priceFloor(env.apy * 100)}%"
+                                          : '≈ 20%',
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          isOldVersion
+                              ? Container()
+                              : _HomaUserInfoCard(
+                                  env: widget.plugin.store.homa.env,
+                                  userInfo: widget.plugin.store.homa.userInfo,
+                                  address: widget.keyring.current.address,
+                                  bestNumber:
+                                      widget.plugin.store.gov.bestNumber,
+                                  stakeTokenDecimals: balances[0].decimals,
+                                  onClaimed: _refreshData,
+                                ),
+                          RoundedCard(
+                            margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
+                            padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 24),
+                                  child: Text(isOldVersion
+                                      ? dic['homa.user.stats']
+                                      : 'KSM/LKSM ${dicAssets['balance']}'),
+                                ),
+                                isOldVersion
+                                    ? Visibility(
+                                        visible: _unlockingKsm != null &&
+                                            double.tryParse(
+                                                    _unlockingKsm ?? '0') !=
+                                                0,
+                                        child: Column(children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Container(
+                                                padding:
+                                                    EdgeInsets.only(left: 50),
+                                                child: Text(
+                                                  dic['homa.user.unlocking'],
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Row(
+                                                children: [
+                                                  Container(
+                                                    margin: EdgeInsets.only(
+                                                        right: 8),
+                                                    child: TokenIcon(
+                                                        stakeSymbol,
+                                                        widget
+                                                            .plugin.tokenIcons),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            '${Fmt.priceFloor(double.tryParse(_unlockingKsm ?? '0'), lengthMax: 4)}',
+                                                            style: TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .unselectedWidgetColor,
+                                                            ),
+                                                          ),
+                                                          GestureDetector(
+                                                            child: Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            4),
+                                                                child: Text(
+                                                                  dic['homa.redeem.cancel'],
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .italic,
+                                                                    decoration:
+                                                                        TextDecoration
+                                                                            .underline,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .primaryColor,
+                                                                  ),
+                                                                )),
+                                                            onTap:
+                                                                _onCancelRedeem,
+                                                          )
+                                                        ],
+                                                      ),
+                                                      Text(
+                                                          '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(_unlockingKsm ?? '0'), lengthMax: 2)}',
+                                                          style: TextStyle(
+                                                              fontSize: 12)),
+                                                    ],
+                                                  )
+                                                ],
+                                              ))
+                                            ],
+                                          ),
+                                          Container(
+                                            child: Divider(height: 24),
+                                          )
+                                        ]))
+                                    : Container(),
+                                isOldVersion
+                                    ? Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Container(
+                                                padding:
+                                                    EdgeInsets.only(left: 50),
+                                                child: Text(
+                                                  dic['homa.user.ksm'],
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Row(
+                                                children: [
+                                                  Container(
+                                                    margin: EdgeInsets.only(
+                                                        right: 8),
+                                                    child: TokenIcon(
+                                                        stakeSymbol,
+                                                        widget
+                                                            .plugin.tokenIcons),
+                                                  ),
+                                                  InfoItem(
+                                                    title:
+                                                        '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                                    content: Fmt.priceFloor(
+                                                        balanceStakeToken,
+                                                        lengthMax: 4),
+                                                    lowTitle: true,
+                                                  ),
+                                                ],
+                                              ))
+                                            ],
+                                          ),
+                                          Container(
+                                            child: Divider(height: 24),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Container(
+                                                padding:
+                                                    EdgeInsets.only(left: 50),
+                                                child: Text(
+                                                  dic['homa.user.lksm'],
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    margin: EdgeInsets.only(
+                                                        right: 8),
+                                                    child: TokenIcon(
+                                                        'L$stakeSymbol',
+                                                        widget
+                                                            .plugin.tokenIcons),
+                                                  ),
+                                                  InfoItem(
+                                                    title:
+                                                        '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                                    content: Fmt.priceFloor(
+                                                        balanceLiquidToken,
+                                                        lengthMax: 4),
+                                                    lowTitle: true,
+                                                  ),
+                                                ],
+                                              ))
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          Expanded(
+                                              child: Row(
+                                            children: [
+                                              Container(
+                                                margin:
+                                                    EdgeInsets.only(right: 8),
+                                                child: TokenIcon(stakeSymbol,
+                                                    widget.plugin.tokenIcons),
+                                              ),
+                                              InfoItem(
+                                                title:
+                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                                content: Fmt.priceFloor(
+                                                    balanceStakeToken,
+                                                    lengthMax: 4),
+                                                lowTitle: true,
+                                              ),
+                                            ],
+                                          )),
+                                          Expanded(
+                                              child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                margin:
+                                                    EdgeInsets.only(right: 8),
+                                                child: TokenIcon(
+                                                    'L$stakeSymbol',
+                                                    widget.plugin.tokenIcons),
+                                              ),
+                                              InfoItem(
+                                                title:
+                                                    '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                                content: Fmt.priceFloor(
+                                                    balanceLiquidToken,
+                                                    lengthMax: 4),
+                                                lowTitle: true,
+                                              ),
+                                            ],
+                                          ))
+                                        ],
+                                      )
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Container(
-                      color: Color(0x33FFFFFF),
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                      child: Text(
-                        env != null
-                            ? Fmt.doubleFormat(env.totalStaking)
-                            : Fmt.token(staked, nativeDecimal),
-                        style: Theme.of(context)
-                            .appBarTheme
-                            .titleTextStyle
-                            ?.copyWith(fontSize: 16, color: Colors.white),
-                      ),
-                    ),
-                    Container(
-                      color: Color(0xFFFC8156),
-                      height: 28,
-                      width: 3,
-                      margin: EdgeInsets.symmetric(horizontal: 3),
-                    ),
-                    Container(color: Color(0x7fFC8156), height: 28, width: 3)
+                    Visibility(
+                        visible: liquidTokenIssuance >= BigInt.zero,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                color: primary,
+                                child: TextButton(
+                                  child: Text(
+                                    '${dic['homa.redeem']} $stakeSymbol',
+                                    style: TextStyle(color: white),
+                                  ),
+                                  onPressed: () => Navigator.of(context)
+                                      .pushNamed(RedeemPage.route, arguments: {
+                                    "isHomaAlive": _isHomaAlive
+                                  }).then((value) {
+                                    if (value != null) {
+                                      _refreshData();
+                                    }
+                                  }),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                color: staked < cap
+                                    ? Theme.of(context).accentColor
+                                    : Theme.of(context).disabledColor,
+                                child: TextButton(
+                                  child: Text(
+                                    '${dic['homa.mint']} L$stakeSymbol',
+                                    style: TextStyle(color: white),
+                                  ),
+                                  onPressed: staked < cap
+                                      ? () async {
+                                          // if (!(await _confirmMint())) return;
+
+                                          Navigator.of(context).pushNamed(
+                                              MintPage.route,
+                                              arguments: {
+                                                "isHomaAlive": _isHomaAlive
+                                              }).then((value) {
+                                            if (value != null) {
+                                              _refreshData();
+                                            }
+                                          });
+                                        }
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
                   ],
                 ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                      margin: EdgeInsets.only(
-                          top: riveTop + riveHeight * 0.17,
-                          right: paddingHorizontal +
-                              riveWidget * 0.195 -
-                              boundingTextSize(aprValue, aprStyle).width / 2),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'APR',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                ?.copyWith(color: Colors.white),
-                          ),
-                          Text(
-                            aprValue,
-                            style: aprStyle,
-                          )
-                        ],
-                      )),
-                )
-              ],
-            )),
-      );
-    });
-    // return Observer(
-    //   builder: (BuildContext context) {
-    //     final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    //     final dicAssets =
-    //         I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    //     final symbols = widget.plugin.networkState.tokenSymbol;
-    //     final decimals = widget.plugin.networkState.tokenDecimals;
-
-    //     final stakeSymbol = relay_chain_token_symbol;
-    //     final isOldVersion = !_isHomaAlive;
-
-    //     final poolInfo = widget.plugin.store.homa.poolInfo;
-    //     final env = widget.plugin.store.homa.env;
-    //     final staked = env != null
-    //         ? BigInt.from(env.totalStaking)
-    //         : poolInfo.staked ?? BigInt.zero;
-    //     final cap = env != null
-    //         ? BigInt.from(env.stakingSoftCap)
-    //         : poolInfo.cap ?? BigInt.zero;
-    //     final amountLeft = cap - staked;
-    //     final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
-
-    //     final balances = AssetsUtils.getBalancePairFromTokenNameId(
-    //         widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
-    //     final balanceStakeToken =
-    //         Fmt.balanceDouble(balances[0].amount, balances[0].decimals);
-    //     final balanceLiquidToken =
-    //         Fmt.balanceDouble(balances[1].amount, balances[1].decimals);
-    //     final exchangeRate = env != null
-    //         ? 1 / env.exchangeRate
-    //         : staked > BigInt.zero
-    //             ? ((poolInfo.liquidTokenIssuance ?? BigInt.zero) / staked)
-    //             : Fmt.balanceDouble(
-    //                 widget.plugin.networkConst['homaLite']
-    //                     ['defaultExchangeRate'],
-    //                 acala_price_decimals);
-
-    //     final List<charts.Series> seriesList = [
-    //       new charts.Series<num, int>(
-    //         id: 'chartData',
-    //         domainFn: (_, i) => i,
-    //         colorFn: (_, i) => i == 0
-    //             ? charts.MaterialPalette.red.shadeDefault
-    //             : charts.MaterialPalette.gray.shade100,
-    //         measureFn: (num i, _) => i,
-    //         data: [
-    //           staked.toDouble(),
-    //           (amountLeft > BigInt.zero ? amountLeft : BigInt.zero).toDouble(),
-    //         ],
-    //       )
-    //     ];
-
-    //     final nativeDecimal = decimals[symbols.indexOf(stakeSymbol)];
-
-    //     final minStake = env != null
-    //         ? env.mintThreshold
-    //         : (Fmt.balanceInt(widget
-    //                 .plugin.networkConst['homaLite']['minimumMintThreshold']
-    //                 .toString()) +
-    //             Fmt.balanceInt(widget.plugin.networkConst['homaLite']['mintFee']
-    //                 .toString()));
-
-    //     final primary = Theme.of(context).primaryColor;
-    //     final white = Theme.of(context).cardColor;
-
-    //     return Scaffold(
-    //       appBar: AppBar(
-    //         title: Text('${dic['homa.title']} $stakeSymbol'),
-    //         centerTitle: true,
-    //         elevation: 0.0,
-    //         leading: BackBtn(),
-    //         actions: [
-    //           Container(
-    //             margin: EdgeInsets.only(right: 16),
-    //             child: v3.IconButton(
-    //               onPressed: () =>
-    //                   Navigator.of(context).pushNamed(HomaHistoryPage.route),
-    //               icon: Icon(Icons.history, size: 18),
-    //               isBlueBg: true,
-    //             ),
-    //           )
-    //         ],
-    //       ),
-    //       body: Stack(
-    //         children: [
-    //           Container(
-    //             width: MediaQuery.of(context).size.width,
-    //             height: 180,
-    //             decoration: BoxDecoration(
-    //                 gradient: LinearGradient(
-    //               begin: Alignment.topCenter,
-    //               end: Alignment.bottomCenter,
-    //               colors: [primary, white],
-    //               stops: [0.4, 0.9],
-    //             )),
-    //           ),
-    //           SafeArea(
-    //             child: Column(
-    //               children: <Widget>[
-    //                 Expanded(
-    //                   child: ListView(
-    //                     children: <Widget>[
-    //                       RoundedCard(
-    //                         margin: EdgeInsets.all(16),
-    //                         padding: EdgeInsets.all(16),
-    //                         child: Column(
-    //                           children: <Widget>[
-    //                             Text('$stakeSymbol ${dic['homa.pool']}'),
-    //                             Row(
-    //                               children: [
-    //                                 Expanded(
-    //                                   child: Stack(
-    //                                     alignment: AlignmentDirectional.center,
-    //                                     children: [
-    //                                       Container(
-    //                                         height: MediaQuery.of(context)
-    //                                                 .size
-    //                                                 .width /
-    //                                             3,
-    //                                         child: charts.PieChart(seriesList,
-    //                                             animate: false,
-    //                                             defaultRenderer: new charts
-    //                                                     .ArcRendererConfig(
-    //                                                 arcWidth: 10)),
-    //                                       ),
-    //                                       TokenIcon(stakeSymbol,
-    //                                           widget.plugin.tokenIcons),
-    //                                     ],
-    //                                   ),
-    //                                 ),
-    //                                 Expanded(
-    //                                   child: Column(
-    //                                     crossAxisAlignment:
-    //                                         CrossAxisAlignment.start,
-    //                                     children: [
-    //                                       Text(
-    //                                         dic['homa.pool.bonded'],
-    //                                         style: TextStyle(fontSize: 12),
-    //                                       ),
-    //                                       Text(
-    //                                         env != null
-    //                                             ? Fmt.doubleFormat(
-    //                                                 env.totalStaking)
-    //                                             : Fmt.token(
-    //                                                 staked, nativeDecimal),
-    //                                         style: Theme.of(context)
-    //                                             .textTheme
-    //                                             .headline4,
-    //                                       ),
-    //                                       Container(
-    //                                         margin: EdgeInsets.only(top: 8),
-    //                                         child: Text(
-    //                                           dic['homa.pool.cap'],
-    //                                           style: TextStyle(fontSize: 12),
-    //                                         ),
-    //                                       ),
-    //                                       Text(
-    //                                         env != null
-    //                                             ? Fmt.doubleFormat(
-    //                                                 env.stakingSoftCap * 1.0)
-    //                                             : Fmt.token(cap, nativeDecimal),
-    //                                         style: Theme.of(context)
-    //                                             .textTheme
-    //                                             .headline4,
-    //                                       ),
-    //                                     ],
-    //                                   ),
-    //                                 ),
-    //                               ],
-    //                             ),
-    //                             Text(
-    //                               '1 KSM ≈ ${Fmt.priceFloor(exchangeRate, lengthMax: 4)} LKSM',
-    //                               style: TextStyle(fontSize: 12),
-    //                             ),
-    //                             Divider(height: 24),
-    //                             Row(
-    //                               children: <Widget>[
-    //                                 InfoItem(
-    //                                   crossAxisAlignment:
-    //                                       CrossAxisAlignment.center,
-    //                                   title: dic['homa.pool.min'],
-    //                                   content:
-    //                                       '> ${env != null ? env.mintThreshold : Fmt.token(minStake, nativeDecimal)}',
-    //                                 ),
-    //                                 InfoItem(
-    //                                   crossAxisAlignment:
-    //                                       CrossAxisAlignment.center,
-    //                                   title: 'APR',
-    //                                   content: env != null
-    //                                       ? "≈ ${Fmt.priceFloor(env.apy * 100)}%"
-    //                                       : '≈ 20%',
-    //                                 ),
-    //                               ],
-    //                             )
-    //                           ],
-    //                         ),
-    //                       ),
-    //                       isOldVersion
-    //                           ? Container()
-    //                           : _HomaUserInfoCard(
-    //                               env: widget.plugin.store.homa.env,
-    //                               userInfo: widget.plugin.store.homa.userInfo,
-    //                               address: widget.keyring.current.address,
-    //                               bestNumber:
-    //                                   widget.plugin.store.gov.bestNumber,
-    //                               stakeTokenDecimals: balances[0].decimals,
-    //                               onClaimed: _refreshData,
-    //                             ),
-    //                       RoundedCard(
-    //                         margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
-    //                         padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
-    //                         child: Column(
-    //                           children: [
-    //                             Container(
-    //                               margin: EdgeInsets.only(bottom: 24),
-    //                               child: Text(isOldVersion
-    //                                   ? dic['homa.user.stats']
-    //                                   : 'KSM/LKSM ${dicAssets['balance']}'),
-    //                             ),
-    //                             isOldVersion
-    //                                 ? Visibility(
-    //                                     visible: _unlockingKsm != null &&
-    //                                         double.tryParse(
-    //                                                 _unlockingKsm ?? '0') !=
-    //                                             0,
-    //                                     child: Column(children: [
-    //                                       Row(
-    //                                         children: [
-    //                                           Expanded(
-    //                                               child: Container(
-    //                                             padding:
-    //                                                 EdgeInsets.only(left: 50),
-    //                                             child: Text(
-    //                                               dic['homa.user.unlocking'],
-    //                                               style: TextStyle(
-    //                                                   fontSize: 12,
-    //                                                   fontWeight:
-    //                                                       FontWeight.w400),
-    //                                             ),
-    //                                           )),
-    //                                           Expanded(
-    //                                               child: Row(
-    //                                             children: [
-    //                                               Container(
-    //                                                 margin: EdgeInsets.only(
-    //                                                     right: 8),
-    //                                                 child: TokenIcon(
-    //                                                     stakeSymbol,
-    //                                                     widget
-    //                                                         .plugin.tokenIcons),
-    //                                               ),
-    //                                               Column(
-    //                                                 crossAxisAlignment:
-    //                                                     CrossAxisAlignment
-    //                                                         .start,
-    //                                                 children: [
-    //                                                   Row(
-    //                                                     children: [
-    //                                                       Text(
-    //                                                         '${Fmt.priceFloor(double.tryParse(_unlockingKsm ?? '0'), lengthMax: 4)}',
-    //                                                         style: TextStyle(
-    //                                                           fontSize: 14,
-    //                                                           fontWeight:
-    //                                                               FontWeight
-    //                                                                   .bold,
-    //                                                           color: Theme.of(
-    //                                                                   context)
-    //                                                               .unselectedWidgetColor,
-    //                                                         ),
-    //                                                       ),
-    //                                                       GestureDetector(
-    //                                                         child: Container(
-    //                                                             margin: EdgeInsets
-    //                                                                 .only(
-    //                                                                     left:
-    //                                                                         4),
-    //                                                             child: Text(
-    //                                                               dic['homa.redeem.cancel'],
-    //                                                               style:
-    //                                                                   TextStyle(
-    //                                                                 fontSize:
-    //                                                                     12,
-    //                                                                 fontStyle:
-    //                                                                     FontStyle
-    //                                                                         .italic,
-    //                                                                 decoration:
-    //                                                                     TextDecoration
-    //                                                                         .underline,
-    //                                                                 color: Theme.of(
-    //                                                                         context)
-    //                                                                     .primaryColor,
-    //                                                               ),
-    //                                                             )),
-    //                                                         onTap:
-    //                                                             _onCancelRedeem,
-    //                                                       )
-    //                                                     ],
-    //                                                   ),
-    //                                                   Text(
-    //                                                       '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(_unlockingKsm ?? '0'), lengthMax: 2)}',
-    //                                                       style: TextStyle(
-    //                                                           fontSize: 12)),
-    //                                                 ],
-    //                                               )
-    //                                             ],
-    //                                           ))
-    //                                         ],
-    //                                       ),
-    //                                       Container(
-    //                                         child: Divider(height: 24),
-    //                                       )
-    //                                     ]))
-    //                                 : Container(),
-    //                             isOldVersion
-    //                                 ? Column(
-    //                                     children: [
-    //                                       Row(
-    //                                         children: [
-    //                                           Expanded(
-    //                                               child: Container(
-    //                                             padding:
-    //                                                 EdgeInsets.only(left: 50),
-    //                                             child: Text(
-    //                                               dic['homa.user.ksm'],
-    //                                               style: TextStyle(
-    //                                                   fontSize: 12,
-    //                                                   fontWeight:
-    //                                                       FontWeight.w400),
-    //                                             ),
-    //                                           )),
-    //                                           Expanded(
-    //                                               child: Row(
-    //                                             children: [
-    //                                               Container(
-    //                                                 margin: EdgeInsets.only(
-    //                                                     right: 8),
-    //                                                 child: TokenIcon(
-    //                                                     stakeSymbol,
-    //                                                     widget
-    //                                                         .plugin.tokenIcons),
-    //                                               ),
-    //                                               InfoItem(
-    //                                                 title:
-    //                                                     '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-    //                                                 content: Fmt.priceFloor(
-    //                                                     balanceStakeToken,
-    //                                                     lengthMax: 4),
-    //                                                 lowTitle: true,
-    //                                               ),
-    //                                             ],
-    //                                           ))
-    //                                         ],
-    //                                       ),
-    //                                       Container(
-    //                                         child: Divider(height: 24),
-    //                                       ),
-    //                                       Row(
-    //                                         children: [
-    //                                           Expanded(
-    //                                               child: Container(
-    //                                             padding:
-    //                                                 EdgeInsets.only(left: 50),
-    //                                             child: Text(
-    //                                               dic['homa.user.lksm'],
-    //                                               style: TextStyle(
-    //                                                   fontSize: 12,
-    //                                                   fontWeight:
-    //                                                       FontWeight.w400),
-    //                                             ),
-    //                                           )),
-    //                                           Expanded(
-    //                                               child: Row(
-    //                                             mainAxisAlignment:
-    //                                                 MainAxisAlignment.center,
-    //                                             children: [
-    //                                               Container(
-    //                                                 margin: EdgeInsets.only(
-    //                                                     right: 8),
-    //                                                 child: TokenIcon(
-    //                                                     'L$stakeSymbol',
-    //                                                     widget
-    //                                                         .plugin.tokenIcons),
-    //                                               ),
-    //                                               InfoItem(
-    //                                                 title:
-    //                                                     '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
-    //                                                 content: Fmt.priceFloor(
-    //                                                     balanceLiquidToken,
-    //                                                     lengthMax: 4),
-    //                                                 lowTitle: true,
-    //                                               ),
-    //                                             ],
-    //                                           ))
-    //                                         ],
-    //                                       ),
-    //                                     ],
-    //                                   )
-    //                                 : Row(
-    //                                     children: [
-    //                                       Expanded(
-    //                                           child: Row(
-    //                                         children: [
-    //                                           Container(
-    //                                             margin:
-    //                                                 EdgeInsets.only(right: 8),
-    //                                             child: TokenIcon(stakeSymbol,
-    //                                                 widget.plugin.tokenIcons),
-    //                                           ),
-    //                                           InfoItem(
-    //                                             title:
-    //                                                 '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-    //                                             content: Fmt.priceFloor(
-    //                                                 balanceStakeToken,
-    //                                                 lengthMax: 4),
-    //                                             lowTitle: true,
-    //                                           ),
-    //                                         ],
-    //                                       )),
-    //                                       Expanded(
-    //                                           child: Row(
-    //                                         mainAxisAlignment:
-    //                                             MainAxisAlignment.center,
-    //                                         children: [
-    //                                           Container(
-    //                                             margin:
-    //                                                 EdgeInsets.only(right: 8),
-    //                                             child: TokenIcon(
-    //                                                 'L$stakeSymbol',
-    //                                                 widget.plugin.tokenIcons),
-    //                                           ),
-    //                                           InfoItem(
-    //                                             title:
-    //                                                 '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
-    //                                             content: Fmt.priceFloor(
-    //                                                 balanceLiquidToken,
-    //                                                 lengthMax: 4),
-    //                                             lowTitle: true,
-    //                                           ),
-    //                                         ],
-    //                                       ))
-    //                                     ],
-    //                                   )
-    //                           ],
-    //                         ),
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 ),
-    //                 Visibility(
-    //                     visible: liquidTokenIssuance >= BigInt.zero,
-    //                     child: Row(
-    //                       children: <Widget>[
-    //                         Expanded(
-    //                           child: Container(
-    //                             color: primary,
-    //                             child: TextButton(
-    //                               child: Text(
-    //                                 '${dic['homa.redeem']} $stakeSymbol',
-    //                                 style: TextStyle(color: white),
-    //                               ),
-    //                               onPressed: () => Navigator.of(context)
-    //                                   .pushNamed(RedeemPage.route, arguments: {
-    //                                 "isHomaAlive": _isHomaAlive
-    //                               }).then((value) {
-    //                                 if (value != null) {
-    //                                   _refreshData();
-    //                                 }
-    //                               }),
-    //                             ),
-    //                           ),
-    //                         ),
-    //                         Expanded(
-    //                           child: Container(
-    //                             color: staked < cap
-    //                                 ? Theme.of(context).accentColor
-    //                                 : Theme.of(context).disabledColor,
-    //                             child: TextButton(
-    //                               child: Text(
-    //                                 '${dic['homa.mint']} L$stakeSymbol',
-    //                                 style: TextStyle(color: white),
-    //                               ),
-    //                               onPressed: staked < cap
-    //                                   ? () async {
-    //                                       // if (!(await _confirmMint())) return;
-
-    //                                       Navigator.of(context).pushNamed(
-    //                                           MintPage.route,
-    //                                           arguments: {
-    //                                             "isHomaAlive": _isHomaAlive
-    //                                           }).then((value) {
-    //                                         if (value != null) {
-    //                                           _refreshData();
-    //                                         }
-    //                                       });
-    //                                     }
-    //                                   : null,
-    //                             ),
-    //                           ),
-    //                         ),
-    //                       ],
-    //                     )),
-    //               ],
-    //             ),
-    //           )
-    //         ],
-    //       ),
-    //     );
-    //   },
-    // );
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
