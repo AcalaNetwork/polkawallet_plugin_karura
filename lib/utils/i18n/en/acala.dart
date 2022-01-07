@@ -214,6 +214,9 @@ const Map<String, String> enDex = {
       '\nED (existential deposit): The minimum amount that an account should have to be deemed active.\n',
   'cross.fee': 'dest chain transfer fee',
   'cross.warn': 'Warning',
+  'cross.edit': 'Edit To Address',
+  'cross.warn.info':
+      'Editing cross-chain destination address is not recommended.\nAdvanced users only.',
   'transfer.exist': 'existential deposit',
   'transfer.fee': 'estimated transfer fee',
   'warn.fee': 'The transaction may fail due to insufficient KAR balance.',

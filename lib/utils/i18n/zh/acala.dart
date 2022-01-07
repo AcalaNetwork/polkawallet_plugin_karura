@@ -200,6 +200,8 @@ const Map<String, String> zhDex = {
   'cross.exist.msg': '\n账户在网络上存活所需要的最小余额。\n',
   'cross.fee': '收款链手续费',
   'cross.warn': '警告',
+  'cross.edit': '修改收款地址',
+  'cross.warn.info': '不建议修改跨链转账的收款地址。\n该功能仅限高级用户使用。',
   'transfer.exist': '存活余额',
   'transfer.fee': '预估手续费',
   'warn.fee': '因 KAR 余额不足，交易可能会执行失败。',

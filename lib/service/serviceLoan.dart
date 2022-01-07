@@ -25,7 +25,7 @@ class ServiceLoan {
     prices['L$relayToken'] = Fmt.tokenInt(
         (Fmt.bigIntToDouble(
                     prices[relayToken], plugin.networkState.tokenDecimals![0]) *
-                (homaEnv.exchangeRate ?? 1))
+                homaEnv.exchangeRate)
             .toString(),
         plugin.networkState.tokenDecimals![0]);
   }
@@ -102,7 +102,8 @@ class ServiceLoan {
 
   Future<void> queryCollateralRewards(String address) async {
     final res = await api!.loan.queryCollateralRewards(
-        store!.loan.loanTypes.map((e) => e.token!.currencyId).toList(), address);
+        store!.loan.loanTypes.map((e) => e.token!.currencyId).toList(),
+        address);
     store!.loan.setCollateralRewards(res);
   }
 

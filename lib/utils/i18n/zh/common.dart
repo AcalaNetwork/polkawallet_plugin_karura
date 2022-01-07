@@ -12,6 +12,7 @@ const Map<String, String> zhCommon = {
   'min': '最小数量',
   'list.empty': '暂无数据',
   'list.end': '加载完成',
+  'address.from': '付款地址',
   'address': '收款地址',
   'amount': '数量',
   'amount.hint': '请输入您想转账的数额',
