@@ -35,14 +35,14 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
 
   int _voteConviction = 0;
 
-  Future<TxConfirmParams> _getTxParams() async {
-    if (_formKey.currentState.validate()) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-      final govDic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
-      final decimals = widget.plugin.networkState.tokenDecimals[0];
-      final Map args = ModalRoute.of(context).settings.arguments;
-      final ReferendumInfo info = args['referenda'];
-      final bool voteYes = args['voteYes'];
+  Future<TxConfirmParams?> _getTxParams() async {
+    if (_formKey.currentState!.validate()) {
+      final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+      final govDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov');
+      final decimals = widget.plugin.networkState.tokenDecimals![0];
+      final Map args = ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
+      final ReferendumInfo? info = args['referenda'];
+      final bool? voteYes = args['voteYes'];
       final bool isLock = args['isLock'];
       final amt = _amountCtrl.text.trim();
       final vote = {
@@ -55,15 +55,15 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
         ];
         final standard = {"Standard": vote};
         txs.add(
-            'api.tx.democracy.vote(${info.index.toInt()},${jsonEncode(standard)})');
+            'api.tx.democracy.vote(${info!.index!.toInt()},${jsonEncode(standard)})');
         return TxConfirmParams(
-          txTitle: govDic['vote.proposal'],
+          txTitle: govDic!['vote.proposal'],
           module: 'utility',
           call: 'batch',
           txDisplay: {
-            govDic["referenda"]: '#${info.index.toInt()}',
-            govDic["vote"]: voteYes ? govDic['yes'] : govDic['no'],
-            dic["amount"]: '$amt ${widget.plugin.networkState.tokenSymbol[0]}',
+            govDic["referenda"]: '#${info.index!.toInt()}',
+            govDic["vote"]: voteYes! ? govDic['yes'] : govDic['no'],
+            dic!["amount"]: '$amt ${widget.plugin.networkState.tokenSymbol![0]}',
             '': _getConvictionLabel(_voteConviction),
           },
           params: [],
@@ -73,17 +73,17 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
         return TxConfirmParams(
             module: 'democracy',
             call: 'vote',
-            txTitle: govDic['vote.proposal'],
+            txTitle: govDic!['vote.proposal'],
             txDisplay: {
-              govDic["referenda"]: '#${info.index.toInt()}',
-              govDic["vote"]: voteYes ? govDic['yes'] : govDic['no'],
-              dic["amount"]:
-                  '$amt ${widget.plugin.networkState.tokenSymbol[0]}',
+              govDic["referenda"]: '#${info!.index!.toInt()}',
+              govDic["vote"]: voteYes! ? govDic['yes'] : govDic['no'],
+              dic!["amount"]:
+                  '$amt ${widget.plugin.networkState.tokenSymbol![0]}',
               '': _getConvictionLabel(_voteConviction),
             },
             params: [
               // "id"
-              info.index.toInt(),
+              info.index!.toInt(),
               // "options"
               {"Standard": vote},
             ]);
@@ -92,13 +92,13 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
     return null;
   }
 
-  String _getConvictionLabel(int value) {
-    final dicGov = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
-    final Map conviction =
-        value > 0 ? widget.plugin.store.gov.voteConvictions[value - 1] : {};
+  String? _getConvictionLabel(int value) {
+    final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov');
+    final Map? conviction =
+        value > 0 ? widget.plugin.store!.gov.voteConvictions![value - 1] : {};
     return value == 0
-        ? dicGov['locked.no']
-        : '${dicGov['locked']} ${conviction['period']} ${dicGov['day']} (${conviction['value']}x)';
+        ? dicGov!['locked.no']
+        : '${dicGov!['locked']} ${conviction!['period']} ${dicGov['day']} (${conviction['value']}x)';
   }
 
   void _showConvictionSelect() {
@@ -115,7 +115,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
             return Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  _getConvictionLabel(i),
+                  _getConvictionLabel(i)!,
                   style: TextStyle(fontSize: 16),
                 ));
           }).toList(),
@@ -131,23 +131,23 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
 
   @override
   Widget build(BuildContext context) {
-    final dicGov = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
+    final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dicGov['vote.proposal']),
+        title: Text(dicGov['vote.proposal']!),
         centerTitle: true,
         leading: BackBtn(),
       ),
       body: Observer(
         builder: (_) {
-          final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-          final decimals = widget.plugin.networkState.tokenDecimals[0];
+          final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
+          final decimals = widget.plugin.networkState.tokenDecimals![0];
 
           final balance = Fmt.balanceInt(
-              widget.plugin.balances.native.freeBalance.toString());
+              widget.plugin.balances.native!.freeBalance.toString());
 
-          Map args = ModalRoute.of(context).settings.arguments;
-          ReferendumInfo info = args['referenda'];
+          Map args = ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
+          ReferendumInfo? info = args['referenda'];
           bool voteYes = args['voteYes'];
           return SafeArea(
             child: Column(
@@ -160,7 +160,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                         Padding(
                           padding: EdgeInsets.all(16),
                           child: Text(
-                            dicGov[voteYes ? 'yes.text' : 'no.text'],
+                            dicGov[voteYes ? 'yes.text' : 'no.text']!,
                             style: Theme.of(context).textTheme.headline4,
                           ),
                         ),
@@ -174,13 +174,13 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                                   '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals)})',
                             ),
                             inputFormatters: [
-                              UI.decimalInputFormatter(decimals)
+                              UI.decimalInputFormatter(decimals)!
                             ],
                             controller: _amountCtrl,
                             keyboardType:
                                 TextInputType.numberWithOptions(decimal: true),
                             validator: (v) {
-                              final error = Fmt.validatePrice(v, context);
+                              final error = Fmt.validatePrice(v!, context);
                               if (error != null) {
                                 return error;
                               }
@@ -193,8 +193,8 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                           ),
                         ),
                         ListTile(
-                          title: Text(dicGov['locked']),
-                          subtitle: Text(_getConvictionLabel(_voteConviction)),
+                          title: Text(dicGov['locked']!),
+                          subtitle: Text(_getConvictionLabel(_voteConviction)!),
                           trailing: Icon(Icons.arrow_forward_ios, size: 18),
                           onTap: _showConvictionSelect,
                         ),
@@ -205,9 +205,9 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                 Container(
                   padding: EdgeInsets.all(16),
                   child: TxButton(
-                    text: I18n.of(context)
-                        .getDic(i18n_full_dic_ui, 'common')['tx.submit'],
-                    getTxParams: _getTxParams,
+                    text: I18n.of(context)!
+                        .getDic(i18n_full_dic_ui, 'common')!['tx.submit'],
+                    getTxParams: _getTxParams as Future<TxConfirmParams> Function()?,
                     onFinish: (res) {
                       if (res != null) {
                         Navigator.of(context).pop(res);

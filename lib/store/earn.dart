@@ -7,13 +7,13 @@ import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 part 'earn.g.dart';
 
 class EarnStore extends _EarnStore with _$EarnStore {
-  EarnStore(StoreCache cache) : super(cache);
+  EarnStore(StoreCache? cache) : super(cache);
 }
 
 abstract class _EarnStore with Store {
   _EarnStore(this.cache);
 
-  final StoreCache cache;
+  final StoreCache? cache;
 
   @observable
   IncentivesData incentives = IncentivesData();
@@ -25,14 +25,14 @@ abstract class _EarnStore with Store {
   List<DexPoolData> bootstraps = [];
 
   @observable
-  ObservableMap<String, DexPoolInfoData> dexPoolInfoMap =
-      ObservableMap<String, DexPoolInfoData>();
+  ObservableMap<String?, DexPoolInfoData> dexPoolInfoMap =
+      ObservableMap<String?, DexPoolInfoData>();
 
   @observable
-  List<dynamic> dexIncentiveLoyaltyEndBlock;
+  List<dynamic>? dexIncentiveLoyaltyEndBlock;
 
   @action
-  void setDexIncentiveLoyaltyEndBlock(List<dynamic> list) {
+  void setDexIncentiveLoyaltyEndBlock(List<dynamic>? list) {
     dexIncentiveLoyaltyEndBlock = list;
   }
 
@@ -47,9 +47,9 @@ abstract class _EarnStore with Store {
   }
 
   @action
-  void setDexPoolInfo(Map<String, DexPoolInfoData> data, {bool reset = false}) {
+  void setDexPoolInfo(Map<String?, DexPoolInfoData> data, {bool reset = false}) {
     if (reset) {
-      dexPoolInfoMap = ObservableMap<String, DexPoolInfoData>();
+      dexPoolInfoMap = ObservableMap<String?, DexPoolInfoData>();
     } else {
       dexPoolInfoMap.addAll(data);
     }
@@ -63,7 +63,7 @@ abstract class _EarnStore with Store {
   getdexIncentiveLoyaltyEndBlock(PluginKarura plugin) async {
     if (dexIncentiveLoyaltyEndBlock == null) {
       setDexIncentiveLoyaltyEndBlock(
-          await plugin.api.earn.queryDexIncentiveLoyaltyEndBlock());
+          await plugin.api!.earn.queryDexIncentiveLoyaltyEndBlock());
     }
   }
 }

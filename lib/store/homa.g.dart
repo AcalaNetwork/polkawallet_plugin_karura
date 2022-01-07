@@ -27,13 +27,13 @@ mixin _$HomaStore on _HomaStore, Store {
   final _$envAtom = Atom(name: '_HomaStore.env');
 
   @override
-  HomaNewEnvData get env {
+  HomaNewEnvData? get env {
     _$envAtom.reportRead();
     return super.env;
   }
 
   @override
-  set env(HomaNewEnvData value) {
+  set env(HomaNewEnvData? value) {
     _$envAtom.reportWrite(value, super.env, () {
       super.env = value;
     });

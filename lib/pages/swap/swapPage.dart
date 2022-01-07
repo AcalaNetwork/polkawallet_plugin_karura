@@ -27,7 +27,7 @@ class _SwapPageState extends State<SwapPage> {
   bool _loading = true;
 
   Future<void> _updateData() async {
-    await widget.plugin.service.earn.getDexPools();
+    await widget.plugin.service!.earn.getDexPools();
     if (mounted) {
       setState(() {
         _loading = false;
@@ -39,17 +39,17 @@ class _SwapPageState extends State<SwapPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       _updateData();
     });
   }
 
   @override
   Widget build(_) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     // todo: fix this after new acala online
     final bool enabled = widget.plugin.basic.name == 'acala'
-        ? ModalRoute.of(context).settings.arguments
+        ? ModalRoute.of(context)!.settings.arguments as bool
         : true;
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -84,9 +84,9 @@ class _SwapPageState extends State<SwapPage> {
                       Expanded(
                         child: PageTitleTabs(
                           names: [
-                            dic['dex.title'],
-                            dic['dex.lp'],
-                            dic['boot.title']
+                            dic['dex.title']!,
+                            dic['dex.lp']!,
+                            dic['boot.title']!
                           ],
                           activeTab: _tab,
                           onTab: (i) {

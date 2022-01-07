@@ -27,13 +27,13 @@ mixin _$LoanStore on _LoanStore, Store {
   final _$totalCDPsAtom = Atom(name: '_LoanStore.totalCDPs');
 
   @override
-  Map<String, TotalCDPData> get totalCDPs {
+  Map<String?, TotalCDPData> get totalCDPs {
     _$totalCDPsAtom.reportRead();
     return super.totalCDPs;
   }
 
   @override
-  set totalCDPs(Map<String, TotalCDPData> value) {
+  set totalCDPs(Map<String?, TotalCDPData> value) {
     _$totalCDPsAtom.reportWrite(value, super.totalCDPs, () {
       super.totalCDPs = value;
     });
@@ -42,13 +42,13 @@ mixin _$LoanStore on _LoanStore, Store {
   final _$loansAtom = Atom(name: '_LoanStore.loans');
 
   @override
-  Map<String, LoanData> get loans {
+  Map<String?, LoanData> get loans {
     _$loansAtom.reportRead();
     return super.loans;
   }
 
   @override
-  set loans(Map<String, LoanData> value) {
+  set loans(Map<String?, LoanData> value) {
     _$loansAtom.reportWrite(value, super.loans, () {
       super.loans = value;
     });
@@ -58,13 +58,13 @@ mixin _$LoanStore on _LoanStore, Store {
       Atom(name: '_LoanStore.collateralRewardsV2');
 
   @override
-  Map<String, CollateralRewardData> get collateralRewards {
+  Map<String?, CollateralRewardData> get collateralRewards {
     _$collateralRewardsV2Atom.reportRead();
     return super.collateralRewards;
   }
 
   @override
-  set collateralRewards(Map<String, CollateralRewardData> value) {
+  set collateralRewards(Map<String?, CollateralRewardData> value) {
     _$collateralRewardsV2Atom.reportWrite(value, super.collateralRewards, () {
       super.collateralRewards = value;
     });
@@ -121,7 +121,7 @@ mixin _$LoanStore on _LoanStore, Store {
   }
 
   @override
-  void setAccountLoans(Map<String, LoanData> data) {
+  void setAccountLoans(Map<String?, LoanData> data) {
     final _$actionInfo = _$_LoanStoreActionController.startAction(
         name: '_LoanStore.setAccountLoans');
     try {
@@ -143,7 +143,7 @@ mixin _$LoanStore on _LoanStore, Store {
   }
 
   @override
-  void loadCache(String pubKey) {
+  void loadCache(String? pubKey) {
     final _$actionInfo =
         _$_LoanStoreActionController.startAction(name: '_LoanStore.loadCache');
     try {

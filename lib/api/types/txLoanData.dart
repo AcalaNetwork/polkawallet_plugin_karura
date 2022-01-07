@@ -21,9 +21,9 @@ class TxLoanData extends _TxLoanData {
 
     final jsonData = json['data'] as List;
     data.token = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(jsonData[1]['value']))
+            plugin, jsonDecode(jsonData[1]['value']))!
         .symbol;
-    final token = AssetsUtils.getBalanceFromTokenNameId(plugin, data.token);
+    final token = AssetsUtils.getBalanceFromTokenNameId(plugin, data.token)!;
 
     data.collateral = Fmt.balanceInt(jsonData[2]['value'].toString());
     data.debit = jsonData.length > 4
@@ -33,19 +33,19 @@ class TxLoanData extends _TxLoanData {
             BigInt.from(pow(10, acala_price_decimals))
         : BigInt.zero;
     data.amountCollateral =
-        Fmt.priceFloorBigInt(BigInt.zero - data.collateral, token.decimals);
+        Fmt.priceFloorBigInt(BigInt.zero - data.collateral!, token.decimals!);
     data.amountDebit = Fmt.priceCeilBigInt(data.debit,
-        plugin.store.assets.tokenBalanceMap[karura_stable_coin].decimals);
+        plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!);
     if (data.event == 'ConfiscateCollateralAndDebit') {
       data.actionType = actionLiquidate;
     } else if (data.collateral == BigInt.zero) {
       data.actionType =
-          data.debit > BigInt.zero ? actionTypeBorrow : actionTypePayback;
+          data.debit! > BigInt.zero ? actionTypeBorrow : actionTypePayback;
     } else if (data.debit == BigInt.zero) {
-      data.actionType = data.collateral > BigInt.zero
+      data.actionType = data.collateral! > BigInt.zero
           ? actionTypeDeposit
           : actionTypeWithdraw;
-    } else if (data.debit < BigInt.zero) {
+    } else if (data.debit! < BigInt.zero) {
       data.actionType = actionTypePayback;
     } else {
       data.actionType = actionTypeCreate;
@@ -58,17 +58,17 @@ class TxLoanData extends _TxLoanData {
 }
 
 abstract class _TxLoanData {
-  String block;
-  String hash;
+  String? block;
+  String? hash;
 
-  String token;
-  String event;
-  String actionType;
-  BigInt collateral;
-  BigInt debit;
-  String amountCollateral;
-  String amountDebit;
+  String? token;
+  String? event;
+  String? actionType;
+  BigInt? collateral;
+  BigInt? debit;
+  String? amountCollateral;
+  String? amountDebit;
 
-  String time;
-  bool isSuccess = true;
+  late String time;
+  bool? isSuccess = true;
 }

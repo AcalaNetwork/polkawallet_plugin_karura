@@ -17,11 +17,11 @@ class CurrencySelectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// the arguments can be List<TokenBalanceData> or List<String>.
-    final List currencyIds = ModalRoute.of(context).settings.arguments;
+    final List currencyIds = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'common')['currency.select']),
+        title: Text(I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'common')!['currency.select']!),
         centerTitle: true,
         leading: BackBtn(),
       ),

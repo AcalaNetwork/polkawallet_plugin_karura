@@ -25,32 +25,32 @@ class ReferendumPanel extends StatelessWidget {
     this.isLock,
   });
 
-  final String symbol;
-  final int decimals;
-  final ReferendumInfo data;
-  final BigInt bestNumber;
-  final Function(int) onCancelVote;
-  final int blockDuration;
-  final Widget links;
-  final Function onRefresh;
-  final bool isLock;
+  final String? symbol;
+  final int? decimals;
+  final ReferendumInfo? data;
+  final BigInt? bestNumber;
+  final Function(int)? onCancelVote;
+  final int? blockDuration;
+  final Widget? links;
+  final Function? onRefresh;
+  final bool? isLock;
 
   @override
   Widget build(BuildContext context) {
-    final endLeft = BigInt.parse(data.status['end'].toString()) - bestNumber;
+    final endLeft = BigInt.parse(data!.status!['end'].toString()) - bestNumber!;
     final activateLeft =
-        endLeft + BigInt.parse(data.status['delay'].toString());
-    var dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
+        endLeft + BigInt.parse(data!.status!['delay'].toString());
+    var dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
     List<Widget> list = <Widget>[
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
         Text(
-          data.image != null && data.image['proposal'] != null
-              ? '${data.image['proposal']['section']}.${data.image['proposal']['method']}'
+          data!.image != null && data!.image!['proposal'] != null
+              ? '${data!.image!['proposal']['section']}.${data!.image!['proposal']['method']}'
               : '-',
           style: Theme.of(context).textTheme.headline4,
         ),
         Text(
-          '#${data.index}',
+          '#${data!.index}',
           style: Theme.of(context).textTheme.headline4,
         ),
       ]),
@@ -63,7 +63,7 @@ class ReferendumPanel extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-                '${dic['remain']} ${Fmt.blockToTime(endLeft.toInt(), blockDuration)}',
+                '${dic['remain']} ${Fmt.blockToTime(endLeft.toInt(), blockDuration!)}',
                 style: TextStyle(color: Colors.lightGreen)),
           ),
           Text(
@@ -73,7 +73,7 @@ class ReferendumPanel extends StatelessWidget {
         ],
       ),
       Visibility(
-          visible: data.isPassing,
+          visible: data!.isPassing!,
           child: Container(
               margin: EdgeInsets.only(top: 2),
               child: Row(
@@ -81,25 +81,25 @@ class ReferendumPanel extends StatelessWidget {
                   Container(width: 21),
                   Expanded(
                     child: Text(
-                        '${dic['activate']} ${Fmt.blockToTime(activateLeft.toInt(), blockDuration)}',
+                        '${dic['activate']} ${Fmt.blockToTime(activateLeft.toInt(), blockDuration!)}',
                         style: TextStyle(color: Colors.pink)),
                   ),
                   Text(
-                    '#${Fmt.priceFloorBigInt(bestNumber + activateLeft, 0, lengthFixed: 0)}',
+                    '#${Fmt.priceFloorBigInt(bestNumber! + activateLeft, 0, lengthFixed: 0)}',
                     style: TextStyle(color: Colors.pink),
                   )
                 ],
               ))),
       Visibility(
-          visible: data.detail['content'].toString().isNotEmpty,
+          visible: data!.detail!['content'].toString().isNotEmpty,
           child: Container(
             padding: EdgeInsets.only(top: 16),
-            child: Text(data.detail['content'].toString().trim()),
+            child: Text(data!.detail!['content'].toString().trim()),
           ))
     ];
-    if (data.detail['params'] != null && data.detail['params'].length > 0) {
+    if (data!.detail!['params'] != null && data!.detail!['params'].length > 0) {
       list.add(
-          ReferendumArgsList(data.detail['params'], data.image['proposal']));
+          ReferendumArgsList(data!.detail!['params'], data!.image!['proposal']));
     }
     list.addAll([
       Padding(
@@ -107,29 +107,29 @@ class ReferendumPanel extends StatelessWidget {
         child: ProposalArgsItem(
           label: Text('Hash'),
           content: Text(
-            Fmt.address(data.imageHash, pad: 10),
+            Fmt.address(data!.imageHash, pad: 10)!,
             style: Theme.of(context).textTheme.headline4,
           ),
           margin: EdgeInsets.all(0),
         ),
       ),
-      links,
+      links!,
     ]);
     list.add(Divider(height: 24));
 
     double widthFull = MediaQuery.of(context).size.width - 72;
 //      int votedTotal = int.parse(votes['votedTotal'].toString());
-    BigInt votedAye = BigInt.parse(data.votedAye);
-    BigInt votedNay = BigInt.parse(data.votedNay);
+    BigInt votedAye = BigInt.parse(data!.votedAye!);
+    BigInt votedNay = BigInt.parse(data!.votedNay!);
     BigInt votedTotalCalc = votedAye + votedNay;
     double yes = votedAye / votedTotalCalc;
     double widthYes =
         votedTotalCalc > BigInt.zero ? yes * widthFull : widthFull / 2;
     double widthMin = 6;
-    BigInt voteChange = data.isPassing
-        ? Fmt.balanceInt(data.changeNay)
-        : Fmt.balanceInt(data.changeAye);
-    double yesChange = data.isPassing
+    BigInt voteChange = data!.isPassing!
+        ? Fmt.balanceInt(data!.changeNay)
+        : Fmt.balanceInt(data!.changeAye);
+    double yesChange = data!.isPassing!
         ? 1 - (votedNay + voteChange) / (votedTotalCalc + voteChange)
         : (votedAye + voteChange) / (votedTotalCalc + voteChange);
     double widthPointer =
@@ -139,13 +139,13 @@ class ReferendumPanel extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          data.isPassing
+          data!.isPassing!
               ? Icon(Icons.check_circle, color: Colors.lightGreen, size: 20)
               : Icon(Icons.remove_circle, color: Colors.orange, size: 20),
           Padding(
             padding: EdgeInsets.only(left: 4),
             child: Text(
-              dic['passing.${data.isPassing}'],
+              dic['passing.${data!.isPassing}']!,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -153,7 +153,7 @@ class ReferendumPanel extends StatelessWidget {
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[Text(dic['no']), Text(dic['yes'])],
+        children: <Widget>[Text(dic['no']!), Text(dic['yes']!)],
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -199,8 +199,8 @@ class ReferendumPanel extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text('${Fmt.token(votedNay, decimals)} $symbol'),
-          Text('${Fmt.token(votedAye, decimals)} $symbol')
+          Text('${Fmt.token(votedNay, decimals!)} $symbol'),
+          Text('${Fmt.token(votedAye, decimals!)} $symbol')
         ],
       ),
       Row(
@@ -211,15 +211,15 @@ class ReferendumPanel extends StatelessWidget {
             children: <Widget>[
               TapTooltip(
                 child: Icon(
-                  data.isPassing ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  data!.isPassing! ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                   color: Theme.of(context).unselectedWidgetColor,
                 ),
-                message: data.isPassing
-                    ? dic['vote.change.up']
-                    : dic['vote.change.down'],
+                message: data!.isPassing!
+                    ? dic['vote.change.up']!
+                    : dic['vote.change.down']!,
               ),
               Text(
-                '${Fmt.balance(data.changeNay, decimals)} $symbol',
+                '${Fmt.balance(data!.changeNay, decimals!)} $symbol',
                 style: TextStyle(
                     color: Theme.of(context).unselectedWidgetColor,
                     fontSize: 13),
@@ -231,15 +231,15 @@ class ReferendumPanel extends StatelessWidget {
             children: <Widget>[
               TapTooltip(
                 child: Icon(
-                  !data.isPassing ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  !data!.isPassing! ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                   color: Theme.of(context).unselectedWidgetColor,
                 ),
-                message: !data.isPassing
-                    ? dic['vote.change.up']
-                    : dic['vote.change.down'],
+                message: !data!.isPassing!
+                    ? dic['vote.change.up']!
+                    : dic['vote.change.down']!,
               ),
               Text(
-                '${Fmt.balance(data.changeAye, decimals)} $symbol',
+                '${Fmt.balance(data!.changeAye, decimals!)} $symbol',
                 style: TextStyle(
                     color: Theme.of(context).unselectedWidgetColor,
                     fontSize: 13),
@@ -250,15 +250,15 @@ class ReferendumPanel extends StatelessWidget {
       )
     ]);
 
-    if (data.userVoted != null) {
+    if (data!.userVoted != null) {
       String amount = Fmt.balance(
-        data.userVoted['balance'].toString(),
-        decimals,
+        data!.userVoted!['balance'].toString(),
+        decimals!,
       );
-      String conviction = data.userVoted['vote']['conviction'] == 'None'
+      String conviction = data!.userVoted!['vote']['conviction'] == 'None'
           ? '0.1x'
-          : (data.userVoted['vote']['conviction'] as String).substring(6);
-      String yes = data.userVoted['vote']['vote'] == 'Aye' ? 'yes' : 'no';
+          : (data!.userVoted!['vote']['conviction'] as String).substring(6);
+      String yes = data!.userVoted!['vote']['vote'] == 'Aye' ? 'yes' : 'no';
       list.add(
         Padding(
           padding: EdgeInsets.only(top: 12),
@@ -271,7 +271,7 @@ class ReferendumPanel extends StatelessWidget {
               OutlinedButtonSmall(
                 content: dic['vote.remove'],
                 active: false,
-                onPressed: () => onCancelVote(data.index.toInt()),
+                onPressed: () => onCancelVote!(data!.index!.toInt()),
               ),
             ],
           ),
@@ -291,7 +291,7 @@ class ReferendumPanel extends StatelessWidget {
               ReferendumVotePage.route,
               arguments: {'referenda': data, 'voteYes': yes, 'isLock': isLock});
           if (res != null) {
-            onRefresh();
+            onRefresh!();
           }
         },
       ),
@@ -311,8 +311,8 @@ class ReferendumPanel extends StatelessWidget {
 class ReferendumArgsList extends StatefulWidget {
   ReferendumArgsList(this.args, this.proposal);
 
-  final List args;
-  final Map proposal;
+  final List? args;
+  final Map? proposal;
 
   @override
   _ReferendumArgsList createState() => _ReferendumArgsList(args, proposal);
@@ -321,8 +321,8 @@ class ReferendumArgsList extends StatefulWidget {
 class _ReferendumArgsList extends State<ReferendumArgsList> {
   _ReferendumArgsList(this.args, this.proposal);
 
-  final List args;
-  final Map proposal;
+  final List? args;
+  final Map? proposal;
 
   bool _showDetail = false;
 
@@ -337,7 +337,7 @@ class _ReferendumArgsList extends State<ReferendumArgsList> {
                   ? Icons.keyboard_arrow_down
                   : Icons.keyboard_arrow_right,
             ),
-            Text(I18n.of(context).getDic(i18n_full_dic_karura, 'gov')['detail'])
+            Text(I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!['detail']!)
           ],
         ),
         onTap: () {
@@ -348,8 +348,8 @@ class _ReferendumArgsList extends State<ReferendumArgsList> {
       )
     ];
     if (_showDetail) {
-      args.asMap().forEach((k, v) {
-        final value = proposal['args'][k].toString();
+      args!.asMap().forEach((k, v) {
+        final value = proposal!['args'][k].toString();
         items.add(Container(
           margin: EdgeInsets.fromLTRB(8, 4, 4, 4),
           padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
@@ -364,7 +364,7 @@ class _ReferendumArgsList extends State<ReferendumArgsList> {
                   children: <Widget>[
                     Text('${v['name']}: ${v['type']['type']}'),
                     Text(
-                      value.length > 300 ? Fmt.address(value, pad: 24) : value,
+                      value.length > 300 ? Fmt.address(value, pad: 24)! : value,
                       style: Theme.of(context).textTheme.headline4,
                     )
                   ],
@@ -396,14 +396,14 @@ class ProposalVoteButtonsRow extends StatelessWidget {
     this.onVote,
   });
 
-  final bool isCouncil;
-  final bool isVotedYes;
-  final bool isVotedNo;
-  final Function(bool) onVote;
+  final bool? isCouncil;
+  final bool? isVotedYes;
+  final bool? isVotedNo;
+  final Function(bool)? onVote;
 
   @override
   Widget build(BuildContext context) {
-    final Map dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
+    final Map? dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov');
     return Row(
       children: <Widget>[
         Expanded(
@@ -413,8 +413,8 @@ class ProposalVoteButtonsRow extends StatelessWidget {
               color: Theme.of(context).cardColor,
             ),
             color: Colors.orange,
-            text: isVotedNo ? '${dic['no']}(${dic['voted']})' : dic['no'],
-            onPressed: isCouncil && !isVotedNo ? () => onVote(false) : null,
+            text: isVotedNo! ? '${dic!['no']}(${dic['voted']})' : dic!['no'],
+            onPressed: isCouncil! && !isVotedNo! ? () => onVote!(false) : null,
           ),
         ),
         Container(width: 16),
@@ -424,8 +424,8 @@ class ProposalVoteButtonsRow extends StatelessWidget {
               Icons.check,
               color: Theme.of(context).cardColor,
             ),
-            text: isVotedYes ? '${dic['yes']}(${dic['voted']})' : dic['yes'],
-            onPressed: isCouncil && !isVotedYes ? () => onVote(true) : null,
+            text: isVotedYes! ? '${dic['yes']}(${dic['voted']})' : dic['yes'],
+            onPressed: isCouncil! && !isVotedYes! ? () => onVote!(true) : null,
           ),
         ),
       ],

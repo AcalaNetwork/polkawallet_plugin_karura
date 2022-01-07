@@ -5,7 +5,7 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginFmt {
-  static String tokenView(String token) {
+  static String tokenView(String? token) {
     if (token == karura_stable_coin) {
       return karura_stable_coin_view;
     }
@@ -19,7 +19,7 @@ class PluginFmt {
       return 'vsKSM';
     }
     if (token?.contains('-') ?? false) {
-      return '${token.split('-').map((e) => PluginFmt.tokenView(e)).join('-')} LP';
+      return '${token!.split('-').map((e) => PluginFmt.tokenView(e)).join('-')} LP';
     }
     return token ?? '';
   }
@@ -43,12 +43,12 @@ class PluginFmt {
     return LiquidityShareInfo(userShare, userShare / totalShare);
   }
 
-  static List<TokenBalanceData> getAllDexTokens(PluginKarura plugin) {
-    final List<TokenBalanceData> tokens = [];
-    plugin.store.earn.dexPools.forEach((e) {
-      e.tokens.forEach((currencyId) {
+  static List<TokenBalanceData?> getAllDexTokens(PluginKarura plugin) {
+    final List<TokenBalanceData?> tokens = [];
+    plugin.store!.earn.dexPools.forEach((e) {
+      e.tokens!.forEach((currencyId) {
         final token = AssetsUtils.tokenDataFromCurrencyId(plugin, currencyId);
-        if (tokens.indexWhere((i) => i.tokenNameId == token.tokenNameId) < 0) {
+        if (tokens.indexWhere((i) => i!.tokenNameId == token!.tokenNameId) < 0) {
           tokens.add(token);
         }
       });
@@ -65,13 +65,13 @@ class PluginFmt {
     return unavailable > nativeED ? BigInt.zero : (nativeED - unavailable);
   }
 
-  static String getPool(PluginKarura plugin, dynamic pool) {
+  static String? getPool(PluginKarura? plugin, dynamic pool) {
     if (pool['dex'] != null) {
       return List.from(pool['dex']['dexShare'])
-          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e)!.symbol)
           .join('-');
     } else if (pool['loans'] != null) {
-      return AssetsUtils.tokenDataFromCurrencyId(plugin, pool['loans'])
+      return AssetsUtils.tokenDataFromCurrencyId(plugin, pool['loans'])!
           .tokenNameId;
     } else {
       return null;

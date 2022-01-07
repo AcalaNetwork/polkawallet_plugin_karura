@@ -48,13 +48,13 @@ class TxHomaData extends _TxHomaData {
 }
 
 abstract class _TxHomaData {
-  String block;
-  String hash;
+  String? block;
+  String? hash;
 
-  String action;
-  BigInt amountPay;
-  BigInt amountReceive;
+  String? action;
+  BigInt? amountPay;
+  BigInt? amountReceive;
 
-  String time;
-  bool isSuccess = true;
+  late String time;
+  bool? isSuccess = true;
 }

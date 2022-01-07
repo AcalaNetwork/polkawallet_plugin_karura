@@ -12,13 +12,13 @@ mixin _$AssetsStore on _AssetsStore, Store {
   final _$tokenBalanceMapAtom = Atom(name: '_AssetsStore.tokenBalanceMap');
 
   @override
-  Map<String, TokenBalanceData> get tokenBalanceMap {
+  Map<String?, TokenBalanceData> get tokenBalanceMap {
     _$tokenBalanceMapAtom.reportRead();
     return super.tokenBalanceMap;
   }
 
   @override
-  set tokenBalanceMap(Map<String, TokenBalanceData> value) {
+  set tokenBalanceMap(Map<String?, TokenBalanceData> value) {
     _$tokenBalanceMapAtom.reportWrite(value, super.tokenBalanceMap, () {
       super.tokenBalanceMap = value;
     });
@@ -27,13 +27,13 @@ mixin _$AssetsStore on _AssetsStore, Store {
   final _$pricesAtom = Atom(name: '_AssetsStore.prices');
 
   @override
-  Map<String, BigInt> get prices {
+  Map<String?, BigInt> get prices {
     _$pricesAtom.reportRead();
     return super.prices;
   }
 
   @override
-  set prices(Map<String, BigInt> value) {
+  set prices(Map<String?, BigInt> value) {
     _$pricesAtom.reportWrite(value, super.prices, () {
       super.prices = value;
     });
@@ -42,13 +42,13 @@ mixin _$AssetsStore on _AssetsStore, Store {
   final _$marketPricesAtom = Atom(name: '_AssetsStore.marketPrices');
 
   @override
-  ObservableMap<String, double> get marketPrices {
+  ObservableMap<String?, double> get marketPrices {
     _$marketPricesAtom.reportRead();
     return super.marketPrices;
   }
 
   @override
-  set marketPrices(ObservableMap<String, double> value) {
+  set marketPrices(ObservableMap<String?, double> value) {
     _$marketPricesAtom.reportWrite(value, super.marketPrices, () {
       super.marketPrices = value;
     });
@@ -57,13 +57,13 @@ mixin _$AssetsStore on _AssetsStore, Store {
   final _$aggregatedAssetsAtom = Atom(name: '_AssetsStore.aggregatedAssets');
 
   @override
-  Map get aggregatedAssets {
+  Map? get aggregatedAssets {
     _$nftAtom.reportRead();
     return super.aggregatedAssets;
   }
 
   @override
-  set aggregatedAssets(Map value) {
+  set aggregatedAssets(Map? value) {
     _$aggregatedAssetsAtom.reportWrite(value, super.aggregatedAssets, () {
       super.aggregatedAssets = value;
     });
@@ -87,7 +87,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   final _$_AssetsStoreActionController = ActionController(name: '_AssetsStore');
 
   @override
-  void setTokenBalanceMap(List<TokenBalanceData> list, String pubKey,
+  void setTokenBalanceMap(List<TokenBalanceData> list, String? pubKey,
       {bool shouldCache = true}) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.setTokenBalanceMap');
@@ -99,7 +99,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void setPrices(Map<String, BigInt> data) {
+  void setPrices(Map<String?, BigInt> data) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.setPrices');
     try {
@@ -110,7 +110,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void setMarketPrices(Map<String, double> data) {
+  void setMarketPrices(Map<String?, double> data) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.setMarketPrices');
     try {
@@ -132,7 +132,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void setAggregatedAssets(Map data, String pubKey) {
+  void setAggregatedAssets(Map? data, String? pubKey) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.setAggregatedAssets');
     try {
@@ -143,7 +143,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void loadCache(String pubKey) {
+  void loadCache(String? pubKey) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.loadCache');
     try {

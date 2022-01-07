@@ -4,9 +4,9 @@ part 'calcHomaMintAmountData.g.dart';
 
 @JsonSerializable()
 class CalcHomaMintAmountData {
-  String fee;
-  String received;
-  List<dynamic> suggestRedeemRequests;
+  String? fee;
+  String? received;
+  List<dynamic>? suggestRedeemRequests;
 
   CalcHomaMintAmountData(this.fee, this.received, this.suggestRedeemRequests);
 

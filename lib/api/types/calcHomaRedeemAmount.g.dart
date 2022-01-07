@@ -8,9 +8,9 @@ part of 'calcHomaRedeemAmount.dart';
 
 CalcHomaRedeemAmount _$CalcHomaRedeemAmountFromJson(Map<String, dynamic> json) {
   return CalcHomaRedeemAmount(
-    json['fee'] as String,
-    json['expected'] as String,
-    json['newRedeemBalance'] as String,
+    json['fee'] as String?,
+    json['expected'] as String?,
+    json['newRedeemBalance'] as String?,
   );
 }
 

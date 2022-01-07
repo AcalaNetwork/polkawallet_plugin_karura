@@ -37,12 +37,12 @@ class HomaPage extends StatefulWidget {
 }
 
 class _HomaPageState extends State<HomaPage> {
-  Timer _timer;
-  String _unlockingKsm;
-  bool _isHomaAlive = false;
+  Timer? _timer;
+  String? _unlockingKsm;
+  bool? _isHomaAlive = false;
 
   Future<void> _refreshRedeem() async {
-    var data = await widget.plugin.api.homa
+    var data = await widget.plugin.api!.homa
         .redeemRequested(widget.keyring.current.address);
     if (!mounted) return;
 
@@ -58,14 +58,14 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   Future<void> _refreshData() async {
-    widget.plugin.service.assets.queryMarketPrices([relay_chain_token_symbol]);
-    widget.plugin.service.gov.updateBestNumber();
+    widget.plugin.service!.assets.queryMarketPrices([relay_chain_token_symbol]);
+    widget.plugin.service!.gov.updateBestNumber();
 
-    if (_isHomaAlive) {
-      await widget.plugin.service.homa.queryHomaEnv();
-      widget.plugin.service.homa.queryHomaPendingRedeem();
+    if (_isHomaAlive!) {
+      await widget.plugin.service!.homa.queryHomaEnv();
+      widget.plugin.service!.homa.queryHomaPendingRedeem();
     } else {
-      await widget.plugin.service.homa.queryHomaLiteStakingPool();
+      await widget.plugin.service!.homa.queryHomaLiteStakingPool();
       _refreshRedeem();
     }
 
@@ -80,14 +80,14 @@ class _HomaPageState extends State<HomaPage> {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
         return CupertinoAlertDialog(
-          title: Text(dic['homa.confirm']),
-          content: Text(dic['homa.redeem.hint']),
+          title: Text(dic['homa.confirm']!),
+          content: Text(dic['homa.redeem.hint']!),
           actions: <Widget>[
             CupertinoButton(
               child: Text(
-                dic['homa.redeem.cancel'],
+                dic['homa.redeem.cancel']!,
                 style: TextStyle(
                   color: Theme.of(context).unselectedWidgetColor,
                 ),
@@ -97,7 +97,7 @@ class _HomaPageState extends State<HomaPage> {
               },
             ),
             CupertinoButton(
-              child: Text(dic['homa.confirm']),
+              child: Text(dic['homa.confirm']!),
               onPressed: () {
                 Navigator.of(context).pop();
                 _onSubmit();
@@ -119,10 +119,10 @@ class _HomaPageState extends State<HomaPage> {
           module: module,
           call: call,
           txTitle:
-              "${I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['homa.redeem.cancel']}${I18n.of(context).getDic(i18n_full_dic_karura, 'acala')['homa.redeem']}$relay_chain_token_symbol",
+              "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.redeem.cancel']}${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.redeem']}$relay_chain_token_symbol",
           txDisplay: txDisplay,
           params: params,
-        ))) as Map;
+        ))) as Map?;
 
     if (res != null) {
       _refreshRedeem();
@@ -132,8 +132,8 @@ class _HomaPageState extends State<HomaPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final isHomaAlive = await widget.plugin.api.homa.isHomaAlive();
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      final isHomaAlive = await widget.plugin.api!.homa.isHomaAlive();
       setState(() {
         _isHomaAlive = isHomaAlive;
       });
@@ -145,7 +145,7 @@ class _HomaPageState extends State<HomaPage> {
   @override
   void dispose() {
     if (_timer != null) {
-      _timer.cancel();
+      _timer!.cancel();
       _timer = null;
     }
     super.dispose();
@@ -166,22 +166,22 @@ class _HomaPageState extends State<HomaPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
         final dicAssets =
-            I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-        final symbols = widget.plugin.networkState.tokenSymbol;
-        final decimals = widget.plugin.networkState.tokenDecimals;
+            I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+        final symbols = widget.plugin.networkState.tokenSymbol!;
+        final decimals = widget.plugin.networkState.tokenDecimals!;
 
         final stakeSymbol = relay_chain_token_symbol;
-        final isOldVersion = !_isHomaAlive;
+        final isOldVersion = !_isHomaAlive!;
 
-        final poolInfo = widget.plugin.store.homa.poolInfo;
-        final env = widget.plugin.store.homa.env;
+        final poolInfo = widget.plugin.store!.homa.poolInfo;
+        final env = widget.plugin.store!.homa.env;
         final staked = env != null
             ? BigInt.from(env.totalStaking)
             : poolInfo.staked ?? BigInt.zero;
         final cap = env != null
-            ? BigInt.from(env.stakingSoftCap)
+            ? BigInt.from(env.stakingSoftCap!)
             : poolInfo.cap ?? BigInt.zero;
         final amountLeft = cap - staked;
         final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
@@ -189,9 +189,9 @@ class _HomaPageState extends State<HomaPage> {
         final balances = AssetsUtils.getBalancePairFromTokenNameId(
             widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
         final balanceStakeToken =
-            Fmt.balanceDouble(balances[0].amount, balances[0].decimals);
+            Fmt.balanceDouble(balances[0]!.amount!, balances[0]!.decimals!);
         final balanceLiquidToken =
-            Fmt.balanceDouble(balances[1].amount, balances[1].decimals);
+            Fmt.balanceDouble(balances[1]!.amount!, balances[1]!.decimals!);
         final exchangeRate = env != null
             ? 1 / env.exchangeRate
             : staked > BigInt.zero
@@ -202,7 +202,7 @@ class _HomaPageState extends State<HomaPage> {
                     acala_price_decimals);
 
         final List<charts.Series> seriesList = [
-          new charts.Series<num, int>(
+          new charts.Series<num, int?>(
             id: 'chartData',
             domainFn: (_, i) => i,
             colorFn: (_, i) => i == 0
@@ -300,7 +300,7 @@ class _HomaPageState extends State<HomaPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            dic['homa.pool.bonded'],
+                                            dic['homa.pool.bonded']!,
                                             style: TextStyle(fontSize: 12),
                                           ),
                                           Text(
@@ -316,14 +316,14 @@ class _HomaPageState extends State<HomaPage> {
                                           Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              dic['homa.pool.cap'],
+                                              dic['homa.pool.cap']!,
                                               style: TextStyle(fontSize: 12),
                                             ),
                                           ),
                                           Text(
                                             env != null
                                                 ? Fmt.doubleFormat(
-                                                    env.stakingSoftCap * 1.0)
+                                                    env.stakingSoftCap! * 1.0)
                                                 : Fmt.token(cap, nativeDecimal),
                                             style: Theme.of(context)
                                                 .textTheme
@@ -346,7 +346,7 @@ class _HomaPageState extends State<HomaPage> {
                                           CrossAxisAlignment.center,
                                       title: dic['homa.pool.min'],
                                       content:
-                                          '> ${env != null ? env.mintThreshold : Fmt.token(minStake, nativeDecimal)}',
+                                          '> ${env != null ? env.mintThreshold : Fmt.token(minStake as BigInt?, nativeDecimal)}',
                                     ),
                                     InfoItem(
                                       crossAxisAlignment:
@@ -364,12 +364,12 @@ class _HomaPageState extends State<HomaPage> {
                           isOldVersion
                               ? Container()
                               : _HomaUserInfoCard(
-                                  env: widget.plugin.store.homa.env,
-                                  userInfo: widget.plugin.store.homa.userInfo,
+                                  env: widget.plugin.store!.homa.env,
+                                  userInfo: widget.plugin.store!.homa.userInfo,
                                   address: widget.keyring.current.address,
                                   bestNumber:
-                                      widget.plugin.store.gov.bestNumber,
-                                  stakeTokenDecimals: balances[0].decimals,
+                                      widget.plugin.store!.gov.bestNumber,
+                                  stakeTokenDecimals: balances[0]!.decimals,
                                   onClaimed: _refreshData,
                                 ),
                           RoundedCard(
@@ -380,8 +380,8 @@ class _HomaPageState extends State<HomaPage> {
                                 Container(
                                   margin: EdgeInsets.only(bottom: 24),
                                   child: Text(isOldVersion
-                                      ? dic['homa.user.stats']
-                                      : 'KSM/LKSM ${dicAssets['balance']}'),
+                                      ? dic['homa.user.stats']!
+                                      : 'KSM/LKSM ${dicAssets!['balance']}'),
                                 ),
                                 isOldVersion
                                     ? Visibility(
@@ -397,7 +397,7 @@ class _HomaPageState extends State<HomaPage> {
                                                 padding:
                                                     EdgeInsets.only(left: 50),
                                                 child: Text(
-                                                  dic['homa.user.unlocking'],
+                                                  dic['homa.user.unlocking']!,
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
@@ -441,7 +441,7 @@ class _HomaPageState extends State<HomaPage> {
                                                                         left:
                                                                             4),
                                                                 child: Text(
-                                                                  dic['homa.redeem.cancel'],
+                                                                  dic['homa.redeem.cancel']!,
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -463,7 +463,7 @@ class _HomaPageState extends State<HomaPage> {
                                                         ],
                                                       ),
                                                       Text(
-                                                          '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(_unlockingKsm ?? '0'), lengthMax: 2)}',
+                                                          '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(_unlockingKsm ?? '0')!, lengthMax: 2)}',
                                                           style: TextStyle(
                                                               fontSize: 12)),
                                                     ],
@@ -487,7 +487,7 @@ class _HomaPageState extends State<HomaPage> {
                                                 padding:
                                                     EdgeInsets.only(left: 50),
                                                 child: Text(
-                                                  dic['homa.user.ksm'],
+                                                  dic['homa.user.ksm']!,
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
@@ -507,7 +507,7 @@ class _HomaPageState extends State<HomaPage> {
                                                   ),
                                                   InfoItem(
                                                     title:
-                                                        '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                                        '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
                                                     content: Fmt.priceFloor(
                                                         balanceStakeToken,
                                                         lengthMax: 4),
@@ -527,7 +527,7 @@ class _HomaPageState extends State<HomaPage> {
                                                 padding:
                                                     EdgeInsets.only(left: 50),
                                                 child: Text(
-                                                  dic['homa.user.lksm'],
+                                                  dic['homa.user.lksm']!,
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
@@ -574,7 +574,7 @@ class _HomaPageState extends State<HomaPage> {
                                               ),
                                               InfoItem(
                                                 title:
-                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
                                                 content: Fmt.priceFloor(
                                                     balanceStakeToken,
                                                     lengthMax: 4),
@@ -686,15 +686,15 @@ class _HomaUserInfoCard extends StatelessWidget {
     this.onClaimed,
   });
 
-  String address;
-  HomaPendingRedeemData userInfo;
-  HomaNewEnvData env;
-  BigInt bestNumber;
-  int stakeTokenDecimals;
-  Function() onClaimed;
+  String? address;
+  HomaPendingRedeemData? userInfo;
+  HomaNewEnvData? env;
+  BigInt? bestNumber;
+  int? stakeTokenDecimals;
+  Function()? onClaimed;
 
   Future<void> _claimRedeem(BuildContext context, num claimable) async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final res = await Navigator.of(context).pushNamed(
       TxConfirmPage.route,
       arguments: TxConfirmParams(
@@ -703,8 +703,8 @@ class _HomaUserInfoCard extends StatelessWidget {
         txTitle: '${dic['homa.claim']} $relay_chain_token_symbol',
         txDisplay: {},
         txDisplayBold: {
-          dic['loan.amount']: Text(
-            '${Fmt.priceFloor(claimable, lengthMax: 4)} $relay_chain_token_symbol',
+          dic['loan.amount']!: Text(
+            '${Fmt.priceFloor(claimable as double?, lengthMax: 4)} $relay_chain_token_symbol',
             style: Theme.of(context).textTheme.headline1,
           ),
         },
@@ -712,19 +712,19 @@ class _HomaUserInfoCard extends StatelessWidget {
       ),
     );
     if (res != null) {
-      onClaimed();
+      onClaimed!();
     }
   }
 
-  void _showUnbondings(BuildContext context, List unbundings) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+  void _showUnbondings(BuildContext context, List? unbundings) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     showCupertinoModalPopup(
       context: context,
       builder: (_) {
         return CupertinoActionSheet(
-          title: Text(dic['homa.unbonding']),
+          title: Text(dic!['homa.unbonding']!),
           message: Column(
-            children: unbundings.map((e) {
+            children: unbundings!.map((e) {
               return Container(
                 margin: EdgeInsets.only(bottom: 12),
                 child: Row(
@@ -740,7 +740,7 @@ class _HomaUserInfoCard extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.only(left: 16),
                       child:
-                          Text('${(e['era'] - userInfo.currentRelayEra)} Eras'),
+                          Text('${(e['era'] - userInfo!.currentRelayEra)} Eras'),
                     )
                   ],
                 ),
@@ -749,7 +749,7 @@ class _HomaUserInfoCard extends StatelessWidget {
           ),
           cancelButton: CupertinoButton(
             child: Text(
-                I18n.of(context).getDic(i18n_full_dic_karura, 'common')['ok']),
+                I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['ok']!),
             onPressed: () => Navigator.of(context).pop(),
           ),
         );
@@ -759,9 +759,9 @@ class _HomaUserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final redeemRequest = Fmt.balanceDouble(
-        (userInfo?.redeemRequest ?? {})['amount'] ?? '0', stakeTokenDecimals);
+        (userInfo?.redeemRequest ?? {})['amount'] ?? '0', stakeTokenDecimals!);
     double unbonding = 0;
     (userInfo?.unbondings ?? []).forEach((e) {
       unbonding += e['amount'];
@@ -785,14 +785,14 @@ class _HomaUserInfoCard extends StatelessWidget {
         children: [
           Container(
             margin: EdgeInsets.only(bottom: 24),
-            child: Text(dic['homa.user.stats']),
+            child: Text(dic['homa.user.stats']!),
           ),
           Container(
             margin: EdgeInsets.only(bottom: 16),
             child: Row(
               children: [
                 InfoItem(
-                  title: dic['homa.RedeemRequest'] +
+                  title: dic['homa.RedeemRequest']! +
                       ' (L$relay_chain_token_symbol)',
                   content: Fmt.priceFloor(redeemRequest, lengthMax: 4),
                 ),
@@ -803,7 +803,7 @@ class _HomaUserInfoCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                              dic['homa.unbonding'] +
+                              dic['homa.unbonding']! +
                                   ' ($relay_chain_token_symbol)',
                               style: labelStyle),
                           Visibility(
@@ -811,8 +811,8 @@ class _HomaUserInfoCard extends StatelessWidget {
                                 ((userInfo?.unbondings?.length ?? 0) > 0),
                             child: GestureDetector(
                               child: Text(
-                                I18n.of(context).getDic(
-                                    i18n_full_dic_karura, 'common')['detail'],
+                                I18n.of(context)!.getDic(
+                                    i18n_full_dic_karura, 'common')!['detail']!,
                                 style: linkStyle,
                               ),
                               onTap: () => _showUnbondings(
@@ -835,14 +835,14 @@ class _HomaUserInfoCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                              dic['homa.claimable'] +
+                              dic['homa.claimable']! +
                                   ' ($relay_chain_token_symbol)',
                               style: labelStyle),
                           Visibility(
                             visible: claimable > 0,
                             child: GestureDetector(
                               child: Text(
-                                dic['homa.claim'],
+                                dic['homa.claim']!,
                                 style: linkStyle,
                               ),
                               onTap: () => _claimRedeem(context, claimable),

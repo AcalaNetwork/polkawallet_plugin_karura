@@ -32,14 +32,14 @@ class PluginService {
 
   bool connected = false;
 
-  Future<String> getPassword(BuildContext context, KeyPairData acc) async {
+  Future<String?> getPassword(BuildContext context, KeyPairData acc) async {
     final password = await showCupertinoDialog(
       context: context,
       builder: (_) {
         return PasswordInputDialog(
           plugin.sdk.api,
           title: Text(
-              I18n.of(context).getDic(i18n_full_dic_ui, 'common')['unlock']),
+              I18n.of(context)!.getDic(i18n_full_dic_ui, 'common')!['unlock']!),
           account: acc,
         );
       },
@@ -52,16 +52,16 @@ class PluginService {
         ? await WalletApi.getLiveModules()
         : config_modules;
     if (res != null) {
-      plugin.store.setting.setLiveModules(res);
+      plugin.store!.setting.setLiveModules(res);
     } else {
-      plugin.store.setting.setLiveModules(config_modules);
+      plugin.store!.setting.setLiveModules(config_modules);
     }
   }
 
   Future<void> fetchTokensConfig() async {
     final res = await WalletApi.getTokensConfig();
     if (res != null) {
-      plugin.store.setting.setTokensConfig(res);
+      plugin.store!.setting.setTokensConfig(res);
     }
   }
 }

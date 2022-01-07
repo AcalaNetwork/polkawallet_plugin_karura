@@ -11,34 +11,34 @@ class AcalaServiceAssets {
 
   final PluginKarura plugin;
 
-  Timer _tokenPricesSubscribeTimer;
+  Timer? _tokenPricesSubscribeTimer;
 
   final tokenBalanceChannel = 'tokenBalance';
 
-  Future<List> getAllTokenSymbols() async {
-    final List res =
-        await plugin.sdk.webView.evalJavascript('acala.getAllTokens(api)');
+  Future<List?> getAllTokenSymbols() async {
+    final List? res =
+        await plugin.sdk.webView!.evalJavascript('acala.getAllTokens(api)');
     return res;
   }
 
-  void unsubscribeTokenBalances(String address) async {
-    final tokens = await plugin.api.assets.getAllTokenSymbols(withCache: true);
+  void unsubscribeTokenBalances(String? address) async {
+    final tokens = await plugin.api!.assets.getAllTokenSymbols(withCache: true);
     tokens.forEach((e) {
       plugin.sdk.api.unsubscribeMessage('$tokenBalanceChannel${e.symbol}');
     });
 
-    final dexPairs = await plugin.api.swap.getTokenPairs();
+    final dexPairs = await plugin.api!.swap.getTokenPairs();
     dexPairs.forEach((e) {
       final lpToken =
-          AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId)
-              .symbol
+          AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId)!
+              .symbol!
               .split('-');
       plugin.sdk.api
           .unsubscribeMessage('$tokenBalanceChannel${lpToken.join('')}');
     });
   }
 
-  Future<void> subscribeTokenBalances(String address,
+  Future<void> subscribeTokenBalances(String? address,
       List<TokenBalanceData> tokens, Function(Map) callback) async {
     tokens.forEach((e) {
       final channel = '$tokenBalanceChannel${e.symbol}';
@@ -63,15 +63,15 @@ class AcalaServiceAssets {
         },
       );
     });
-    final dexPairs = await plugin.api.swap.getTokenPairs();
+    final dexPairs = await plugin.api!.swap.getTokenPairs();
     dexPairs.forEach((e) {
       final currencyId = {'DEXShare': e.tokens};
-      final lpToken = e.tokens
+      final lpToken = e.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
           .toList();
-      final tokenId = lpToken.map((e) => e.symbol).join('-');
+      final tokenId = lpToken.map((e) => e!.symbol).join('-');
       final channel =
-          '$tokenBalanceChannel${lpToken.map((e) => e.symbol).join('')}';
+          '$tokenBalanceChannel${lpToken.map((e) => e!.symbol).join('')}';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
         [address, currencyId],
@@ -82,7 +82,7 @@ class AcalaServiceAssets {
             'type': 'DexShare',
             'tokenNameId': e.tokenNameId,
             'currencyId': currencyId,
-            'decimals': lpToken[0].decimals,
+            'decimals': lpToken[0]!.decimals,
             'balance': data
           });
         },
@@ -91,7 +91,7 @@ class AcalaServiceAssets {
   }
 
   Future<Map> queryAirdropTokens(String address) async {
-    final res = await plugin.sdk.webView.evalJavascript(
+    final res = await plugin.sdk.webView!.evalJavascript(
         'JSON.stringify(api.registry.createType("AirDropCurrencyId").defKeys)',
         wrapPromise: false);
     if (res != null) {
@@ -99,8 +99,8 @@ class AcalaServiceAssets {
       final queries = tokens
           .map((i) => 'api.query.airDrop.airDrops("$address", "$i")')
           .join(",");
-      final List amount =
-          await plugin.sdk.webView.evalJavascript('Promise.all([$queries])');
+      final List? amount =
+          await plugin.sdk.webView!.evalJavascript('Promise.all([$queries])');
       return {
         'tokens': tokens,
         'amount': amount,
@@ -110,14 +110,14 @@ class AcalaServiceAssets {
   }
 
   Future<void> subscribeTokenPrices(
-      Function(Map<String, BigInt>) callback) async {
-    final List res = await plugin.sdk.webView
+      Function(Map<String?, BigInt>) callback) async {
+    final List? res = await plugin.sdk.webView!
         .evalJavascript('api.rpc.oracle.getAllValues("Aggregated")');
     if (res != null) {
-      final prices = Map<String, BigInt>();
+      final prices = Map<String?, BigInt>();
       res.forEach((e) {
         final tokenNameId =
-            AssetsUtils.tokenDataFromCurrencyId(plugin, e[0]).tokenNameId;
+            AssetsUtils.tokenDataFromCurrencyId(plugin, e[0])!.tokenNameId;
         prices[tokenNameId] = Fmt.balanceInt(e[1]['value'].toString());
       });
       callback(prices);
@@ -129,32 +129,32 @@ class AcalaServiceAssets {
 
   void unsubscribeTokenPrices() {
     if (_tokenPricesSubscribeTimer != null) {
-      _tokenPricesSubscribeTimer.cancel();
+      _tokenPricesSubscribeTimer!.cancel();
       _tokenPricesSubscribeTimer = null;
     }
   }
 
-  Future<List> queryNFTs(String address) async {
-    final List res = await plugin.sdk.webView
+  Future<List?> queryNFTs(String? address) async {
+    final List? res = await plugin.sdk.webView!
         .evalJavascript('acala.queryNFTs(api, "$address")');
     return res;
   }
 
-  Future<Map> queryAggregatedAssets(String address) async {
-    final Map res = await plugin.sdk.webView
+  Future<Map?> queryAggregatedAssets(String? address) async {
+    final Map? res = await plugin.sdk.webView!
         .evalJavascript('acala.queryAggregatedAssets(api, "$address")');
     return res;
   }
 
-  Future<bool> checkExistentialDepositForTransfer(
+  Future<bool?> checkExistentialDepositForTransfer(
     String address,
     Map currencyId,
     int decimal,
     String amount, {
     String direction = 'to',
   }) async {
-    final res = await plugin.sdk.webView.evalJavascript(
+    final res = await plugin.sdk.webView!.evalJavascript(
         'acala.checkExistentialDepositForTransfer(api, "$address", ${jsonEncode(currencyId)}, $decimal, $amount, "$direction")');
-    return res['result'] as bool;
+    return res['result'] as bool?;
   }
 }

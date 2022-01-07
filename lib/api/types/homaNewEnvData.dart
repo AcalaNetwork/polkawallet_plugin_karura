@@ -11,8 +11,8 @@ class HomaNewEnvData {
   double fastMatchFeeRate;
   double mintThreshold;
   double redeemThreshold;
-  int stakingSoftCap;
-  int eraFrequency;
+  int? stakingSoftCap;
+  int? eraFrequency;
 
   HomaNewEnvData(
       this.totalStaking,

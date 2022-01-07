@@ -33,8 +33,8 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
     final colorGrey = Theme.of(context).unselectedWidgetColor;
     return Scaffold(
@@ -46,9 +46,9 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final NFTData item = ModalRoute.of(context).settings.arguments;
-            final list = widget.plugin.store.assets.nft.toList();
-            list.retainWhere((e) => e.classId == item.classId);
+            final NFTData? item = ModalRoute.of(context)!.settings.arguments as NFTData?;
+            final list = widget.plugin.store!.assets.nft.toList();
+            list.retainWhere((e) => e.classId == item!.classId);
 
             return Column(
               children: [
@@ -80,15 +80,15 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           validator: (v) {
-                            if (v.isEmpty) {
-                              return dicCommon['input.invalid'];
+                            if (v!.isEmpty) {
+                              return dicCommon!['input.invalid'];
                             }
                             final count = int.parse(v.trim());
                             if (count < 1) {
-                              return dicCommon['input.invalid'];
+                              return dicCommon!['input.invalid'];
                             }
                             if (count > list.length) {
-                              return dicCommon['amount.low'];
+                              return dicCommon!['amount.low'];
                             }
                             return null;
                           },
@@ -101,7 +101,7 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
                   margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: TxButton(
                     getTxParams: () async {
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         final count = int.parse(_amountCtrl.text.trim());
                         final txs = list
                             .sublist(0, count)
@@ -114,7 +114,7 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
                           txTitle: 'NFT ${dic['nft.burn']}',
                           txDisplay: {
                             'call': 'nft.burn',
-                            'classId': item.classId,
+                            'classId': item!.classId,
                             'quantity': _amountCtrl.text.trim(),
                           },
                           params: [],
@@ -122,7 +122,7 @@ class _NFTBurnPageState extends State<NFTBurnPage> {
                         );
                       }
                       return null;
-                    },
+                    } as Future<TxConfirmParams> Function()?,
                     onFinish: (res) {
                       if (res != null) {
                         Navigator.of(context).pop(res);

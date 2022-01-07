@@ -6,14 +6,14 @@ class WalletApi {
   static const String _endpoint = 'https://api.polkawallet.io';
   static const String _configEndpoint = 'https://acala.subdao.com';
 
-  static Future<Map> getLiveModules() async {
+  static Future<Map?> getLiveModules() async {
     try {
       Response res =
           await get(Uri.parse('$_configEndpoint/config/modules.json'));
       if (res == null) {
         return null;
       } else {
-        return jsonDecode(res.body) as Map;
+        return jsonDecode(res.body) as Map?;
       }
     } catch (err) {
       print(err);
@@ -21,7 +21,7 @@ class WalletApi {
     }
   }
 
-  static Future<Map> getTokenPrice(String token) async {
+  static Future<Map?> getTokenPrice(String? token) async {
     final url = '$_endpoint/price-server/?token=$token';
     try {
       Response res = await get(Uri.parse(url));
@@ -36,7 +36,7 @@ class WalletApi {
     }
   }
 
-  static Future<Map> getTokensConfig() async {
+  static Future<Map?> getTokensConfig() async {
     final url = '$_configEndpoint/config/karuraTokens.json';
     try {
       Response res = await get(Uri.parse(url));

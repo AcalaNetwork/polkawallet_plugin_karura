@@ -58,13 +58,13 @@ mixin _$EarnStore on _EarnStore, Store {
       Atom(name: '_EarnStore.dexIncentiveLoyaltyEndBlock');
 
   @override
-  List<dynamic> get dexIncentiveLoyaltyEndBlock {
+  List<dynamic>? get dexIncentiveLoyaltyEndBlock {
     _$dexIncentiveLoyaltyEndBlockAtom.reportRead();
     return super.dexIncentiveLoyaltyEndBlock;
   }
 
   @override
-  set dexIncentiveLoyaltyEndBlock(List<dynamic> value) {
+  set dexIncentiveLoyaltyEndBlock(List<dynamic>? value) {
     _$dexIncentiveLoyaltyEndBlockAtom
         .reportWrite(value, super.dexIncentiveLoyaltyEndBlock, () {
       super.dexIncentiveLoyaltyEndBlock = value;
@@ -74,13 +74,13 @@ mixin _$EarnStore on _EarnStore, Store {
   final _$dexPoolInfoMapV2Atom = Atom(name: '_EarnStore.dexPoolInfoMapV2');
 
   @override
-  ObservableMap<String, DexPoolInfoData> get dexPoolInfoMap {
+  ObservableMap<String?, DexPoolInfoData> get dexPoolInfoMap {
     _$dexPoolInfoMapV2Atom.reportRead();
     return super.dexPoolInfoMap;
   }
 
   @override
-  set dexPoolInfoMap(ObservableMap<String, DexPoolInfoData> value) {
+  set dexPoolInfoMap(ObservableMap<String?, DexPoolInfoData> value) {
     _$dexPoolInfoMapV2Atom.reportWrite(value, super.dexPoolInfoMap, () {
       super.dexPoolInfoMap = value;
     });
@@ -111,7 +111,7 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexIncentiveLoyaltyEndBlock(List<dynamic> list) {
+  void setDexIncentiveLoyaltyEndBlock(List<dynamic>? list) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setDexIncentiveLoyaltyEndBlock');
     try {
@@ -122,7 +122,7 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexPoolInfo(Map<String, DexPoolInfoData> data, {bool reset = false}) {
+  void setDexPoolInfo(Map<String?, DexPoolInfoData> data, {bool reset = false}) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setDexPoolInfoV2');
     try {

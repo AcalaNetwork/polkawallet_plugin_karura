@@ -26,14 +26,14 @@ class EarnDexList extends StatefulWidget {
 }
 
 class _EarnDexListState extends State<EarnDexList> {
-  Timer _timer;
+  Timer? _timer;
 
   bool _loading = true;
 
   Future<void> _fetchData() async {
-    await widget.plugin.service.earn.updateAllDexPoolInfo();
+    await widget.plugin.service!.earn.updateAllDexPoolInfo();
 
-    widget.plugin.service.gov.updateBestNumber();
+    widget.plugin.service!.gov.updateBestNumber();
     if (mounted) {
       setState(() {
         _loading = false;
@@ -49,7 +49,7 @@ class _EarnDexListState extends State<EarnDexList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       _fetchData();
     });
   }
@@ -57,7 +57,7 @@ class _EarnDexListState extends State<EarnDexList> {
   @override
   void dispose() {
     if (_timer != null) {
-      _timer.cancel();
+      _timer!.cancel();
       _timer = null;
     }
     super.dispose();
@@ -65,28 +65,28 @@ class _EarnDexListState extends State<EarnDexList> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
     return Observer(builder: (_) {
-      var dexPools = widget.plugin.store.earn.dexPools.toList();
+      var dexPools = widget.plugin.store!.earn.dexPools.toList();
       dexPools.retainWhere((e) => e.provisioning == null);
 
-      final incentivesV2 = widget.plugin.store.earn.incentives;
+      final incentivesV2 = widget.plugin.store!.earn.incentives;
       if (dexPools.length > 0) {
         final List<DexPoolData> datas = [];
         final List<DexPoolData> otherDatas = [];
         for (int i = 0; i < dexPools.length; i++) {
           double rewards = 0;
           double savingRewards = 0;
-          double loyaltyBonus = 0;
-          double savingLoyaltyBonus = 0;
+          double? loyaltyBonus = 0;
+          double? savingLoyaltyBonus = 0;
 
           if (incentivesV2.dex != null) {
-            (incentivesV2.dex[dexPools[i].tokenNameId] ?? []).forEach((e) {
+            (incentivesV2.dex![dexPools[i].tokenNameId!] ?? []).forEach((e) {
               rewards += e.apr;
               loyaltyBonus = e.deduction;
             });
-            (incentivesV2.dexSaving[dexPools[i].tokenNameId] ?? [])
+            (incentivesV2.dexSaving[dexPools[i].tokenNameId!] ?? [])
                 .forEach((e) {
               savingRewards += e.apr;
               savingLoyaltyBonus = e.deduction;
@@ -94,17 +94,17 @@ class _EarnDexListState extends State<EarnDexList> {
           }
 
           dexPools[i].rewards = rewards + savingRewards;
-          dexPools[i].rewardsLoyalty = rewards * (1 - loyaltyBonus) +
-              savingRewards * (1 - savingLoyaltyBonus);
+          dexPools[i].rewardsLoyalty = rewards * (1 - loyaltyBonus!) +
+              savingRewards * (1 - savingLoyaltyBonus!);
 
-          if (dexPools[i].tokenNameId.indexOf("KAR") >= 0) {
+          if (dexPools[i].tokenNameId!.indexOf("KAR") >= 0) {
             datas.add(dexPools[i]);
           } else {
             otherDatas.add(dexPools[i]);
           }
         }
 
-        otherDatas.sort((left, right) => right.rewards.compareTo(left.rewards));
+        otherDatas.sort((left, right) => right.rewards!.compareTo(left.rewards!));
         datas.addAll(otherDatas);
         dexPools = datas;
       }
@@ -125,16 +125,16 @@ class _EarnDexListState extends State<EarnDexList> {
               itemCount: dexPools.length,
               itemBuilder: (_, i) {
                 final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-                    widget.plugin, dexPools[i].tokenNameId);
+                    widget.plugin, dexPools[i].tokenNameId)!;
 
-                final BigInt sharesTotal = widget.plugin.store.earn
+                final BigInt sharesTotal = widget.plugin.store!.earn
                         .dexPoolInfoMap[dexPools[i].tokenNameId]?.sharesTotal ??
                     BigInt.zero;
 
                 final rewardsEmpty = incentivesV2.dex == null;
 
                 final poolInfo = widget
-                    .plugin.store.earn.dexPoolInfoMap[dexPools[i].tokenNameId];
+                    .plugin.store!.earn.dexPoolInfoMap[dexPools[i].tokenNameId];
                 return GestureDetector(
                   child: RoundedCard(
                     margin: EdgeInsets.only(bottom: 16),
@@ -174,7 +174,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                   InfoItem(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    title: dic['earn.apy'],
+                                    title: dic!['earn.apy'],
                                     content: rewardsEmpty
                                         ? '--.--%'
                                         : Fmt.ratio(dexPools[i].rewards),

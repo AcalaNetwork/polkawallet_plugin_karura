@@ -5,12 +5,12 @@ class InstrumentItemWidget extends StatefulWidget {
   int initializeIndex;
   final Size size;
   InstrumentItemWidgetController controller;
-  Function(int, bool isOnClick) onChanged;
+  Function(int, bool isOnClick)? onChanged;
   InstrumentItemWidget(
-      {Key key,
-      @required this.controller,
-      @required this.datas,
-      @required this.size,
+      {Key? key,
+      required this.controller,
+      required this.datas,
+      required this.size,
       this.onChanged,
       this.initializeIndex = 0})
       : super(key: key);
@@ -23,15 +23,15 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
     with TickerProviderStateMixin {
   final GlobalKey _containerKey = GlobalKey();
 
-  Animation<double> animation;
+  late Animation<double> animation;
   double animationNumber = 1;
-  AnimationController controller;
+  late AnimationController controller;
 
   bool isSwitching = false;
 
   @override
   void initState() {
-    widget.controller.bindAction(({bool isOnClick}) {
+    widget.controller.bindAction(({bool? isOnClick}) {
       _switchAction(isOnClick: isOnClick ?? true);
     });
     super.initState();
@@ -67,7 +67,7 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
                     ? 0
                     : widget.initializeIndex + 1;
             if (widget.onChanged != null) {
-              widget.onChanged(widget.initializeIndex, isOnClick);
+              widget.onChanged!(widget.initializeIndex, isOnClick);
             }
           });
         }
@@ -91,10 +91,10 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
       for (int i = 0; i < widget.datas[j].items.length; i++) {
         if (i > 0) {
           angle += -3.85 *
-              widget.datas[j].items[i - 1].value /
-              widget.datas[j].sumValue;
+              widget.datas[j].items[i - 1].value! /
+              widget.datas[j].sumValue!;
         }
-        if (double.parse(widget.datas[j].items[i].value
+        if (double.parse(widget.datas[j].items[i].value!
                 .toStringAsFixed(widget.datas[j].lengthMax)) >
             0) {
           var angleValue = j == widget.initializeIndex
@@ -138,9 +138,9 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
 }
 
 class InstrumentItemWidgetController {
-  Function({bool isOnClick}) switchAction;
+  late Function({bool? isOnClick}) switchAction;
 
-  void bindAction(Function({bool isOnClick}) switchAction) {
+  void bindAction(Function({bool? isOnClick}) switchAction) {
     this.switchAction = switchAction;
   }
 }
@@ -148,18 +148,18 @@ class InstrumentItemWidgetController {
 class InstrumentItemData {
   final Color color;
   final String iconName;
-  final String name;
-  final double value;
+  final String? name;
+  final double? value;
 
   InstrumentItemData(this.color, this.name, this.value, this.iconName);
 }
 
 class InstrumentData {
-  final double sumValue;
+  final double? sumValue;
   final int lengthMax;
   final String currencySymbol;
-  final String title;
-  final String prompt;
+  final String? title;
+  final String? prompt;
   List<InstrumentItemData> items;
 
   InstrumentData(this.sumValue, this.items,

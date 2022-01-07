@@ -24,10 +24,10 @@ class SwapHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['loan.txs']),
+        title: Text(dic['loan.txs']!),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -35,14 +35,14 @@ class SwapHistoryPage extends StatelessWidget {
         child: Query(
           options: QueryOptions(
             document: gql(swapQuery),
-            variables: <String, String>{
+            variables: <String, String?>{
               'account': keyring.current.address,
             },
           ),
           builder: (
             QueryResult result, {
-            Future<QueryResult> Function() refetch,
-            FetchMore fetchMore,
+            Future<QueryResult?> Function()? refetch,
+            FetchMore? fetchMore,
           }) {
             if (result.data == null) {
               return Container(
@@ -53,7 +53,7 @@ class SwapHistoryPage extends StatelessWidget {
                 ),
               );
             }
-            final list = List.of(result.data['dexActions']['nodes'])
+            final list = List.of(result.data!['dexActions']['nodes'])
                 .map((i) => TxSwapData.fromJson(i as Map, plugin))
                 .toList();
 
@@ -82,18 +82,18 @@ class SwapHistoryPage extends StatelessWidget {
                   ),
                   child: ListTile(
                     dense: true,
-                    title: Text(dic['dex.${detail.action}'],
+                    title: Text(dic['dex.${detail.action}']!,
                         style: TextStyle(fontSize: 14)),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
                     leading: TransferIcon(
-                        type: detail.isSuccess
+                        type: detail.isSuccess!
                             ? isOut
                                 ? TransferIconType.rollOut
                                 : TransferIconType.rollIn
                             : TransferIconType.failure,
-                        bgColor: detail.isSuccess
+                        bgColor: detail.isSuccess!
                             ? Theme.of(context).cardColor
                             : Color(0xFFD7D7D7)),
                     trailing: Container(

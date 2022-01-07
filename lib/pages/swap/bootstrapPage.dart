@@ -41,20 +41,21 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
   int _addTab = 0;
 
-  List _userProvisioning;
+  List? _userProvisioning;
 
-  String _leftAmountError;
-  String _rightAmountError;
-  Timer _delayTimer;
+  String? _leftAmountError;
+  String? _rightAmountError;
+  Timer? _delayTimer;
 
   Future<void> _queryData() async {
-    widget.plugin.service.earn.getBootstraps();
+    widget.plugin.service!.earn.getBootstraps();
 
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final DexPoolData pool =
+        ModalRoute.of(context)!.settings.arguments as DexPoolData;
     final List res = await Future.wait([
-      widget.plugin.sdk.webView.evalJavascript(
+      widget.plugin.sdk.webView!.evalJavascript(
           'api.query.dex.provisioningPool(${jsonEncode(pool.tokens)}, "${widget.keyring.current.address}")'),
-      widget.plugin.service.assets
+      widget.plugin.service!.assets
           .queryMarketPrices([relay_chain_token_symbol]),
     ]);
 
@@ -66,37 +67,39 @@ class _BootstrapPageState extends State<BootstrapPage> {
   }
 
   void _onAmountChange(int index, String value) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    final DexPoolData args = ModalRoute.of(context).settings.arguments;
-    final balancePair = args.tokens
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final DexPoolData args =
+        ModalRoute.of(context)!.settings.arguments as DexPoolData;
+    final balancePair = args.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
     final balance = balancePair[index];
 
     final v = value.trim();
-    String error = Fmt.validatePrice(v, context);
+    String? error = Fmt.validatePrice(v, context);
 
     if (error == null) {
       final input = double.parse(v);
-      final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+      final DexPoolData pool =
+          ModalRoute.of(context)!.settings.arguments as DexPoolData;
       final min = Fmt.balanceDouble(
-          pool.provisioning.minContribution[index].toString(),
-          balance.decimals);
+          pool.provisioning!.minContribution![index].toString(),
+          balance!.decimals!);
       if (input < min) {
-        error = '${dic['min']} ${Fmt.priceCeil(min, lengthMax: 6)}';
+        error = '${dic!['min']} ${Fmt.priceCeil(min, lengthMax: 6)}';
       } else if (double.parse(v) >
           Fmt.bigIntToDouble(
-              Fmt.balanceInt(balance?.amount ?? '0'), balance.decimals)) {
-        error = dic['amount.low'];
+              Fmt.balanceInt(balance.amount ?? '0'), balance.decimals!)) {
+        error = dic!['amount.low'];
       }
     }
 
     // update pool info while amount changes
     if (_delayTimer != null) {
-      _delayTimer.cancel();
+      _delayTimer!.cancel();
     }
     _delayTimer = Timer(Duration(milliseconds: 500), () {
-      widget.plugin.service.earn.getBootstraps();
+      widget.plugin.service!.earn.getBootstraps();
     });
 
     if (mounted) {
@@ -112,7 +115,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
     }
   }
 
-  Future<TxConfirmParams> _onSubmit() async {
+  Future<TxConfirmParams?> _onSubmit() async {
     if (_addTab != 1 && _amountLeftCtrl.text.isEmpty) {
       setState(() {
         _leftAmountError = Fmt.validatePrice(_amountLeftCtrl.text, context);
@@ -127,9 +130,10 @@ class _BootstrapPageState extends State<BootstrapPage> {
       return null;
     }
 
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    final balancePair = pool.tokens
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final DexPoolData pool =
+        ModalRoute.of(context)!.settings.arguments as DexPoolData;
+    final balancePair = pool.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
 
@@ -142,23 +146,23 @@ class _BootstrapPageState extends State<BootstrapPage> {
       module: 'dex',
       call: 'addProvision',
       txDisplay: {
-        dic['earn.pool']: '${balancePair[0].symbol}-${balancePair[1].symbol}',
+        dic['earn.pool']: '${balancePair[0]!.symbol}-${balancePair[1]!.symbol}',
       },
       txDisplayBold: {
         "Token 1": Text(
-          '$leftAmount ${balancePair[0].symbol}',
+          '$leftAmount ${balancePair[0]!.symbol}',
           style: Theme.of(context).textTheme.headline1,
         ),
         "Token 2": Text(
-          '$rightAmount ${balancePair[1].symbol}',
+          '$rightAmount ${balancePair[1]!.symbol}',
           style: Theme.of(context).textTheme.headline1,
         ),
       },
       params: [
-        pool.tokens[0],
-        pool.tokens[1],
-        Fmt.tokenInt(leftAmount, balancePair[0].decimals).toString(),
-        Fmt.tokenInt(rightAmount, balancePair[1].decimals).toString(),
+        pool.tokens![0],
+        pool.tokens![1],
+        Fmt.tokenInt(leftAmount, balancePair[0]!.decimals!).toString(),
+        Fmt.tokenInt(rightAmount, balancePair[1]!.decimals!).toString(),
       ],
     );
   }
@@ -167,8 +171,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState.show();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _refreshKey.currentState!.show();
     });
   }
 
@@ -181,31 +185,32 @@ class _BootstrapPageState extends State<BootstrapPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final DexPoolData args = ModalRoute.of(context).settings.arguments;
+    final DexPoolData? args =
+        ModalRoute.of(context)!.settings.arguments as DexPoolData?;
     return Observer(builder: (_) {
-      final pool = widget.plugin.store.earn.bootstraps
-          .firstWhere((e) => e.tokenNameId == args.tokenNameId);
-      final balancePair = pool.tokens
+      final pool = widget.plugin.store!.earn.bootstraps
+          .firstWhere((e) => e.tokenNameId == args!.tokenNameId);
+      final balancePair = pool.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();
       final pairView =
-          balancePair.map((e) => PluginFmt.tokenView(e.symbol)).toList();
+          balancePair.map((e) => PluginFmt.tokenView(e!.symbol)).toList();
 
       final nowLeft = Fmt.balanceDouble(
-          pool.provisioning.accumulatedProvision[0].toString(),
-          balancePair[0].decimals);
+          pool.provisioning!.accumulatedProvision![0].toString(),
+          balancePair[0]!.decimals!);
       final nowRight = Fmt.balanceDouble(
-          pool.provisioning.accumulatedProvision[1].toString(),
-          balancePair[1].decimals);
+          pool.provisioning!.accumulatedProvision![1].toString(),
+          balancePair[1]!.decimals!);
       final myLeft = Fmt.balanceDouble(
-          _userProvisioning != null ? _userProvisioning[0].toString() : '0',
-          balancePair[0].decimals);
+          _userProvisioning != null ? _userProvisioning![0].toString() : '0',
+          balancePair[0]!.decimals!);
       final myRight = Fmt.balanceDouble(
-          _userProvisioning != null ? _userProvisioning[1].toString() : '0',
-          balancePair[1].decimals);
+          _userProvisioning != null ? _userProvisioning![1].toString() : '0',
+          balancePair[1]!.decimals!);
       final poolInfo =
           PluginFmt.calcLiquidityShare([nowLeft, nowRight], [myLeft, myRight]);
 
@@ -218,7 +223,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
       final poolInfoAfter = PluginFmt.calcLiquidityShare(
           [nowLeft + addLeft, nowRight + addRight], [addLeft, addRight]);
 
-      final estShareLabel = '${dic['boot.my.est']} ${dic['boot.my.share']}';
+      final estShareLabel = '${dic!['boot.my.est']} ${dic['boot.my.share']}';
       final estTokenLabel = '${dic['boot.my.est']} LP Tokens';
 
       final ratio =
@@ -226,12 +231,12 @@ class _BootstrapPageState extends State<BootstrapPage> {
       final ratioView1 =
           '1 ${pairView[0]} : ${Fmt.priceCeil(ratio, lengthMax: 6)} ${pairView[1]}';
       String ratioView2 = '';
-      final nativeToken = widget.plugin.networkState.tokenSymbol[0];
+      final nativeToken = widget.plugin.networkState.tokenSymbol![0];
       final relayChainToken = relay_chain_token_symbol;
-      if (balancePair.map((e) => e.symbol).join('-').toUpperCase() ==
+      if (balancePair.map((e) => e!.symbol).join('-').toUpperCase() ==
           '$nativeToken-$relayChainToken') {
         final relayChainTokenPrice =
-            widget.plugin.store.assets.marketPrices[relayChainToken];
+            widget.plugin.store!.assets.marketPrices[relayChainToken];
         final priceView = relayChainTokenPrice == null
             ? '--.--'
             : Fmt.priceFloor(relayChainTokenPrice * ratio);
@@ -260,7 +265,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                           children: [
                             Container(
                               margin: EdgeInsets.only(bottom: 16),
-                              child: Text(dic['boot.my']),
+                              child: Text(dic['boot.my']!),
                             ),
                             Text(
                               Fmt.priceFloor(myLeft) +
@@ -303,7 +308,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                           children: [
                             Container(
                               margin: EdgeInsets.only(bottom: 16),
-                              child: Text(dic['boot.provision.add']),
+                              child: Text(dic['boot.provision.add']!),
                             ),
                             Container(
                               margin: EdgeInsets.only(bottom: 8),
@@ -430,10 +435,10 @@ class _BootstrapPageState extends State<BootstrapPage> {
                 margin: EdgeInsets.all(16),
                 child: TxButton(
                   text: dic['boot.provision.add'],
-                  getTxParams: _onSubmit,
+                  getTxParams: _onSubmit as Future<TxConfirmParams> Function()?,
                   onFinish: (res) {
                     if (res != null) {
-                      _refreshKey.currentState.show();
+                      _refreshKey.currentState!.show();
                     }
                   },
                 ),

@@ -24,14 +24,14 @@ class DexPoolInfoData extends _DexPoolInfoData {
 }
 
 abstract class _DexPoolInfoData {
-  String tokenNameId;
-  BigInt amountLeft;
-  BigInt amountRight;
-  BigInt sharesTotal;
-  BigInt shares;
-  LPRewardData reward;
-  double proportion;
-  BigInt issuance;
+  String? tokenNameId;
+  BigInt? amountLeft;
+  BigInt? amountRight;
+  BigInt? sharesTotal;
+  BigInt? shares;
+  LPRewardData? reward;
+  double? proportion;
+  BigInt? issuance;
 }
 
 class LPRewardData {
@@ -48,23 +48,23 @@ class DexPoolData extends _DexPoolData {
 }
 
 abstract class _DexPoolData {
-  String tokenNameId;
-  List tokens;
-  ProvisioningData provisioning;
-  double rewards;
-  double rewardsLoyalty;
+  String? tokenNameId;
+  List? tokens;
+  ProvisioningData? provisioning;
+  double? rewards;
+  double? rewardsLoyalty;
 }
 
 @JsonSerializable()
 class ProvisioningData extends _ProvisioningData {
   static ProvisioningData fromJson(Map json) =>
-      _$ProvisioningDataFromJson(json);
+      _$ProvisioningDataFromJson(json as Map<String, dynamic>);
   Map toJson() => _$ProvisioningDataToJson(this);
 }
 
 abstract class _ProvisioningData {
-  List minContribution;
-  List targetProvision;
-  List accumulatedProvision;
-  int notBefore;
+  List? minContribution;
+  List? targetProvision;
+  List? accumulatedProvision;
+  int? notBefore;
 }

@@ -8,29 +8,29 @@ import 'package:polkawallet_sdk/api/types/gov/treasuryTipData.dart';
 part 'governance.g.dart';
 
 class GovernanceStore extends _GovernanceStore with _$GovernanceStore {
-  GovernanceStore(StoreCache cache) : super(cache);
+  GovernanceStore(StoreCache? cache) : super(cache);
 }
 
 abstract class _GovernanceStore with Store {
   _GovernanceStore(this.cache);
 
-  final StoreCache cache;
+  final StoreCache? cache;
 
   @observable
   BigInt bestNumber = BigInt.zero;
 
   @observable
-  List<ReferendumInfo> referendums;
+  List<ReferendumInfo>? referendums;
 
   @observable
-  List voteConvictions;
+  List? voteConvictions;
 
   @observable
   List<ProposalInfoData> proposals = [];
 
   TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
 
-  List<TreasuryTipData> treasuryTips;
+  late List<TreasuryTipData> treasuryTips;
 
   @action
   void setBestNumber(BigInt number) {
@@ -43,7 +43,7 @@ abstract class _GovernanceStore with Store {
   }
 
   @action
-  void setReferendumVoteConvictions(List ls) {
+  void setReferendumVoteConvictions(List? ls) {
     voteConvictions = ls;
   }
 

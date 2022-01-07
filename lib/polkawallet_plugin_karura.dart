@@ -118,7 +118,7 @@ class PluginKarura extends PolkawalletPlugin {
 
   @override
   List<TokenBalanceData> get noneNativeTokensAll {
-    return store?.assets?.tokenBalanceMap?.values?.toList();
+    return store?.assets.tokenBalanceMap.values.toList() ?? [];
   }
 
   @override
@@ -137,29 +137,29 @@ class PluginKarura extends PolkawalletPlugin {
   }
 
   @override
-  Widget getAggregatedAssetsWidget(
+  Widget? getAggregatedAssetsWidget(
       {String priceCurrency = 'USD',
       bool hideBalance = false,
       double rate = 1.0,
-      @required Function onSwitchBack,
-      @required Function onSwitchHideBalance}) {
+      @required Function? onSwitchBack,
+      @required Function? onSwitchHideBalance}) {
     if (store == null) return null;
 
     return Observer(builder: (context) {
-      if (store.assets.aggregatedAssets.keys.length == 0)
+      if (store!.assets.aggregatedAssets!.keys.length == 0)
         return InstrumentWidget(
           [InstrumentData(0, []), InstrumentData(0, []), InstrumentData(0, [])],
           onSwitchBack,
           onSwitchHideBalance,
           hideBalance: hideBalance,
         );
-      final Map<String, double> marketPrices = Map<String, double>();
-      store.assets.marketPrices.forEach((key, value) {
+      final Map<String?, double> marketPrices = Map<String?, double>();
+      store!.assets.marketPrices.forEach((key, value) {
         marketPrices[key] = value * rate;
       });
 
       final data = AssetsUtils.aggregatedAssetsDataFromJson(
-          store.assets.aggregatedAssets, balances, marketPrices);
+          store!.assets.aggregatedAssets!, balances, marketPrices);
       // // data.forEach((element) => print(element));
       // final total = data.map((e) => e.value).reduce((a, b) => a + b);
       // return Text('total: ${hideBalance ? '***' : total}');
@@ -177,19 +177,19 @@ class PluginKarura extends PolkawalletPlugin {
       {String priceCurrency = 'USD'}) {
     final List<InstrumentData> datas = [];
     InstrumentData totalBalance1 = InstrumentData(0, [],
-        title:
-            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')["v3.myDefi"],
-        prompt: I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')["v3.switchBack"]);
+        title: I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'acala')!["v3.myDefi"],
+        prompt: I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'acala')!["v3.switchBack"]);
     datas.add(totalBalance1);
 
-    final total = data.map((e) => e.value).reduce((a, b) => a + b);
+    final total = data.map((e) => e.value).reduce((a, b) => a! + b!);
     InstrumentData totalBalance = InstrumentData(total, [],
         currencySymbol: currencySymbol(priceCurrency),
-        title:
-            I18n.of(context).getDic(i18n_full_dic_karura, 'acala')["v3.myDefi"],
-        prompt: I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')["v3.switchBack"]);
+        title: I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'acala')!["v3.myDefi"],
+        prompt: I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'acala')!["v3.switchBack"]);
     data.forEach((element) {
       totalBalance.items.add(InstrumentItemData(
           instrumentColor(element.category),
@@ -213,7 +213,7 @@ class PluginKarura extends PolkawalletPlugin {
     }
   }
 
-  Color instrumentColor(String category) {
+  Color instrumentColor(String? category) {
     switch (category) {
       case "Tokens":
         return Color(0xFF5E5C59);
@@ -228,7 +228,7 @@ class PluginKarura extends PolkawalletPlugin {
     }
   }
 
-  String instrumentIconName(String category) {
+  String instrumentIconName(String? category) {
     switch (category) {
       case "Tokens":
         return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_black.png";
@@ -246,8 +246,11 @@ class PluginKarura extends PolkawalletPlugin {
   @override
   Map<String, WidgetBuilder> getRoutes(Keyring keyring) {
     return {
-      TxConfirmPage.route: (_) =>
-          TxConfirmPage(this, keyring, _service.getPassword),
+      TxConfirmPage.route: (_) => TxConfirmPage(
+          this,
+          keyring,
+          _service!.getPassword as Future<String> Function(
+              BuildContext, KeyPairData)),
       CurrencySelectPage.route: (_) => CurrencySelectPage(this),
       AccountQrCodePage.route: (_) => AccountQrCodePage(this, keyring),
 
@@ -255,7 +258,7 @@ class PluginKarura extends PolkawalletPlugin {
             child: Builder(
               builder: (_) => TokenDetailPage(this, keyring),
             ),
-            uri: GraphQLConfig['httpUri'],
+            uri: GraphQLConfig['httpUri']!,
           ),
       TransferPage.route: (_) => TransferPage(this, keyring),
       TransferDetailPage.route: (_) => TransferDetailPage(this, keyring),
@@ -271,7 +274,7 @@ class PluginKarura extends PolkawalletPlugin {
             child: Builder(
               builder: (_) => LoanHistoryPage(this, keyring),
             ),
-            uri: GraphQLConfig['httpUri'],
+            uri: GraphQLConfig['httpUri']!,
           ),
       // swap pages
       SwapPage.route: (_) => SwapPage(this, keyring),
@@ -279,7 +282,7 @@ class PluginKarura extends PolkawalletPlugin {
             child: Builder(
               builder: (_) => SwapHistoryPage(this, keyring),
             ),
-            uri: GraphQLConfig['httpUri'],
+            uri: GraphQLConfig['httpUri']!,
           ),
       SwapDetailPage.route: (_) => SwapDetailPage(this, keyring),
       BootstrapPage.route: (_) => BootstrapPage(this, keyring),
@@ -290,7 +293,7 @@ class PluginKarura extends PolkawalletPlugin {
             child: Builder(
               builder: (_) => EarnHistoryPage(this, keyring),
             ),
-            uri: GraphQLConfig['httpUri'],
+            uri: GraphQLConfig['httpUri']!,
           ),
       EarnLiquidityDetailPage.route: (_) =>
           EarnLiquidityDetailPage(this, keyring),
@@ -306,7 +309,7 @@ class PluginKarura extends PolkawalletPlugin {
             child: Builder(
               builder: (_) => HomaHistoryPage(this, keyring),
             ),
-            uri: GraphQLConfig['httpUri'],
+            uri: GraphQLConfig['httpUri']!,
           ),
       HomaTxDetailPage.route: (_) => HomaTxDetailPage(this, keyring),
       // NFT pages
@@ -328,47 +331,47 @@ class PluginKarura extends PolkawalletPlugin {
   Future<String> loadJSCode() => rootBundle.loadString(
       'packages/polkawallet_plugin_karura/lib/js_service_karura/dist/main.js');
 
-  AcalaApi _api;
-  AcalaApi get api => _api;
+  AcalaApi? _api;
+  AcalaApi? get api => _api;
 
-  StoreCache _cache;
-  PluginStore _store;
-  PluginService _service;
-  PluginStore get store => _store;
-  PluginService get service => _service;
+  StoreCache? _cache;
+  PluginStore? _store;
+  PluginService? _service;
+  PluginStore? get store => _store;
+  PluginService? get service => _service;
 
   Future<void> _subscribeTokenBalances(KeyPairData acc) async {
     // todo: fix this after new acala online
     final enabled = basic.name == 'acala'
-        ? _store.setting.liveModules['assets']['enabled']
+        ? _store!.setting.liveModules['assets']['enabled']
         : true;
 
-    _api.assets.subscribeTokenBalances(acc.address, (data) {
-      _store.assets.setTokenBalanceMap(data, acc.pubKey);
+    _api!.assets.subscribeTokenBalances(acc.address, (data) {
+      _store!.assets.setTokenBalanceMap(data, acc.pubKey);
 
       balances.setTokens(data);
     }, transferEnabled: enabled);
 
-    _service.assets.queryAggregatedAssets();
+    _service!.assets.queryAggregatedAssets();
 
-    final nft = await _api.assets.queryNFTs(acc.address);
+    final nft = await _api!.assets.queryNFTs(acc.address);
     if (nft != null) {
-      _store.assets.setNFTs(nft);
+      _store!.assets.setNFTs(nft);
     }
   }
 
   void _loadCacheData(KeyPairData acc) {
     balances.setExtraTokens([]);
-    _store.assets.setNFTs([]);
+    _store!.assets.setNFTs([]);
 
     try {
       loadBalances(acc);
 
-      _store.assets.loadCache(acc.pubKey);
-      final tokens = _store.assets.tokenBalanceMap.values.toList();
-      if (service.plugin.store.setting.tokensConfig['invisible'] != null) {
+      _store!.assets.loadCache(acc.pubKey);
+      final tokens = _store!.assets.tokenBalanceMap.values.toList();
+      if (service!.plugin.store!.setting.tokensConfig['invisible'] != null) {
         final invisible =
-            List.of(service.plugin.store.setting.tokensConfig['invisible']);
+            List.of(service!.plugin.store!.setting.tokensConfig['invisible']);
         if (invisible.length > 0) {
           tokens.removeWhere(
               (token) => invisible.contains(token.symbol?.toUpperCase()));
@@ -376,11 +379,11 @@ class PluginKarura extends PolkawalletPlugin {
       }
       balances.setTokens(tokens, isFromCache: true);
 
-      _store.loan.loadCache(acc.pubKey);
-      _store.swap.loadCache(acc.pubKey);
-      _store.earn.setDexPoolInfo({}, reset: true);
-      _store.earn.setBootstraps([]);
-      _store.homa.setUserInfo(null);
+      _store!.loan.loadCache(acc.pubKey);
+      _store!.swap.loadCache(acc.pubKey);
+      _store!.earn.setDexPoolInfo({}, reset: true);
+      _store!.earn.setBootstraps([]);
+      _store!.homa.setUserInfo(null);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);
@@ -400,15 +403,15 @@ class PluginKarura extends PolkawalletPlugin {
 
     _loadCacheData(keyring.current);
 
-    _service.fetchLiveModules();
+    _service!.fetchLiveModules();
 
     // wait tokens config here for subscribe all tokens balances
-    await _service.fetchTokensConfig();
+    await _service!.fetchTokensConfig();
   }
 
   @override
   Future<void> onStarted(Keyring keyring) async {
-    _service.connected = true;
+    _service!.connected = true;
 
     if (keyring.current.address != null) {
       _subscribeTokenBalances(keyring.current);
@@ -419,8 +422,8 @@ class PluginKarura extends PolkawalletPlugin {
   Future<void> onAccountChanged(KeyPairData acc) async {
     _loadCacheData(acc);
 
-    if (_service.connected) {
-      _api.assets.unsubscribeTokenBalances(acc.address);
+    if (_service!.connected) {
+      _api!.assets.unsubscribeTokenBalances(acc.address);
       _subscribeTokenBalances(acc);
     }
   }

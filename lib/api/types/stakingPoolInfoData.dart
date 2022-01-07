@@ -9,25 +9,25 @@ class StakingPoolInfoData extends _StakingPoolInfoData {
 }
 
 abstract class _StakingPoolInfoData {
-  String rewardRate;
-  List<StakingPoolFreeItemData> freeList;
-  double unbondingDuration;
-  double freePool;
-  double unbondingToFree;
-  String liquidTokenIssuance;
-  double defaultExchangeRate;
-  double bondingDuration;
-  double currentEra;
-  double communalBonded;
-  double communalTotal;
-  double communalBondedRatio;
-  double liquidExchangeRate;
+  String? rewardRate;
+  List<StakingPoolFreeItemData>? freeList;
+  double? unbondingDuration;
+  double? freePool;
+  double? unbondingToFree;
+  String? liquidTokenIssuance;
+  double? defaultExchangeRate;
+  double? bondingDuration;
+  double? currentEra;
+  double? communalBonded;
+  double? communalTotal;
+  double? communalBondedRatio;
+  double? liquidExchangeRate;
 }
 
 @JsonSerializable()
 class StakingPoolFreeItemData {
-  int era;
-  double free;
+  int? era;
+  double? free;
 
   static StakingPoolFreeItemData fromJson(Map<String, dynamic> json) =>
       _$StakingPoolFreeItemDataFromJson(json);
@@ -48,13 +48,13 @@ class HomaUserInfoData extends _HomaUserInfoData {
 }
 
 abstract class _HomaUserInfoData {
-  BigInt unbonded;
-  List<HomaUserInfoClaimItemData> claims;
+  BigInt? unbonded;
+  List<HomaUserInfoClaimItemData>? claims;
 }
 
 class HomaUserInfoClaimItemData {
-  int era;
-  BigInt claimed;
+  int? era;
+  BigInt? claimed;
 }
 
 class HomaLitePoolInfoData {
@@ -63,7 +63,7 @@ class HomaLitePoolInfoData {
     this.staked,
     this.liquidTokenIssuance,
   });
-  BigInt cap;
-  BigInt staked;
-  BigInt liquidTokenIssuance;
+  BigInt? cap;
+  BigInt? staked;
+  BigInt? liquidTokenIssuance;
 }

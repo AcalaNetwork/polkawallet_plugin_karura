@@ -31,24 +31,24 @@ class MintPage extends StatefulWidget {
 class _MintPageState extends State<MintPage> {
   final TextEditingController _amountPayCtrl = new TextEditingController();
 
-  String _error;
+  String? _error;
   String _amountReceive = '';
-  BigInt _maxInput;
-  CalcHomaMintAmountData _data;
+  BigInt? _maxInput;
+  CalcHomaMintAmountData? _data;
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
       final isHomaAlive =
-          (ModalRoute.of(context).settings.arguments as Map)['isHomaAlive'];
+          (ModalRoute.of(context)!.settings.arguments as Map)['isHomaAlive'];
       var data = await (isHomaAlive
-          ? widget.plugin.api.homa.calcHomaNewMintAmount(input)
-          : widget.plugin.api.homa.calcHomaMintAmount(input));
+          ? widget.plugin.api!.homa.calcHomaNewMintAmount(input)
+          : widget.plugin.api!.homa.calcHomaMintAmount(input));
 
       setState(() {
-        _amountReceive = "${isHomaAlive ? data['receive'] : data['received']}";
+        _amountReceive = "${isHomaAlive ? data!['receive'] : data!['received']}";
         _data = isHomaAlive
             ? CalcHomaMintAmountData("", "", null)
-            : CalcHomaMintAmountData.fromJson(data);
+            : CalcHomaMintAmountData.fromJson(data as Map<String, dynamic>);
       });
     }
   }
@@ -72,35 +72,35 @@ class _MintPageState extends State<MintPage> {
     _updateReceiveAmount(double.parse(supply));
   }
 
-  String _validateInput(String supply, double balance, double minStake) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+  String? _validateInput(String supply, double balance, double minStake) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final error = Fmt.validatePrice(supply, context);
     if (error != null) {
       return error;
     }
     final pay = double.parse(supply);
     if (_maxInput == null && pay > balance) {
-      return dic['amount.low'];
+      return dic!['amount.low'];
     }
 
     if (pay <= minStake) {
-      final minLabel = I18n.of(context)
-          .getDic(i18n_full_dic_karura, 'acala')['homa.pool.min'];
+      final minLabel = I18n.of(context)!
+          .getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min'];
       return '$minLabel > ${minStake.toStringAsFixed(4)}';
     }
 
-    final homaEnv = widget.plugin.store.homa.env;
-    if (double.tryParse(supply) + homaEnv.totalStaking >
-        homaEnv.stakingSoftCap) {
-      return I18n.of(context)
-          .getDic(i18n_full_dic_karura, 'acala')['homa.pool.cap.error'];
+    final homaEnv = widget.plugin.store!.homa.env!;
+    if (double.tryParse(supply)! + homaEnv.totalStaking >
+        homaEnv.stakingSoftCap!) {
+      return I18n.of(context)!
+          .getDic(i18n_full_dic_karura, 'acala')!['homa.pool.cap.error'];
     }
 
     return error;
   }
 
   void _onSetMax(BigInt max, int decimals, double balance, double minStake) {
-    final homaEnv = widget.plugin.store.homa.env;
+    final homaEnv = widget.plugin.store!.homa.env!;
     final staked = Fmt.tokenInt(homaEnv.totalStaking.toString(), decimals);
     final cap = Fmt.tokenInt(homaEnv.stakingSoftCap.toString(), decimals);
     if (staked + max > cap) {
@@ -122,13 +122,13 @@ class _MintPageState extends State<MintPage> {
 
     if (_error != null || pay.isEmpty) return;
 
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     final isHomaAlive =
-        (ModalRoute.of(context).settings.arguments as Map)['isHomaAlive'];
+        (ModalRoute.of(context)!.settings.arguments as Map)['isHomaAlive'];
 
     final call = _data?.suggestRedeemRequests != null &&
-            _data.suggestRedeemRequests.length > 0
+            _data!.suggestRedeemRequests!.length > 0
         ? 'mintForRequests'
         : 'mint';
 
@@ -138,8 +138,8 @@ class _MintPageState extends State<MintPage> {
           : Fmt.tokenInt(pay, stakeDecimal).toString()
     ];
     if (_data?.suggestRedeemRequests != null &&
-        _data.suggestRedeemRequests.length > 0) {
-      params.add(_data.suggestRedeemRequests);
+        _data!.suggestRedeemRequests!.length > 0) {
+      params.add(_data!.suggestRedeemRequests);
     }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
@@ -148,17 +148,17 @@ class _MintPageState extends State<MintPage> {
           txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
           txDisplay: {},
           txDisplayBold: {
-            dic['dex.pay']: Text(
+            dic['dex.pay']!: Text(
               '$pay $relay_chain_token_symbol',
               style: Theme.of(context).textTheme.headline1,
             ),
-            dic['dex.receive']: Text(
+            dic['dex.receive']!: Text(
               '≈ ${Fmt.priceFloor(double.tryParse(_amountReceive), lengthMax: 4)} L$relay_chain_token_symbol',
               style: Theme.of(context).textTheme.headline1,
             ),
           },
           params: params,
-        ))) as Map;
+        ))) as Map?;
 
     if (res != null) {
       Navigator.of(context).pop('1');
@@ -175,24 +175,24 @@ class _MintPageState extends State<MintPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-        final symbols = widget.plugin.networkState.tokenSymbol;
+        final symbols = widget.plugin.networkState.tokenSymbol!;
         final stakeToken = relay_chain_token_symbol;
-        final decimals = widget.plugin.networkState.tokenDecimals;
+        final decimals = widget.plugin.networkState.tokenDecimals!;
 
         final karBalance = Fmt.balanceDouble(
-            widget.plugin.balances.native.availableBalance.toString(),
+            widget.plugin.balances.native!.availableBalance.toString(),
             decimals[0]);
         final balanceData =
-            widget.plugin.store.assets.tokenBalanceMap[stakeToken];
+            widget.plugin.store!.assets.tokenBalanceMap[stakeToken];
 
         final stakeDecimal = decimals[symbols.indexOf(stakeToken)];
         final balanceDouble =
             Fmt.balanceDouble(balanceData?.amount ?? "0", stakeDecimal);
 
-        final minStake = widget.plugin.store.homa.env != null
-            ? widget.plugin.store.homa.env.mintThreshold
+        final minStake = widget.plugin.store!.homa.env != null
+            ? widget.plugin.store!.homa.env!.mintThreshold
             : (Fmt.balanceDouble(
                     widget
                         .plugin.networkConst['homaLite']['minimumMintThreshold']
@@ -222,7 +222,7 @@ class _MintPageState extends State<MintPage> {
                         title: dic['dex.pay'],
                         inputCtrl: _amountPayCtrl,
                         balance: widget
-                            .plugin.store.assets.tokenBalanceMap[stakeToken],
+                            .plugin.store!.assets.tokenBalanceMap[stakeToken],
                         tokenIconsMap: widget.plugin.tokenIcons,
                         onInputChange: (v) =>
                             _onSupplyAmountChange(v, balanceDouble, minStake),
@@ -242,7 +242,7 @@ class _MintPageState extends State<MintPage> {
                           visible: _amountReceive.isNotEmpty,
                           child: Container(
                             margin: EdgeInsets.only(top: 16),
-                            child: InfoItemRow(dic['dex.receive'],
+                            child: InfoItemRow(dic['dex.receive']!,
                                 '$_amountReceive L$stakeToken'),
                           )),
                     ],

@@ -8,15 +8,15 @@ part of 'nftData.dart';
 
 NFTData _$NFTDataFromJson(Map<String, dynamic> json) {
   return NFTData()
-    ..attribute = json['attribute'] as Map<String, dynamic>
-    ..metadata = json['metadata'] as Map<String, dynamic>
-    ..classId = json['classId'] as String
-    ..dwebMetadata = json['dwebMetadata'] as String
-    ..metadataIpfsUrl = json['metadataIpfsUrl'] as String
+    ..attribute = json['attribute'] as Map<String, dynamic>?
+    ..metadata = json['metadata'] as Map<String, dynamic>?
+    ..classId = json['classId'] as String?
+    ..dwebMetadata = json['dwebMetadata'] as String?
+    ..metadataIpfsUrl = json['metadataIpfsUrl'] as String?
     ..properties =
         (json['properties'] as List<dynamic>).map((e) => e as String).toList()
-    ..tokenId = json['tokenId'] as String
-    ..deposit = json['deposit'] as String;
+    ..tokenId = json['tokenId'] as String?
+    ..deposit = json['deposit'] as String?;
 }
 
 Map<String, dynamic> _$NFTDataToJson(NFTData instance) => <String, dynamic>{

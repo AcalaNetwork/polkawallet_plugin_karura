@@ -5,25 +5,25 @@ import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 part 'loan.g.dart';
 
 class LoanStore extends _LoanStore with _$LoanStore {
-  LoanStore(StoreCache cache) : super(cache);
+  LoanStore(StoreCache? cache) : super(cache);
 }
 
 abstract class _LoanStore with Store {
   _LoanStore(this.cache);
 
-  final StoreCache cache;
+  final StoreCache? cache;
 
   @observable
   List<LoanType> loanTypes = [];
 
   @observable
-  Map<String, TotalCDPData> totalCDPs = Map<String, TotalCDPData>();
+  Map<String?, TotalCDPData> totalCDPs = Map<String, TotalCDPData>();
 
   @observable
-  Map<String, LoanData> loans = Map<String, LoanData>();
+  Map<String?, LoanData> loans = Map<String, LoanData>();
 
   @observable
-  Map<String, CollateralRewardData> collateralRewards =
+  Map<String?, CollateralRewardData> collateralRewards =
       Map<String, CollateralRewardData>();
 
   @observable
@@ -36,7 +36,7 @@ abstract class _LoanStore with Store {
 
   @action
   void setTotalCDPs(List<TotalCDPData> list) {
-    final dataMap = Map<String, TotalCDPData>();
+    final dataMap = Map<String?, TotalCDPData>();
     list.forEach((e) {
       dataMap[e.tokenNameId] = e;
     });
@@ -45,7 +45,7 @@ abstract class _LoanStore with Store {
 
   @action
   void setCollateralRewards(List<CollateralRewardData> data) {
-    final dataMap = Map<String, CollateralRewardData>();
+    final dataMap = Map<String?, CollateralRewardData>();
     data.forEach((e) {
       dataMap[e.tokenNameId] = e;
     });
@@ -53,7 +53,7 @@ abstract class _LoanStore with Store {
   }
 
   @action
-  void setAccountLoans(Map<String, LoanData> data) {
+  void setAccountLoans(Map<String?, LoanData> data) {
     loans = data;
   }
 
@@ -63,7 +63,7 @@ abstract class _LoanStore with Store {
   }
 
   @action
-  void loadCache(String pubKey) {
+  void loadCache(String? pubKey) {
     if (pubKey == null || pubKey.isEmpty) return;
 
     setAccountLoans(Map<String, LoanData>());

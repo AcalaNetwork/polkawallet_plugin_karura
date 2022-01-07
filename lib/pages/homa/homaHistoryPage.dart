@@ -24,13 +24,13 @@ class HomaHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final symbols = plugin.networkState.tokenSymbol;
     final decimals = plugin.networkState.tokenDecimals;
     final symbol = relay_chain_token_symbol;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['loan.txs']),
+        title: Text(dic['loan.txs']!),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -38,14 +38,14 @@ class HomaHistoryPage extends StatelessWidget {
         child: Query(
           options: QueryOptions(
             document: gql(homaQuery),
-            variables: <String, String>{
+            variables: <String, String?>{
               'account': keyring.current.address,
             },
           ),
           builder: (
             QueryResult result, {
-            Future<QueryResult> Function() refetch,
-            FetchMore fetchMore,
+            Future<QueryResult?> Function()? refetch,
+            FetchMore? fetchMore,
           }) {
             if (result.data == null) {
               return Container(
@@ -57,14 +57,14 @@ class HomaHistoryPage extends StatelessWidget {
               );
             }
 
-            final list = List.of(result.data['homaActions']['nodes'])
-                .map((i) => TxHomaData.fromJson(i as Map))
+            final list = List.of(result.data!['homaActions']['nodes'])
+                .map((i) => TxHomaData.fromJson((i as Map) as Map<String, dynamic>))
                 .toList();
             list.removeWhere((e) =>
                 e.action == TxHomaData.actionRedeemed &&
                 e.amountReceive == BigInt.zero);
 
-            final nativeDecimal = decimals[symbols.indexOf(symbol)];
+            final nativeDecimal = decimals![symbols!.indexOf(symbol)];
             final liquidDecimal = decimals[symbols.indexOf('L$symbol')];
 
             return ListView.builder(

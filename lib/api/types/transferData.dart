@@ -15,12 +15,12 @@ class TransferData extends _TransferData {
 }
 
 abstract class _TransferData {
-  String block;
-  String from = "";
-  String to = "";
+  String? block;
+  String? from = "";
+  String? to = "";
   String amount = "";
-  String token = "";
-  String hash = "";
+  String? token = "";
+  String? hash = "";
   String timestamp = "";
-  bool isSuccess = true;
+  bool? isSuccess = true;
 }

@@ -36,16 +36,16 @@ class _NFTPageState extends State<NFTPage> {
   List<String> _filters = [nft_filter_name_all];
 
   Future<void> _queryNFTs() async {
-    final nft = await widget.plugin.api.assets
+    final nft = await widget.plugin.api!.assets
         .queryNFTs(widget.keyring.current.address);
     if (nft != null) {
-      widget.plugin.store.assets.setNFTs(nft);
+      widget.plugin.store!.assets.setNFTs(nft);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     return Scaffold(
       appBar: AppBar(
         title: Text('NFTs'),
@@ -56,11 +56,11 @@ class _NFTPageState extends State<NFTPage> {
         child: Observer(
           builder: (_) {
             final classes = {};
-            final list = widget.plugin.store.assets.nft.toList();
+            final list = widget.plugin.store!.assets.nft.toList();
             if (_filters.length > 0 &&
                 !_filters.contains(nft_filter_name_all)) {
               list.retainWhere((e) => !_filters
-                  .map((prop) => e.properties.contains(prop))
+                  .map((prop) => e.properties!.contains(prop))
                   .contains(false));
             }
 
@@ -91,7 +91,7 @@ class _NFTPageState extends State<NFTPage> {
                   child: Wrap(
                     children: filtersAll.map((e) {
                       return OutlinedButtonSmall(
-                        content: dic['nft.$e'],
+                        content: dic!['nft.$e'],
                         active: _filters.contains(e),
                         padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
                         margin: EdgeInsets.only(top: 8, right: 8),
@@ -133,8 +133,8 @@ class _NFTPageState extends State<NFTPage> {
                       children: classKeys.map((id) {
                         final item = list.firstWhere((e) => e.classId == id);
 
-                        final isMintable = item.properties.contains('Mintable');
-                        final allProps = item.properties.toList();
+                        final isMintable = item.properties!.contains('Mintable');
+                        final allProps = item.properties!.toList();
                         allProps.remove('ClassPropertiesMutable');
                         allProps.remove('Mintable');
                         if (!isMintable) {
@@ -148,7 +148,7 @@ class _NFTPageState extends State<NFTPage> {
                               child: Column(
                                 children: [
                                   Image.network(
-                                      '${item.metadata['imageServiceUrl']}?imageView2/2/w/400'),
+                                      '${item.metadata!['imageServiceUrl']}?imageView2/2/w/400'),
                                   Padding(
                                     padding: EdgeInsets.all(8),
                                     child: Row(
@@ -157,7 +157,7 @@ class _NFTPageState extends State<NFTPage> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            item.metadata['name'],
+                                            item.metadata!['name'],
                                             style: TextStyle(fontSize: 10),
                                           ),
                                         ),
@@ -179,7 +179,7 @@ class _NFTPageState extends State<NFTPage> {
                                 NFTDetailPage.route,
                                 arguments: item);
                             if (res != null) {
-                              _refreshKey.currentState.show();
+                              _refreshKey.currentState!.show();
                             }
                           },
                         );

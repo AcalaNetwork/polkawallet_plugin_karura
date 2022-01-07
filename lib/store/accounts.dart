@@ -6,11 +6,11 @@ class AccountsStore extends _AccountsStore with _$AccountsStore {}
 
 abstract class _AccountsStore with Store {
   @observable
-  ObservableMap<String, Map> addressIndexMap = ObservableMap<String, Map>();
+  ObservableMap<String?, Map?> addressIndexMap = ObservableMap<String?, Map?>();
 
   @observable
-  ObservableMap<String, String> addressIconsMap =
-      ObservableMap<String, String>();
+  ObservableMap<String?, String?> addressIconsMap =
+      ObservableMap<String?, String?>();
 
   @action
   void setAddressIconsMap(List list) {

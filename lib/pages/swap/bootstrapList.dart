@@ -41,14 +41,14 @@ class _BootstrapListState extends State<BootstrapList> {
 
   int _bestNumber = 0;
 
-  Map<String, List> _userProvisions = {};
-  Map<String, List> _initialShareRates = {};
+  Map<String?, List> _userProvisions = {};
+  Map<String?, List?> _initialShareRates = {};
 
   bool _withStake = true;
   bool _claimSubmitting = false;
 
   Future<void> _updateBestNumber() async {
-    final res = await widget.plugin.sdk.webView
+    final res = await widget.plugin.sdk.webView!
         .evalJavascript('api.derive.chain.bestNumber()');
     final blockNumber = int.parse(res.toString());
     if (mounted) {
@@ -62,37 +62,37 @@ class _BootstrapListState extends State<BootstrapList> {
     _updateBestNumber();
 
     await Future.wait([
-      widget.plugin.service.earn.getDexPools(),
-      widget.plugin.service.earn.getBootstraps(),
+      widget.plugin.service!.earn.getDexPools(),
+      widget.plugin.service!.earn.getBootstraps(),
       _queryUserProvisions(),
-      widget.plugin.service.assets
+      widget.plugin.service!.assets
           .queryMarketPrices([relay_chain_token_symbol]),
     ]);
 
     if (_userProvisions.keys.length > 0) {
-      await widget.plugin.service.earn.queryIncentives();
+      await widget.plugin.service!.earn.queryIncentives();
     }
   }
 
   Future<void> _queryUserProvisions() async {
-    final query = widget.plugin.store.earn.dexPools.map((e) {
+    final query = widget.plugin.store!.earn.dexPools.map((e) {
       final pool = jsonEncode(e.tokens);
       return 'Promise.all(['
           'api.query.dex.provisioningPool($pool, "${widget.keyring.current.address}"),'
           'api.query.dex.initialShareExchangeRates($pool)'
           '])';
     }).join(',');
-    final res =
-        await widget.plugin.sdk.webView.evalJavascript('Promise.all([$query])');
-    final Map<String, List> provisions = {};
-    final Map<String, List> shareRates = {};
-    widget.plugin.store.earn.dexPools.asMap().forEach((i, e) {
+    final res = await widget.plugin.sdk.webView!
+        .evalJavascript('Promise.all([$query])');
+    final Map<String?, List> provisions = {};
+    final Map<String?, List?> shareRates = {};
+    widget.plugin.store!.earn.dexPools.asMap().forEach((i, e) {
       final provision = res[i][0] as List;
       if (BigInt.parse(provision[0].toString()) > BigInt.zero ||
           BigInt.parse(provision[1].toString()) > BigInt.zero) {
         provisions[e.tokenNameId] = provision;
       }
-      shareRates[e.tokenNameId] = res[i][1] as List;
+      shareRates[e.tokenNameId] = res[i][1] as List?;
     });
     if (mounted) {
       setState(() {
@@ -106,11 +106,11 @@ class _BootstrapListState extends State<BootstrapList> {
     setState(() {
       _claimSubmitting = true;
     });
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final params = [
       widget.keyring.current.address,
-      pool.tokens[0],
-      pool.tokens[1]
+      pool.tokens![0],
+      pool.tokens![1]
     ];
     if (_withStake) {
       final batchTxs = [
@@ -125,13 +125,13 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'utility',
         call: 'batch',
         txDisplay: {
-          dic['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, pool.tokenNameId)
+          dic!['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
+                  widget.plugin, pool.tokenNameId)!
               .symbol,
           "": dic['earn.withStake.info'],
         },
         txDisplayBold: {
-          dic['loan.amount']: Text(
+          dic['loan.amount']!: Text(
             '${Fmt.priceFloor(amount, lengthMax: 4)} LP',
             style: Theme.of(context).textTheme.headline1,
           ),
@@ -145,20 +145,20 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'dex',
         call: 'claimDexShare',
         txDisplay: {
-          dic['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, pool.tokenNameId)
+          dic!['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
+                  widget.plugin, pool.tokenNameId)!
               .symbol,
         },
         txDisplayBold: {
-          dic['loan.amount']: Text(
+          dic['loan.amount']!: Text(
             '${Fmt.priceFloor(amount, lengthMax: 4)} LP',
             style: Theme.of(context).textTheme.headline1,
           ),
         },
         params: [
           widget.keyring.current.address,
-          pool.tokens[0],
-          pool.tokens[1]
+          pool.tokens![0],
+          pool.tokens![1]
         ]);
   }
 
@@ -166,16 +166,16 @@ class _BootstrapListState extends State<BootstrapList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState.show();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _refreshKey.currentState!.show();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final bootstraps = widget.plugin.store.earn.bootstraps.toList();
-      final dexPools = widget.plugin.store.earn.dexPools.toList();
+      final bootstraps = widget.plugin.store!.earn.bootstraps.toList();
+      final dexPools = widget.plugin.store!.earn.dexPools.toList();
       dexPools.retainWhere((e) => _userProvisions.keys.contains(e.tokenNameId));
 
       return RefreshIndicator(
@@ -199,12 +199,12 @@ class _BootstrapListState extends State<BootstrapList> {
                       pool: e,
                       bestNumber: _bestNumber,
                       tokenIcons: widget.plugin.tokenIcons,
-                      relayChainTokenPrice: widget.plugin.store.assets
+                      relayChainTokenPrice: widget.plugin.store!.assets
                           .marketPrices[relay_chain_token_symbol],
                     );
                   }).toList(),
                   ...dexPools.map((e) {
-                    final balancePair = e.tokens
+                    final balancePair = e.tokens!
                         .map((e) => AssetsUtils.tokenDataFromCurrencyId(
                             widget.plugin, e))
                         .toList();
@@ -215,8 +215,8 @@ class _BootstrapListState extends State<BootstrapList> {
                       shareRate: _initialShareRates[e.tokenNameId],
                       tokenIcons: widget.plugin.tokenIcons,
                       existentialDeposit: Fmt.priceCeilBigInt(
-                          Fmt.balanceInt(balancePair[0].minBalance),
-                          balancePair[0].decimals,
+                          Fmt.balanceInt(balancePair[0]!.minBalance),
+                          balancePair[0]!.decimals!,
                           lengthMax: 6),
                       withStake: _withStake,
                       onWithStakeChange: (v) {
@@ -227,7 +227,7 @@ class _BootstrapListState extends State<BootstrapList> {
                       onClaimLP: _claimLPToken,
                       onFinish: (res) async {
                         if (res != null) {
-                          await _refreshKey.currentState.show();
+                          await _refreshKey.currentState!.show();
                         }
                         setState(() {
                           _claimSubmitting = false;
@@ -251,38 +251,38 @@ class _BootStrapCard extends StatelessWidget {
       this.tokenIcons,
       this.relayChainTokenPrice});
 
-  final PluginKarura plugin;
-  final DexPoolData pool;
-  final int bestNumber;
-  final Map<String, Widget> tokenIcons;
-  final double relayChainTokenPrice;
+  final PluginKarura? plugin;
+  final DexPoolData? pool;
+  final int? bestNumber;
+  final Map<String, Widget>? tokenIcons;
+  final double? relayChainTokenPrice;
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final balancePair = pool.tokens
+    final balancePair = pool!.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
-    final poolSymbol = balancePair.map((e) => e.symbol).join('-');
+    final poolSymbol = balancePair.map((e) => e!.symbol).join('-');
     final tokenPairView =
-        balancePair.map((e) => PluginFmt.tokenView(e.symbol ?? '')).toList();
+        balancePair.map((e) => PluginFmt.tokenView(e!.symbol ?? '')).toList();
 
     final targetLeft =
-        Fmt.balanceInt(pool.provisioning.targetProvision[0].toString());
+        Fmt.balanceInt(pool!.provisioning!.targetProvision![0].toString());
     final targetRight =
-        Fmt.balanceInt(pool.provisioning.targetProvision[1].toString());
+        Fmt.balanceInt(pool!.provisioning!.targetProvision![1].toString());
     final nowLeft =
-        Fmt.balanceInt(pool.provisioning.accumulatedProvision[0].toString());
+        Fmt.balanceInt(pool!.provisioning!.accumulatedProvision![0].toString());
     final nowRight =
-        Fmt.balanceInt(pool.provisioning.accumulatedProvision[1].toString());
+        Fmt.balanceInt(pool!.provisioning!.accumulatedProvision![1].toString());
     final progressLeft = nowLeft / targetLeft;
     final progressRight = nowRight / targetRight;
     final ratio = nowLeft > BigInt.zero ? nowRight / nowLeft : 1.0;
-    final blocksEnd = pool.provisioning.notBefore - bestNumber;
-    final time = bestNumber > 0
+    final blocksEnd = pool!.provisioning!.notBefore! - bestNumber!;
+    final time = bestNumber! > 0
         ? DateTime.now()
             .add(Duration(milliseconds: BLOCK_TIME_DEFAULT * blocksEnd))
         : null;
@@ -292,7 +292,7 @@ class _BootStrapCard extends StatelessWidget {
     if (poolSymbol == 'KAR-KSM') {
       final priceView = relayChainTokenPrice == null
           ? '--.--'
-          : Fmt.priceFloor(relayChainTokenPrice * ratio);
+          : Fmt.priceFloor(relayChainTokenPrice! * ratio);
       ratioView += '\n1 ${tokenPairView[0]} ≈ \$$priceView';
     }
     return RoundedCard(
@@ -303,7 +303,7 @@ class _BootStrapCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(poolSymbol, tokenIcons),
+                child: TokenIcon(poolSymbol, tokenIcons!),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
@@ -316,7 +316,7 @@ class _BootStrapCard extends StatelessWidget {
                 ),
               )),
               Text(
-                dic['boot.provision'],
+                dic['boot.provision']!,
                 style: TextStyle(
                   fontSize: 12,
                   color: primaryColor,
@@ -328,7 +328,7 @@ class _BootStrapCard extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(bottom: 8),
             child: Text(
-              dic['boot.provision.info'],
+              dic['boot.provision.info']!,
               style: TextStyle(color: colorGrey),
             ),
           ),
@@ -342,11 +342,11 @@ class _BootStrapCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dic['boot.provision.condition.1']),
+                  Text(dic['boot.provision.condition.1']!),
                   Row(
                     children: [
                       Text(
-                          '${Fmt.priceCeilBigInt(targetLeft, balancePair[0].decimals)} ${tokenPairView[0]}'),
+                          '${Fmt.priceCeilBigInt(targetLeft, balancePair[0]!.decimals!)} ${tokenPairView[0]}'),
                       Text(
                         ' (${Fmt.ratio(progressLeft)} ${dic['boot.provision.met']})',
                         style: TextStyle(color: primaryColor),
@@ -359,11 +359,11 @@ class _BootStrapCard extends StatelessWidget {
                     progress: progressLeft,
                     color: primaryColor,
                   ),
-                  Text(dic['boot.provision.or']),
+                  Text(dic['boot.provision.or']!),
                   Row(
                     children: [
                       Text(
-                          '${Fmt.priceCeilBigInt(targetRight, balancePair[1].decimals)} ${tokenPairView[1]}'),
+                          '${Fmt.priceCeilBigInt(targetRight, balancePair[1]!.decimals!)} ${tokenPairView[1]}'),
                       Text(
                         ' (${Fmt.ratio(progressRight)} ${dic['boot.provision.met']})',
                         style: TextStyle(color: primaryColor),
@@ -386,7 +386,7 @@ class _BootStrapCard extends StatelessWidget {
                 margin: EdgeInsets.only(right: 16),
                 child: _Checkbox(blocksEnd < 0),
               ),
-              Text(dic['boot.provision.condition.2'] +
+              Text(dic['boot.provision.condition.2']! +
                   ' ' +
                   (time != null
                       ? DateFormat.yMd().format(time.toLocal())
@@ -397,13 +397,13 @@ class _BootStrapCard extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(bottom: 8),
             child: InfoItemRow(
-                dic['boot.total'],
-                '${Fmt.priceCeilBigInt(nowLeft, balancePair[0].decimals)} ${tokenPairView[0]}\n'
-                '+ ${Fmt.priceCeilBigInt(nowRight, balancePair[1].decimals)} ${tokenPairView[1]}'),
+                dic['boot.total']!,
+                '${Fmt.priceCeilBigInt(nowLeft, balancePair[0]!.decimals!)} ${tokenPairView[0]}\n'
+                '+ ${Fmt.priceCeilBigInt(nowRight, balancePair[1]!.decimals!)} ${tokenPairView[1]}'),
           ),
           Container(
             margin: EdgeInsets.only(bottom: 16),
-            child: InfoItemRow(dic['boot.ratio'], ratioView),
+            child: InfoItemRow(dic['boot.ratio']!, ratioView),
           ),
           RoundedButton(
             text: dic['boot.title'],
@@ -432,36 +432,36 @@ class _BootStrapCardEnabled extends StatelessWidget {
       this.submitting});
 
   final PluginKarura plugin;
-  final DexPoolData pool;
-  final List userProvision;
-  final List shareRate;
-  final Map<String, Widget> tokenIcons;
-  final String existentialDeposit;
-  final bool withStake;
-  final Function(bool) onWithStakeChange;
-  final TxConfirmParams Function(DexPoolData, double, int) onClaimLP;
-  final Function(Map) onFinish;
-  final bool submitting;
+  final DexPoolData? pool;
+  final List? userProvision;
+  final List? shareRate;
+  final Map<String, Widget>? tokenIcons;
+  final String? existentialDeposit;
+  final bool? withStake;
+  final Function(bool)? onWithStakeChange;
+  final TxConfirmParams Function(DexPoolData, double, int)? onClaimLP;
+  final Function(Map?)? onFinish;
+  final bool? submitting;
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final poolToken =
-        AssetsUtils.getBalanceFromTokenNameId(plugin, pool.tokenNameId);
-    final balancePair = pool.tokens
+        AssetsUtils.getBalanceFromTokenNameId(plugin, pool!.tokenNameId)!;
+    final balancePair = pool!.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
     final tokenPairView =
-        balancePair.map((e) => PluginFmt.tokenView(e.symbol ?? '')).toList();
+        balancePair.map((e) => PluginFmt.tokenView(e!.symbol ?? '')).toList();
 
-    final userLeft =
-        Fmt.balanceDouble(userProvision[0].toString(), balancePair[0].decimals);
-    final userRight =
-        Fmt.balanceDouble(userProvision[1].toString(), balancePair[1].decimals);
-    final ratio = Fmt.balanceDouble(shareRate[1].toString(), 18);
+    final userLeft = Fmt.balanceDouble(
+        userProvision![0].toString(), balancePair[0]!.decimals!);
+    final userRight = Fmt.balanceDouble(
+        userProvision![1].toString(), balancePair[1]!.decimals!);
+    final ratio = Fmt.balanceDouble(shareRate![1].toString(), 18);
     final amount = userLeft + userRight * ratio;
 
     return RoundedCard(
@@ -472,7 +472,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(poolToken.symbol, tokenIcons),
+                child: TokenIcon(poolToken.symbol!, tokenIcons!),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
@@ -485,7 +485,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
                 ),
               )),
               Text(
-                dic['boot.enabled'],
+                dic['boot.enabled']!,
                 style: TextStyle(
                   fontSize: 12,
                   color: primaryColor,
@@ -496,7 +496,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
           Divider(height: 24),
           Container(
             margin: EdgeInsets.only(bottom: 16),
-            child: Text(dic['boot.my']),
+            child: Text(dic['boot.my']!),
           ),
           Row(
             children: [
@@ -519,12 +519,12 @@ class _BootStrapCardEnabled extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TapTooltip(
-                  message: dic['cross.exist.msg'],
+                  message: dic['cross.exist.msg']!,
                   child: Row(
                     children: [
                       Padding(
                         padding: EdgeInsets.only(right: 4),
-                        child: Text(dic['transfer.exist']),
+                        child: Text(dic['transfer.exist']!),
                       ),
                       Icon(
                         Icons.info,
@@ -535,7 +535,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
                   ),
                 ),
                 Expanded(child: Container(width: 2)),
-                Text(existentialDeposit,
+                Text(existentialDeposit!,
                     style: Theme.of(context).textTheme.headline4),
               ],
             ),
@@ -559,7 +559,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
               onSwitch: onWithStakeChange,
             ),
           ),
-          submitting
+          submitting!
               ? RoundedButton(
                   text: 'Claim LP Tokens',
                   icon: CupertinoActivityIndicator(),
@@ -567,7 +567,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
               : TxButton(
                   text: 'Claim LP Tokens',
                   getTxParams: () async =>
-                      onClaimLP(pool, amount, balancePair[0].decimals),
+                      onClaimLP!(pool!, amount, balancePair[0]!.decimals!),
                   onFinish: onFinish,
                 )
         ],

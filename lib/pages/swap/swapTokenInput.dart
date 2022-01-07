@@ -23,16 +23,16 @@ class SwapTokenInput extends StatefulWidget {
     this.onSetMax,
     this.onClear,
   });
-  final String title;
-  final TextEditingController inputCtrl;
-  final TokenBalanceData balance;
-  final List<TokenBalanceData> tokenOptions;
-  final Map<String, Widget> tokenIconsMap;
-  final double marketPrice;
-  final Function(String) onInputChange;
-  final Function(TokenBalanceData) onTokenChange;
-  final Function(BigInt) onSetMax;
-  final Function onClear;
+  final String? title;
+  final TextEditingController? inputCtrl;
+  final TokenBalanceData? balance;
+  final List<TokenBalanceData?> tokenOptions;
+  final Map<String, Widget>? tokenIconsMap;
+  final double? marketPrice;
+  final Function(String)? onInputChange;
+  final Function(TokenBalanceData)? onTokenChange;
+  final Function(BigInt)? onSetMax;
+  final Function? onClear;
 
   @override
   _SwapTokenInputState createState() => _SwapTokenInputState();
@@ -45,26 +45,26 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
     final selected = await Navigator.of(context)
         .pushNamed(CurrencySelectPage.route, arguments: widget.tokenOptions);
     if (selected != null) {
-      widget.onTokenChange(selected as TokenBalanceData);
+      widget.onTokenChange!(selected as TokenBalanceData);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final dicAssets = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final dicAssets = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
 
     final max = Fmt.balanceInt(widget.balance?.amount);
 
     bool priceVisible =
-        widget.marketPrice != null && widget.inputCtrl.text.isNotEmpty;
+        widget.marketPrice != null && widget.inputCtrl!.text.isNotEmpty;
     double inputAmount = 0;
     try {
-      inputAmount = double.parse(widget.inputCtrl.text.trim());
+      inputAmount = double.parse(widget.inputCtrl!.text.trim());
     } catch (e) {
       priceVisible = false;
     }
-    final price = priceVisible ? widget.marketPrice * inputAmount : null;
+    final price = priceVisible ? widget.marketPrice! * inputAmount : null;
 
     final colorGray = Theme.of(context).unselectedWidgetColor;
     final colorLightGray = Theme.of(context).disabledColor;
@@ -95,7 +95,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                         padding: EdgeInsets.only(left: 8),
                         child: TextTag(dic['loan.max']),
                       ),
-                      onTap: () => widget.onSetMax(max),
+                      onTap: () => widget.onSetMax!(max),
                     ))
               ],
             ),
@@ -123,12 +123,12 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                           errorStyle: TextStyle(height: 0.3),
                           contentPadding: EdgeInsets.all(0),
                           border: InputBorder.none,
-                          suffix: _hasFocus && widget.inputCtrl.text.isNotEmpty
+                          suffix: _hasFocus && widget.inputCtrl!.text.isNotEmpty
                               ? IconButton(
                                   padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
                                   icon: Icon(Icons.cancel,
                                       size: 16, color: colorGray),
-                                  onPressed: widget.onClear,
+                                  onPressed: widget.onClear as void Function()?,
                                 )
                               : null,
                         ),
@@ -136,7 +136,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                             fontSize: 20, fontWeight: FontWeight.bold),
                         inputFormatters: [
                           UI.decimalInputFormatter(
-                              widget.balance?.decimals ?? 0)
+                              widget.balance?.decimals ?? 0)!
                         ],
                         controller: widget.inputCtrl,
                         keyboardType:
@@ -144,9 +144,9 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                         onChanged: (value) {
                           try {
                             double.parse(value);
-                            widget.onInputChange(value);
+                            widget.onInputChange!(value);
                           } catch (e) {
-                            widget.inputCtrl.text = "";
+                            widget.inputCtrl!.text = "";
                           }
                         },
                       ),
@@ -156,7 +156,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                     child: CurrencyWithIcon(
                       widget.balance?.symbol ?? "",
                       TokenIcon(
-                          widget.balance?.symbol ?? "", widget.tokenIconsMap,
+                          widget.balance?.symbol ?? "", widget.tokenIconsMap!,
                           small: true),
                       textStyle: Theme.of(context).textTheme.headline4,
                       trailing: widget.onTokenChange != null

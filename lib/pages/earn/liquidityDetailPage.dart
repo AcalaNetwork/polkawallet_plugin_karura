@@ -17,18 +17,18 @@ class EarnLiquidityDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final Map<String, String>? dic =
+        I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-    final TxDexLiquidityData tx = ModalRoute.of(context).settings.arguments;
+    final TxDexLiquidityData tx = ModalRoute.of(context)!.settings.arguments as TxDexLiquidityData;
 
     final List<TxDetailInfoItem> items = [];
     switch (tx.action) {
       case TxDexLiquidityData.actionDeposit:
         items.addAll([
           TxDetailInfoItem(
-            label: dic['earn.add'],
+            label: dic!['earn.add'],
             content: Text(tx.amountLeft, style: amountStyle),
           ),
           TxDetailInfoItem(
@@ -39,15 +39,15 @@ class EarnLiquidityDetailPage extends StatelessWidget {
         break;
       case TxDexLiquidityData.actionWithdraw:
         items.add(TxDetailInfoItem(
-          label: dic['dex.pay'],
+          label: dic!['dex.pay'],
           content: Text(tx.amountShare, style: amountStyle),
         ));
         break;
     }
 
-    String networkName = plugin.basic.name;
+    String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
-      networkName = '${networkName.split('-')[0]}-testnet';
+      networkName = '${networkName!.split('-')[0]}-testnet';
     }
     return TxDetail(
       current: keyring.current,
@@ -55,7 +55,7 @@ class EarnLiquidityDetailPage extends StatelessWidget {
       action: tx.action,
       blockNum: int.parse(tx.block),
       hash: tx.hash,
-      blockTime: Fmt.dateTime(DateTime.parse(tx.time)),
+      blockTime: Fmt.dateTime(DateTime.parse(tx.time!)),
       networkName: networkName,
       infoItems: items,
     );

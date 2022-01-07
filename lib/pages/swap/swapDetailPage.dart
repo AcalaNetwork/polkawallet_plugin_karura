@@ -21,32 +21,32 @@ class SwapDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-    final TxSwapData tx = ModalRoute.of(context).settings.arguments;
+    final TxSwapData tx = ModalRoute.of(context)!.settings.arguments as TxSwapData;
     final token0 = PluginFmt.tokenView(tx.tokenPay);
     final token1 = PluginFmt.tokenView(tx.tokenReceive);
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         plugin, [tx.tokenPay, tx.tokenReceive]);
     final tokenLP = '$token0-$token1 LP';
-    final amount0 = Fmt.balance(tx.amountPay, balancePair[0].decimals);
-    final amount1 = Fmt.balance(tx.amountReceive, balancePair[1].decimals);
-    final amountLP = Fmt.balance(tx.amountShare, balancePair[0].decimals);
+    final amount0 = Fmt.balance(tx.amountPay, balancePair[0]!.decimals!);
+    final amount1 = Fmt.balance(tx.amountReceive, balancePair[1]!.decimals!);
+    final amountLP = Fmt.balance(tx.amountShare, balancePair[0]!.decimals!);
 
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-    String networkName = plugin.basic.name;
+    String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
-      networkName = '${networkName.split('-')[0]}-testnet';
+      networkName = '${networkName!.split('-')[0]}-testnet';
     }
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.action, style: amountStyle),
+        content: Text(tx.action!, style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(dic['dex.${tx.action}'], style: amountStyle),
+        content: Text(dic['dex.${tx.action}']!, style: amountStyle),
       )
     ];
     switch (tx.action) {

@@ -6,40 +6,40 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 part 'assets.g.dart';
 
 class AssetsStore extends _AssetsStore with _$AssetsStore {
-  AssetsStore(StoreCache cache) : super(cache);
+  AssetsStore(StoreCache? cache) : super(cache);
 }
 
 abstract class _AssetsStore with Store {
   _AssetsStore(this.cache);
 
-  final StoreCache cache;
+  final StoreCache? cache;
 
   List<TokenBalanceData> allTokens = [];
 
   @observable
-  Map<String, TokenBalanceData> tokenBalanceMap =
+  Map<String?, TokenBalanceData> tokenBalanceMap =
       Map<String, TokenBalanceData>();
 
   @observable
-  Map<String, BigInt> prices = {};
+  Map<String?, BigInt> prices = {};
 
   @observable
-  ObservableMap<String, double> marketPrices = ObservableMap();
+  ObservableMap<String?, double> marketPrices = ObservableMap();
 
   @observable
   List<NFTData> nft = [];
 
   @observable
-  Map aggregatedAssets = {};
+  Map? aggregatedAssets = {};
 
   void setAllTokens(List<TokenBalanceData> tokens) {
     allTokens = tokens;
   }
 
   @action
-  void setTokenBalanceMap(List<TokenBalanceData> list, String pubKey,
+  void setTokenBalanceMap(List<TokenBalanceData> list, String? pubKey,
       {bool shouldCache = true}) {
-    final data = Map<String, TokenBalanceData>();
+    final data = Map<String?, TokenBalanceData>();
     final dataForCache = {};
     list.forEach((e) {
       if (e.tokenNameId == null) return;
@@ -63,19 +63,19 @@ abstract class _AssetsStore with Store {
     tokenBalanceMap = data;
 
     if (shouldCache) {
-      final cached = cache.tokens.val;
+      final cached = cache!.tokens.val;
       cached[pubKey] = dataForCache;
-      cache.tokens.val = cached;
+      cache!.tokens.val = cached;
     }
   }
 
   @action
-  void setPrices(Map<String, BigInt> data) {
+  void setPrices(Map<String?, BigInt> data) {
     prices = data;
   }
 
   @action
-  void setMarketPrices(Map<String, double> data) {
+  void setMarketPrices(Map<String?, double> data) {
     marketPrices.addAll(data);
   }
 
@@ -85,19 +85,19 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  void setAggregatedAssets(Map data, String pubKey) {
+  void setAggregatedAssets(Map? data, String? pubKey) {
     aggregatedAssets = data;
 
-    final cached = cache.aggregatedAssets.val;
+    final cached = cache!.aggregatedAssets.val;
     cached[pubKey] = data;
-    cache.aggregatedAssets.val = cached;
+    cache!.aggregatedAssets.val = cached;
   }
 
   @action
-  void loadCache(String pubKey) {
+  void loadCache(String? pubKey) {
     if (pubKey == null || pubKey.isEmpty) return;
 
-    final cachedTokens = cache.tokens.val;
+    final cachedTokens = cache!.tokens.val;
     if (cachedTokens != null && cachedTokens[pubKey] != null) {
       final tokens = cachedTokens[pubKey].values.toList();
       tokens.retainWhere((e) => e['tokenNameId'] != null);
@@ -120,7 +120,7 @@ abstract class _AssetsStore with Store {
       tokenBalanceMap = Map<String, TokenBalanceData>();
     }
 
-    final cachedAggregatedAssets = cache.aggregatedAssets.val;
+    final cachedAggregatedAssets = cache!.aggregatedAssets.val;
     if (cachedAggregatedAssets != null &&
         cachedAggregatedAssets[pubKey] != null) {
       aggregatedAssets = cachedAggregatedAssets[pubKey];

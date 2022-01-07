@@ -42,67 +42,68 @@ class EarnDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final symbols = plugin.networkState.tokenSymbol;
 
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final DexPoolData pool =
+        ModalRoute.of(context)!.settings.arguments as DexPoolData;
     final poolId = pool.tokenNameId;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['earn.title']),
+        title: Text(dic['earn.title']!),
         centerTitle: true,
         leading: BackBtn(),
       ),
       body: Observer(
         builder: (_) {
-          final balancePair = pool.tokens
+          final balancePair = pool.tokens!
               .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
               .toList();
 
-          BigInt issuance = BigInt.zero;
-          BigInt shareTotal = BigInt.zero;
-          BigInt share = BigInt.zero;
+          BigInt? issuance = BigInt.zero;
+          BigInt? shareTotal = BigInt.zero;
+          BigInt? share = BigInt.zero;
           double stakeShare = 0;
           double poolShare = 0;
 
           String lpAmountString = '~';
 
-          final poolInfo = plugin.store.earn.dexPoolInfoMap[pool.tokenNameId];
+          final poolInfo = plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId];
           if (poolInfo != null) {
             issuance = poolInfo.issuance;
             shareTotal = poolInfo.sharesTotal;
             share = poolInfo.shares;
-            stakeShare = share / shareTotal;
-            poolShare = share / issuance;
+            stakeShare = share! / shareTotal!;
+            poolShare = share / issuance!;
 
             final lpAmount = Fmt.bigIntToDouble(
-                    poolInfo.amountLeft, balancePair[0].decimals) *
+                    poolInfo.amountLeft, balancePair[0]!.decimals!) *
                 poolShare;
             final lpAmount2 = Fmt.bigIntToDouble(
-                    poolInfo.amountRight, balancePair[1].decimals) *
+                    poolInfo.amountRight, balancePair[1]!.decimals!) *
                 poolShare;
             lpAmountString =
-                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0].symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1].symbol)}';
+                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0]!.symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1]!.symbol)}';
           }
 
           double rewardAPR = 0;
           double savingRewardAPR = 0;
-          double loyaltyBonus = 0;
-          double savingLoyaltyBonus = 0;
-          final incentiveV2 = plugin.store.earn.incentives;
+          double? loyaltyBonus = 0;
+          double? savingLoyaltyBonus = 0;
+          final incentiveV2 = plugin.store!.earn.incentives;
           if (incentiveV2.dex != null) {
-            (incentiveV2.dex[pool.tokenNameId] ?? []).forEach((e) {
+            (incentiveV2.dex![pool.tokenNameId!] ?? []).forEach((e) {
               rewardAPR += e.apr;
               loyaltyBonus = e.deduction;
             });
-            (incentiveV2.dexSaving[pool.tokenNameId] ?? []).forEach((e) {
+            (incentiveV2.dexSaving[pool.tokenNameId!] ?? []).forEach((e) {
               savingRewardAPR += e.apr;
               savingLoyaltyBonus = e.deduction;
             });
           }
 
           final balance = Fmt.balanceInt(
-              plugin.store.assets.tokenBalanceMap[pool.tokenNameId]?.amount ??
+              plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]?.amount ??
                   '0');
 
           Color cardColor = Theme.of(context).cardColor;
@@ -118,10 +119,10 @@ class EarnDetailPage extends StatelessWidget {
                         children: <Widget>[
                           _SystemCard(
                             poolSymbol:
-                                balancePair.map((e) => e.symbol).join('-'),
+                                balancePair.map((e) => e!.symbol).join('-'),
                             total: shareTotal,
                             userStaked: share,
-                            decimals: balancePair[0].decimals,
+                            decimals: balancePair[0]!.decimals,
                             lpAmountString: lpAmountString,
                             actions: Row(
                               children: [
@@ -154,26 +155,26 @@ class EarnDetailPage extends StatelessWidget {
                               plugin: plugin,
                               share: stakeShare,
                               poolInfo: poolInfo,
-                              poolSymbol: pool.tokens
+                              poolSymbol: pool.tokens!
                                   .map((e) =>
                                       AssetsUtils.tokenDataFromCurrencyId(
-                                              plugin, e)
+                                              plugin, e)!
                                           .symbol)
                                   .join('-'),
                               rewardAPY: rewardAPR,
                               rewardSavingAPY: savingRewardAPR,
                               loyaltyBonus: loyaltyBonus,
                               savingLoyaltyBonus: savingLoyaltyBonus,
-                              fee: plugin.service.earn.getSwapFee(),
-                              incentiveCoinSymbol: symbols[0],
+                              fee: plugin.service!.earn.getSwapFee(),
+                              incentiveCoinSymbol: symbols![0],
                               stableCoinSymbol: karura_stable_coin,
                               stableCoinDecimal:
-                                  plugin.networkState.tokenDecimals[
+                                  plugin.networkState.tokenDecimals![
                                       symbols.indexOf(karura_stable_coin)],
-                              bestNumber: plugin.store.gov.bestNumber,
+                              bestNumber: plugin.store!.gov.bestNumber,
                               dexIncentiveLoyaltyEndBlock: this
                                   .plugin
-                                  .store
+                                  .store!
                                   .earn
                                   .dexIncentiveLoyaltyEndBlock)
                         ],
@@ -186,7 +187,7 @@ class EarnDetailPage extends StatelessWidget {
                             color: Colors.redAccent,
                             child: TextButton(
                                 child: Text(
-                                  dic['earn.add'],
+                                  dic['earn.add']!,
                                   style: TextStyle(color: cardColor),
                                 ),
                                 onPressed: () {
@@ -204,7 +205,7 @@ class EarnDetailPage extends StatelessWidget {
                                 color: primaryColor,
                                 child: TextButton(
                                   child: Text(
-                                    dic['earn.remove'],
+                                    dic['earn.remove']!,
                                     style: TextStyle(color: cardColor),
                                   ),
                                   onPressed: () =>
@@ -235,15 +236,15 @@ class _SystemCard extends StatelessWidget {
     this.lpAmountString,
     this.actions,
   });
-  final String poolSymbol;
-  final BigInt total;
-  final BigInt userStaked;
-  final int decimals;
-  final String lpAmountString;
-  final Widget actions;
+  final String? poolSymbol;
+  final BigInt? total;
+  final BigInt? userStaked;
+  final int? decimals;
+  final String? lpAmountString;
+  final Widget? actions;
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final primary = Theme.of(context).primaryColor;
     final TextStyle primaryText = TextStyle(
       fontSize: 22,
@@ -262,7 +263,7 @@ class _SystemCard extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(top: 16, bottom: 8),
                 child: Text(
-                    Fmt.priceFloorBigInt(userStaked, decimals, lengthFixed: 4),
+                    Fmt.priceFloorBigInt(userStaked, decimals!, lengthFixed: 4),
                     style: primaryText),
               ),
             ],
@@ -279,18 +280,18 @@ class _SystemCard extends StatelessWidget {
               InfoItem(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 title: dic['earn.stake.pool'],
-                content: Fmt.priceFloorBigInt(total, decimals, lengthFixed: 4),
+                content: Fmt.priceFloorBigInt(total, decimals!, lengthFixed: 4),
               ),
               InfoItem(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 title: dic['earn.share'],
                 content:
-                    Fmt.ratio(total > BigInt.zero ? userStaked / total : 0),
+                    Fmt.ratio(total! > BigInt.zero ? userStaked! / total! : 0),
               ),
             ],
           ),
           Divider(height: 24),
-          actions
+          actions!
         ],
       ),
     );
@@ -314,41 +315,41 @@ class _UserCard extends StatelessWidget {
     this.bestNumber,
     this.dexIncentiveLoyaltyEndBlock,
   });
-  final PluginKarura plugin;
-  final double share;
-  final DexPoolInfoData poolInfo;
-  final String poolSymbol;
-  final double rewardAPY;
-  final double rewardSavingAPY;
-  final double loyaltyBonus;
-  final double savingLoyaltyBonus;
-  final double fee;
-  final String incentiveCoinSymbol;
-  final String stableCoinSymbol;
-  final int stableCoinDecimal;
-  final BigInt bestNumber;
-  final List<dynamic> dexIncentiveLoyaltyEndBlock;
+  final PluginKarura? plugin;
+  final double? share;
+  final DexPoolInfoData? poolInfo;
+  final String? poolSymbol;
+  final double? rewardAPY;
+  final double? rewardSavingAPY;
+  final double? loyaltyBonus;
+  final double? savingLoyaltyBonus;
+  final double? fee;
+  final String? incentiveCoinSymbol;
+  final String? stableCoinSymbol;
+  final int? stableCoinDecimal;
+  final BigInt? bestNumber;
+  final List<dynamic>? dexIncentiveLoyaltyEndBlock;
 
   Future<void> _onClaim(
       BuildContext context, String rewardV2, double rewardSaving) async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     showCupertinoDialog(
       context: context,
       builder: (BuildContext ctx) {
         return CupertinoAlertDialog(
-          title: Text(dic['earn.claim']),
-          content: Text(dic['earn.claim.info']),
+          title: Text(dic!['earn.claim']!),
+          content: Text(dic['earn.claim.info']!),
           actions: <Widget>[
             CupertinoButton(
-              child: Text(I18n.of(context)
-                  .getDic(i18n_full_dic_karura, 'common')['cancel']),
+              child: Text(I18n.of(context)!
+                  .getDic(i18n_full_dic_karura, 'common')!['cancel']!),
               onPressed: () {
                 Navigator.of(ctx).pop();
               },
             ),
             CupertinoButton(
-              child: Text(I18n.of(context)
-                  .getDic(i18n_full_dic_karura, 'common')['ok']),
+              child: Text(I18n.of(context)!
+                  .getDic(i18n_full_dic_karura, 'common')!['ok']!),
               onPressed: () {
                 Navigator.of(ctx).pop();
                 _onWithdrawReward(context, rewardV2, rewardSaving);
@@ -362,8 +363,9 @@ class _UserCard extends StatelessWidget {
 
   void _onWithdrawReward(
       BuildContext context, String rewardV2, double rewardSaving) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final DexPoolData pool =
+        ModalRoute.of(context)!.settings.arguments as DexPoolData;
 
     Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
@@ -375,9 +377,9 @@ class _UserCard extends StatelessWidget {
                 (rewardSaving >= 0.01
                     ? ' + ${Fmt.priceFloor(rewardSaving)} $karura_stable_coin_view'
                     : ''),
-            dic['earn.pool']:
-                AssetsUtils.getBalanceFromTokenNameId(plugin, pool.tokenNameId)
-                    .symbol,
+            dic['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
+                    plugin!, pool.tokenNameId)!
+                .symbol,
           },
           params: [],
           rawParams: '[{Dex: {DEXShare: ${jsonEncode(pool.tokens)}}}]',
@@ -386,7 +388,7 @@ class _UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     bool canClaim = false;
 
     var rewardSaving =
@@ -404,17 +406,17 @@ class _UserCard extends StatelessWidget {
     );
 
     final savingRewardTokenMin = Fmt.balanceDouble(
-        plugin.store.assets.tokenBalanceMap[stableCoinSymbol].minBalance,
-        stableCoinDecimal);
+        plugin!.store!.assets.tokenBalanceMap[stableCoinSymbol]!.minBalance!,
+        stableCoinDecimal!);
     canClaim = rewardSaving > savingRewardTokenMin;
-    final rewardV2 = poolInfo?.reward?.incentive?.map((e) {
+    final String rewardV2 = poolInfo!.reward!.incentive.map((e) {
       final amount = double.parse(e['amount']);
       if (amount > 0.001) {
         canClaim = true;
       }
       return Fmt.priceFloor(amount * (1 - (loyaltyBonus ?? 0)), lengthMax: 4) +
           ' ${e['tokenNameId']}';
-    })?.join(' + ');
+    }).join(' + ');
 
     var blockNumber;
     dexIncentiveLoyaltyEndBlock?.forEach((e) {
@@ -425,13 +427,13 @@ class _UserCard extends StatelessWidget {
     });
 
     final blocksToEnd =
-        blockNumber != null ? blockNumber - bestNumber.toInt() : null;
+        blockNumber != null ? blockNumber - bestNumber!.toInt() : null;
 
     final rewardsRow = <Widget>[
       Column(
         children: <Widget>[
           Text(
-            dic['earn.incentive'],
+            dic['earn.incentive']!,
             style: TextStyle(fontSize: 12),
           ),
           Padding(
@@ -467,7 +469,7 @@ class _UserCard extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(bottom: 16),
-                child: Text(dic['earn.reward']),
+                child: Text(dic['earn.reward']!),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -481,13 +483,13 @@ class _UserCard extends StatelessWidget {
                     InfoItem(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       title: 'APR',
-                      content: Fmt.ratio(rewardAPY + rewardSavingAPY),
+                      content: Fmt.ratio(rewardAPY! + rewardSavingAPY!),
                     ),
                     InfoItem(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       title: dic['earn.apy.0'],
-                      content: Fmt.ratio(rewardAPY * (1 - loyaltyBonus) +
-                          rewardSavingAPY * (1 - savingLoyaltyBonus)),
+                      content: Fmt.ratio(rewardAPY! * (1 - loyaltyBonus!) +
+                          rewardSavingAPY! * (1 - savingLoyaltyBonus!)),
                     ),
                   ],
                 ),
@@ -498,7 +500,7 @@ class _UserCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TapTooltip(
-                      message: dic['earn.fee.info'],
+                      message: dic['earn.fee.info']!,
                       child: Center(
                           child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -510,7 +512,7 @@ class _UserCard extends StatelessWidget {
                           ),
                           Container(
                             margin: EdgeInsets.only(left: 4),
-                            child: Text(dic['earn.fee'] + ':',
+                            child: Text(dic['earn.fee']! + ':',
                                 style: TextStyle(fontSize: 12)),
                           )
                         ],
@@ -536,7 +538,7 @@ class _UserCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TapTooltip(
-                      message: dic['earn.loyal.info'],
+                      message: dic['earn.loyal.info']!,
                       child: Center(
                           child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -548,7 +550,7 @@ class _UserCard extends StatelessWidget {
                           ),
                           Container(
                             margin: EdgeInsets.only(left: 4),
-                            child: Text(dic['earn.loyal'] + ':',
+                            child: Text(dic['earn.loyal']! + ':',
                                 style: TextStyle(fontSize: 12)),
                           )
                         ],

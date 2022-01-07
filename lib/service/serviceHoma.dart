@@ -13,24 +13,24 @@ class ServiceHoma {
 
   final PluginKarura plugin;
   final Keyring keyring;
-  final AcalaApi api;
-  final PluginStore store;
+  final AcalaApi? api;
+  final PluginStore? store;
 
   Future<HomaLitePoolInfoData> queryHomaLiteStakingPool() async {
-    final res = await api.homa.queryHomaLiteStakingPool();
-    store.homa.setHomaLitePoolInfoData(res);
+    final res = await api!.homa.queryHomaLiteStakingPool();
+    store!.homa.setHomaLitePoolInfoData(res);
     return res;
   }
 
   Future<HomaNewEnvData> queryHomaEnv() async {
-    final res = await api.homa.queryHomaNewEnv();
-    store.homa.setHomaEnv(res);
+    final res = await api!.homa.queryHomaNewEnv();
+    store!.homa.setHomaEnv(res);
     return res;
   }
 
   Future<HomaPendingRedeemData> queryHomaPendingRedeem() async {
-    final res = await api.homa.queryHomaPendingRedeem(keyring.current.address);
-    store.homa.setUserInfo(res);
+    final res = await api!.homa.queryHomaPendingRedeem(keyring.current.address);
+    store!.homa.setUserInfo(res);
     return res;
   }
 }

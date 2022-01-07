@@ -7,11 +7,11 @@ import 'package:polkawallet_ui/components/SkaletonList.dart';
 
 class InstrumentWidget extends StatefulWidget {
   InstrumentWidget(this.datas, this.onSwitchChange, this.onSwitchHideBalance,
-      {Key key, this.hideBalance = false, this.enabled = true})
+      {Key? key, this.hideBalance = false, this.enabled = true})
       : super(key: key);
   final List<InstrumentData> datas;
-  final Function onSwitchChange;
-  final Function onSwitchHideBalance;
+  final Function? onSwitchChange;
+  final Function? onSwitchHideBalance;
   final bool hideBalance;
   final bool enabled;
 
@@ -25,7 +25,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
 
   @override
   void initState() {
-    WidgetsBinding.instance
+    WidgetsBinding.instance!
         .addPostFrameCallback((_) => controller.switchAction(isOnClick: false));
     // TODO: implement initState
     super.initState();
@@ -47,7 +47,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                   controller: controller,
                   onChanged: (index, isOnClick) {
                     if (isOnClick) {
-                      widget.onSwitchChange();
+                      widget.onSwitchChange!();
                     }
                     setState(() {
                       this.index = index;
@@ -68,7 +68,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                   child: Column(
                     children: [
                       Text(
-                          widget.datas[index].title.length > 0
+                          widget.datas[index].title!.length > 0
                               ? "${widget.datas[index].title}:"
                               : "",
                           style: TextStyle(
@@ -80,7 +80,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                   .selectionColor)),
                       GestureDetector(
                           onTap: () {
-                            widget.onSwitchHideBalance();
+                            widget.onSwitchHideBalance!();
                           },
                           child: Text(
                               widget.hideBalance
@@ -162,7 +162,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
             )),
         Container(
           margin: EdgeInsets.only(top: 4, bottom: 8),
-          child: Text(widget.datas[index].prompt,
+          child: Text(widget.datas[index].prompt!,
               style: TextStyle(
                   fontFamily: "SF_Pro",
                   fontSize: 10,
@@ -199,7 +199,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                       Radius.circular(10 / 2))),
                             ),
                             Text(
-                              e.name,
+                              e.name!,
                               style: TextStyle(
                                   fontFamily: "TitilliumWeb",
                                   fontSize: 12,

@@ -27,17 +27,17 @@ class _EarnPageState extends State<EarnPage> {
 
   @override
   void initState() {
-    widget.plugin.store.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
+    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['earn.title']),
+        title: Text(dic['earn.title']!),
         centerTitle: true,
         leading: BackBtn(),
         actions: [
@@ -64,7 +64,7 @@ class _EarnPageState extends State<EarnPage> {
               child: MainTabBar(
                 fontSize: 20,
                 lineWidth: 6,
-                tabs: [dic['earn.dex'], dic['earn.loan']],
+                tabs: [dic['earn.dex']!, dic['earn.loan']!],
                 activeTab: _tab,
                 onTap: (i) {
                   setState(() {

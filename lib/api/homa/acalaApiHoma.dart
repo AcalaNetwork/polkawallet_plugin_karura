@@ -11,7 +11,8 @@ class AcalaApiHoma {
   final AcalaServiceHoma service;
 
   Future<HomaLitePoolInfoData> queryHomaLiteStakingPool() async {
-    final List res = await service.queryHomaLiteStakingPool();
+    final List res =
+        await (service.queryHomaLiteStakingPool() as Future<List<dynamic>>);
     return HomaLitePoolInfoData(
       cap: Fmt.balanceInt(res[0]),
       staked: Fmt.balanceInt(res[1]),
@@ -19,32 +20,33 @@ class AcalaApiHoma {
     );
   }
 
-  Future<Map> calcHomaMintAmount(double input) async {
-    final Map res = await service.calcHomaMintAmount(input);
+  Future<Map?> calcHomaMintAmount(double input) async {
+    final Map? res = await service.calcHomaMintAmount(input);
     return res;
   }
 
-  Future<Map> calcHomaNewMintAmount(double input) async {
-    final Map res = await service.calcHomaNewMintAmount(input);
+  Future<Map?> calcHomaNewMintAmount(double input) async {
+    final Map? res = await service.calcHomaNewMintAmount(input);
     return res;
   }
 
   Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
       String address, double input, bool isByDex) async {
-    final Map res = await service.calcHomaRedeemAmount(address, input, isByDex);
-    return CalcHomaRedeemAmount.fromJson(res);
+    final Map res = await (service.calcHomaRedeemAmount(address, input, isByDex)
+        as Future<Map<dynamic, dynamic>>);
+    return CalcHomaRedeemAmount.fromJson(res as Map<String, dynamic>);
   }
 
-  Future<Map> calcHomaNewRedeemAmount(double input, bool isFastRedeem) async {
+  Future<Map?> calcHomaNewRedeemAmount(double input, bool isFastRedeem) async {
     return service.calcHomaNewRedeemAmount(input, isFastRedeem: isFastRedeem);
   }
 
-  Future<dynamic> redeemRequested(String address) async {
+  Future<dynamic> redeemRequested(String? address) async {
     final dynamic res = await service.redeemRequested(address);
     return res;
   }
 
-  Future<bool> isHomaAlive() async {
+  Future<bool?> isHomaAlive() async {
     return service.isHomaAlive();
   }
 
@@ -53,8 +55,9 @@ class AcalaApiHoma {
     return HomaNewEnvData.fromJson(res);
   }
 
-  Future<HomaPendingRedeemData> queryHomaPendingRedeem(String address) async {
-    final res = await service.queryHomaPendingRedeem(address);
+  Future<HomaPendingRedeemData> queryHomaPendingRedeem(String? address) async {
+    final res = await (service.queryHomaPendingRedeem(address)
+        as Future<Map<dynamic, dynamic>>);
     return HomaPendingRedeemData.fromJson(res);
   }
 }

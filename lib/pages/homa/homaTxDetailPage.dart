@@ -20,11 +20,11 @@ class HomaTxDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final decimals = plugin.networkState.tokenDecimals;
-    final symbols = plugin.networkState.tokenSymbol;
+        I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final decimals = plugin.networkState.tokenDecimals!;
+    final symbols = plugin.networkState.tokenSymbol!;
 
-    final TxHomaData tx = ModalRoute.of(context).settings.arguments;
+    final TxHomaData tx = ModalRoute.of(context)!.settings.arguments as TxHomaData;
 
     final symbol = relay_chain_token_symbol;
     final nativeDecimal = decimals[symbols.indexOf(symbol)];
@@ -35,11 +35,11 @@ class HomaTxDetailPage extends StatelessWidget {
     final infoItems = <TxDetailInfoItem>[
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.action, style: amountStyle),
+        content: Text(tx.action!, style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(dic['homa.${tx.action}'], style: amountStyle),
+        content: Text(dic['homa.${tx.action}']!, style: amountStyle),
       )
     ];
 

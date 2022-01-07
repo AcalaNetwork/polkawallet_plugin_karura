@@ -18,14 +18,14 @@ class EarnTxDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-    final TxDexIncentiveData tx = ModalRoute.of(context).settings.arguments;
+    final TxDexIncentiveData tx = ModalRoute.of(context)!.settings.arguments as TxDexIncentiveData;
 
-    String networkName = plugin.basic.name;
+    String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
-      networkName = '${networkName.split('-')[0]}-testnet';
+      networkName = '${networkName!.split('-')[0]}-testnet';
     }
     return TxDetail(
       current: keyring.current,
@@ -39,11 +39,11 @@ class EarnTxDetailPage extends StatelessWidget {
       infoItems: [
         TxDetailInfoItem(
           label: 'Event',
-          content: Text(tx.event, style: amountStyle),
+          content: Text(tx.event!, style: amountStyle),
         ),
         TxDetailInfoItem(
           label: dic['txs.action'],
-          content: Text(dic['earn.${tx.event}'], style: amountStyle),
+          content: Text(dic['earn.${tx.event}']!, style: amountStyle),
         ),
         TxDetailInfoItem(
           label: dic['earn.stake.pool'],
@@ -51,8 +51,8 @@ class EarnTxDetailPage extends StatelessWidget {
         ),
         TxDetailInfoItem(
           label:
-              I18n.of(context).getDic(i18n_full_dic_karura, 'common')['amount'],
-          content: Text(tx.amountShare, style: amountStyle),
+              I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['amount'],
+          content: Text(tx.amountShare!, style: amountStyle),
         )
       ],
     );

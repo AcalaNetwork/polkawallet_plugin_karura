@@ -13,9 +13,9 @@ class TxSwapData extends _TxSwapData {
       case "swap":
         final List path = jsonDecode(json['data'][1]['value']);
         data.tokenPay =
-            AssetsUtils.tokenDataFromCurrencyId(plugin, path[0]).symbol;
+            AssetsUtils.tokenDataFromCurrencyId(plugin, path[0])!.symbol;
         data.tokenReceive =
-            AssetsUtils.tokenDataFromCurrencyId(plugin, path[path.length - 1])
+            AssetsUtils.tokenDataFromCurrencyId(plugin, path[path.length - 1])!
                 .symbol;
         if (json['data'][2]['type'] == 'Balance') {
           data.amountPay = json['data'][2]['value'].toString();
@@ -30,10 +30,10 @@ class TxSwapData extends _TxSwapData {
       case "addLiquidity":
       case "removeLiquidity":
         data.tokenPay = AssetsUtils.tokenDataFromCurrencyId(
-                plugin, jsonDecode(json['data'][1]['value']))
+                plugin, jsonDecode(json['data'][1]['value']))!
             .symbol;
         data.tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
-                plugin, jsonDecode(json['data'][3]['value']))
+                plugin, jsonDecode(json['data'][3]['value']))!
             .symbol;
         data.amountPay = json['data'][2]['value'];
         data.amountReceive = json['data'][4]['value'];
@@ -49,14 +49,14 @@ class TxSwapData extends _TxSwapData {
 }
 
 abstract class _TxSwapData {
-  String block;
-  String hash;
-  String action;
-  String tokenPay;
-  String tokenReceive;
-  String amountPay;
-  String amountReceive;
-  String amountShare;
-  String time;
-  bool isSuccess = true;
+  String? block;
+  String? hash;
+  String? action;
+  String? tokenPay;
+  String? tokenReceive;
+  String? amountPay;
+  String? amountReceive;
+  String? amountShare;
+  late String time;
+  bool? isSuccess = true;
 }

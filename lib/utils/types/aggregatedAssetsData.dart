@@ -1,7 +1,7 @@
 class AggregatedAssetsData {
-  String category;
-  List<AggregatedAssetsItemData> assets;
-  double value;
+  String? category;
+  late List<AggregatedAssetsItemData> assets;
+  double? value;
 
   String toString() {
     return '{'
@@ -15,9 +15,9 @@ class AggregatedAssetsData {
 }
 
 class AggregatedAssetsItemData {
-  String token;
-  double amount;
-  double value;
+  String? token;
+  late double amount;
+  double? value;
 
   String toString() {
     return '  {'

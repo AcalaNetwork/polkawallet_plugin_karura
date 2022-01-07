@@ -8,14 +8,14 @@ part of 'stakingPoolInfoData.dart';
 
 StakingPoolInfoData _$StakingPoolInfoDataFromJson(Map<String, dynamic> json) {
   return StakingPoolInfoData()
-    ..rewardRate = json['rewardRate'] as String
+    ..rewardRate = json['rewardRate'] as String?
     ..freeList = (json['freeList'] as List<dynamic>)
         .map((e) => StakingPoolFreeItemData.fromJson(e as Map<String, dynamic>))
         .toList()
     ..unbondingDuration = (json['unbondingDuration'] as num).toDouble()
     ..freePool = (json['freePool'] as num).toDouble()
     ..unbondingToFree = (json['unbondingToFree'] as num).toDouble()
-    ..liquidTokenIssuance = json['liquidTokenIssuance'] as String
+    ..liquidTokenIssuance = json['liquidTokenIssuance'] as String?
     ..defaultExchangeRate = (json['defaultExchangeRate'] as num).toDouble()
     ..bondingDuration = (json['bondingDuration'] as num).toDouble()
     ..currentEra = (json['currentEra'] as num).toDouble()
@@ -46,7 +46,7 @@ Map<String, dynamic> _$StakingPoolInfoDataToJson(
 StakingPoolFreeItemData _$StakingPoolFreeItemDataFromJson(
     Map<String, dynamic> json) {
   return StakingPoolFreeItemData()
-    ..era = json['era'] as int
+    ..era = json['era'] as int?
     ..free = (json['free'] as num).toDouble();
 }
 

@@ -4,11 +4,11 @@ part 'homaPendingRedeemData.g.dart';
 
 @JsonSerializable()
 class HomaPendingRedeemData {
-  num totalUnbonding;
-  num claimable;
-  List<Map> unbondings;
-  Map redeemRequest;
-  int currentRelayEra;
+  num? totalUnbonding;
+  num? claimable;
+  List<Map>? unbondings;
+  Map? redeemRequest;
+  int? currentRelayEra;
 
   HomaPendingRedeemData(
       {this.totalUnbonding,

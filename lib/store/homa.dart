@@ -7,22 +7,22 @@ import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 part 'homa.g.dart';
 
 class HomaStore extends _HomaStore with _$HomaStore {
-  HomaStore(StoreCache cache) : super(cache);
+  HomaStore(StoreCache? cache) : super(cache);
 }
 
 abstract class _HomaStore with Store {
   _HomaStore(this.cache);
 
-  final StoreCache cache;
+  final StoreCache? cache;
 
   @observable
   HomaLitePoolInfoData poolInfo = HomaLitePoolInfoData();
 
   @observable
-  HomaNewEnvData env;
+  HomaNewEnvData? env;
 
   @observable
-  HomaPendingRedeemData userInfo;
+  HomaPendingRedeemData? userInfo;
 
   @action
   void setHomaLitePoolInfoData(HomaLitePoolInfoData data) {
@@ -35,7 +35,7 @@ abstract class _HomaStore with Store {
   }
 
   @action
-  void setUserInfo(HomaPendingRedeemData data) {
+  void setUserInfo(HomaPendingRedeemData? data) {
     userInfo = data;
   }
 }

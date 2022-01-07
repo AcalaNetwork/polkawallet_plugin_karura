@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 class LoanDonutChart extends StatelessWidget {
   LoanDonutChart(this.data, {this.title, this.subtitle, this.colorType});
   final List<double> data;
-  final String title;
-  final String subtitle;
-  final int
+  final String? title;
+  final String? subtitle;
+  final int?
       colorType; // 0 for green(safe), 1 for orange(warn), 2 for red(danger)
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class LoanDonutChart extends StatelessWidget {
     );
 
     final List<charts.Series> seriesList = [
-      new charts.Series<num, int>(
+      new charts.Series<num, int?>(
         id: 'chartData',
         domainFn: (_, i) => i,
         colorFn: (_, i) => i == data.length - 1

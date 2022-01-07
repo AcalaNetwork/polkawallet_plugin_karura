@@ -9,8 +9,8 @@ class AssetsUtils {
   static const categoryLPFree = 'LP Free';
   static const categoryRewards = 'Rewards';
 
-  static List<AggregatedAssetsData> aggregatedAssetsDataFromJson(
-      Map assetsMap, BalancesStore balances, Map<String, double> marketPrices) {
+  static List<AggregatedAssetsData> aggregatedAssetsDataFromJson(Map assetsMap,
+      BalancesStore balances, Map<String?, double> marketPrices) {
     AggregatedAssetsData _getDataItem(String k) {
       final data = AggregatedAssetsData();
       data.category = k;
@@ -23,15 +23,15 @@ class AssetsUtils {
         return item;
       }).toList());
       data.value = data.assets.length > 0
-          ? data.assets.map((e) => e.value).reduce((v, e) => v + e)
+          ? data.assets.map((e) => e.value).reduce((v, e) => v! + e!)
           : 0;
       return data;
     }
 
     final lpFreeMapInt = {};
-    balances.tokens?.forEach((e) {
-      if (e.id.contains('-')) {
-        final amount = BigInt.tryParse(e.amount) ?? BigInt.zero;
+    balances.tokens.forEach((e) {
+      if (e.id!.contains('-')) {
+        final amount = BigInt.tryParse(e.amount!) ?? BigInt.zero;
         if (amount > BigInt.zero) {
           lpFreeMapInt[e.id] = amount;
         }
@@ -54,27 +54,27 @@ class AssetsUtils {
           .firstWhere((e) => e.category == categoryLPFree)
           .assets
           .map((e) => e.value)
-          .reduce((a, b) => a + b);
+          .reduce((a, b) => a! + b!);
       final tokensData = list.firstWhere((e) => e.category == categoryTokens);
       tokensData.assets.add(lpFreeValueItem);
-      tokensData.value += lpFreeValueItem.value;
+      tokensData.value = tokensData.value! + lpFreeValueItem.value!;
     }
 
     return list.sublist(0, 4);
   }
 
-  static TokenBalanceData tokenDataFromCurrencyId(
-      PluginKarura plugin, Map currencyId) {
+  static TokenBalanceData? tokenDataFromCurrencyId(
+      PluginKarura? plugin, Map currencyId) {
     if (currencyId['token'] != null || currencyId['Token'] != null) {
       return getBalanceFromTokenNameId(
-          plugin, currencyId['token'] ?? currencyId['Token']);
+          plugin!, currencyId['token'] ?? currencyId['Token']);
     }
     if (currencyId['foreignAsset'] != null ||
         currencyId['ForeignAsset'] != null) {
-      final list = (plugin.store.assets.tokenBalanceMap.values.length >=
-                  plugin.store.assets.allTokens.length
-              ? plugin.store.assets.tokenBalanceMap.values
-              : plugin.store.assets.allTokens)
+      final list = (plugin!.store!.assets.tokenBalanceMap.values.length >=
+                  plugin.store!.assets.allTokens.length
+              ? plugin.store!.assets.tokenBalanceMap.values
+              : plugin.store!.assets.allTokens)
           .toList();
       final i = list.indexWhere((e) =>
           e.type == 'ForeignAsset' &&
@@ -85,10 +85,10 @@ class AssetsUtils {
     }
     if (currencyId['liquidCroadloan'] != null ||
         currencyId['LiquidCroadloan'] != null) {
-      final list = (plugin.store.assets.tokenBalanceMap.values.length >=
-                  plugin.store.assets.allTokens.length
-              ? plugin.store.assets.tokenBalanceMap.values
-              : plugin.store.assets.allTokens)
+      final list = (plugin!.store!.assets.tokenBalanceMap.values.length >=
+                  plugin.store!.assets.allTokens.length
+              ? plugin.store!.assets.tokenBalanceMap.values
+              : plugin.store!.assets.allTokens)
           .toList();
       final i = list.toList().indexWhere((e) =>
           e.type == 'LiquidCroadloan' &&
@@ -100,9 +100,9 @@ class AssetsUtils {
     return TokenBalanceData();
   }
 
-  static TokenBalanceData getBalanceFromTokenNameId(
-      PluginKarura plugin, String tokenNameId) {
-    if (tokenNameId == plugin.networkState.tokenSymbol[0]) {
+  static TokenBalanceData? getBalanceFromTokenNameId(
+      PluginKarura plugin, String? tokenNameId) {
+    if (tokenNameId == plugin.networkState.tokenSymbol![0]) {
       return TokenBalanceData(
           id: tokenNameId,
           symbol: tokenNameId,
@@ -110,21 +110,21 @@ class AssetsUtils {
           currencyId: {'Token': tokenNameId},
           type: 'Token',
           minBalance: plugin.networkConst['balances']['existentialDeposit'],
-          decimals: plugin.networkState.tokenDecimals[0],
+          decimals: plugin.networkState.tokenDecimals![0],
           amount: (plugin.balances.native?.availableBalance ?? 0).toString());
     }
-    if (plugin.store.assets.tokenBalanceMap[tokenNameId] != null) {
-      return plugin.store.assets.tokenBalanceMap[tokenNameId];
+    if (plugin.store!.assets.tokenBalanceMap[tokenNameId] != null) {
+      return plugin.store!.assets.tokenBalanceMap[tokenNameId];
     }
-    final tokenDataIndex = plugin.store.assets.allTokens
+    final tokenDataIndex = plugin.store!.assets.allTokens
         .indexWhere((e) => e.tokenNameId == tokenNameId);
     return tokenDataIndex < 0
         ? TokenBalanceData()
-        : plugin.store.assets.allTokens[tokenDataIndex];
+        : plugin.store!.assets.allTokens[tokenDataIndex];
   }
 
-  static List<TokenBalanceData> getBalancePairFromTokenNameId(
-      PluginKarura plugin, List<String> tokenNameIdPair) {
+  static List<TokenBalanceData?> getBalancePairFromTokenNameId(
+      PluginKarura plugin, List<String?> tokenNameIdPair) {
     return tokenNameIdPair
         .map((e) => getBalanceFromTokenNameId(plugin, e))
         .toList();

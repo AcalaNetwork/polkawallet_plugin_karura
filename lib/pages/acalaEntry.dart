@@ -48,12 +48,12 @@ class _AcalaEntryNewState extends State<AcalaEntryNew> {
   }
 
   Widget buildDefi() {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    final dicGov = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
-    final modulesConfig = widget.plugin.store.setting.liveModules;
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
+    final modulesConfig = widget.plugin.store!.setting.liveModules;
     final List liveModules = modulesConfig.keys.toList().sublist(1);
 
-    liveModules?.retainWhere((e) => modulesConfig[e]['visible']);
+    liveModules.retainWhere((e) => modulesConfig[e]['visible']);
     return Container(
       child: Column(
         children: [
@@ -62,23 +62,23 @@ class _AcalaEntryNewState extends State<AcalaEntryNew> {
             return GestureDetector(
               child: PluginItemCard(
                 margin: EdgeInsets.only(bottom: 16),
-                title: dic['$e.title'],
-                describe: dic['$e.brief'],
+                title: dic!['$e.title']!,
+                describe: dic['$e.brief']!,
               ),
               onTap: () {
                 if (enabled) {
                   Navigator.of(context)
-                      .pushNamed(_liveModuleRoutes[e], arguments: enabled);
+                      .pushNamed(_liveModuleRoutes[e]!, arguments: enabled);
                 } else {
                   showCupertinoDialog(
                     context: context,
                     builder: (context) {
                       return CupertinoAlertDialog(
-                        title: Text(dic['upgrading']),
-                        content: Text(dic['upgrading.context']),
+                        title: Text(dic['upgrading']!),
+                        content: Text(dic['upgrading.context']!),
                         actions: <Widget>[
                           CupertinoDialogAction(
-                            child: Text(dic['upgrading.btn']),
+                            child: Text(dic['upgrading.btn']!),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -94,8 +94,8 @@ class _AcalaEntryNewState extends State<AcalaEntryNew> {
           GestureDetector(
             child: PluginItemCard(
               margin: EdgeInsets.only(bottom: 16),
-              title: dicGov['democracy'],
-              describe: dicGov['democracy.brief'],
+              title: dicGov['democracy']!,
+              describe: dicGov['democracy.brief']!,
             ),
             onTap: () => Navigator.of(context).pushNamed(DemocracyPage.route),
           ),
@@ -107,7 +107,7 @@ class _AcalaEntryNewState extends State<AcalaEntryNew> {
   @override
   Widget build(BuildContext context) {
     return MetaHubPage(
-      pluginName: widget.plugin.basic.name,
+      pluginName: widget.plugin.basic.name!,
       metaItems: getMetaItems(),
     );
   }
@@ -134,8 +134,8 @@ class _AcalaEntryState extends State<AcalaEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    final dicGov = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
+    final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov');
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -148,7 +148,7 @@ class _AcalaEntryState extends State<AcalaEntry> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    dic['karura'],
+                    dic['karura']!,
                     style: TextStyle(
                       fontSize: 20,
                       color: Theme.of(context).cardColor,
@@ -161,7 +161,7 @@ class _AcalaEntryState extends State<AcalaEntry> {
             Expanded(
               child: Observer(
                 builder: (_) {
-                  if (widget.plugin.sdk.api?.connectedNode == null) {
+                  if (widget.plugin.sdk.api.connectedNode == null) {
                     return Column(children: [
                       Container(
                         height: 68,
@@ -186,11 +186,12 @@ class _AcalaEntryState extends State<AcalaEntry> {
                     //   ),
                     // );
                   }
-                  final modulesConfig = widget.plugin.store.setting.liveModules;
+                  final modulesConfig =
+                      widget.plugin.store!.setting.liveModules;
                   final List liveModules =
                       modulesConfig.keys.toList().sublist(1);
 
-                  liveModules?.retainWhere((e) => modulesConfig[e]['visible']);
+                  liveModules.retainWhere((e) => modulesConfig[e]['visible']);
 
                   return ListView(
                     padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -208,10 +209,10 @@ class _AcalaEntryState extends State<AcalaEntry> {
                           padding: EdgeInsets.only(bottom: 16),
                           child: GestureDetector(
                             child: EntryPageCard(
-                              dic['$e.title'],
-                              dic['$e.brief'],
+                              dic['$e.title']!,
+                              dic['$e.brief']!,
                               SvgPicture.asset(
-                                module_icons_uri[e],
+                                module_icons_uri[e]!,
                                 height: 88,
                               ),
                               color: Colors.transparent,
@@ -219,18 +220,18 @@ class _AcalaEntryState extends State<AcalaEntry> {
                             onTap: () {
                               if (enabled) {
                                 Navigator.of(context).pushNamed(
-                                    _liveModuleRoutes[e],
+                                    _liveModuleRoutes[e]!,
                                     arguments: enabled);
                               } else {
                                 showCupertinoDialog(
                                   context: context,
                                   builder: (context) {
                                     return CupertinoAlertDialog(
-                                      title: Text(dic['upgrading']),
-                                      content: Text(dic['upgrading.context']),
+                                      title: Text(dic['upgrading']!),
+                                      content: Text(dic['upgrading.context']!),
                                       actions: <Widget>[
                                         CupertinoDialogAction(
-                                          child: Text(dic['upgrading.btn']),
+                                          child: Text(dic['upgrading.btn']!),
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                           },
@@ -248,8 +249,8 @@ class _AcalaEntryState extends State<AcalaEntry> {
                         padding: EdgeInsets.only(bottom: 16),
                         child: GestureDetector(
                           child: EntryPageCard(
-                            dicGov['democracy'],
-                            dicGov['democracy.brief'],
+                            dicGov!['democracy']!,
+                            dicGov['democracy.brief']!,
                             SvgPicture.asset(
                               'packages/polkawallet_plugin_karura/assets/images/democracy.svg',
                               height: 88,

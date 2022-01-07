@@ -49,17 +49,17 @@ class _LoanPageState extends State<LoanPage> {
   int _tab = 0;
 
   Future<void> _fetchData() async {
-    widget.plugin.service.gov.updateBestNumber();
-    await widget.plugin.service.loan
+    widget.plugin.service!.gov.updateBestNumber();
+    await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
 
     final priceQueryTokens =
-        widget.plugin.store.loan.loanTypes.map((e) => e.token.symbol).toList();
-    priceQueryTokens.add(widget.plugin.networkState.tokenSymbol[0]);
-    widget.plugin.service.assets.queryMarketPrices(priceQueryTokens);
+        widget.plugin.store!.loan.loanTypes.map((e) => e.token!.symbol).toList();
+    priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
+    widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
     if (mounted) {
-      widget.plugin.service.loan
+      widget.plugin.service!.loan
           .subscribeAccountLoans(widget.keyring.current.address);
     }
   }
@@ -68,17 +68,17 @@ class _LoanPageState extends State<LoanPage> {
   void initState() {
     super.initState();
 
-    widget.plugin.store.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
+    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       // todo: fix this after new acala online
       final bool enabled = widget.plugin.basic.name == 'acala'
-          ? ModalRoute.of(context).settings.arguments
+          ? ModalRoute.of(context)!.settings.arguments as bool
           : true;
       if (enabled) {
         _fetchData();
       } else {
-        widget.plugin.store.loan.setLoansLoading(false);
+        widget.plugin.store!.loan.setLoansLoading(false);
       }
     });
   }
@@ -86,32 +86,32 @@ class _LoanPageState extends State<LoanPage> {
   @override
   void dispose() {
     super.dispose();
-    widget.plugin.service.loan.unsubscribeAccountLoans();
+    widget.plugin.service!.loan.unsubscribeAccountLoans();
   }
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
-    final stableCoinDecimals = widget.plugin.networkState.tokenDecimals[
-        widget.plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
-    final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol[0];
+    final stableCoinDecimals = widget.plugin.networkState.tokenDecimals![
+        widget.plugin.networkState.tokenSymbol!.indexOf(karura_stable_coin)];
+    final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol![0];
     return Observer(
       builder: (_) {
-        final loans = widget.plugin.store.loan.loans.values.toList();
+        final loans = widget.plugin.store!.loan.loans.values.toList();
         loans.retainWhere((loan) =>
             loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
 
         final isDataLoading =
-            widget.plugin.store.loan.loansLoading && loans.length == 0 ||
+            widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
                 // do not show loan card if collateralRatio was not calculated.
                 (loans.length > 0 && loans[0].collateralRatio <= 0);
 
         final incentiveTokenOptions =
-            widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
-        if (widget.plugin.store.earn.incentives.loans != null) {
+            widget.plugin.store!.loan.loanTypes.map((e) => e.token).toList();
+        if (widget.plugin.store!.earn.incentives.loans != null) {
           incentiveTokenOptions.retainWhere((e) {
-            final incentive = widget.plugin.store.earn.incentives.loans[e];
+            final incentive = widget.plugin.store!.earn.incentives.loans![e];
             return incentive != null && (incentive[0].amount ?? 0) > 0;
           });
         }
@@ -119,7 +119,7 @@ class _LoanPageState extends State<LoanPage> {
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
-            title: Text(dic['loan.title.KSM']),
+            title: Text(dic!['loan.title.KSM']!),
             centerTitle: true,
             leading: BackBtn(),
             actions: <Widget>[
@@ -145,7 +145,7 @@ class _LoanPageState extends State<LoanPage> {
                       child: MainTabBar(
                         fontSize: 20,
                         lineWidth: 6,
-                        tabs: [dic['loan.my'], dic['loan.incentive']],
+                        tabs: [dic['loan.my']!, dic['loan.incentive']!],
                         activeTab: _tab,
                         onTap: (i) {
                           setState(() {
@@ -172,10 +172,10 @@ class _LoanPageState extends State<LoanPage> {
                                             AssetsUtils
                                                     .getBalanceFromTokenNameId(
                                                         widget.plugin,
-                                                        loan.token.tokenNameId)
+                                                        loan.token!.tokenNameId)
                                                 ?.decimals,
                                             widget.plugin.tokenIcons,
-                                            widget.plugin.store.assets.prices,
+                                            widget.plugin.store!.assets.prices,
                                           );
                                         }).toList(),
                                       )
@@ -190,27 +190,27 @@ class _LoanPageState extends State<LoanPage> {
                                       )
                                 : CollateralIncentiveList(
                                     plugin: widget.plugin,
-                                    loans: widget.plugin.store.loan.loans,
+                                    loans: widget.plugin.store!.loan.loans,
                                     tokenIcons: widget.plugin.tokenIcons,
                                     totalCDPs:
-                                        widget.plugin.store.loan.totalCDPs,
+                                        widget.plugin.store!.loan.totalCDPs,
                                     incentives: widget
-                                        .plugin.store.earn.incentives.loans,
+                                        .plugin.store!.earn.incentives.loans,
                                     rewards: widget
-                                        .plugin.store.loan.collateralRewards,
+                                        .plugin.store!.loan.collateralRewards,
                                     marketPrices:
-                                        widget.plugin.store.assets.marketPrices,
+                                        widget.plugin.store!.assets.marketPrices,
                                     collateralDecimals: stableCoinDecimals,
                                     incentiveTokenSymbol: incentiveTokenSymbol,
                                     dexIncentiveLoyaltyEndBlock: widget.plugin
-                                        .store.earn.dexIncentiveLoyaltyEndBlock,
+                                        .store!.earn.dexIncentiveLoyaltyEndBlock,
                                   ),
                           ),
                     Visibility(
                         visible: _tab == 0 &&
                             !isDataLoading &&
                             loans.length <
-                                widget.plugin.store.loan.loanTypes.length,
+                                widget.plugin.store!.loan.loanTypes.length,
                         child: Container(
                           padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
                           child: RoundedButton(
@@ -242,9 +242,9 @@ class LoanOverviewCard extends StatelessWidget {
   final LoanData loan;
   final String stableCoinSymbol;
   final int stableCoinDecimals;
-  final int collateralDecimals;
+  final int? collateralDecimals;
   final Map<String, Widget> tokenIcons;
-  final Map<String, BigInt> prices;
+  final Map<String?, BigInt> prices;
 
   final colorSafe = Color(0xFFB9F6CA);
   final colorWarn = Color(0xFFFFD180);
@@ -252,15 +252,15 @@ class LoanOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     final requiredCollateralRatio =
         double.parse(Fmt.token(loan.type.requiredCollateralRatio, 18));
     final borrowedRatio = 1 / loan.collateralRatio;
 
     final collateralValue = Fmt.bigIntToDouble(
-            prices[loan.token.tokenNameId], acala_price_decimals) *
-        Fmt.bigIntToDouble(loan.collaterals, collateralDecimals);
+            prices[loan.token!.tokenNameId], acala_price_decimals) *
+        Fmt.bigIntToDouble(loan.collaterals, collateralDecimals!);
 
     return GestureDetector(
       child: Stack(children: [
@@ -292,14 +292,14 @@ class LoanOverviewCard extends StatelessWidget {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                    '${dic['loan.collateral']}(${PluginFmt.tokenView(loan.token.symbol)})'),
+                    '${dic['loan.collateral']}(${PluginFmt.tokenView(loan.token!.symbol)})'),
               ),
               Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Container(
                     margin: EdgeInsets.only(right: 8),
-                    child: TokenIcon(loan.token.symbol, tokenIcons)),
+                    child: TokenIcon(loan.token!.symbol!, tokenIcons)),
                 Text(
-                    Fmt.priceFloorBigInt(loan.collaterals, collateralDecimals,
+                    Fmt.priceFloorBigInt(loan.collaterals, collateralDecimals!,
                         lengthMax: 4),
                     style: TextStyle(
                       fontSize: 26,
@@ -324,7 +324,7 @@ class LoanOverviewCard extends StatelessWidget {
                   children: [
                     Container(
                         margin: EdgeInsets.only(top: 24, bottom: 8),
-                        child: Text(dic['loan.borrowed'] +
+                        child: Text(dic['loan.borrowed']! +
                             '(${PluginFmt.tokenView(stableCoinSymbol)})')),
                     Text(
                       Fmt.priceCeilBigInt(loan.debits, stableCoinDecimals),
@@ -338,7 +338,7 @@ class LoanOverviewCard extends StatelessWidget {
                   children: [
                     Container(
                         margin: EdgeInsets.only(top: 24, bottom: 8),
-                        child: Text(dic['loan.ratio'])),
+                        child: Text(dic['loan.ratio']!)),
                     Text(
                       Fmt.ratio(loan.collateralRatio),
                       style: Theme.of(context).textTheme.headline4,
@@ -377,8 +377,8 @@ class AccountCard extends StatelessWidget {
       child: ListTile(
         dense: true,
         leading: AddressIcon(account.address, svg: account.icon, size: 36),
-        title: Text(account.name.toUpperCase()),
-        subtitle: Text(Fmt.address(account.address)),
+        title: Text(account.name!.toUpperCase()),
+        subtitle: Text(Fmt.address(account.address)!),
       ),
     );
   }
@@ -415,20 +415,20 @@ class CollateralIncentiveList extends StatelessWidget {
     this.dexIncentiveLoyaltyEndBlock,
   });
 
-  final PluginKarura plugin;
-  final Map<String, LoanData> loans;
-  final Map<String, List<IncentiveItemData>> incentives;
-  final Map<String, CollateralRewardData> rewards;
-  final Map<String, TotalCDPData> totalCDPs;
-  final Map<String, Widget> tokenIcons;
-  final Map<String, double> marketPrices;
-  final int collateralDecimals;
-  final String incentiveTokenSymbol;
-  final List<dynamic> dexIncentiveLoyaltyEndBlock;
+  final PluginKarura? plugin;
+  final Map<String?, LoanData>? loans;
+  final Map<String?, List<IncentiveItemData>>? incentives;
+  final Map<String?, CollateralRewardData>? rewards;
+  final Map<String?, TotalCDPData>? totalCDPs;
+  final Map<String, Widget>? tokenIcons;
+  final Map<String?, double>? marketPrices;
+  final int? collateralDecimals;
+  final String? incentiveTokenSymbol;
+  final List<dynamic>? dexIncentiveLoyaltyEndBlock;
 
   Future<void> _onClaimReward(
       BuildContext context, TokenBalanceData token, String rewardView) async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final pool = {'Loans': token.currencyId};
     final params = TxConfirmParams(
       module: 'incentives',
@@ -445,67 +445,67 @@ class CollateralIncentiveList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final List<String> tokensAll = incentives.keys.toList();
-    tokensAll.addAll(rewards.keys.toList());
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final List<String?> tokensAll = incentives!.keys.toList();
+    tokensAll.addAll(rewards!.keys.toList());
     final tokenIds = tokensAll.toSet().toList();
     tokenIds.removeWhere((e) => e == 'KSM');
     tokenIds.retainWhere((e) =>
-        incentives[e] != null ||
-        (rewards[e]?.reward != null && rewards[e].reward.length > 0));
+        incentives![e] != null ||
+        (rewards![e]?.reward != null && rewards![e]!.reward!.length > 0));
 
     if (tokenIds.length == 0) {
       return ListTail(isEmpty: true, isLoading: false);
     }
     final tokens = tokenIds
-        .map((e) => AssetsUtils.getBalanceFromTokenNameId(plugin, e))
+        .map((e) => AssetsUtils.getBalanceFromTokenNameId(plugin!, e))
         .toList();
     return ListView.builder(
         padding: EdgeInsets.only(bottom: 32),
         itemCount: tokens.length,
         itemBuilder: (_, i) {
-          final token = tokens[i];
+          final token = tokens[i]!;
           final collateralValue = Fmt.bigIntToDouble(
-              loans[token.tokenNameId]?.collateralInUSD, collateralDecimals);
+              loans![token.tokenNameId]?.collateralInUSD, collateralDecimals!);
           double apy = 0;
-          if (totalCDPs[token.tokenNameId].collateral > BigInt.zero &&
-              marketPrices[token.symbol] != null &&
-              incentives[token.tokenNameId] != null) {
-            incentives[token.tokenNameId].forEach((e) {
+          if (totalCDPs![token.tokenNameId]!.collateral > BigInt.zero &&
+              marketPrices![token.symbol] != null &&
+              incentives![token.tokenNameId] != null) {
+            incentives![token.tokenNameId]!.forEach((e) {
               if (e.tokenNameId != 'Any') {
                 final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
-                    plugin, e.tokenNameId);
-                apy += (marketPrices[rewardToken.symbol] ?? 0) *
-                    e.amount /
-                    Fmt.bigIntToDouble(rewards[token.tokenNameId]?.sharesTotal,
-                        collateralDecimals) /
-                    marketPrices[token.symbol];
+                    plugin!, e.tokenNameId)!;
+                apy += (marketPrices![rewardToken.symbol] ?? 0) *
+                    e.amount! /
+                    Fmt.bigIntToDouble(rewards![token.tokenNameId]?.sharesTotal,
+                        collateralDecimals!) /
+                    marketPrices![token.symbol]!;
               }
             });
           }
           final deposit = Fmt.priceFloorBigInt(
-              loans[token.tokenNameId]?.collaterals, collateralDecimals);
+              loans![token.tokenNameId]?.collaterals, collateralDecimals!);
 
           bool canClaim = false;
-          double loyaltyBonus = 0;
-          if (incentives[token.tokenNameId] != null) {
-            loyaltyBonus = incentives[token.tokenNameId][0].deduction;
+          double? loyaltyBonus = 0;
+          if (incentives![token.tokenNameId] != null) {
+            loyaltyBonus = incentives![token.tokenNameId]![0].deduction;
           }
 
-          final reward = rewards[token.tokenNameId];
-          final rewardView = reward != null && reward.reward.length > 0
-              ? reward.reward.map((e) {
+          final reward = rewards![token.tokenNameId];
+          final rewardView = reward != null && reward.reward!.length > 0
+              ? reward.reward!.map((e) {
                   final amount = double.parse(e['amount']);
                   if (amount > 0.0001) {
                     canClaim = true;
                   }
-                  return '${Fmt.priceFloor(amount * (1 - loyaltyBonus))}';
+                  return '${Fmt.priceFloor(amount * (1 - loyaltyBonus!))}';
                 }).join(' + ')
               : '0.00';
 
-          final bestNumber = plugin.store.gov.bestNumber;
+          final bestNumber = plugin!.store!.gov.bestNumber;
           var blockNumber;
-          dexIncentiveLoyaltyEndBlock.forEach((e) {
+          dexIncentiveLoyaltyEndBlock!.forEach((e) {
             if (token.tokenNameId == PluginFmt.getPool(plugin, e['pool'])) {
               blockNumber = e['blockNumber'];
               return;
@@ -525,11 +525,11 @@ class CollateralIncentiveList extends StatelessWidget {
                     children: [
                       Container(
                           margin: EdgeInsets.only(right: 8),
-                          child: TokenIcon(token.symbol, tokenIcons)),
+                          child: TokenIcon(token.symbol!, tokenIcons!)),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(dic['loan.collateral'],
+                          Text(dic!['loan.collateral']!,
                               style: TextStyle(fontSize: 12)),
                           Text('$deposit ${PluginFmt.tokenView(token.symbol)}',
                               style: TextStyle(
@@ -585,7 +585,7 @@ class CollateralIncentiveList extends StatelessWidget {
                       InfoItem(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         title: '${dic['earn.apy.0']} ($incentiveTokenSymbol)',
-                        content: Fmt.ratio(apy * (1 - loyaltyBonus)),
+                        content: Fmt.ratio(apy * (1 - loyaltyBonus!)),
                         color: Theme.of(context).primaryColor,
                       ),
                     ],
@@ -597,7 +597,7 @@ class CollateralIncentiveList extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TapTooltip(
-                        message: dic['earn.loyal.info'],
+                        message: dic['earn.loyal.info']!,
                         child: Center(
                             child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -609,7 +609,7 @@ class CollateralIncentiveList extends StatelessWidget {
                             ),
                             Container(
                               margin: EdgeInsets.only(left: 4),
-                              child: Text(dic['earn.loyal'] + ':',
+                              child: Text(dic['earn.loyal']! + ':',
                                   style: TextStyle(fontSize: 12)),
                             )
                           ],
@@ -644,7 +644,7 @@ class CollateralIncentiveList extends StatelessWidget {
                         active: false,
                         padding: EdgeInsets.only(top: 8, bottom: 8),
                         margin: EdgeInsets.only(right: 8),
-                        onPressed: (loans[token.tokenNameId]?.collaterals ??
+                        onPressed: (loans![token.tokenNameId]?.collaterals ??
                                     BigInt.zero) >
                                 BigInt.zero
                             ? () => Navigator.of(context).pushNamed(

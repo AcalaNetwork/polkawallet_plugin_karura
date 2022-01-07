@@ -9,9 +9,9 @@ part of 'calcHomaMintAmountData.dart';
 CalcHomaMintAmountData _$CalcHomaMintAmountDataFromJson(
     Map<String, dynamic> json) {
   return CalcHomaMintAmountData(
-    json['fee'] as String,
-    json['received'] as String,
-    json['suggestRedeemRequests'] as List,
+    json['fee'] as String?,
+    json['received'] as String?,
+    json['suggestRedeemRequests'] as List?,
   );
 }
 

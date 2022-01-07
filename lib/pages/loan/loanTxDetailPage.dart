@@ -21,20 +21,20 @@ class LoanTxDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-    final TxLoanData tx = ModalRoute.of(context).settings.arguments;
+    final TxLoanData tx = ModalRoute.of(context)!.settings.arguments as TxLoanData;
 
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.event, style: amountStyle),
+        content: Text(tx.event!, style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
         content: Text(
-            dic['loan.${tx.actionType}'] +
+            dic['loan.${tx.actionType}']! +
                 (tx.actionType == TxLoanData.actionTypeBorrow ||
                         tx.actionType == TxLoanData.actionTypePayback
                     ? ' $karura_stable_coin_view'
@@ -44,7 +44,7 @@ class LoanTxDetailPage extends StatelessWidget {
     ];
     if (tx.collateral != BigInt.zero) {
       items.add(TxDetailInfoItem(
-        label: tx.collateral > BigInt.zero
+        label: tx.collateral! > BigInt.zero
             ? dic['loan.deposit']
             : dic['loan.withdraw'],
         content: Text('${tx.amountCollateral} ${PluginFmt.tokenView(tx.token)}',
@@ -53,15 +53,15 @@ class LoanTxDetailPage extends StatelessWidget {
     }
     if (tx.debit != BigInt.zero) {
       items.add(TxDetailInfoItem(
-        label: tx.debit < BigInt.zero ? dic['loan.payback'] : dic['loan.mint'],
+        label: tx.debit! < BigInt.zero ? dic['loan.payback'] : dic['loan.mint'],
         content: Text('${tx.amountDebit} $karura_stable_coin_view',
             style: amountStyle),
       ));
     }
 
-    String networkName = plugin.basic.name;
+    String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
-      networkName = '${networkName.split('-')[0]}-testnet';
+      networkName = '${networkName!.split('-')[0]}-testnet';
     }
     return TxDetail(
       success: tx.isSuccess,

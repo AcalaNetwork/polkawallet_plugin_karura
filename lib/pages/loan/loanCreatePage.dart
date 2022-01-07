@@ -39,7 +39,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   final TextEditingController _amountCtrl = new TextEditingController();
   final TextEditingController _amountCtrl2 = new TextEditingController();
 
-  TokenBalanceData _token;
+  TokenBalanceData? _token;
 
   BigInt _amountCollateral = BigInt.zero;
   BigInt _amountDebit = BigInt.zero;
@@ -51,9 +51,9 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   bool _autoValidate = false;
 
   void _updateState(LoanType loanType, BigInt collateral, BigInt debit,
-      {int stableCoinDecimals, int collateralDecimals}) {
+      {required int stableCoinDecimals, required int collateralDecimals}) {
     final tokenPrice =
-        widget.plugin.store.assets.prices[_token.tokenNameId] ?? BigInt.zero;
+        widget.plugin.store!.assets.prices[_token!.tokenNameId] ?? BigInt.zero;
     final collateralInUSD = loanType.tokenToUSD(collateral, tokenPrice,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
@@ -66,12 +66,12 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     });
   }
 
-  void _onAmount1Change(String value, LoanType loanType, BigInt price,
-      {int stableCoinDecimals, int collateralDecimals}) {
+  void _onAmount1Change(String value, LoanType loanType, BigInt? price,
+      {int? stableCoinDecimals, int? collateralDecimals}) {
     String v = value.trim();
     if (v.isEmpty) return;
 
-    BigInt collateral = Fmt.tokenInt(v, collateralDecimals);
+    BigInt collateral = Fmt.tokenInt(v, collateralDecimals!);
     setState(() {
       _amountCollateral = collateral;
       _maxToBorrow = loanType.calcMaxToBorrow(collateral, price,
@@ -81,19 +81,19 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
     if (_amountDebit > BigInt.zero) {
       _updateState(loanType, collateral, _amountDebit,
-          stableCoinDecimals: stableCoinDecimals,
+          stableCoinDecimals: stableCoinDecimals!,
           collateralDecimals: collateralDecimals);
     }
 
     _checkAutoValidate();
   }
 
-  void _onAmount2Change(String value, LoanType loanType, int stableCoinDecimals,
-      int collateralDecimals) {
+  void _onAmount2Change(String value, LoanType loanType, int? stableCoinDecimals,
+      int? collateralDecimals) {
     String v = value.trim();
     if (v.isEmpty) return;
 
-    BigInt debits = Fmt.tokenInt(v, stableCoinDecimals);
+    BigInt debits = Fmt.tokenInt(v, stableCoinDecimals!);
 
     setState(() {
       _amountDebit = debits;
@@ -102,13 +102,13 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     if (_amountCollateral > BigInt.zero) {
       _updateState(loanType, _amountCollateral, debits,
           stableCoinDecimals: stableCoinDecimals,
-          collateralDecimals: collateralDecimals);
+          collateralDecimals: collateralDecimals!);
     }
 
     _checkAutoValidate();
   }
 
-  void _checkAutoValidate({String value1, String value2}) {
+  void _checkAutoValidate({String? value1, String? value2}) {
     if (_autoValidate) return;
     if (value1 == null) {
       value1 = _amountCtrl.text.trim();
@@ -123,26 +123,26 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     }
   }
 
-  String _validateAmount1(
-      String value, BigInt available, int collateralDecimals) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+  String? _validateAmount1(
+      String value, BigInt available, int? collateralDecimals) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
     String v = value.trim();
     final error = Fmt.validatePrice(v, context);
     if (error != null) {
       return error;
     }
-    BigInt collateral = Fmt.tokenInt(v, collateralDecimals);
+    BigInt collateral = Fmt.tokenInt(v, collateralDecimals!);
     if (collateral > available) {
-      return dic['amount.low'];
+      return dic!['amount.low'];
     }
     return null;
   }
 
-  String _validateAmount2(
-      String value, LoanType loanType, String max, int stableCoinDecimals) {
-    final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+  String? _validateAmount2(
+      String value, LoanType loanType, String max, int? stableCoinDecimals) {
+    final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
     String v = value.trim();
     final error = Fmt.validatePrice(v, context);
@@ -152,20 +152,20 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
     final input = double.parse(v);
     final min =
-        Fmt.bigIntToDouble(loanType.minimumDebitValue, stableCoinDecimals);
+        Fmt.bigIntToDouble(loanType.minimumDebitValue, stableCoinDecimals!);
     if (input < min) {
-      return '${assetDic['min']} ${min.toStringAsFixed(2)}';
+      return '${assetDic!['min']} ${min.toStringAsFixed(2)}';
     }
     BigInt debits = Fmt.tokenInt(v, stableCoinDecimals);
     if (debits >= _maxToBorrow) {
-      return '${dic['loan.max']} $max';
+      return '${dic!['loan.max']} $max';
     }
     return null;
   }
 
   Map _getTxParams(LoanType loanType,
-      {int stableCoinDecimals, int collateralDecimals}) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+      {required int stableCoinDecimals, required int collateralDecimals}) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final debitShare = loanType.debitToDebitShare(
         _amountDebit <= loanType.minimumDebitValue
             ? (loanType.minimumDebitValue + BigInt.from(10000))
@@ -173,7 +173,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     return {
       'detail': {
         dic['loan.collateral']: Text(
-          '${Fmt.token(_amountCollateral, collateralDecimals)} ${PluginFmt.tokenView(_token.symbol)}',
+          '${Fmt.token(_amountCollateral, collateralDecimals)} ${PluginFmt.tokenView(_token!.symbol)}',
           style: Theme.of(context).textTheme.headline1,
         ),
         dic['loan.mint']: Text(
@@ -182,19 +182,19 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
         ),
       },
       'params': [
-        _token.currencyId,
+        _token!.currencyId,
         _amountCollateral.toString(),
         debitShare.toString(),
       ]
     };
   }
 
-  List<TokenBalanceData> _getTokenOptions({bool all = false}) {
+  List<TokenBalanceData?> _getTokenOptions({bool all = false}) {
     final tokenOptions =
-        widget.plugin.store.loan.loanTypes.map((e) => e.token).toList();
+        widget.plugin.store!.loan.loanTypes.map((e) => e.token).toList();
     if (all) return tokenOptions;
 
-    final loans = widget.plugin.store.loan.loans.values.toList();
+    final loans = widget.plugin.store!.loan.loans.values.toList();
     loans.retainWhere(
         (loan) => loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
 
@@ -204,7 +204,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   }
 
   Future<void> _onSubmit(String pageTitle, LoanType loanType,
-      {int stableCoinDecimals, int collateralDecimals}) async {
+      {required int stableCoinDecimals, required int collateralDecimals}) async {
     final params = _getTxParams(loanType,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
@@ -215,7 +215,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
           txTitle: pageTitle,
           txDisplayBold: params['detail'],
           params: params['params'],
-        ))) as Map;
+        ))) as Map?;
     if (res != null) {
       Navigator.of(context).pop(res);
     }
@@ -225,7 +225,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       final tokenOptions = _getTokenOptions();
       setState(() {
         _token = tokenOptions[0];
@@ -243,10 +243,10 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-      final assetDic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+      final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+      final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
-      final token = _token ?? widget.plugin.store.loan.loanTypes[0].token;
+      final token = _token ?? widget.plugin.store!.loan.loanTypes[0].token!;
 
       final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
           widget.plugin, [token.tokenNameId, karura_stable_coin]);
@@ -254,18 +254,18 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       final pageTitle =
           '${dic['loan.create']} ${PluginFmt.tokenView(token.symbol)}';
 
-      final price = widget.plugin.store.assets.prices[token.tokenNameId];
+      final price = widget.plugin.store!.assets.prices[token.tokenNameId];
 
-      final loanType = widget.plugin.store.loan.loanTypes
-          .firstWhere((i) => i.token.tokenNameId == token.tokenNameId);
-      final balance = Fmt.balanceInt(balancePair[0].amount);
+      final loanType = widget.plugin.store!.loan.loanTypes
+          .firstWhere((i) => i.token!.tokenNameId == token.tokenNameId);
+      final balance = Fmt.balanceInt(balancePair[0]!.amount);
       final available = balance;
 
       final balanceView = Fmt.priceFloorBigInt(
-          available, balancePair[0].decimals,
+          available, balancePair[0]!.decimals!,
           lengthMax: 4);
       final maxToBorrow =
-          Fmt.priceFloorBigInt(_maxToBorrow, balancePair[1].decimals);
+          Fmt.priceFloorBigInt(_maxToBorrow, balancePair[1]!.decimals!);
 
       return Scaffold(
         appBar: AppBar(
@@ -281,11 +281,11 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                   tokenOptions: _getTokenOptions(all: true),
                   tokenIcons: widget.plugin.tokenIcons,
                   token: token,
-                  price: widget.plugin.store.assets.prices[token.tokenNameId],
+                  price: widget.plugin.store!.assets.prices[token.tokenNameId],
                   onSelect: (res) {
                     if (res != null) {
                       final loan =
-                          widget.plugin.store.loan.loans[res.tokenNameId];
+                          widget.plugin.store!.loan.loans[res.tokenNameId];
                       if ((loan?.debits ?? BigInt.zero) > BigInt.zero ||
                           ((loan?.collaterals ?? BigInt.zero) > BigInt.zero)) {
                         Navigator.of(context).popAndPushNamed(
@@ -317,29 +317,29 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                         ),
                         Padding(
                           padding: EdgeInsets.only(top: 16),
-                          child: Text(dic['loan.amount.collateral']),
+                          child: Text(dic['loan.amount.collateral']!),
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                            hintText: assetDic['amount'],
+                            hintText: assetDic!['amount'],
                             labelText:
                                 '${assetDic['amount']} (${assetDic['amount.available']}: $balanceView ${PluginFmt.tokenView(token.symbol)})',
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(balancePair[0].decimals)
+                            UI.decimalInputFormatter(balancePair[0]!.decimals!)!
                           ],
                           controller: _amountCtrl,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           validator: (v) => _validateAmount1(
-                              v, available, balancePair[0].decimals),
+                              v!, available, balancePair[0]!.decimals),
                           onChanged: (v) => _onAmount1Change(v, loanType, price,
-                              stableCoinDecimals: balancePair[1].decimals,
-                              collateralDecimals: balancePair[0].decimals),
+                              stableCoinDecimals: balancePair[1]!.decimals,
+                              collateralDecimals: balancePair[0]!.decimals),
                         ),
                         Padding(
                           padding: EdgeInsets.only(top: 16),
-                          child: Text(dic['loan.amount.debit']),
+                          child: Text(dic['loan.amount.debit']!),
                         ),
                         TextFormField(
                           decoration: InputDecoration(
@@ -348,15 +348,15 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                                 '${assetDic['amount']} (${dic['loan.max']}: $maxToBorrow $karura_stable_coin_view)',
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(balancePair[1].decimals)
+                            UI.decimalInputFormatter(balancePair[1]!.decimals!)!
                           ],
                           controller: _amountCtrl2,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) => _validateAmount2(v, loanType,
-                              maxToBorrow, balancePair[1].decimals),
+                          validator: (v) => _validateAmount2(v!, loanType,
+                              maxToBorrow, balancePair[1]!.decimals),
                           onChanged: (v) => _onAmount2Change(v, loanType,
-                              balancePair[1].decimals, balancePair[0].decimals),
+                              balancePair[1]!.decimals, balancePair[0]!.decimals),
                         ),
                       ],
                     ),
@@ -365,13 +365,13 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                 Padding(
                   padding: EdgeInsets.all(16),
                   child: RoundedButton(
-                    text: I18n.of(context)
-                        .getDic(i18n_full_dic_ui, 'common')['tx.submit'],
+                    text: I18n.of(context)!
+                        .getDic(i18n_full_dic_ui, 'common')!['tx.submit'],
                     onPressed: () {
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         _onSubmit(pageTitle, loanType,
-                            stableCoinDecimals: balancePair[1].decimals,
-                            collateralDecimals: balancePair[0].decimals);
+                            stableCoinDecimals: balancePair[1]!.decimals!,
+                            collateralDecimals: balancePair[0]!.decimals!);
                       }
                     },
                   ),
@@ -393,11 +393,11 @@ class CurrencySelector extends StatelessWidget {
     this.price,
     this.onSelect,
   });
-  final List<TokenBalanceData> tokenOptions;
-  final Map<String, Widget> tokenIcons;
-  final TokenBalanceData token;
-  final BigInt price;
-  final Function(TokenBalanceData) onSelect;
+  final List<TokenBalanceData?>? tokenOptions;
+  final Map<String, Widget>? tokenIcons;
+  final TokenBalanceData? token;
+  final BigInt? price;
+  final Function(TokenBalanceData)? onSelect;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -417,9 +417,9 @@ class CurrencySelector extends StatelessWidget {
       ),
       child: ListTile(
         dense: true,
-        leading: TokenIcon(token.symbol, tokenIcons),
+        leading: TokenIcon(token!.symbol!, tokenIcons!),
         title: Text(
-          PluginFmt.tokenView(token.symbol),
+          PluginFmt.tokenView(token!.symbol),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -436,14 +436,14 @@ class CurrencySelector extends StatelessWidget {
               )
             : null,
         trailing: Icon(Icons.arrow_forward_ios, size: 18),
-        onTap: tokenOptions.length > 0
+        onTap: tokenOptions!.length > 0
             ? () async {
                 final res = await Navigator.of(context).pushNamed(
                   CurrencySelectPage.route,
                   arguments: tokenOptions,
                 );
                 if (res != null) {
-                  onSelect(res);
+                  onSelect!(res as TokenBalanceData);
                 }
               }
             : null,

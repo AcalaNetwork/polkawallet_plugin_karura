@@ -38,12 +38,12 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountCtrl = new TextEditingController();
 
-  Timer _timer;
+  Timer? _timer;
 
   bool _fromPool = false;
 
-  DEXPoolInfo _getPoolInfoData(String poolId) {
-    final poolInfo = widget.plugin.store.earn.dexPoolInfoMap[poolId];
+  DEXPoolInfo? _getPoolInfoData(String? poolId) {
+    final poolInfo = widget.plugin.store!.earn.dexPoolInfoMap[poolId];
     return poolInfo != null
         ? DEXPoolInfo(poolInfo.shares, poolInfo.issuance, poolInfo.amountLeft,
             poolInfo.amountRight)
@@ -51,7 +51,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   }
 
   Future<void> _refreshData() async {
-    await widget.plugin.service.earn.queryDexPoolInfo();
+    await widget.plugin.service!.earn.queryDexPoolInfo();
     if (mounted) {
       _timer = Timer(Duration(seconds: 30), () {
         if (mounted) {
@@ -61,65 +61,65 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     }
   }
 
-  void _onAmountSelect(BigInt v, int decimals, {bool isMax = false}) {
+  void _onAmountSelect(BigInt v, int? decimals, {bool isMax = false}) {
     setState(() {
       _amountCtrl.text =
-          Fmt.bigIntToDouble(v, decimals).toStringAsFixed(decimals);
+          Fmt.bigIntToDouble(v, decimals!).toStringAsFixed(decimals);
     });
-    _formKey.currentState.validate();
+    _formKey.currentState!.validate();
   }
 
-  String _validateInput(String value) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+  String? _validateInput(String? value) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
-    final v = value.trim();
+    final v = value!.trim();
     final error = Fmt.validatePrice(v, context);
     if (error != null) {
       return error;
     }
 
     final symbols = widget.plugin.networkState.tokenSymbol;
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
-    final balancePair = pool.tokens
+    final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
+    final balancePair = pool.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
 
     final poolInfo = _getPoolInfoData(pool.tokenNameId);
 
-    final shareInputInt = Fmt.tokenInt(v, balancePair[0].decimals);
+    final shareInputInt = Fmt.tokenInt(v, balancePair[0]!.decimals!);
     final shareFree = Fmt.balanceInt(
-        widget.plugin.store.assets.tokenBalanceMap[pool.tokenNameId].amount);
-    final shareBalance = _fromPool ? shareFree + poolInfo.shares : shareFree;
+        widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]!.amount);
+    final shareBalance = _fromPool ? shareFree + poolInfo!.shares! : shareFree;
     if (shareInputInt > shareBalance) {
-      return dic['amount.low'];
+      return dic!['amount.low'];
     }
 
     final shareInput = double.parse(v.trim());
     double min = 0;
-    if (balancePair[0].symbol != symbols[0] &&
-        Fmt.balanceInt(balancePair[0].amount) == BigInt.zero) {
-      min = Fmt.balanceInt(balancePair[0].minBalance) /
-          poolInfo.amountLeft *
-          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
+    if (balancePair[0]!.symbol != symbols![0] &&
+        Fmt.balanceInt(balancePair[0]!.amount) == BigInt.zero) {
+      min = Fmt.balanceInt(balancePair[0]!.minBalance) /
+          poolInfo!.amountLeft! *
+          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0]!.decimals!);
     }
-    if (balancePair[0].symbol != symbols[0] &&
-        Fmt.balanceInt(balancePair[1].amount) == BigInt.zero) {
-      final min2 = Fmt.balanceInt(balancePair[1].minBalance) /
-          poolInfo.amountRight *
-          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
+    if (balancePair[0]!.symbol != symbols[0] &&
+        Fmt.balanceInt(balancePair[1]!.amount) == BigInt.zero) {
+      final min2 = Fmt.balanceInt(balancePair[1]!.minBalance) /
+          poolInfo!.amountRight! *
+          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0]!.decimals!);
       min = min > min2 ? min : min2;
     }
     if (shareInput < min) {
-      return '${dic['amount.min']} ${Fmt.priceCeil(min, lengthMax: 6)}';
+      return '${dic!['amount.min']} ${Fmt.priceCeil(min, lengthMax: 6)}';
     }
     return null;
   }
 
   List _getTxParams(BigInt amount, bool fromPool) {
-    final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+    final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
     return [
-      pool.tokens[0],
-      pool.tokens[1],
+      pool.tokens![0],
+      pool.tokens![1],
       amount.toString(),
       '0',
       '0',
@@ -127,24 +127,24 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     ];
   }
 
-  Future<void> _onSubmit(int shareDecimals) async {
-    if (_formKey.currentState.validate()) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-      final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+  Future<void> _onSubmit(int? shareDecimals) async {
+    if (_formKey.currentState!.validate()) {
+      final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+      final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
       final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-          widget.plugin, pool.tokenNameId);
+          widget.plugin, pool.tokenNameId)!;
       final amount = _amountCtrl.text.trim();
-      final amountInt = Fmt.tokenInt(amount, shareDecimals);
+      final amountInt = Fmt.tokenInt(amount, shareDecimals!);
       final free = Fmt.balanceInt(poolToken.amount);
 
       TxConfirmParams txParams = TxConfirmParams(
         module: 'dex',
         call: 'removeLiquidity',
-        txTitle: I18n.of(context)
-            .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
+        txTitle: I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'acala')!['earn.remove'],
         txDisplay: {dic['earn.pool']: poolToken.symbol},
         txDisplayBold: {
-          dic['loan.amount']: Text(
+          dic['loan.amount']!: Text(
             '$amount LP',
             style: Theme.of(context).textTheme.headline1,
           ),
@@ -156,14 +156,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
           txParams = TxConfirmParams(
             module: 'dex',
             call: 'removeLiquidity',
-            txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
+            txTitle: I18n.of(context)!
+                .getDic(i18n_full_dic_karura, 'acala')!['earn.remove'],
             txDisplay: {
               dic['earn.pool']: poolToken.symbol,
               "": dic['earn.fromPool'],
             },
             txDisplayBold: {
-              dic['loan.amount']: Text(
+              dic['loan.amount']!: Text(
                 '$amount LP',
                 style: Theme.of(context).textTheme.headline1,
               ),
@@ -178,14 +178,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
           txParams = TxConfirmParams(
             module: 'utility',
             call: 'batch',
-            txTitle: I18n.of(context)
-                .getDic(i18n_full_dic_karura, 'acala')['earn.remove'],
+            txTitle: I18n.of(context)!
+                .getDic(i18n_full_dic_karura, 'acala')!['earn.remove'],
             txDisplay: {
               dic['earn.pool']: poolToken.symbol,
               "": dic['earn.fromPool'],
             },
             txDisplayBold: {
-              dic['loan.amount']: Text(
+              dic['loan.amount']!: Text(
                 '$amount LP',
                 style: Theme.of(context).textTheme.headline1,
               ),
@@ -197,7 +197,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
       }
 
       final res = (await Navigator.of(context)
-          .pushNamed(TxConfirmPage.route, arguments: txParams)) as Map;
+          .pushNamed(TxConfirmPage.route, arguments: txParams)) as Map?;
       if (res != null) {
         Navigator.of(context).pop(res);
       }
@@ -208,7 +208,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       _refreshData();
     });
   }
@@ -216,7 +216,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   @override
   void dispose() {
     if (_timer != null) {
-      _timer.cancel();
+      _timer!.cancel();
       _timer = null;
     }
 
@@ -228,31 +228,31 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
-        final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+        final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
         final dicAssets =
-            I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+            I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
 
-        final DexPoolData pool = ModalRoute.of(context).settings.arguments;
+        final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
 
         final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-            widget.plugin, pool.tokenNameId);
-        final balancePair = pool.tokens
+            widget.plugin, pool.tokenNameId)!;
+        final balancePair = pool.tokens!
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
         final pairView =
-            balancePair.map((e) => PluginFmt.tokenView(e.symbol)).toList();
+            balancePair.map((e) => PluginFmt.tokenView(e!.symbol)).toList();
 
         double shareInput = 0;
         BigInt shareInputInt = BigInt.zero;
         try {
           shareInput = double.parse(_amountCtrl.text.trim());
           shareInputInt =
-              Fmt.tokenInt(_amountCtrl.text.trim(), balancePair[0].decimals);
+              Fmt.tokenInt(_amountCtrl.text.trim(), balancePair[0]!.decimals!);
         } catch (_) {}
 
         double shareIssuance = 0;
         BigInt shareFreeInt = BigInt.zero;
-        BigInt shareStakedInt = BigInt.zero;
+        BigInt? shareStakedInt = BigInt.zero;
         BigInt shareFromInt = BigInt.zero;
         BigInt shareInt10 = BigInt.zero;
         BigInt shareInt25 = BigInt.zero;
@@ -266,19 +266,19 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
         final poolInfo = _getPoolInfoData(pool.tokenNameId);
         if (poolInfo != null) {
-          exchangeRate = poolInfo.amountLeft / poolInfo.amountRight;
+          exchangeRate = poolInfo.amountLeft! / poolInfo.amountRight!;
 
           shareFreeInt = Fmt.balanceInt(poolToken.amount);
           shareStakedInt = poolInfo.shares;
           shareFromInt =
-              _fromPool ? shareFreeInt + shareStakedInt : shareFreeInt;
+              _fromPool ? shareFreeInt + shareStakedInt! : shareFreeInt;
           shareIssuance =
-              Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals);
+              Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0]!.decimals!);
 
           poolLeft =
-              Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals);
+              Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0]!.decimals!);
           poolRight =
-              Fmt.bigIntToDouble(poolInfo.amountRight, balancePair[1].decimals);
+              Fmt.bigIntToDouble(poolInfo.amountRight, balancePair[1]!.decimals!);
 
           shareInt10 = BigInt.from(shareFromInt / BigInt.from(10));
           shareInt25 = BigInt.from(shareFromInt / BigInt.from(4));
@@ -292,7 +292,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(dic['earn.remove']),
+            title: Text(dic['earn.remove']!),
             centerTitle: true,
             leading: BackBtn(),
           ),
@@ -319,20 +319,20 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   title: dicAssets['amount.all'],
                                   content: Fmt.priceFloorBigInt(
-                                      shareFreeInt + shareStakedInt,
-                                      balancePair[0].decimals),
+                                      shareFreeInt + shareStakedInt!,
+                                      balancePair[0]!.decimals!),
                                 ),
                                 InfoItem(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   title: dicAssets['amount.staked'],
                                   content: Fmt.priceFloorBigInt(
-                                      shareStakedInt, balancePair[0].decimals),
+                                      shareStakedInt, balancePair[0]!.decimals!),
                                 ),
                                 InfoItem(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   title: dicAssets['amount.free'],
                                   content: Fmt.priceFloorBigInt(
-                                      shareFreeInt, balancePair[0].decimals),
+                                      shareFreeInt, balancePair[0]!.decimals!),
                                 )
                               ],
                             ),
@@ -351,7 +351,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                                         size: 16),
                                     Padding(
                                       padding: EdgeInsets.only(left: 8),
-                                      child: Text(dic['earn.fromPool']),
+                                      child: Text(dic['earn.fromPool']!),
                                     ),
                                   ],
                                 ),
@@ -382,7 +382,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           decoration: InputDecoration(
                             hintText: dicAssets['amount'],
                             labelText:
-                                '${dicAssets['amount']} (${dic['earn.available']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0].decimals, lengthMax: 4)} Shares)',
+                                '${dicAssets['amount']} (${dic['earn.available']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0]!.decimals!, lengthMax: 4)} Shares)',
                             suffix: GestureDetector(
                               child: Icon(
                                 CupertinoIcons.clear_thick_circled,
@@ -390,13 +390,13 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                                 size: 18,
                               ),
                               onTap: () {
-                                WidgetsBinding.instance.addPostFrameCallback(
+                                WidgetsBinding.instance!.addPostFrameCallback(
                                     (_) => _amountCtrl.clear());
                               },
                             ),
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(balancePair[0].decimals)
+                            UI.decimalInputFormatter(balancePair[0]!.decimals!)!
                           ],
                           controller: _amountCtrl,
                           keyboardType:
@@ -419,7 +419,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               onPressed: shareEmpty
                                   ? null
                                   : () => _onAmountSelect(
-                                      shareInt10, balancePair[0].decimals),
+                                      shareInt10, balancePair[0]!.decimals),
                             ),
                             OutlinedButtonSmall(
                               content: '25%',
@@ -428,7 +428,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               onPressed: shareEmpty
                                   ? null
                                   : () => _onAmountSelect(
-                                      shareInt25, balancePair[0].decimals),
+                                      shareInt25, balancePair[0]!.decimals),
                             ),
                             OutlinedButtonSmall(
                               content: '50%',
@@ -437,7 +437,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               onPressed: shareEmpty
                                   ? null
                                   : () => _onAmountSelect(
-                                      shareInt50, balancePair[0].decimals),
+                                      shareInt50, balancePair[0]!.decimals),
                             ),
                             OutlinedButtonSmall(
                               margin: EdgeInsets.only(right: 0),
@@ -447,7 +447,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               onPressed: shareEmpty
                                   ? null
                                   : () => _onAmountSelect(
-                                      shareFromInt, balancePair[0].decimals,
+                                      shareFromInt, balancePair[0]!.decimals,
                                       isMax: true),
                             )
                           ],
@@ -476,7 +476,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                         children: <Widget>[
                           Expanded(
                             child: Text(
-                              dic['dex.rate'],
+                              dic['dex.rate']!,
                               style: TextStyle(
                                 color: Theme.of(context).unselectedWidgetColor,
                               ),
@@ -497,7 +497,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                   padding: EdgeInsets.only(top: 24),
                   child: RoundedButton(
                     text: dic['earn.remove'],
-                    onPressed: () => _onSubmit(balancePair[0].decimals),
+                    onPressed: () => _onSubmit(balancePair[0]!.decimals),
                   ),
                 )
               ],
@@ -512,8 +512,8 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 class DEXPoolInfo {
   DEXPoolInfo(this.shares, this.issuance, this.amountLeft, this.amountRight);
 
-  final BigInt shares;
-  final BigInt issuance;
-  final BigInt amountLeft;
-  final BigInt amountRight;
+  final BigInt? shares;
+  final BigInt? issuance;
+  final BigInt? amountLeft;
+  final BigInt? amountRight;
 }

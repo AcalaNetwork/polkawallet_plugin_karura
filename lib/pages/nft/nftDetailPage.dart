@@ -43,28 +43,28 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final NFTData item = ModalRoute.of(context).settings.arguments;
-    final symbol = widget.plugin.networkState.tokenSymbol[0];
-    final decimal = widget.plugin.networkState.tokenDecimals[0];
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final NFTData item = ModalRoute.of(context)!.settings.arguments as NFTData;
+    final symbol = widget.plugin.networkState.tokenSymbol![0];
+    final decimal = widget.plugin.networkState.tokenDecimals![0];
 
     final deposit = Fmt.balance(item.deposit, decimal);
     return Scaffold(
       appBar: AppBar(
-        title: Text(item.metadata['name']),
+        title: Text(item.metadata!['name']),
         centerTitle: true,
         leading: BackBtn(),
       ),
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final list = widget.plugin.store.assets.nft.toList();
+            final list = widget.plugin.store!.assets.nft.toList();
             list.retainWhere((e) => e.classId == item.classId);
 
-            final burnable = item.properties.contains('Burnable');
-            final transferable = item.properties.contains('Transferable');
-            final isMintable = item.properties.contains('Mintable');
-            final allProps = item.properties.toList();
+            final burnable = item.properties!.contains('Burnable');
+            final transferable = item.properties!.contains('Transferable');
+            final isMintable = item.properties!.contains('Mintable');
+            final allProps = item.properties!.toList();
             allProps.remove('ClassPropertiesMutable');
             if (!isMintable) {
               allProps.add('Unmintable');
@@ -82,7 +82,7 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                           child: Column(
                             children: [
                               Image.network(
-                                  '${item.metadata['imageServiceUrl']}?imageView2/2/w/500'),
+                                  '${item.metadata!['imageServiceUrl']}?imageView2/2/w/500'),
                               Container(
                                 padding: EdgeInsets.all(8),
                                 child: Row(
@@ -92,7 +92,7 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                                           WrapCrossAlignment.start,
                                       children: allProps
                                           .map((e) => TextTag(
-                                                dic['nft.$e'],
+                                                dic!['nft.$e'],
                                                 color: Theme.of(context)
                                                     .disabledColor,
                                                 fontSize: 10,
@@ -108,13 +108,13 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
                                   children: [
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
-                                      child: NftInfoItem(dic['nft.name'],
-                                          item.metadata['name']),
+                                      child: NftInfoItem(dic!['nft.name'],
+                                          item.metadata!['name']),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
                                       child: NftInfoItem(dic['nft.description'],
-                                          item.metadata['description']),
+                                          item.metadata!['description']),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
@@ -185,8 +185,8 @@ class _NFTDetailPageState extends State<NFTDetailPage> {
 
 class NftInfoItem extends StatelessWidget {
   NftInfoItem(this.label, this.content);
-  final String label;
-  final String content;
+  final String? label;
+  final String? content;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -195,12 +195,12 @@ class NftInfoItem extends StatelessWidget {
           flex: 0,
           child: Container(
             padding: EdgeInsets.only(right: 8),
-            child: Text(label, style: TextStyle(fontSize: 12)),
+            child: Text(label!, style: TextStyle(fontSize: 12)),
           ),
         ),
         Expanded(
           child: Text(
-            content,
+            content!,
             textAlign: TextAlign.end,
             style: TextStyle(
                 fontWeight: FontWeight.bold,

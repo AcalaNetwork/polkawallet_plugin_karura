@@ -25,7 +25,7 @@ class _ProposalsState extends State<Proposals> {
     setState(() {
       isLoading = true;
     });
-    await widget.plugin.service.gov.queryProposals();
+    await widget.plugin.service!.gov.queryProposals();
     setState(() {
       isLoading = false;
     });
@@ -35,8 +35,8 @@ class _ProposalsState extends State<Proposals> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState.show();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _refreshKey.currentState!.show();
     });
   }
 
@@ -47,8 +47,8 @@ class _ProposalsState extends State<Proposals> {
         return RefreshIndicator(
           key: _refreshKey,
           onRefresh: _fetchData,
-          child: widget.plugin.store.gov.proposals == null ||
-                  widget.plugin.store.gov.proposals.length == 0
+          child: widget.plugin.store!.gov.proposals == null ||
+                  widget.plugin.store!.gov.proposals.length == 0
               ? Center(
                   child: ListTail(
                   isEmpty: true,
@@ -56,14 +56,14 @@ class _ProposalsState extends State<Proposals> {
                   isShowLoadText: true,
                 ))
               : ListView.builder(
-                  itemCount: widget.plugin.store.gov.proposals.length + 1,
+                  itemCount: widget.plugin.store!.gov.proposals.length + 1,
                   itemBuilder: (_, int i) {
-                    if (widget.plugin.store.gov.proposals.length == i) {
+                    if (widget.plugin.store!.gov.proposals.length == i) {
                       return Center(
                           child: ListTail(isEmpty: false, isLoading: false));
                     }
                     return ProposalPanel(
-                        widget.plugin, widget.plugin.store.gov.proposals[i]);
+                        widget.plugin, widget.plugin.store!.gov.proposals[i]);
                   }),
         );
       },

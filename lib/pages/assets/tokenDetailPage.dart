@@ -42,24 +42,26 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final TokenBalanceData token = ModalRoute.of(context).settings.arguments;
-      widget.plugin.service.assets.updateTokenBalances(token);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final TokenBalanceData token =
+          ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
+      widget.plugin.service!.assets.updateTokenBalances(token);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
-    final TokenBalanceData token = ModalRoute.of(context).settings.arguments;
+    final TokenBalanceData token =
+        ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
 
     final primaryColor = Theme.of(context).primaryColor;
     final titleColor = Theme.of(context).cardColor;
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(token.symbol),
+          title: Text(token.symbol!),
           centerTitle: true,
           elevation: 0.0,
           leading: BackBtn()),
@@ -68,7 +70,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
           builder: (_) {
             final tokenSymbol = token.symbol?.toUpperCase();
             final balance =
-                widget.plugin.store.assets.tokenBalanceMap[token.tokenNameId];
+                widget.plugin.store!.assets.tokenBalanceMap[token.tokenNameId];
             final free = Fmt.balanceInt(balance?.amount ?? '0');
             final locked = Fmt.balanceInt(balance?.locked ?? '0');
             final reserved = Fmt.balanceInt(balance?.reserved ?? '0');
@@ -76,13 +78,13 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
             final total = free + reserved;
 
             final tokenPrice =
-                widget.plugin.store.assets.marketPrices[tokenSymbol];
+                widget.plugin.store!.assets.marketPrices[tokenSymbol];
             final tokenValue = (tokenPrice ?? 0) > 0
-                ? tokenPrice * Fmt.bigIntToDouble(total, balance.decimals)
+                ? tokenPrice! * Fmt.bigIntToDouble(total, balance!.decimals!)
                 : 0;
 
             final disabledTokens =
-                widget.plugin.store.setting.tokensConfig['disabled'];
+                widget.plugin.store!.setting.tokensConfig['disabled'];
             bool transferDisabled = false;
             if (disabledTokens != null) {
               transferDisabled = List.of(disabledTokens).contains(tokenSymbol);
@@ -90,7 +92,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
             return RefreshIndicator(
               key: _refreshKey,
               onRefresh: () =>
-                  widget.plugin.service.assets.updateTokenBalances(token),
+                  widget.plugin.service!.assets.updateTokenBalances(token),
               child: Column(
                 children: <Widget>[
                   Stack(
@@ -110,7 +112,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                 margin: EdgeInsets.only(
                                     bottom: tokenValue > 0 ? 8 : 24),
                                 child: Text(
-                                  Fmt.token(total, token.decimals, length: 8),
+                                  Fmt.token(total, token.decimals!, length: 8),
                                   style: TextStyle(
                                     color: titleColor,
                                     fontSize: 28,
@@ -124,7 +126,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                     padding: EdgeInsets.only(bottom: 16),
                                     child: Text(
                                       tokenValue > 0
-                                          ? '≈ \$ ${Fmt.priceFloor(tokenValue) ?? '--.--'}'
+                                          ? '≈ \$ ${Fmt.priceFloor(tokenValue as double?)}'
                                           : "",
                                       style: TextStyle(
                                         color: Theme.of(context).cardColor,
@@ -134,9 +136,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               Row(
                                 children: [
                                   InfoItem(
-                                      title: dic['asset.reserve'],
+                                      title: dic!['asset.reserve'],
                                       content: Fmt.priceFloorBigInt(
-                                          reserved, token.decimals,
+                                          reserved, token.decimals!,
                                           lengthMax: 4),
                                       color: titleColor,
                                       titleColor: titleColor,
@@ -145,7 +147,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   InfoItem(
                                       title: dic['asset.transferable'],
                                       content: Fmt.priceFloorBigInt(
-                                          transferable, token.decimals,
+                                          transferable, token.decimals!,
                                           lengthMax: 4),
                                       color: titleColor,
                                       titleColor: titleColor,
@@ -154,7 +156,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   InfoItem(
                                       title: dic['asset.lock'],
                                       content: Fmt.priceFloorBigInt(
-                                          locked, token.decimals, lengthMax: 4),
+                                          locked, token.decimals!,
+                                          lengthMax: 4),
                                       color: titleColor,
                                       titleColor: titleColor,
                                       crossAxisAlignment:
@@ -175,8 +178,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                         child: Row(
                           children: <Widget>[
                             BorderedTitle(
-                              title: I18n.of(context).getDic(
-                                  i18n_full_dic_karura, 'acala')['loan.txs'],
+                              title: I18n.of(context)!.getDic(
+                                  i18n_full_dic_karura, 'acala')!['loan.txs'],
                             )
                           ],
                         ),
@@ -189,15 +192,15 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                       child: Query(
                           options: QueryOptions(
                             document: gql(transferQuery),
-                            variables: <String, String>{
+                            variables: <String, String?>{
                               'account': widget.keyring.current.address,
                               'token': tokenSymbol,
                             },
                           ),
                           builder: (
                             QueryResult result, {
-                            Future<QueryResult> Function() refetch,
-                            FetchMore fetchMore,
+                            Future<QueryResult?> Function()? refetch,
+                            FetchMore? fetchMore,
                           }) {
                             if (result.data == null) {
                               return Container(
@@ -208,9 +211,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               );
                             }
                             final txs =
-                                List.of(result.data['transfers']['nodes'])
+                                List.of(result.data!['transfers']['nodes'])
                                     .map((i) => TransferData.fromJson(
-                                        i as Map, token.decimals))
+                                        i as Map, token.decimals!))
                                     .toList();
                             return ListView.builder(
                               itemCount: txs.length + 1,
@@ -295,19 +298,19 @@ class TransferListItem extends StatelessWidget {
     this.crossChain,
   });
 
-  final TransferData data;
-  final String token;
-  final String crossChain;
-  final bool isOut;
+  final TransferData? data;
+  final String? token;
+  final String? crossChain;
+  final bool? isOut;
 
   @override
   Widget build(BuildContext context) {
-    final address = isOut ? data.to : data.from;
-    final title = Fmt.address(address) ?? Fmt.address(data.hash);
+    final address = isOut! ? data!.to : data!.from;
+    final title = Fmt.address(address) ?? Fmt.address(data!.hash);
     return ListTile(
       dense: true,
-      leading: data.isSuccess
-          ? isOut
+      leading: data!.isSuccess!
+          ? isOut!
               ? TransferIcon(
                   type: TransferIconType.rollOut,
                   bgColor: Theme.of(context).cardColor)
@@ -317,16 +320,16 @@ class TransferListItem extends StatelessWidget {
           : TransferIcon(
               type: TransferIconType.failure, bgColor: Color(0xFFD7D7D7)),
       title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
-      subtitle: Text(Fmt.dateTime(DateTime.parse(data.timestamp))),
+      subtitle: Text(Fmt.dateTime(DateTime.parse(data!.timestamp))),
       trailing: Container(
         width: 110,
         child: Row(
           children: <Widget>[
             Expanded(
               child: Text(
-                '${isOut ? '-' : '+'} ${data.amount}',
-                style: Theme.of(context).textTheme.headline5.copyWith(
-                    color: data.isSuccess
+                '${isOut! ? '-' : '+'} ${data!.amount}',
+                style: Theme.of(context).textTheme.headline5!.copyWith(
+                    color: data!.isSuccess!
                         ? Theme.of(context).toggleableActiveColor
                         : Theme.of(context).unselectedWidgetColor,
                     fontWeight: FontWeight.w600),

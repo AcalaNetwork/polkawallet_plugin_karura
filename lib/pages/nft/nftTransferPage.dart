@@ -29,14 +29,14 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountCtrl = new TextEditingController();
 
-  KeyPairData _accountTo;
+  KeyPairData? _accountTo;
 
   Future<void> _onScan() async {
     final to = await Navigator.of(context).pushNamed(ScanPage.route);
     if (to == null) return;
     final acc = KeyPairData();
-    acc.address = (to as QRCodeResult).address.address;
-    acc.name = (to as QRCodeResult).address.name;
+    acc.address = (to as QRCodeResult).address!.address;
+    acc.name = to.address!.name;
     final res =
         await widget.plugin.sdk.api.account.getAddressIcons([acc.address]);
     if (res != null) {
@@ -45,14 +45,14 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
     setState(() {
       _accountTo = acc;
     });
-    print(_accountTo.address);
+    print(_accountTo!.address);
   }
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.keyring.allWithContacts.length > 0) {
         setState(() {
           _accountTo = widget.keyring.allWithContacts[0];
@@ -69,8 +69,8 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final dicCommon = I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
     final colorGrey = Theme.of(context).unselectedWidgetColor;
     return Scaffold(
@@ -93,9 +93,9 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final NFTData item = ModalRoute.of(context).settings.arguments;
-            final list = widget.plugin.store.assets.nft.toList();
-            list.retainWhere((e) => e.classId == item.classId);
+            final NFTData? item = ModalRoute.of(context)!.settings.arguments as NFTData?;
+            final list = widget.plugin.store!.assets.nft.toList();
+            list.retainWhere((e) => e.classId == item!.classId);
 
             return Column(
               children: [
@@ -114,7 +114,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                       AddressInputField(
                         widget.plugin.sdk.api,
                         widget.keyring.allWithContacts,
-                        label: dicCommon['address'],
+                        label: dicCommon!['address'],
                         initialValue: _accountTo,
                         onChanged: (acc) {
                           setState(() {
@@ -138,7 +138,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           validator: (v) {
-                            if (v.isEmpty) {
+                            if (v!.isEmpty) {
                               return dicCommon['input.invalid'];
                             }
                             final count = int.parse(v.trim());
@@ -159,12 +159,12 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                   margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: TxButton(
                     getTxParams: () async {
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         final count = int.parse(_amountCtrl.text.trim());
                         final txs = list
                             .sublist(0, count)
                             .map((e) =>
-                                'api.tx.nft.transfer("${_accountTo.address}", [${e.classId}, ${e.tokenId}])')
+                                'api.tx.nft.transfer("${_accountTo!.address}", [${e.classId}, ${e.tokenId}])')
                             .toList();
                         return TxConfirmParams(
                           module: 'utility',
@@ -172,8 +172,8 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                           txTitle: 'NFT ${dic['nft.transfer']}',
                           txDisplay: {
                             'call': 'nft.transfer',
-                            'to': Fmt.address(_accountTo.address),
-                            'classId': item.classId,
+                            'to': Fmt.address(_accountTo!.address),
+                            'classId': item!.classId,
                             'quantity': _amountCtrl.text.trim(),
                           },
                           params: [],
@@ -181,7 +181,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                         );
                       }
                       return null;
-                    },
+                    } as Future<TxConfirmParams> Function()?,
                     onFinish: (res) {
                       if (res != null) {
                         Navigator.of(context).pop(res);
@@ -200,7 +200,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
 
 class NFTFormItem extends StatelessWidget {
   NFTFormItem(this.item);
-  final NFTData item;
+  final NFTData? item;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -216,14 +216,14 @@ class NFTFormItem extends StatelessWidget {
             Container(
               height: 64,
               child: Image.network(
-                  '${item.metadata['imageServiceUrl']}?imageView2/2/w/400'),
+                  '${item!.metadata!['imageServiceUrl']}?imageView2/2/w/400'),
             ),
             Expanded(
               flex: 0,
               child: Container(
                 margin: EdgeInsets.only(right: 8),
                 child: Text(
-                  item.metadata['name'],
+                  item!.metadata!['name'],
                   style: TextStyle(fontSize: 14),
                 ),
               ),

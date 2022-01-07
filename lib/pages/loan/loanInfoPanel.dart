@@ -16,17 +16,17 @@ class LoanInfoPanel extends StatelessWidget {
     this.currentRatio,
     this.liquidationPrice,
   });
-  final String debits;
-  final String collateral;
-  final BigInt price;
-  final BigInt liquidationRatio;
-  final BigInt requiredRatio;
-  final double currentRatio;
-  final BigInt liquidationPrice;
+  final String? debits;
+  final String? collateral;
+  final BigInt? price;
+  final BigInt? liquidationRatio;
+  final BigInt? requiredRatio;
+  final double? currentRatio;
+  final BigInt? liquidationPrice;
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final priceString = Fmt.token(price, acala_price_decimals);
     final liquidationPriceString =
         Fmt.token(liquidationPrice, acala_price_decimals);
@@ -35,21 +35,21 @@ class LoanInfoPanel extends StatelessWidget {
         Visibility(
             visible: debits != null,
             child: InfoItemRow(
-              dic['loan.borrowed'],
+              dic['loan.borrowed']!,
               debits ?? '',
             )),
         Visibility(
             visible: collateral != null,
             child: InfoItemRow(
-              dic['loan.collateral'],
+              dic['loan.collateral']!,
               collateral ?? '',
             )),
         InfoItemRow(
-          dic['collateral.price.current'],
+          dic['collateral.price.current']!,
           '\$$priceString',
         ),
         InfoItemRow(
-          dic['liquid.ratio.require'],
+          dic['liquid.ratio.require']!,
           Fmt.ratio(
             double.parse(
               Fmt.token(requiredRatio, acala_price_decimals),
@@ -57,12 +57,12 @@ class LoanInfoPanel extends StatelessWidget {
           ),
         ),
         InfoItemRow(
-          dic['liquid.ratio.current'],
+          dic['liquid.ratio.current']!,
           Fmt.ratio(currentRatio),
           colorPrimary: true,
         ),
         InfoItemRow(
-          dic['liquid.price'],
+          dic['liquid.price']!,
           '\$$liquidationPriceString',
           colorPrimary: true,
         ),

@@ -12,9 +12,9 @@ class IncentivesData extends _IncentivesData {
 }
 
 abstract class _IncentivesData {
-  Map<String, List<IncentiveItemData>> dex;
-  Map<String, List<IncentiveItemData>> dexSaving;
-  Map<String, List<IncentiveItemData>> loans;
+  Map<String, List<IncentiveItemData>>? dex;
+  late Map<String, List<IncentiveItemData>> dexSaving;
+  Map<String, List<IncentiveItemData>>? loans;
 }
 
 class IncentiveItemData extends _IncentiveItemData {
@@ -29,9 +29,9 @@ class IncentiveItemData extends _IncentiveItemData {
 }
 
 abstract class _IncentiveItemData {
-  String tokenNameId;
-  Map currencyId;
-  double amount;
-  double deduction;
-  double apr;
+  String? tokenNameId;
+  Map? currencyId;
+  double? amount;
+  double? deduction;
+  late double apr;
 }

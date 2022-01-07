@@ -42,7 +42,7 @@ class LoanType extends _LoanType {
   }
 
   BigInt tokenToUSD(BigInt amount, price,
-      {int stableCoinDecimals, int collateralDecimals}) {
+      {required int stableCoinDecimals, required int collateralDecimals}) {
     return amount *
         price ~/
         BigInt.from(pow(10,
@@ -57,32 +57,32 @@ class LoanType extends _LoanType {
   }
 
   BigInt calcLiquidationPrice(BigInt debit, BigInt collaterals,
-      {int stableCoinDecimals, int collateralDecimals}) {
+      {int? stableCoinDecimals, int? collateralDecimals}) {
     return debit > BigInt.zero
         ? BigInt.from(debit *
             this.liquidationRatio /
             collaterals /
-            pow(10, stableCoinDecimals - collateralDecimals))
+            pow(10, stableCoinDecimals! - collateralDecimals!))
         : BigInt.zero;
   }
 
   BigInt calcRequiredCollateral(BigInt debitInUSD, BigInt price,
-      {int stableCoinDecimals, int collateralDecimals}) {
+      {int? stableCoinDecimals, int? collateralDecimals}) {
     if (price > BigInt.zero && debitInUSD > BigInt.zero) {
       return BigInt.from(debitInUSD *
           requiredCollateralRatio /
           price /
-          pow(10, stableCoinDecimals - collateralDecimals));
+          pow(10, stableCoinDecimals! - collateralDecimals!));
     }
     return BigInt.zero;
   }
 
   BigInt calcMaxToBorrow(BigInt collaterals, tokenPrice,
-      {int stableCoinDecimals, int collateralDecimals}) {
+      {int? stableCoinDecimals, int? collateralDecimals}) {
     return requiredCollateralRatio > BigInt.zero
         ? tokenToUSD(collaterals, tokenPrice,
-                stableCoinDecimals: stableCoinDecimals,
-                collateralDecimals: collateralDecimals) *
+                stableCoinDecimals: stableCoinDecimals!,
+                collateralDecimals: collateralDecimals!) *
             BigInt.from(pow(10, acala_price_decimals)) ~/
             requiredCollateralRatio
         : BigInt.zero;
@@ -90,13 +90,13 @@ class LoanType extends _LoanType {
 }
 
 abstract class _LoanType {
-  TokenBalanceData token;
+  TokenBalanceData? token;
   BigInt debitExchangeRate = BigInt.zero;
   BigInt liquidationPenalty = BigInt.zero;
   BigInt liquidationRatio = BigInt.zero;
   BigInt requiredCollateralRatio = BigInt.zero;
   BigInt interestRatePerSec = BigInt.zero;
-  BigInt globalInterestRatePerSec = BigInt.zero;
+  BigInt? globalInterestRatePerSec = BigInt.zero;
   BigInt maximumTotalDebitValue = BigInt.zero;
   BigInt minimumDebitValue = BigInt.zero;
   int expectedBlockTime = 0;
@@ -108,8 +108,8 @@ class LoanData extends _LoanData {
     LoanData data = LoanData();
     data.token = AssetsUtils.tokenDataFromCurrencyId(plugin, json['currency']);
     final stableCoinDecimals =
-        plugin.store.assets.tokenBalanceMap[karura_stable_coin].decimals;
-    final collateralDecimals = data.token.decimals;
+        plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!;
+    final collateralDecimals = data.token!.decimals!;
     data.type = type;
     data.price = tokenPrice;
     data.stableCoinPrice = Fmt.tokenInt('1', stableCoinDecimals);
@@ -141,7 +141,7 @@ class LoanData extends _LoanData {
 }
 
 abstract class _LoanData {
-  TokenBalanceData token;
+  TokenBalanceData? token;
   LoanType type = LoanType();
   BigInt price = BigInt.zero;
   BigInt stableCoinPrice = BigInt.zero;
@@ -159,7 +159,7 @@ abstract class _LoanData {
   BigInt liquidationPrice = BigInt.zero;
 
   double calcStableFee(int seconds) {
-    final base = (type.globalInterestRatePerSec + type.interestRatePerSec) /
+    final base = (type.globalInterestRatePerSec! + type.interestRatePerSec) /
         BigInt.from(pow(10, acala_price_decimals));
     return pow((1 + base), seconds) - 1;
   }
@@ -176,8 +176,8 @@ class CollateralIncentiveData extends _CollateralIncentiveData {
 }
 
 abstract class _CollateralIncentiveData {
-  TokenBalanceData token;
-  BigInt incentive;
+  TokenBalanceData? token;
+  BigInt? incentive;
 }
 
 class TotalCDPData extends _TotalCDPData {
@@ -191,9 +191,9 @@ class TotalCDPData extends _TotalCDPData {
 }
 
 abstract class _TotalCDPData {
-  String tokenNameId;
-  BigInt collateral;
-  BigInt debit;
+  String? tokenNameId;
+  late BigInt collateral;
+  BigInt? debit;
 }
 
 class CollateralRewardData extends _CollateralRewardData {
@@ -209,9 +209,9 @@ class CollateralRewardData extends _CollateralRewardData {
 }
 
 abstract class _CollateralRewardData {
-  String tokenNameId;
-  BigInt sharesTotal;
-  BigInt shares;
-  List reward;
-  double proportion;
+  String? tokenNameId;
+  BigInt? sharesTotal;
+  BigInt? shares;
+  List? reward;
+  double? proportion;
 }

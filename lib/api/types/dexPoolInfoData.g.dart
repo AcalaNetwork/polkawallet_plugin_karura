@@ -8,8 +8,8 @@ part of 'dexPoolInfoData.dart';
 
 DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
   return DexPoolData()
-    ..tokenNameId = json['tokenNameId'] as String
-    ..tokens = json['tokens'] as List<dynamic>
+    ..tokenNameId = json['tokenNameId'] as String?
+    ..tokens = json['tokens'] as List<dynamic>?
     ..provisioning = json['provisioning'] == null
         ? null
         : ProvisioningData.fromJson(
@@ -21,15 +21,15 @@ Map<String, dynamic> _$DexPoolDataToJson(DexPoolData instance) =>
       'tokenNameId': instance.tokenNameId,
       'tokens': instance.tokens,
       'provisioning':
-          instance.provisioning == null ? null : instance.provisioning.toJson(),
+          instance.provisioning == null ? null : instance.provisioning!.toJson(),
     };
 
 ProvisioningData _$ProvisioningDataFromJson(Map<String, dynamic> json) {
   return ProvisioningData()
-    ..minContribution = json['minContribution'] as List<dynamic>
-    ..targetProvision = json['targetProvision'] as List<dynamic>
-    ..accumulatedProvision = json['accumulatedProvision'] as List<dynamic>
-    ..notBefore = json['notBefore'] as int;
+    ..minContribution = json['minContribution'] as List<dynamic>?
+    ..targetProvision = json['targetProvision'] as List<dynamic>?
+    ..accumulatedProvision = json['accumulatedProvision'] as List<dynamic>?
+    ..notBefore = json['notBefore'] as int?;
 }
 
 Map<String, dynamic> _$ProvisioningDataToJson(ProvisioningData instance) =>

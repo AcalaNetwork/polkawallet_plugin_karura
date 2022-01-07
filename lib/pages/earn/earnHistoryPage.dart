@@ -25,11 +25,11 @@ class EarnHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['loan.txs']),
+        title: Text(dic['loan.txs']!),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -37,14 +37,14 @@ class EarnHistoryPage extends StatelessWidget {
         child: Query(
           options: QueryOptions(
             document: gql(dexStakeQuery),
-            variables: <String, String>{
+            variables: <String, String?>{
               'account': keyring.current.address,
             },
           ),
           builder: (
             QueryResult result, {
-            Future<QueryResult> Function() refetch,
-            FetchMore fetchMore,
+            Future<QueryResult?> Function()? refetch,
+            FetchMore? fetchMore,
           }) {
             if (result.data == null) {
               return Container(
@@ -57,11 +57,11 @@ class EarnHistoryPage extends StatelessWidget {
             }
 
             final nodes =
-                List.of(result.data['incentiveActions']['nodes']).toList();
+                List.of(result.data!['incentiveActions']['nodes']).toList();
             nodes.removeWhere(
                 (e) => jsonDecode(e['data'][1]['value'])['loans'] != null);
             final list = nodes
-                .map((i) => TxDexIncentiveData.fromJson(i as Map, plugin))
+                .map((i) => TxDexIncentiveData.fromJson((i as Map) as Map<String, dynamic>, plugin))
                 .toList();
 
             return ListView.builder(
@@ -72,7 +72,7 @@ class EarnHistoryPage extends StatelessWidget {
                 }
 
                 final detail = list[i];
-                String amount = '';
+                String? amount = '';
                 TransferIconType icon = TransferIconType.rollIn;
                 switch (detail.event) {
                   case TxDexIncentiveData.actionStake:
@@ -96,14 +96,14 @@ class EarnHistoryPage extends StatelessWidget {
                   ),
                   child: ListTile(
                     dense: true,
-                    title: Text(amount, style: TextStyle(fontSize: 14)),
+                    title: Text(amount!, style: TextStyle(fontSize: 14)),
                     subtitle: Text(Fmt.dateTime(
                         DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true))),
                     leading: TransferIcon(
                         type: icon, bgColor: Theme.of(context).cardColor),
                     trailing: Text(
-                      dic['earn.${detail.event}'],
+                      dic['earn.${detail.event}']!,
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
                     ),

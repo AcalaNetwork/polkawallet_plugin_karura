@@ -24,8 +24,8 @@ class _DemocracyPageState extends State<DemocracyPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
-    final tabs = [dic['democracy.referendum'], dic['democracy.proposal']];
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
+    final tabs = [dic['democracy.referendum']!, dic['democracy.proposal']!];
 
     return Scaffold(
         body: PageWrapperWithBackground(

@@ -36,15 +36,15 @@ class LoanDetailPage extends StatefulWidget {
 class _LoanDetailPageState extends State<LoanDetailPage> {
   Future<SwapOutputData> _queryReceiveAmount(
       BuildContext ctx, TokenBalanceData collateral, double debit) async {
-    return widget.plugin.api.swap.queryTokenSwapAmount(
+    return widget.plugin.api!.swap.queryTokenSwapAmount(
       null,
       debit.toStringAsFixed(2),
       [
-        {...collateral.currencyId, 'decimals': collateral.decimals},
+        {...collateral.currencyId!, 'decimals': collateral.decimals},
         {
           'Token': karura_stable_coin,
           'decimals': AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, karura_stable_coin)
+                  widget.plugin, karura_stable_coin)!
               .decimals
         }
       ],
@@ -53,29 +53,29 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
   }
 
   Future<void> _closeVault(
-      LoanData loan, int collateralDecimal, double debit) async {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
-    final dicCommon = I18n.of(context).getDic(i18n_full_dic_ui, 'common');
-    SwapOutputData output;
+      LoanData loan, int? collateralDecimal, double debit) async {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_ui, 'common');
+    SwapOutputData? output;
     final confirmed = await showCupertinoDialog(
       context: context,
       builder: (BuildContext ctx) {
         return CupertinoAlertDialog(
-          title: Text(dic['loan.close']),
+          title: Text(dic!['loan.close']!),
           content: Column(
             children: [
-              Text(dic['loan.close.dex.info']),
+              Text(dic['loan.close.dex.info']!),
               Divider(),
               FutureBuilder<SwapOutputData>(
-                future: _queryReceiveAmount(ctx, loan.token, debit),
+                future: _queryReceiveAmount(ctx, loan.token!, debit),
                 builder: (_, AsyncSnapshot<SwapOutputData> snapshot) {
                   if (snapshot.hasData) {
                     output = snapshot.data;
                     final left = Fmt.bigIntToDouble(
-                            loan.collaterals, collateralDecimal) -
-                        snapshot.data.amount;
-                    return InfoItemRow(dic['loan.close.receive'],
-                        Fmt.priceFloor(left) + loan.token.symbol);
+                            loan.collaterals, collateralDecimal!) -
+                        snapshot.data!.amount!;
+                    return InfoItemRow(dic['loan.close.receive']!,
+                        Fmt.priceFloor(left) + loan.token!.symbol!);
                   } else {
                     return Container();
                   }
@@ -85,11 +85,11 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
           ),
           actions: <Widget>[
             CupertinoButton(
-              child: Text(dicCommon['cancel']),
+              child: Text(dicCommon!['cancel']!),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             CupertinoButton(
-              child: Text(dicCommon['ok']),
+              child: Text(dicCommon['ok']!),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -98,18 +98,18 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
     );
     if (confirmed) {
       final params = [
-        loan.token.currencyId,
+        loan.token!.currencyId,
         loan.collaterals.toString(),
         output != null
-            ? output.path
+            ? output!.path!
                 .map((e) => AssetsUtils.getBalanceFromTokenNameId(
-                        widget.plugin, e['name'])
+                        widget.plugin, e['name'])!
                     .currencyId)
                 .toList()
             : null
       ];
 
-      final isRuntimeOld = await widget.plugin.sdk.webView.evalJavascript(
+      final isRuntimeOld = await widget.plugin.sdk.webView!.evalJavascript(
           '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
           wrapPromise: false);
       final res = await Navigator.of(context).pushNamed(
@@ -117,9 +117,9 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         arguments: TxConfirmParams(
             module: 'honzon',
             call: 'closeLoanHasDebitByDex',
-            txTitle: dic['loan.close'],
+            txTitle: dic!['loan.close'],
             txDisplay: {
-              'collateral': loan.token.symbol,
+              'collateral': loan.token!.symbol,
               'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
             },
             params: isRuntimeOld ? params : params.sublist(0, 2)),
@@ -132,33 +132,33 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
     return Observer(
       builder: (_) {
-        final LoanData loan = ModalRoute.of(context).settings.arguments;
+        final LoanData loan = ModalRoute.of(context)!.settings.arguments as LoanData;
 
         final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
-            widget.plugin, [loan.token.tokenNameId, karura_stable_coin]);
+            widget.plugin, [loan.token!.tokenNameId, karura_stable_coin]);
 
         final dataChartDebit = [
-          Fmt.bigIntToDouble(loan.debitInUSD, balancePair[1].decimals),
+          Fmt.bigIntToDouble(loan.debitInUSD, balancePair[1]!.decimals!),
           Fmt.bigIntToDouble(
               loan.maxToBorrow - loan.debitInUSD > BigInt.zero
                   ? loan.maxToBorrow - loan.debitInUSD
                   : BigInt.zero,
-              balancePair[1].decimals),
+              balancePair[1]!.decimals!),
         ];
-        final price = widget.plugin.store.assets.prices[loan.token.tokenNameId];
+        final price = widget.plugin.store!.assets.prices[loan.token!.tokenNameId]!;
         final dataChartPrice = [
-          Fmt.bigIntToDouble(loan.liquidationPrice, balancePair[1].decimals),
+          Fmt.bigIntToDouble(loan.liquidationPrice, balancePair[1]!.decimals!),
           Fmt.bigIntToDouble(
               price - loan.liquidationPrice > BigInt.zero
                   ? price - loan.liquidationPrice
                   : BigInt.zero,
-              balancePair[1].decimals),
+              balancePair[1]!.decimals!),
           Fmt.bigIntToDouble(
-              price ~/ (BigInt.one + BigInt.two), balancePair[1].decimals),
+              price ~/ (BigInt.one + BigInt.two), balancePair[1]!.decimals!),
         ];
         final requiredCollateralRatio =
             double.parse(Fmt.token(loan.type.requiredCollateralRatio, 18));
@@ -171,8 +171,8 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                 : 0;
 
         final debitDouble =
-            Fmt.bigIntToDouble(loan.debits, balancePair[1].decimals);
-        final needSwap = Fmt.balanceInt(balancePair[1].amount) < loan.debits;
+            Fmt.bigIntToDouble(loan.debits, balancePair[1]!.decimals!);
+        final needSwap = Fmt.balanceInt(balancePair[1]!.amount) < loan.debits;
 
         final titleStyle = TextStyle(
           fontSize: 16,
@@ -185,7 +185,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         return Scaffold(
           backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
-            title: Text(PluginFmt.tokenView(loan.token.symbol)),
+            title: Text(PluginFmt.tokenView(loan.token!.symbol)),
             centerTitle: true,
             leading: BackBtn(),
           ),
@@ -211,14 +211,14 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                             dataChartDebit,
                                             title: Fmt.priceCeilBigInt(
                                                 loan.debits,
-                                                balancePair[1].decimals),
-                                            subtitle: dic['loan.borrowed'],
+                                                balancePair[1]!.decimals!),
+                                            subtitle: dic!['loan.borrowed'],
                                             colorType: colorType,
                                           ),
                                           Text(
                                               Fmt.priceFloorBigInt(
                                                   loan.maxToBorrow,
-                                                  balancePair[1].decimals),
+                                                  balancePair[1]!.decimals!),
                                               style: titleStyle),
                                           Text(
                                               '${dic['borrow.limit']}($karura_stable_coin_view)',
@@ -242,7 +242,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                           Text(Fmt.priceFloorBigInt(price, 18),
                                               style: titleStyle),
                                           Text(
-                                              '${PluginFmt.tokenView(loan.token.symbol)} ${dic['collateral.price']}(\$)',
+                                              '${PluginFmt.tokenView(loan.token!.symbol)} ${dic['collateral.price']}(\$)',
                                               style: subtitleStyle)
                                         ],
                                       ))),
@@ -250,19 +250,19 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                         LoanCollateralCard(
                             loan,
                             Fmt.priceFloorBigInt(
-                                Fmt.balanceInt(balancePair[0].amount),
-                                balancePair[0].decimals),
-                            balancePair[1].decimals,
-                            balancePair[0].decimals,
+                                Fmt.balanceInt(balancePair[0]!.amount),
+                                balancePair[0]!.decimals!),
+                            balancePair[1]!.decimals,
+                            balancePair[0]!.decimals,
                             widget.plugin.tokenIcons),
                         LoanDebtCard(
                             loan,
                             Fmt.priceFloorBigInt(
-                                Fmt.balanceInt(balancePair[1].amount),
-                                balancePair[1].decimals),
+                                Fmt.balanceInt(balancePair[1]!.amount),
+                                balancePair[1]!.decimals!),
                             karura_stable_coin,
-                            balancePair[1].decimals,
-                            balancePair[0].decimals,
+                            balancePair[1]!.decimals,
+                            balancePair[0]!.decimals,
                             widget.plugin.tokenIcons),
                         Container(
                           margin: EdgeInsets.only(bottom: 16),
@@ -273,7 +273,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                 children: [
                                   GestureDetector(
                                     child: Text(
-                                      dic['loan.close.dex'],
+                                      dic['loan.close.dex']!,
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontStyle: FontStyle.italic,
@@ -282,7 +282,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                                       ),
                                     ),
                                     onTap: () => _closeVault(loan,
-                                        balancePair[0].decimals, debitDouble),
+                                        balancePair[0]!.decimals, debitDouble),
                                   )
                                 ],
                               )),

@@ -17,16 +17,16 @@ class EarnLoanList extends StatefulWidget {
 
 class _EarnLoanListState extends State<EarnLoanList> {
   Future<void> _fetchData() async {
-    await widget.plugin.service.loan
+    await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
 
     final priceQueryTokens =
-        widget.plugin.store.loan.loanTypes.map((e) => e.token.symbol).toList();
-    priceQueryTokens.add(widget.plugin.networkState.tokenSymbol[0]);
-    widget.plugin.service.assets.queryMarketPrices(priceQueryTokens);
+        widget.plugin.store!.loan.loanTypes.map((e) => e.token!.symbol).toList();
+    priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
+    widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
     if (mounted) {
-      widget.plugin.service.loan
+      widget.plugin.service!.loan
           .subscribeAccountLoans(widget.keyring.current.address);
     }
   }
@@ -35,15 +35,15 @@ class _EarnLoanListState extends State<EarnLoanList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       // todo: fix this after new acala online
       final bool enabled = widget.plugin.basic.name == 'acala'
-          ? ModalRoute.of(context).settings.arguments
+          ? ModalRoute.of(context)!.settings.arguments as bool
           : true;
       if (enabled) {
         _fetchData();
       } else {
-        widget.plugin.store.loan.setLoansLoading(false);
+        widget.plugin.store!.loan.setLoansLoading(false);
       }
     });
   }
@@ -51,22 +51,22 @@ class _EarnLoanListState extends State<EarnLoanList> {
   @override
   void dispose() {
     super.dispose();
-    widget.plugin.service.loan.unsubscribeAccountLoans();
+    widget.plugin.service!.loan.unsubscribeAccountLoans();
   }
 
   @override
   Widget build(BuildContext context) {
-    final stableCoinDecimals = widget.plugin.networkState.tokenDecimals[
-        widget.plugin.networkState.tokenSymbol.indexOf(karura_stable_coin)];
-    final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol[0];
+    final stableCoinDecimals = widget.plugin.networkState.tokenDecimals![
+        widget.plugin.networkState.tokenSymbol!.indexOf(karura_stable_coin)];
+    final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol![0];
     return Observer(
       builder: (_) {
-        final loans = widget.plugin.store.loan.loans.values.toList();
+        final loans = widget.plugin.store!.loan.loans.values.toList();
         loans.retainWhere((loan) =>
             loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
 
         final isDataLoading =
-            widget.plugin.store.loan.loansLoading && loans.length == 0;
+            widget.plugin.store!.loan.loansLoading && loans.length == 0;
 
         return isDataLoading
             ? Container(
@@ -75,16 +75,16 @@ class _EarnLoanListState extends State<EarnLoanList> {
               )
             : CollateralIncentiveList(
                 plugin: widget.plugin,
-                loans: widget.plugin.store.loan.loans,
+                loans: widget.plugin.store!.loan.loans,
                 tokenIcons: widget.plugin.tokenIcons,
-                totalCDPs: widget.plugin.store.loan.totalCDPs,
-                incentives: widget.plugin.store.earn.incentives.loans,
-                rewards: widget.plugin.store.loan.collateralRewards,
-                marketPrices: widget.plugin.store.assets.marketPrices,
+                totalCDPs: widget.plugin.store!.loan.totalCDPs,
+                incentives: widget.plugin.store!.earn.incentives.loans,
+                rewards: widget.plugin.store!.loan.collateralRewards,
+                marketPrices: widget.plugin.store!.assets.marketPrices,
                 collateralDecimals: stableCoinDecimals,
                 incentiveTokenSymbol: incentiveTokenSymbol,
                 dexIncentiveLoyaltyEndBlock:
-                    widget.plugin.store.earn.dexIncentiveLoyaltyEndBlock,
+                    widget.plugin.store!.earn.dexIncentiveLoyaltyEndBlock,
               );
       },
     );

@@ -9,7 +9,7 @@ import 'package:polkawallet_plugin_karura/store/setting.dart';
 import 'package:polkawallet_plugin_karura/store/swap.dart';
 
 class PluginStore {
-  PluginStore(StoreCache cache)
+  PluginStore(StoreCache? cache)
       : setting = SettingStore(cache),
         gov = GovernanceStore(cache),
         assets = AssetsStore(cache),

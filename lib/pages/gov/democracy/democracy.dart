@@ -33,8 +33,8 @@ class _DemocracyState extends State<Democracy> {
   List _locks = [];
 
   Future<void> _queryDemocracyLocks() async {
-    final List locks = await widget.plugin.sdk.api.gov
-        .getDemocracyLocks(widget.keyring.current.address);
+    final List? locks = await widget.plugin.sdk.api.gov
+        .getDemocracyLocks(widget.keyring.current.address!);
     if (mounted && locks != null) {
       setState(() {
         _locks = locks;
@@ -49,8 +49,8 @@ class _DemocracyState extends State<Democracy> {
     if (widget.plugin.sdk.api.connectedNode == null) {
       return;
     }
-    widget.plugin.service.gov.getReferendumVoteConvictions();
-    await widget.plugin.service.gov.queryReferendums();
+    widget.plugin.service!.gov.getReferendumVoteConvictions();
+    await widget.plugin.service!.gov.queryReferendums();
 
     _queryDemocracyLocks();
 
@@ -60,18 +60,18 @@ class _DemocracyState extends State<Democracy> {
   }
 
   void _submitCancelVote(int id) {
-    final govDic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
+    final govDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
     _unlockTx(govDic['vote.remove'], ["$id"]);
   }
 
-  void _onUnlock(List<String> ids) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
+  void _onUnlock(List<String?> ids) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
     _unlockTx(dic['democracy.unlock'], ids);
   }
 
-  void _unlockTx(String txTitle, List<String> ids) async {
+  void _unlockTx(String? txTitle, List<String?> ids) async {
     final txs = ids
-        .map((e) => 'api.tx.democracy.removeVote(${BigInt.parse(e)})')
+        .map((e) => 'api.tx.democracy.removeVote(${BigInt.parse(e!)})')
         .toList();
     txs.add('api.tx.democracy.unlock("${widget.keyring.current.address}")');
     final params = TxConfirmParams(
@@ -87,7 +87,7 @@ class _DemocracyState extends State<Democracy> {
     final res = await Navigator.of(context)
         .pushNamed(TxConfirmPage.route, arguments: params);
     if (res != null) {
-      _refreshKey.currentState.show();
+      _refreshKey.currentState!.show();
     }
   }
 
@@ -95,17 +95,17 @@ class _DemocracyState extends State<Democracy> {
   void initState() {
     super.initState();
     if (widget.plugin.sdk.api.connectedNode != null) {
-      widget.plugin.service.gov.subscribeBestNumber();
+      widget.plugin.service!.gov.subscribeBestNumber();
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState.show();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _refreshKey.currentState!.show();
     });
   }
 
   @override
   void dispose() {
-    widget.plugin.service.gov.unsubscribeBestNumber();
+    widget.plugin.service!.gov.unsubscribeBestNumber();
 
     super.dispose();
   }
@@ -114,10 +114,10 @@ class _DemocracyState extends State<Democracy> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final decimals = widget.plugin.networkState.tokenDecimals[0];
-        final symbol = widget.plugin.networkState.tokenSymbol[0];
-        final list = widget.plugin.store.gov.referendums;
-        final bestNumber = widget.plugin.store.gov.bestNumber;
+        final decimals = widget.plugin.networkState.tokenDecimals![0];
+        final symbol = widget.plugin.networkState.tokenSymbol![0];
+        final list = widget.plugin.store!.gov.referendums;
+        final bestNumber = widget.plugin.store!.gov.bestNumber;
 
         final count = list?.length ?? 0;
         return RefreshIndicator(
@@ -148,7 +148,7 @@ class _DemocracyState extends State<Democracy> {
                 //     ));
               }
               bool isLock = false;
-              if (_locks.length > 0 && list.length > 0 && i < list.length + 1) {
+              if (_locks.length > 0 && list!.length > 0 && i < list.length + 1) {
                 _locks.forEach((element) {
                   if (BigInt.parse(element['referendumId']) ==
                       list[i - 1].index) {
@@ -170,7 +170,7 @@ class _DemocracyState extends State<Democracy> {
                       )),
                     )
                   : ReferendumPanel(
-                      data: list[i - 1],
+                      data: list![i - 1],
                       isLock: isLock,
                       bestNumber: bestNumber,
                       symbol: symbol,
@@ -179,7 +179,7 @@ class _DemocracyState extends State<Democracy> {
                       onCancelVote: _submitCancelVote,
                       links: Container(),
                       onRefresh: () {
-                        _refreshKey.currentState.show();
+                        _refreshKey.currentState!.show();
                       },
                     );
             },
@@ -193,12 +193,12 @@ class _DemocracyState extends State<Democracy> {
     if (locks.length == 0) {
       return Container();
     }
-    final dic = I18n.of(context).getDic(i18n_full_dic_karura, 'gov');
-    final bestNumber = widget.plugin.store.gov.bestNumber;
-    final decimals = widget.plugin.networkState.tokenDecimals[0];
-    final symbol = widget.plugin.networkState.tokenSymbol[0];
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov');
+    final bestNumber = widget.plugin.store!.gov.bestNumber;
+    final decimals = widget.plugin.networkState.tokenDecimals![0];
+    final symbol = widget.plugin.networkState.tokenSymbol![0];
     double maxLockAmount = 0, maxUnlockAmount = 0;
-    final List<String> unLockIds = [];
+    final List<String?> unLockIds = [];
     for (int index = 0; index < locks.length; index++) {
       var unlockAt = locks[index]['unlockAt'];
       final amount = Fmt.balanceDouble(
@@ -236,13 +236,13 @@ class _DemocracyState extends State<Democracy> {
                 children: [
                   Expanded(
                       child: Center(
-                          child: Text(dic['democracy.referendum.number']))),
+                          child: Text(dic!['democracy.referendum.number']!))),
                   Expanded(
                       child: Center(
-                          child: Text(dic['democracy.referendum.balance']))),
+                          child: Text(dic['democracy.referendum.balance']!))),
                   Expanded(
                       child: Center(
-                          child: Text(dic['democracy.referendum.period'])))
+                          child: Text(dic['democracy.referendum.period']!)))
                 ],
               )),
           ListView.builder(
@@ -252,16 +252,16 @@ class _DemocracyState extends State<Democracy> {
             itemBuilder: (context, index) {
               var unlockAt = locks[index]['unlockAt'];
               if (unlockAt == "0") {
-                widget.plugin.store.gov.referendums.forEach((element) {
+                widget.plugin.store!.gov.referendums!.forEach((element) {
                   if (element.userVoted != null &&
                       element.index ==
                           BigInt.parse(locks[index]['referendumId'])) {
-                    unlockAt = element.status['end'];
-                    if (element.userVoted['vote']['conviction'] != 'None') {
+                    unlockAt = element.status!['end'];
+                    if (element.userVoted!['vote']['conviction'] != 'None') {
                       final String conviction =
-                          (element.userVoted['vote']['conviction'] as String)
+                          (element.userVoted!['vote']['conviction'] as String)
                               .substring(6, 7);
-                      final con = widget.plugin.store.gov.voteConvictions
+                      final con = widget.plugin.store!.gov.voteConvictions!
                           .where((element) =>
                               element['value'] == int.parse(conviction))
                           .first["period"];

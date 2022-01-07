@@ -19,16 +19,16 @@ class TransferDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic =
-        I18n.of(context).getDic(i18n_full_dic_karura, 'common');
+        I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
 
-    final TransferData tx = ModalRoute.of(context).settings.arguments;
+    final TransferData tx = ModalRoute.of(context)!.settings.arguments as TransferData;
 
-    final String txType =
+    final String? txType =
         tx.from == keyring.current.address ? dic['transfer'] : dic['receive'];
 
-    String networkName = plugin.basic.name;
+    String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
-      networkName = '${networkName.split('-')[0]}-testnet';
+      networkName = '${networkName!.split('-')[0]}-testnet';
     }
     return TxDetail(
       current: keyring.current,
@@ -48,12 +48,12 @@ class TransferDetailPage extends StatelessWidget {
         ),
         TxDetailInfoItem(
           label: 'From',
-          content: Text(Fmt.address(tx.from)),
+          content: Text(Fmt.address(tx.from)!),
           copyText: tx.from,
         ),
         TxDetailInfoItem(
           label: 'To',
-          content: Text(Fmt.address(tx.to)),
+          content: Text(Fmt.address(tx.to)!),
           copyText: tx.to,
         )
       ],
