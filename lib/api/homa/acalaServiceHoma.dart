@@ -9,33 +9,30 @@ class AcalaServiceHoma {
   final PluginKarura plugin;
 
   Future<List?> queryHomaLiteStakingPool() async {
-    final List? res = await (plugin.sdk.webView!.evalJavascript('Promise.all(['
+    final List? res = await plugin.sdk.webView!.evalJavascript('Promise.all(['
         'api.query.homaLite.stakingCurrencyMintCap(),'
         'api.query.homaLite.totalStakingCurrency(),'
         'api.query.tokens.totalIssuance({ Token: "L$relay_chain_token_symbol" })'
-        '])') as FutureOr<List<dynamic>?>);
+        '])');
     return res;
   }
 
   Future<Map?> queryHomaRedeemAmount(double input, int redeemType, era) async {
-    final Map? res = await (plugin.sdk.webView!.evalJavascript(
-            'acala.calcHomaNewRedeemAmount(api, $input, $redeemType, $era)')
-        as FutureOr<Map<dynamic, dynamic>?>);
+    final Map? res = await plugin.sdk.webView!.evalJavascript(
+        'acala.calcHomaNewRedeemAmount(api, $input, $redeemType, $era)');
     return res;
   }
 
   Future<Map?> calcHomaMintAmount(double input) async {
-    final Map? res = await (plugin.sdk.webView!
-            .evalJavascript('acala.calcHomaMintAmount(api, $input)')
-        as FutureOr<Map<dynamic, dynamic>?>);
+    final Map? res = await plugin.sdk.webView!
+        .evalJavascript('acala.calcHomaMintAmount(api, $input)');
     return res;
   }
 
   Future<Map?> calcHomaRedeemAmount(
       String address, double input, bool isByDex) async {
-    final Map? res = await (plugin.sdk.webView!.evalJavascript(
-            'acala.calcHomaRedeemAmount(api,"$address", $input,$isByDex)')
-        as FutureOr<Map<dynamic, dynamic>?>);
+    final Map? res = await plugin.sdk.webView!.evalJavascript(
+        'acala.calcHomaRedeemAmount(api,"$address", $input,$isByDex)');
     return res;
   }
 
@@ -46,9 +43,8 @@ class AcalaServiceHoma {
   }
 
   Future<bool?> isHomaAlive() async {
-    final bool? res = await (plugin.sdk.webView!
-            .evalJavascript('!!api.consts.homa;', wrapPromise: false)
-        as FutureOr<bool?>);
+    final bool? res = await plugin.sdk.webView!
+        .evalJavascript('!!api.consts.homa;', wrapPromise: false);
     return res;
   }
 
