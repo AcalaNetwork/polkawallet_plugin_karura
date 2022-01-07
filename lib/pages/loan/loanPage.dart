@@ -169,10 +169,10 @@ class _LoanPageState extends State<LoanPage> {
                                             loan,
                                             karura_stable_coin,
                                             stableCoinDecimals,
-                                            widget.plugin.store.assets.allTokens
-                                                .firstWhere((e) =>
-                                                    e.tokenNameId ==
-                                                    loan.token.tokenNameId)
+                                            AssetsUtils
+                                                    .getBalanceFromTokenNameId(
+                                                        widget.plugin,
+                                                        loan.token.tokenNameId)
                                                 ?.decimals,
                                             widget.plugin.tokenIcons,
                                             widget.plugin.store.assets.prices,
