@@ -125,13 +125,25 @@ class PluginKarura extends PolkawalletPlugin {
   List<HomeNavItem> getNavItems(BuildContext context, Keyring keyring) {
     return [
       HomeNavItem(
-        text: 'Karura',
-        icon: SvgPicture.asset(
-            'packages/polkawallet_plugin_karura/assets/images/logo_kar_empty.svg',
-            color: Theme.of(context).disabledColor),
-        iconActive: Image.asset(
-            'packages/polkawallet_plugin_karura/assets/images/tokens/KAR.png'),
-        content: AcalaEntry(this, keyring),
+        text: "Defi",
+        icon: Container(),
+        iconActive: Container(),
+        isAdapter: true,
+        content: DefiWidget(this),
+      ),
+      HomeNavItem(
+        text: "NFT",
+        icon: Container(),
+        iconActive: Container(),
+        isAdapter: true,
+        content: NFTWidget(this),
+      ),
+      HomeNavItem(
+        text: "Governance",
+        icon: Container(),
+        iconActive: Container(),
+        isAdapter: true,
+        content: GovernanceWidget(),
       )
     ];
   }

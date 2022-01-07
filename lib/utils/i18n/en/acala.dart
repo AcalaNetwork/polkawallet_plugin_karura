@@ -221,4 +221,9 @@ const Map<String, String> enDex = {
   'v3.switchBack': 'Switch Back',
   'v3.totalBalance': 'Total Balance',
   'v3.myDefi': 'My Defi',
+  'v3.totalStaked': 'Total Staked',
+  'v3.total': 'Total',
+  'v3.myStats': 'My Stats',
+  'v3.unnonding': 'Unnonding',
+  'v3.claim': 'Claim',
 };

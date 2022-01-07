@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -160,24 +161,20 @@ class _HomaPageState extends State<HomaPage> {
     return Observer(builder: (BuildContext context) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
       final stakeSymbol = relay_chain_token_symbol;
-      final symbols = widget.plugin.networkState.tokenSymbol!;
-      final decimals = widget.plugin.networkState.tokenDecimals!;
 
-      final poolInfo = widget.plugin.store!.homa.poolInfo;
-      final env = widget.plugin.store!.homa.env;
-      final staked = env != null
-          ? BigInt.from(env.totalStaking)
-          : poolInfo.staked ?? BigInt.zero;
-
-      final nativeDecimal = decimals[symbols.indexOf(stakeSymbol)];
-
-      final exchangeRate = env != null
-          ? 1 / env.exchangeRate
-          : staked > BigInt.zero
-              ? ((poolInfo.liquidTokenIssuance ?? BigInt.zero) / staked)
-              : Fmt.balanceDouble(
-                  widget.plugin.networkConst['homaLite']['defaultExchangeRate'],
-                  acala_price_decimals);
+      final env = widget.plugin.store!.homa.env!;
+      final balances = AssetsUtils.getBalancePairFromTokenNameId(
+          widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
+      final balanceStakeToken =
+          Fmt.balanceDouble(balances[0]!.amount!, balances[0]!.decimals!);
+      final balanceLiquidToken =
+          Fmt.balanceDouble(balances[1]!.amount!, balances[1]!.decimals!);
+      double unbonding = 0;
+      (widget.plugin.store?.homa.userInfo?.unbondings ?? []).forEach((e) {
+        unbonding += e['amount'];
+      });
+      final claimable =
+          (widget.plugin.store?.homa.userInfo?.claimable ?? 0).toDouble();
 
       final paddingHorizontal = 16.0;
       final riveTop = 22.0;
@@ -185,9 +182,7 @@ class _HomaPageState extends State<HomaPage> {
           MediaQuery.of(context).size.width - paddingHorizontal * 2;
       final riveHeight = riveWidget / 360 * 292;
 
-      final aprValue = env != null
-          ? "${Fmt.priceFloor(env.apy * 100, lengthFixed: 0)}%"
-          : '20%';
+      final aprValue = "${Fmt.priceFloor(env.apy * 100, lengthFixed: 0)}%";
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -232,7 +227,7 @@ class _HomaPageState extends State<HomaPage> {
                           )),
                           padding: EdgeInsets.only(left: 45, right: 15, top: 2),
                           child: Text(
-                              '1 LKSM ≈ ${Fmt.priceFloor(1 / exchangeRate, lengthMax: 4)} KSM',
+                              '1 L$stakeSymbol ≈ ${Fmt.priceFloor(env.exchangeRate, lengthMax: 4)} $stakeSymbol',
                               style: Theme.of(context)
                                   .appBarTheme
                                   .titleTextStyle
@@ -244,10 +239,12 @@ class _HomaPageState extends State<HomaPage> {
                 Row(
                   children: [
                     Container(
+                      height: 28,
+                      alignment: Alignment.center,
                       color: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 5),
                       child: Text(
-                        dic['homa.pool.bonded']!,
+                        "${dic['v3.total']!} L$stakeSymbol",
                         style: Theme.of(context)
                             .appBarTheme
                             .titleTextStyle
@@ -255,12 +252,12 @@ class _HomaPageState extends State<HomaPage> {
                       ),
                     ),
                     Container(
+                      height: 28,
+                      alignment: Alignment.center,
                       color: Color(0x33FFFFFF),
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 5),
                       child: Text(
-                        env != null
-                            ? Fmt.doubleFormat(env.totalStaking)
-                            : Fmt.token(staked, nativeDecimal),
+                        '${Fmt.priceFloor(env.totalLiquidity, lengthMax: 4)}',
                         style: Theme.of(context)
                             .appBarTheme
                             .titleTextStyle
@@ -304,7 +301,9 @@ class _HomaPageState extends State<HomaPage> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    margin: EdgeInsets.only(top: riveTop + riveHeight * 0.7),
+                    margin: EdgeInsets.only(top: riveTop + riveHeight * 0.65),
+                    width: riveWidget * 0.34,
+                    height: riveWidget * 0.34 / 236 * 176,
                     padding: EdgeInsets.zero,
                     decoration: BoxDecoration(
                         image: DecorationImage(
@@ -319,13 +318,232 @@ class _HomaPageState extends State<HomaPage> {
                               EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                           color: Color(0xFFFC8156),
                           child: Text(
-                            'Total Staked',
+                            dic['v3.totalStaked']!,
                             style: Theme.of(context)
                                 .textTheme
                                 .headline4
                                 ?.copyWith(
                                     color: Color(0xFF252629),
                                     fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Container(
+                            padding: EdgeInsets.fromLTRB(5, 4, 0, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${Fmt.priceFloor(env.totalStaking, lengthMax: 4)} KSM',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(color: Colors.white),
+                                ),
+                                Padding(
+                                    padding: EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      '≈ \$${Fmt.priceFloorFormatter((widget.plugin.store?.assets.marketPrices[stakeSymbol] ?? 0) * env.totalStaking, lengthMax: 2)}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline5
+                                          ?.copyWith(color: Colors.white),
+                                    ))
+                              ],
+                            ))
+                      ],
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    margin: EdgeInsets.only(top: riveTop + riveHeight + 22),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 108,
+                          height: 30,
+                          padding: EdgeInsets.only(left: 5, top: 3),
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                            image: AssetImage(
+                                'packages/polkawallet_plugin_karura/assets/images/homa_my_stats_bg.png'),
+                          )),
+                          child: Text(
+                            dic['v3.myStats']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(
+                                    color: Color(0xFF212123),
+                                    fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          padding:
+                              EdgeInsets.only(left: 11, top: 16, bottom: 20),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 127,
+                                    height: 61,
+                                    padding: EdgeInsets.only(left: 10, top: 6),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                      image: AssetImage(
+                                          'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
+                                    )),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "L$stakeSymbol:",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                        Text(
+                                          Fmt.priceFloor(balanceLiquidToken,
+                                              lengthMax: 4),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 127,
+                                    height: 61,
+                                    padding: EdgeInsets.only(left: 10, top: 6),
+                                    margin: EdgeInsets.only(top: 15),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                      image: AssetImage(
+                                          'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
+                                    )),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dic['v3.unnonding']!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                        Text(
+                                          Fmt.priceFloor(unbonding,
+                                              lengthMax: 4),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              )),
+                              Expanded(
+                                  child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 127,
+                                    height: 61,
+                                    padding: EdgeInsets.only(left: 10, top: 6),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                      image: AssetImage(
+                                          'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
+                                    )),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "$stakeSymbol:",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                        Text(
+                                          Fmt.priceFloor(balanceStakeToken,
+                                              lengthMax: 4),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 127,
+                                    height: 61,
+                                    padding: EdgeInsets.only(left: 10, top: 6),
+                                    margin: EdgeInsets.only(top: 15),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                      image: AssetImage(
+                                          'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
+                                    )),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dic['v3.claim']!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                        Text(
+                                          Fmt.priceFloor(claimable,
+                                              lengthMax: 4),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ))
+                            ],
                           ),
                         )
                       ],
@@ -911,8 +1129,8 @@ class _HomaUserInfoCard extends StatelessWidget {
                     ),
                     Container(
                       padding: EdgeInsets.only(left: 16),
-                      child:
-                          Text('${(e['era'] - userInfo!.currentRelayEra)} Eras'),
+                      child: Text(
+                          '${(e['era'] - userInfo!.currentRelayEra)} Eras'),
                     )
                   ],
                 ),
@@ -920,8 +1138,8 @@ class _HomaUserInfoCard extends StatelessWidget {
             }).toList(),
           ),
           cancelButton: CupertinoButton(
-            child: Text(
-                I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['ok']!),
+            child: Text(I18n.of(context)!
+                .getDic(i18n_full_dic_karura, 'common')!['ok']!),
             onPressed: () => Navigator.of(context).pop(),
           ),
         );
