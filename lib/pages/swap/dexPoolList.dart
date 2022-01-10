@@ -37,9 +37,8 @@ class _DexPoolListState extends State<DexPoolList> {
   Future<void> _updateData() async {
     await widget.plugin.service!.earn.getDexPools();
     final pools = widget.plugin.store!.earn.dexPools.toList();
-    final List? res = await (widget.plugin.sdk.webView!.evalJavascript(
-            'Promise.all([${pools.map((e) => 'api.query.dex.liquidityPool(${jsonEncode(e.tokens)})').join(',')}])')
-        as Future<List<dynamic>?>);
+    final List? res = await widget.plugin.sdk.webView!.evalJavascript(
+        'Promise.all([${pools.map((e) => 'api.query.dex.liquidityPool(${jsonEncode(e.tokens)})').join(',')}])');
     final poolInfoMap = {};
     pools.asMap().forEach((i, e) {
       poolInfoMap[e.tokenNameId] = res![i];
