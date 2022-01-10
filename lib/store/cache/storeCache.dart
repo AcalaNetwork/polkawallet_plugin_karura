@@ -6,8 +6,6 @@ class StoreCache {
 
   final tokens = {}.val('tokens', getBox: _storage);
 
-  final homaTxs = {}.val('homaTxs', getBox: _storage);
-
   final swapPair = {}.val('swapPair', getBox: _storage);
 
   final aggregatedAssets = {}.val('aggregatedAssets', getBox: _storage);

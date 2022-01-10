@@ -85,8 +85,8 @@ class ServiceAssets {
 
   Future<void> queryAggregatedAssets() async {
     queryMarketPrices([plugin.networkState.tokenSymbol![0]]);
-    final data =
-        await plugin.api!.assets.queryAggregatedAssets(keyring.current.address);
+    final data = await plugin.api!.assets
+        .queryAggregatedAssets(keyring.current.address!);
     plugin.store!.assets.setAggregatedAssets(data, keyring.current.pubKey);
   }
 
@@ -98,12 +98,12 @@ class ServiceAssets {
       final tokenPair = pool.tokens!
           .map((id) => AssetsUtils.tokenDataFromCurrencyId(plugin, id))
           .toList();
-      prices[tokenPair.map((e) => e!.symbol).join('-')] =
-          (Fmt.bigIntToDouble(e.amountLeft, tokenPair[0]!.decimals!) *
-                      plugin.store!.assets.marketPrices[tokenPair[0]!.symbol]! +
-                  Fmt.bigIntToDouble(e.amountRight, tokenPair[1]!.decimals!) *
-                      plugin.store!.assets.marketPrices[tokenPair[1]!.symbol]!) /
-              Fmt.bigIntToDouble(e.issuance, tokenPair[0]!.decimals!);
+      prices[tokenPair.map((e) => e!.symbol).join('-')] = (Fmt.bigIntToDouble(
+                      e.amountLeft, tokenPair[0]!.decimals!) *
+                  plugin.store!.assets.marketPrices[tokenPair[0]!.symbol]! +
+              Fmt.bigIntToDouble(e.amountRight, tokenPair[1]!.decimals!) *
+                  plugin.store!.assets.marketPrices[tokenPair[1]!.symbol]!) /
+          Fmt.bigIntToDouble(e.issuance, tokenPair[0]!.decimals!);
     });
     plugin.store!.assets.setMarketPrices(prices);
   }

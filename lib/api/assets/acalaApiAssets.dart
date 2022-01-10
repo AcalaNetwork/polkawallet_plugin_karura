@@ -105,7 +105,7 @@ class AcalaApiAssets {
         .toList();
   }
 
-  Future<Map?> queryAggregatedAssets(String? address) async {
+  Future<Map?> queryAggregatedAssets(String address) async {
     return service.queryAggregatedAssets(address);
   }
 

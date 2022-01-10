@@ -111,7 +111,7 @@ async function getAllTokens(api: ApiPromise) {
   const res2 = foreign.map(([args, data]) => {
     const json = data.toJSON();
     const currencyId = {
-      ForeignAsset: args.toHuman()[0],
+      ForeignAsset: args.toHuman()[0]["ForeignAssetId"],
     };
     return {
       type: "ForeignAsset",

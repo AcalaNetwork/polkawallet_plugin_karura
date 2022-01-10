@@ -140,21 +140,21 @@ class AcalaServiceAssets {
     return res;
   }
 
-  Future<Map?> queryAggregatedAssets(String? address) async {
+  Future<Map?> queryAggregatedAssets(String address) async {
     final Map? res = await plugin.sdk.webView!
         .evalJavascript('acala.queryAggregatedAssets(api, "$address")');
     return res;
   }
 
-  Future<bool?> checkExistentialDepositForTransfer(
+  Future<bool> checkExistentialDepositForTransfer(
     String address,
     Map currencyId,
     int decimal,
     String amount, {
     String direction = 'to',
   }) async {
-    final res = await plugin.sdk.webView!.evalJavascript(
+    final Map res = await plugin.sdk.webView!.evalJavascript(
         'acala.checkExistentialDepositForTransfer(api, "$address", ${jsonEncode(currencyId)}, $decimal, $amount, "$direction")');
-    return res['result'] as bool?;
+    return res['result'] ?? false;
   }
 }
