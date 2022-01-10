@@ -214,4 +214,5 @@ const Map<String, String> zhDex = {
   'v3.myStats': '我的数据',
   'v3.unnonding': '正在解绑',
   'v3.claim': '可领取',
+  'v3.createVaultText': '创建一个债仓开始你的DeFi之旅',
 };

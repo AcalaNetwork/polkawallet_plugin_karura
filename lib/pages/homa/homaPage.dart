@@ -739,8 +739,8 @@ class _HomaUserInfoCard extends StatelessWidget {
                     ),
                     Container(
                       padding: EdgeInsets.only(left: 16),
-                      child:
-                          Text('${(e['era'] - userInfo!.currentRelayEra)} Eras'),
+                      child: Text(
+                          '${(e['era'] - userInfo!.currentRelayEra)} Eras'),
                     )
                   ],
                 ),
@@ -748,8 +748,8 @@ class _HomaUserInfoCard extends StatelessWidget {
             }).toList(),
           ),
           cancelButton: CupertinoButton(
-            child: Text(
-                I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['ok']!),
+            child: Text(I18n.of(context)!
+                .getDic(i18n_full_dic_karura, 'common')!['ok']!),
             onPressed: () => Navigator.of(context).pop(),
           ),
         );

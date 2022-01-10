@@ -229,4 +229,5 @@ const Map<String, String> enDex = {
   'v3.myStats': 'My Stats',
   'v3.unnonding': 'Unnonding',
   'v3.claim': 'Claim',
+  'v3.createVaultText': 'Create a vault to start your DeFi adventure',
 };
