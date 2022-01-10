@@ -50,7 +50,9 @@ class LoanPage extends StatefulWidget {
 }
 
 class _LoanPageState extends State<LoanPage> {
-  int _tab = 0;
+  final colorSafe = Color(0xFFB9F6CA);
+  final colorWarn = Color(0xFFFFD180);
+  final colorDanger = Color(0xFFFF8A80);
 
   Future<void> _fetchData() async {
     widget.plugin.service!.gov.updateBestNumber();
@@ -98,19 +100,21 @@ class _LoanPageState extends State<LoanPage> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
-    final stableCoinDecimals = widget.plugin.networkState.tokenDecimals![
-        widget.plugin.networkState.tokenSymbol!.indexOf(karura_stable_coin)];
-    final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol![0];
-
-    final loans = widget.plugin.store!.loan.loans.values.toList();
-    loans.retainWhere(
-        (loan) => loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-    final isDataLoading =
-        widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
-            // do not show loan card if collateralRatio was not calculated.
-            (loans.length > 0 && loans[0].collateralRatio <= 0);
-    // widget.plugin.store!.loan.loanTypes
     return Observer(builder: (_) {
+      final stableCoinDecimals = widget.plugin.networkState.tokenDecimals![
+          widget.plugin.networkState.tokenSymbol!.indexOf(karura_stable_coin)];
+      final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol![0];
+
+      final loans = widget.plugin.store!.loan.loans.values.toList();
+      loans.retainWhere((loan) =>
+          loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
+      final isDataLoading =
+          widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+              // do not show loan card if collateralRatio was not calculated.
+              (loans.length > 0 && loans[0].collateralRatio <= 0);
+
+      final headCardWidth = MediaQuery.of(context).size.width - 16 * 2 - 6 * 2;
+      final headCardHeight = headCardWidth / 694 * 420;
       return PluginScaffold(
           appBar: PluginAppBar(
             title: Text(dic!['loan.title.KSM']!),
@@ -133,7 +137,6 @@ class _LoanPageState extends State<LoanPage> {
             width: double.infinity,
             height: double.infinity,
             margin: EdgeInsets.only(top: 20),
-            padding: EdgeInsets.symmetric(horizontal: 16),
             child: isDataLoading
                 ? Container(
                     height: MediaQuery.of(context).size.width / 2,
@@ -144,19 +147,85 @@ class _LoanPageState extends State<LoanPage> {
                       final _loans = loans.where(
                           (data) => data.token!.symbol == e.token!.symbol);
                       final loan = _loans.length > 0 ? _loans.first : null;
+
+                      final requiredCollateralRatio = loan != null
+                          ? double.parse(
+                              Fmt.token(loan.type.requiredCollateralRatio, 18))
+                          : 0.0;
                       return LoanTabBarWidgetData(
                           TokenIcon(e.token!.symbol!, widget.plugin.tokenIcons),
                           loan != null
-                              ? LoanOverviewCard(
-                                  loan,
-                                  karura_stable_coin,
-                                  stableCoinDecimals,
-                                  AssetsUtils.getBalanceFromTokenNameId(
-                                          widget.plugin,
-                                          loan.token!.tokenNameId)
-                                      ?.decimals,
-                                  widget.plugin.tokenIcons,
-                                  widget.plugin.store!.assets.prices,
+                              ? Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(6),
+                                      margin: EdgeInsets.only(bottom: 10),
+                                      decoration: BoxDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          borderRadius: const BorderRadius.only(
+                                              bottomLeft: Radius.circular(24),
+                                              topRight: Radius.circular(24),
+                                              bottomRight:
+                                                  Radius.circular(24))),
+                                      width: double.infinity,
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: headCardHeight,
+                                        child: Stack(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.bottomCenter,
+                                              child: Container(
+                                                margin: EdgeInsets.only(
+                                                    right:
+                                                        5 / 347 * headCardWidth,
+                                                    bottom: 47 /
+                                                        210 *
+                                                        headCardHeight),
+                                                width:
+                                                    128 / 347 * headCardWidth,
+                                                height:
+                                                    128 / 347 * headCardWidth,
+                                                child:
+                                                    LiquidCircularProgressIndicator(
+                                                  value:
+                                                      1 / loan.collateralRatio,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  valueColor: AlwaysStoppedAnimation(loan
+                                                              .collateralRatio >
+                                                          requiredCollateralRatio
+                                                      ? loan.collateralRatio >
+                                                              requiredCollateralRatio +
+                                                                  0.2
+                                                          ? colorSafe
+                                                          : colorWarn
+                                                      : colorDanger),
+                                                  // borderRadius: 16,
+                                                  direction: Axis.vertical,
+                                                ),
+                                              ),
+                                            ),
+                                            Image.asset(
+                                              "packages/polkawallet_plugin_karura/assets/images/mint_kusd_head.png",
+                                              width: double.infinity,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    LoanOverviewCard(
+                                      loan,
+                                      karura_stable_coin,
+                                      stableCoinDecimals,
+                                      AssetsUtils.getBalanceFromTokenNameId(
+                                              widget.plugin,
+                                              loan.token!.tokenNameId)
+                                          ?.decimals,
+                                      widget.plugin.tokenIcons,
+                                      widget.plugin.store!.assets.prices,
+                                    )
+                                  ],
                                 )
                               : CreateVaultWidget(onPressed: () {
                                   Navigator.of(context)
@@ -166,141 +235,141 @@ class _LoanPageState extends State<LoanPage> {
                   ),
           ));
     });
-    return Observer(
-      builder: (_) {
-        final loans = widget.plugin.store!.loan.loans.values.toList();
-        loans.retainWhere((loan) =>
-            loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
+    // return Observer(
+    //   builder: (_) {
+    //     final loans = widget.plugin.store!.loan.loans.values.toList();
+    //     loans.retainWhere((loan) =>
+    //         loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
 
-        final isDataLoading =
-            widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
-                // do not show loan card if collateralRatio was not calculated.
-                (loans.length > 0 && loans[0].collateralRatio <= 0);
+    //     final isDataLoading =
+    //         widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+    //             // do not show loan card if collateralRatio was not calculated.
+    //             (loans.length > 0 && loans[0].collateralRatio <= 0);
 
-        final incentiveTokenOptions =
-            widget.plugin.store!.loan.loanTypes.map((e) => e.token).toList();
-        if (widget.plugin.store!.earn.incentives.loans != null) {
-          incentiveTokenOptions.retainWhere((e) {
-            final incentive = widget.plugin.store!.earn.incentives.loans![e];
-            return incentive != null && (incentive[0].amount ?? 0) > 0;
-          });
-        }
+    //     final incentiveTokenOptions =
+    //         widget.plugin.store!.loan.loanTypes.map((e) => e.token).toList();
+    //     if (widget.plugin.store!.earn.incentives.loans != null) {
+    //       incentiveTokenOptions.retainWhere((e) {
+    //         final incentive = widget.plugin.store!.earn.incentives.loans![e];
+    //         return incentive != null && (incentive[0].amount ?? 0) > 0;
+    //       });
+    //     }
 
-        return Scaffold(
-          backgroundColor: Theme.of(context).cardColor,
-          appBar: AppBar(
-            title: Text(dic!['loan.title.KSM']!),
-            centerTitle: true,
-            leading: BackBtn(),
-            actions: <Widget>[
-              v3.IconButton(
-                  margin: EdgeInsets.only(right: 12),
-                  icon: Icon(
-                    Icons.history,
-                    color: Theme.of(context).cardColor,
-                    size: 18,
-                  ),
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(LoanHistoryPage.route),
-                  isBlueBg: true)
-            ],
-          ),
-          body: SafeArea(
-            child: AccountCardLayout(
-                widget.keyring.current,
-                Column(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                      child: MainTabBar(
-                        fontSize: 20,
-                        lineWidth: 6,
-                        tabs: [dic['loan.my']!, dic['loan.incentive']!],
-                        activeTab: _tab,
-                        onTap: (i) {
-                          setState(() {
-                            _tab = i;
-                          });
-                        },
-                      ),
-                    ),
-                    isDataLoading
-                        ? Container(
-                            height: MediaQuery.of(context).size.width / 2,
-                            child: CupertinoActivityIndicator(),
-                          )
-                        : Expanded(
-                            child: _tab == 0
-                                ? loans.length > 0
-                                    ? ListView(
-                                        padding: EdgeInsets.all(16),
-                                        children: loans.map((loan) {
-                                          print(loan.token!.symbol);
-                                          return LoanOverviewCard(
-                                            loan,
-                                            karura_stable_coin,
-                                            stableCoinDecimals,
-                                            AssetsUtils
-                                                    .getBalanceFromTokenNameId(
-                                                        widget.plugin,
-                                                        loan.token!.tokenNameId)
-                                                ?.decimals,
-                                            widget.plugin.tokenIcons,
-                                            widget.plugin.store!.assets.prices,
-                                          );
-                                        }).toList(),
-                                      )
-                                    : RoundedCard(
-                                        margin: EdgeInsets.all(16),
-                                        padding:
-                                            EdgeInsets.fromLTRB(80, 24, 80, 24),
-                                        child: SvgPicture.asset(
-                                            'packages/polkawallet_plugin_karura/assets/images/loan-start.svg',
-                                            color:
-                                                Theme.of(context).primaryColor),
-                                      )
-                                : CollateralIncentiveList(
-                                    plugin: widget.plugin,
-                                    loans: widget.plugin.store!.loan.loans,
-                                    tokenIcons: widget.plugin.tokenIcons,
-                                    totalCDPs:
-                                        widget.plugin.store!.loan.totalCDPs,
-                                    incentives: widget
-                                        .plugin.store!.earn.incentives.loans,
-                                    rewards: widget
-                                        .plugin.store!.loan.collateralRewards,
-                                    marketPrices: widget
-                                        .plugin.store!.assets.marketPrices,
-                                    collateralDecimals: stableCoinDecimals,
-                                    incentiveTokenSymbol: incentiveTokenSymbol,
-                                    dexIncentiveLoyaltyEndBlock: widget
-                                        .plugin
-                                        .store!
-                                        .earn
-                                        .dexIncentiveLoyaltyEndBlock,
-                                  ),
-                          ),
-                    Visibility(
-                        visible: _tab == 0 &&
-                            !isDataLoading &&
-                            loans.length <
-                                widget.plugin.store!.loan.loanTypes.length,
-                        child: Container(
-                          padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          child: RoundedButton(
-                            text: '+ ${dic['loan.create']}',
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushNamed(LoanCreatePage.route);
-                            },
-                          ),
-                        )),
-                  ],
-                )),
-          ),
-        );
-      },
-    );
+    //     return Scaffold(
+    //       backgroundColor: Theme.of(context).cardColor,
+    //       appBar: AppBar(
+    //         title: Text(dic!['loan.title.KSM']!),
+    //         centerTitle: true,
+    //         leading: BackBtn(),
+    //         actions: <Widget>[
+    //           v3.IconButton(
+    //               margin: EdgeInsets.only(right: 12),
+    //               icon: Icon(
+    //                 Icons.history,
+    //                 color: Theme.of(context).cardColor,
+    //                 size: 18,
+    //               ),
+    //               onPressed: () =>
+    //                   Navigator.of(context).pushNamed(LoanHistoryPage.route),
+    //               isBlueBg: true)
+    //         ],
+    //       ),
+    //       body: SafeArea(
+    //         child: AccountCardLayout(
+    //             widget.keyring.current,
+    //             Column(
+    //               children: <Widget>[
+    //                 Container(
+    //                   margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
+    //                   child: MainTabBar(
+    //                     fontSize: 20,
+    //                     lineWidth: 6,
+    //                     tabs: [dic['loan.my']!, dic['loan.incentive']!],
+    //                     activeTab: _tab,
+    //                     onTap: (i) {
+    //                       setState(() {
+    //                         _tab = i;
+    //                       });
+    //                     },
+    //                   ),
+    //                 ),
+    //                 isDataLoading
+    //                     ? Container(
+    //                         height: MediaQuery.of(context).size.width / 2,
+    //                         child: CupertinoActivityIndicator(),
+    //                       )
+    //                     : Expanded(
+    //                         child: _tab == 0
+    //                             ? loans.length > 0
+    //                                 ? ListView(
+    //                                     padding: EdgeInsets.all(16),
+    //                                     children: loans.map((loan) {
+    //                                       print(loan.token!.symbol);
+    //                                       return LoanOverviewCard(
+    //                                         loan,
+    //                                         karura_stable_coin,
+    //                                         stableCoinDecimals,
+    //                                         AssetsUtils
+    //                                                 .getBalanceFromTokenNameId(
+    //                                                     widget.plugin,
+    //                                                     loan.token!.tokenNameId)
+    //                                             ?.decimals,
+    //                                         widget.plugin.tokenIcons,
+    //                                         widget.plugin.store!.assets.prices,
+    //                                       );
+    //                                     }).toList(),
+    //                                   )
+    //                                 : RoundedCard(
+    //                                     margin: EdgeInsets.all(16),
+    //                                     padding:
+    //                                         EdgeInsets.fromLTRB(80, 24, 80, 24),
+    //                                     child: SvgPicture.asset(
+    //                                         'packages/polkawallet_plugin_karura/assets/images/loan-start.svg',
+    //                                         color:
+    //                                             Theme.of(context).primaryColor),
+    //                                   )
+    //                             : CollateralIncentiveList(
+    //                                 plugin: widget.plugin,
+    //                                 loans: widget.plugin.store!.loan.loans,
+    //                                 tokenIcons: widget.plugin.tokenIcons,
+    //                                 totalCDPs:
+    //                                     widget.plugin.store!.loan.totalCDPs,
+    //                                 incentives: widget
+    //                                     .plugin.store!.earn.incentives.loans,
+    //                                 rewards: widget
+    //                                     .plugin.store!.loan.collateralRewards,
+    //                                 marketPrices: widget
+    //                                     .plugin.store!.assets.marketPrices,
+    //                                 collateralDecimals: stableCoinDecimals,
+    //                                 incentiveTokenSymbol: incentiveTokenSymbol,
+    //                                 dexIncentiveLoyaltyEndBlock: widget
+    //                                     .plugin
+    //                                     .store!
+    //                                     .earn
+    //                                     .dexIncentiveLoyaltyEndBlock,
+    //                               ),
+    //                       ),
+    //                 Visibility(
+    //                     visible: _tab == 0 &&
+    //                         !isDataLoading &&
+    //                         loans.length <
+    //                             widget.plugin.store!.loan.loanTypes.length,
+    //                     child: Container(
+    //                       padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+    //                       child: RoundedButton(
+    //                         text: '+ ${dic['loan.create']}',
+    //                         onPressed: () {
+    //                           Navigator.of(context)
+    //                               .pushNamed(LoanCreatePage.route);
+    //                         },
+    //                       ),
+    //                     )),
+    //               ],
+    //             )),
+    //       ),
+    //     );
+    //   },
+    // );
   }
 }
 
@@ -312,10 +381,13 @@ class CreateVaultWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       child: Column(
         children: [
           Expanded(
             child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
                   color: Color(0x1AFFFFFF),
                   borderRadius: const BorderRadius.only(
@@ -326,12 +398,17 @@ class CreateVaultWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                      "packages/polkawallet_plugin_karura/assets/images/create_vault_logo.png"),
+                    "packages/polkawallet_plugin_karura/assets/images/create_vault_logo.png",
+                    width: 116,
+                  ),
                   Container(
                     margin: EdgeInsets.only(top: 12),
                     child: Text(
                       dic['v3.createVaultText']!,
-                      style: Theme.of(context).textTheme.headline5,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          ?.copyWith(color: Colors.white),
                     ),
                   )
                 ],

@@ -76,7 +76,11 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
           Container(
             height: 48,
             width: double.infinity,
-            margin: EdgeInsets.only(right: 80, bottom: 12),
+            margin: EdgeInsets.only(
+              right: 96,
+              bottom: 12,
+              left: 16,
+            ),
             decoration: BoxDecoration(
                 color: Color(0x66FFFFFF),
                 borderRadius: const BorderRadius.only(
@@ -129,6 +133,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
               child: PageView(
             children: widget.datas
                 .map((e) => Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Center(child: e.context),
                     ))
                 .toList(),

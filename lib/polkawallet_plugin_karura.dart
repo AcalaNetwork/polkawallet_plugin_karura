@@ -143,7 +143,7 @@ class PluginKarura extends PolkawalletPlugin {
         icon: Container(),
         iconActive: Container(),
         isAdapter: true,
-        content: GovernanceWidget(),
+        content: GovernanceWidget(this),
       )
     ];
   }
