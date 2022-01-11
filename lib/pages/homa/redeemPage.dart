@@ -7,9 +7,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/swapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -81,8 +81,8 @@ class _RedeemPageState extends State<RedeemPage> {
 
   Future<void> _updateReceiveAmount(double? input) async {
     if (mounted && input != null) {
-      final data = await (widget.plugin.api!.homa
-          .calcHomaNewRedeemAmount(input, _isFastRedeem) as FutureOr<Map<dynamic, dynamic>>);
+      final data = await (widget.plugin.api!.homa.calcHomaNewRedeemAmount(
+          input, _isFastRedeem) as FutureOr<Map<dynamic, dynamic>>);
       final canFast = data['canTryFastReddem'] ?? false;
       if (canFast) {
         setState(() {
@@ -91,11 +91,33 @@ class _RedeemPageState extends State<RedeemPage> {
           _canFastRedeem = true;
         });
       } else {
-        setState(() {
-          _canFastRedeem = false;
-          _receiveAmount = data['receive'];
-          _fastFee = 0;
-        });
+        if (_isFastRedeem) {
+          // we can not do fast redeem, so we use swap here
+          final lToken = AssetsUtils.getBalanceFromTokenNameId(
+              widget.plugin, 'L$stakeToken');
+          final token =
+              AssetsUtils.getBalanceFromTokenNameId(widget.plugin, stakeToken);
+          final swapRes = await widget.plugin.api!.swap.queryTokenSwapAmount(
+              input.toString(),
+              null,
+              [
+                {...lToken!.currencyId!, 'decimals': lToken.decimals},
+                {...token!.currencyId!, 'decimals': token.decimals},
+              ],
+              '0.1');
+          setState(() {
+            _canFastRedeem = false;
+            _receiveAmount = swapRes.amount;
+            _fastFee = swapRes.fee!;
+          });
+        } else {
+          // or we use normal redeem request
+          setState(() {
+            _canFastRedeem = false;
+            _receiveAmount = data['receive'];
+            _fastFee = 0;
+          });
+        }
       }
     }
   }
@@ -155,6 +177,16 @@ class _RedeemPageState extends State<RedeemPage> {
     _updateReceiveAmount(amount);
   }
 
+  BigInt _getMaxAmount() {
+    final pendingRedeemReq = Fmt.balanceInt(
+        (widget.plugin.store!.homa.userInfo?.redeemRequest ?? {})['amount'] ??
+            '0');
+    final lTokenBalance =
+        widget.plugin.store!.assets.tokenBalanceMap["L$stakeToken"]!;
+    return Fmt.balanceInt(lTokenBalance.amount) +
+        (_isFastRedeem ? BigInt.zero : pendingRedeemReq);
+  }
+
   Future<void> _onSubmit() async {
     final pay = _amountPayCtrl.text.trim();
 
@@ -181,14 +213,27 @@ class _RedeemPageState extends State<RedeemPage> {
       _isFastRedeem,
     ];
     String? paramsRaw;
-    if (_isFastRedeem && _canFastRedeem) {
-      module = 'utility';
-      call = 'batch';
-      paramsRaw = '[['
-          'api.tx.homa.requestRedeem(...${jsonEncode(params)}),'
-          'api.tx.homa.fastMatchRedeems(["${widget.keyring.current.address}"])'
-          ']]';
-      params = [];
+    if (_isFastRedeem) {
+      if (_canFastRedeem) {
+        module = 'utility';
+        call = 'batch';
+        paramsRaw = '[['
+            'api.tx.homa.requestRedeem(...${jsonEncode(params)}),'
+            'api.tx.homa.fastMatchRedeems(["${widget.keyring.current.address}"])'
+            ']]';
+        params = [];
+      } else {
+        module = 'dex';
+        call = 'swapWithExactSupply';
+        params = [
+          [
+            {'Token': 'L$stakeToken'},
+            {'Token': stakeToken}
+          ],
+          (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
+          "0",
+        ];
+      }
     }
 
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
@@ -211,14 +256,15 @@ class _RedeemPageState extends State<RedeemPage> {
     }
   }
 
-  void _switchFast(bool value, BigInt max) {
+  void _switchFast(bool value) {
     setState(() {
       _isFastRedeem = value;
     });
     if (_amountPayCtrl.text.trim().isEmpty) return;
 
+    final max = _getMaxAmount();
     if (_maxInput != null) {
-      _onSetMax(_maxInput);
+      _onSetMax(max);
     } else {
       _onSupplyAmountChange(_amountPayCtrl.text.trim(), max);
       // _updateReceiveAmount(double.tryParse(_amountPayCtrl.text.trim()));
@@ -265,13 +311,13 @@ class _RedeemPageState extends State<RedeemPage> {
 
         final lTokenBalance =
             widget.plugin.store!.assets.tokenBalanceMap["L$stakeToken"]!;
-        final max = Fmt.balanceInt(lTokenBalance.amount) + pendingRedeemReq;
+        final max = _getMaxAmount();
 
-        int unbondEras = 28;
-        if (widget.plugin.networkConst['homa'] != null) {
-          unbondEras =
-              int.parse(widget.plugin.networkConst['homa']['bondingDuration']);
-        }
+        // int unbondEras = 28;
+        // if (widget.plugin.networkConst['homa'] != null) {
+        //   unbondEras =
+        //       int.parse(widget.plugin.networkConst['homa']['bondingDuration']);
+        // }
         return Scaffold(
           appBar: AppBar(
             title: Text('${dic['homa.redeem']} $stakeToken'),
@@ -288,7 +334,8 @@ class _RedeemPageState extends State<RedeemPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Visibility(
-                          visible: pendingRedeemReq > BigInt.zero,
+                          visible:
+                              pendingRedeemReq > BigInt.zero && !_isFastRedeem,
                           child: Container(
                             margin: EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -339,7 +386,7 @@ class _RedeemPageState extends State<RedeemPage> {
                               margin: EdgeInsets.only(left: 5),
                               child: CupertinoSwitch(
                                 value: _isFastRedeem,
-                                onChanged: (res) => _switchFast(res, max),
+                                onChanged: _switchFast,
                               ),
                             )
                           ],
@@ -356,14 +403,14 @@ class _RedeemPageState extends State<RedeemPage> {
                         ),
                         child: Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(dic['homa.redeem.unbonding']!,
-                                    style: labelStyle),
-                                Text("$unbondEras Kusama Eras")
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Text(dic['homa.redeem.unbonding']!,
+                            //         style: labelStyle),
+                            //     Text("$unbondEras Kusama Eras")
+                            //   ],
+                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -388,34 +435,34 @@ class _RedeemPageState extends State<RedeemPage> {
                           ],
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.only(top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(dic['homa.now']!,
-                                style: TextStyle(fontSize: 13)),
-                            GestureDetector(
-                              child: Container(
-                                padding: EdgeInsets.only(left: 5),
-                                child: Text(
-                                  'Swap',
-                                  style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
-                                    fontStyle: FontStyle.italic,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                              onTap: () {
-                                Navigator.popUntil(
-                                    context, ModalRoute.withName('/'));
-                                Navigator.of(context).pushNamed(SwapPage.route);
-                              },
-                            )
-                          ],
-                        ),
-                      ),
+                      // Container(
+                      //   margin: EdgeInsets.only(top: 8),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.end,
+                      //     children: [
+                      //       Text(dic['homa.now']!,
+                      //           style: TextStyle(fontSize: 13)),
+                      //       GestureDetector(
+                      //         child: Container(
+                      //           padding: EdgeInsets.only(left: 5),
+                      //           child: Text(
+                      //             'Swap',
+                      //             style: TextStyle(
+                      //               color: Theme.of(context).primaryColor,
+                      //               fontStyle: FontStyle.italic,
+                      //               decoration: TextDecoration.underline,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //         onTap: () {
+                      //           Navigator.popUntil(
+                      //               context, ModalRoute.withName('/'));
+                      //           Navigator.of(context).pushNamed(SwapPage.route);
+                      //         },
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

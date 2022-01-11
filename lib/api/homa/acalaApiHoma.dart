@@ -1,5 +1,4 @@
 import 'package:polkawallet_plugin_karura/api/homa/acalaServiceHoma.dart';
-import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
 import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
@@ -20,21 +19,9 @@ class AcalaApiHoma {
     );
   }
 
-  Future<Map?> calcHomaMintAmount(double input) async {
-    final Map? res = await service.calcHomaMintAmount(input);
-    return res;
-  }
-
   Future<Map?> calcHomaNewMintAmount(double input) async {
     final Map? res = await service.calcHomaNewMintAmount(input);
     return res;
-  }
-
-  Future<CalcHomaRedeemAmount> calcHomaRedeemAmount(
-      String address, double input, bool isByDex) async {
-    final Map res = await (service.calcHomaRedeemAmount(address, input, isByDex)
-        as Future<Map<dynamic, dynamic>>);
-    return CalcHomaRedeemAmount.fromJson(res as Map<String, dynamic>);
   }
 
   Future<Map?> calcHomaNewRedeemAmount(double input, bool isFastRedeem) async {
@@ -56,8 +43,7 @@ class AcalaApiHoma {
   }
 
   Future<HomaPendingRedeemData> queryHomaPendingRedeem(String? address) async {
-    final res = await (service.queryHomaPendingRedeem(address)
-        as Future<Map<dynamic, dynamic>>);
-    return HomaPendingRedeemData.fromJson(res);
+    final res = await service.queryHomaPendingRedeem(address);
+    return HomaPendingRedeemData.fromJson(res!);
   }
 }

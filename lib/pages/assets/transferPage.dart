@@ -452,14 +452,13 @@ class _TransferPageState extends State<TransferPage> {
         final isNativeTokenLow = nativeTokenBalance - accountED <
             Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
 
-        final decimals = widget.plugin.store!.assets
-                .tokenBalanceMap[token.tokenNameId ?? token.symbol]?.decimals ??
-            12;
         final balanceData = widget.plugin.store!.assets
             .tokenBalanceMap[token.tokenNameId ?? tokenSymbol];
         final available = Fmt.balanceInt(balanceData?.amount) -
             Fmt.balanceInt(balanceData?.locked);
         final nativeToken = widget.plugin.networkState.tokenSymbol![0];
+        final nativeTokenDecimals = widget.plugin.networkState.tokenDecimals![
+            widget.plugin.networkState.tokenSymbol!.indexOf(nativeToken)];
         final existDeposit = token.tokenNameId == nativeToken
             ? Fmt.balanceInt(widget
                 .plugin.networkConst['balances']['existentialDeposit']
@@ -586,7 +585,7 @@ class _TransferPageState extends State<TransferPage> {
                                 labelText:
                                     '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
                                   available,
-                                  decimals,
+                                  token.decimals!,
                                   lengthMax: 6,
                                 )})',
                                 labelStyle: labelStyle,
@@ -600,14 +599,14 @@ class _TransferPageState extends State<TransferPage> {
                                     setState(() {
                                       _amountMax = available;
                                       _amountCtrl.text = Fmt.bigIntToDouble(
-                                              available, decimals)
+                                              available, token.decimals!)
                                           .toStringAsFixed(8);
                                     });
                                   },
                                 ),
                               ),
                               inputFormatters: [
-                                UI.decimalInputFormatter(decimals)!
+                                UI.decimalInputFormatter(token.decimals!)!
                               ],
                               controller: _amountCtrl,
                               keyboardType: TextInputType.numberWithOptions(
@@ -623,11 +622,13 @@ class _TransferPageState extends State<TransferPage> {
                                   return error;
                                 }
 
-                                final input = Fmt.tokenInt(v.trim(), decimals);
+                                final input =
+                                    Fmt.tokenInt(v.trim(), token.decimals!);
                                 if (_amountMax == null &&
-                                    Fmt.bigIntToDouble(input, decimals) >
+                                    Fmt.bigIntToDouble(input, token.decimals!) >
                                         available /
-                                            BigInt.from(pow(10, decimals))) {
+                                            BigInt.from(
+                                                pow(10, token.decimals!))) {
                                   return dic['amount.low'];
                                 }
                                 return null;
@@ -806,7 +807,7 @@ class _TransferPageState extends State<TransferPage> {
                                   Expanded(
                                     flex: 0,
                                     child: Text(
-                                        '${Fmt.priceCeilBigInt(destExistDeposit, decimals, lengthMax: 6)} $tokenView'),
+                                        '${Fmt.priceCeilBigInt(destExistDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
                                   )
                                 ],
                               ),
@@ -825,7 +826,7 @@ class _TransferPageState extends State<TransferPage> {
                                     ),
                                   ),
                                   Text(
-                                      '${Fmt.priceCeilBigInt(destFee, decimals, lengthMax: 6)} $tokenView'),
+                                      '${Fmt.priceCeilBigInt(destFee, token.decimals!, lengthMax: 6)} $tokenView'),
                                 ],
                               ),
                             )),
@@ -855,7 +856,7 @@ class _TransferPageState extends State<TransferPage> {
                                 ),
                               ),
                               Text(
-                                  '${Fmt.priceCeilBigInt(existDeposit, decimals, lengthMax: 6)} $tokenView'),
+                                  '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
                             ],
                           ),
                         ),
@@ -873,7 +874,7 @@ class _TransferPageState extends State<TransferPage> {
                                   ),
                                 ),
                                 Text(
-                                    '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), decimals, lengthMax: 6)} $nativeToken'),
+                                    '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken'),
                               ],
                             ),
                           ),

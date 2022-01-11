@@ -194,7 +194,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                             document: gql(transferQuery),
                             variables: <String, String?>{
                               'account': widget.keyring.current.address,
-                              'token': tokenSymbol,
+                              'token': token.tokenNameId,
                             },
                           ),
                           builder: (
@@ -212,8 +212,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                             }
                             final txs =
                                 List.of(result.data!['transfers']['nodes'])
-                                    .map((i) => TransferData.fromJson(
-                                        i as Map, token.decimals!))
+                                    .map((i) =>
+                                        TransferData.fromJson(i as Map, token))
                                     .toList();
                             return ListView.builder(
                               itemCount: txs.length + 1,

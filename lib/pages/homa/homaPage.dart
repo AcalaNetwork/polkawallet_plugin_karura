@@ -23,7 +23,6 @@ import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 
 class HomaPage extends StatefulWidget {
   HomaPage(this.plugin, this.keyring);
@@ -39,7 +38,6 @@ class HomaPage extends StatefulWidget {
 class _HomaPageState extends State<HomaPage> {
   Timer? _timer;
   String? _unlockingKsm;
-  bool? _isHomaAlive = false;
 
   Future<void> _refreshRedeem() async {
     var data = await widget.plugin.api!.homa
@@ -61,13 +59,8 @@ class _HomaPageState extends State<HomaPage> {
     widget.plugin.service!.assets.queryMarketPrices([relay_chain_token_symbol]);
     widget.plugin.service!.gov.updateBestNumber();
 
-    if (_isHomaAlive!) {
-      await widget.plugin.service!.homa.queryHomaEnv();
-      widget.plugin.service!.homa.queryHomaPendingRedeem();
-    } else {
-      await widget.plugin.service!.homa.queryHomaLiteStakingPool();
-      _refreshRedeem();
-    }
+    await widget.plugin.service!.homa.queryHomaEnv();
+    widget.plugin.service!.homa.queryHomaPendingRedeem();
 
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
@@ -76,68 +69,10 @@ class _HomaPageState extends State<HomaPage> {
     }
   }
 
-  void _onCancelRedeem() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-        return CupertinoAlertDialog(
-          title: Text(dic['homa.confirm']!),
-          content: Text(dic['homa.redeem.hint']!),
-          actions: <Widget>[
-            CupertinoButton(
-              child: Text(
-                dic['homa.redeem.cancel']!,
-                style: TextStyle(
-                  color: Theme.of(context).unselectedWidgetColor,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            CupertinoButton(
-              child: Text(dic['homa.confirm']!),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _onSubmit();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _onSubmit() async {
-    var params = [0, 0];
-    var module = 'homaLite';
-    var call = 'requestRedeem';
-    var txDisplay = {};
-    final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
-        arguments: TxConfirmParams(
-          module: module,
-          call: call,
-          txTitle:
-              "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.redeem.cancel']}${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.redeem']}$relay_chain_token_symbol",
-          txDisplay: txDisplay,
-          params: params,
-        ))) as Map?;
-
-    if (res != null) {
-      _refreshRedeem();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      final isHomaAlive = await widget.plugin.api!.homa.isHomaAlive();
-      setState(() {
-        _isHomaAlive = isHomaAlive;
-      });
-
       _refreshData();
     });
   }
@@ -162,7 +97,6 @@ class _HomaPageState extends State<HomaPage> {
         final decimals = widget.plugin.networkState.tokenDecimals!;
 
         final stakeSymbol = relay_chain_token_symbol;
-        final isOldVersion = !_isHomaAlive!;
 
         final poolInfo = widget.plugin.store!.homa.poolInfo;
         final env = widget.plugin.store!.homa.env;
@@ -350,17 +284,14 @@ class _HomaPageState extends State<HomaPage> {
                               ],
                             ),
                           ),
-                          isOldVersion
-                              ? Container()
-                              : _HomaUserInfoCard(
-                                  env: widget.plugin.store!.homa.env,
-                                  userInfo: widget.plugin.store!.homa.userInfo,
-                                  address: widget.keyring.current.address,
-                                  bestNumber:
-                                      widget.plugin.store!.gov.bestNumber,
-                                  stakeTokenDecimals: balances[0]!.decimals,
-                                  onClaimed: _refreshData,
-                                ),
+                          _HomaUserInfoCard(
+                            env: widget.plugin.store!.homa.env,
+                            userInfo: widget.plugin.store!.homa.userInfo,
+                            address: widget.keyring.current.address,
+                            bestNumber: widget.plugin.store!.gov.bestNumber,
+                            stakeTokenDecimals: balances[0]!.decimals,
+                            onClaimed: _refreshData,
+                          ),
                           RoundedCard(
                             margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
                             padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -368,233 +299,51 @@ class _HomaPageState extends State<HomaPage> {
                               children: [
                                 Container(
                                   margin: EdgeInsets.only(bottom: 24),
-                                  child: Text(isOldVersion
-                                      ? dic['homa.user.stats']!
-                                      : 'KSM/LKSM ${dicAssets!['balance']}'),
+                                  child:
+                                      Text('KSM/LKSM ${dicAssets!['balance']}'),
                                 ),
-                                isOldVersion
-                                    ? Visibility(
-                                        visible: _unlockingKsm != null &&
-                                            double.tryParse(
-                                                    _unlockingKsm ?? '0') !=
-                                                0,
-                                        child: Column(children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Container(
-                                                padding:
-                                                    EdgeInsets.only(left: 50),
-                                                child: Text(
-                                                  dic['homa.user.unlocking']!,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                              )),
-                                              Expanded(
-                                                  child: Row(
-                                                children: [
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                        right: 8),
-                                                    child: TokenIcon(
-                                                        stakeSymbol,
-                                                        widget
-                                                            .plugin.tokenIcons),
-                                                  ),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            '${Fmt.priceFloor(double.tryParse(_unlockingKsm ?? '0'), lengthMax: 4)}',
-                                                            style: TextStyle(
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .unselectedWidgetColor,
-                                                            ),
-                                                          ),
-                                                          GestureDetector(
-                                                            child: Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            4),
-                                                                child: Text(
-                                                                  dic['homa.redeem.cancel']!,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .italic,
-                                                                    decoration:
-                                                                        TextDecoration
-                                                                            .underline,
-                                                                    color: Theme.of(
-                                                                            context)
-                                                                        .primaryColor,
-                                                                  ),
-                                                                )),
-                                                            onTap:
-                                                                _onCancelRedeem,
-                                                          )
-                                                        ],
-                                                      ),
-                                                      Text(
-                                                          '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * double.tryParse(_unlockingKsm ?? '0')!, lengthMax: 2)}',
-                                                          style: TextStyle(
-                                                              fontSize: 12)),
-                                                    ],
-                                                  )
-                                                ],
-                                              ))
-                                            ],
-                                          ),
-                                          Container(
-                                            child: Divider(height: 24),
-                                          )
-                                        ]))
-                                    : Container(),
-                                isOldVersion
-                                    ? Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Container(
-                                                padding:
-                                                    EdgeInsets.only(left: 50),
-                                                child: Text(
-                                                  dic['homa.user.ksm']!,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                              )),
-                                              Expanded(
-                                                  child: Row(
-                                                children: [
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                        right: 8),
-                                                    child: TokenIcon(
-                                                        stakeSymbol,
-                                                        widget
-                                                            .plugin.tokenIcons),
-                                                  ),
-                                                  InfoItem(
-                                                    title:
-                                                        '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-                                                    content: Fmt.priceFloor(
-                                                        balanceStakeToken,
-                                                        lengthMax: 4),
-                                                    lowTitle: true,
-                                                  ),
-                                                ],
-                                              ))
-                                            ],
-                                          ),
-                                          Container(
-                                            child: Divider(height: 24),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Container(
-                                                padding:
-                                                    EdgeInsets.only(left: 50),
-                                                child: Text(
-                                                  dic['homa.user.lksm']!,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                              )),
-                                              Expanded(
-                                                  child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                        right: 8),
-                                                    child: TokenIcon(
-                                                        'L$stakeSymbol',
-                                                        widget
-                                                            .plugin.tokenIcons),
-                                                  ),
-                                                  InfoItem(
-                                                    title:
-                                                        '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
-                                                    content: Fmt.priceFloor(
-                                                        balanceLiquidToken,
-                                                        lengthMax: 4),
-                                                    lowTitle: true,
-                                                  ),
-                                                ],
-                                              ))
-                                            ],
-                                          ),
-                                        ],
-                                      )
-                                    : Row(
-                                        children: [
-                                          Expanded(
-                                              child: Row(
-                                            children: [
-                                              Container(
-                                                margin:
-                                                    EdgeInsets.only(right: 8),
-                                                child: TokenIcon(stakeSymbol,
-                                                    widget.plugin.tokenIcons),
-                                              ),
-                                              InfoItem(
-                                                title:
-                                                    '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
-                                                content: Fmt.priceFloor(
-                                                    balanceStakeToken,
-                                                    lengthMax: 4),
-                                                lowTitle: true,
-                                              ),
-                                            ],
-                                          )),
-                                          Expanded(
-                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                margin:
-                                                    EdgeInsets.only(right: 8),
-                                                child: TokenIcon(
-                                                    'L$stakeSymbol',
-                                                    widget.plugin.tokenIcons),
-                                              ),
-                                              InfoItem(
-                                                title:
-                                                    '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
-                                                content: Fmt.priceFloor(
-                                                    balanceLiquidToken,
-                                                    lengthMax: 4),
-                                                lowTitle: true,
-                                              ),
-                                            ],
-                                          ))
-                                        ],
-                                      )
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Row(
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(right: 8),
+                                          child: TokenIcon(stakeSymbol,
+                                              widget.plugin.tokenIcons),
+                                        ),
+                                        InfoItem(
+                                          title:
+                                              '≈ \$${Fmt.priceFloor((widget.plugin.store!.assets.marketPrices[stakeSymbol] ?? 0) * balanceStakeToken)}',
+                                          content: Fmt.priceFloor(
+                                              balanceStakeToken,
+                                              lengthMax: 4),
+                                          lowTitle: true,
+                                        ),
+                                      ],
+                                    )),
+                                    Expanded(
+                                        child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(right: 8),
+                                          child: TokenIcon('L$stakeSymbol',
+                                              widget.plugin.tokenIcons),
+                                        ),
+                                        InfoItem(
+                                          title:
+                                              '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                          content: Fmt.priceFloor(
+                                              balanceLiquidToken,
+                                              lengthMax: 4),
+                                          lowTitle: true,
+                                        ),
+                                      ],
+                                    ))
+                                  ],
+                                )
                               ],
                             ),
                           ),
@@ -614,9 +363,8 @@ class _HomaPageState extends State<HomaPage> {
                                     style: TextStyle(color: white),
                                   ),
                                   onPressed: () => Navigator.of(context)
-                                      .pushNamed(RedeemPage.route, arguments: {
-                                    "isHomaAlive": _isHomaAlive
-                                  }).then((value) {
+                                      .pushNamed(RedeemPage.route)
+                                      .then((value) {
                                     if (value != null) {
                                       _refreshData();
                                     }
@@ -638,11 +386,9 @@ class _HomaPageState extends State<HomaPage> {
                                       ? () async {
                                           // if (!(await _confirmMint())) return;
 
-                                          Navigator.of(context).pushNamed(
-                                              MintPage.route,
-                                              arguments: {
-                                                "isHomaAlive": _isHomaAlive
-                                              }).then((value) {
+                                          Navigator.of(context)
+                                              .pushNamed(MintPage.route)
+                                              .then((value) {
                                             if (value != null) {
                                               _refreshData();
                                             }

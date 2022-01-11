@@ -38,17 +38,11 @@ class _MintPageState extends State<MintPage> {
 
   Future<void> _updateReceiveAmount(double input) async {
     if (mounted) {
-      final isHomaAlive =
-          (ModalRoute.of(context)!.settings.arguments as Map)['isHomaAlive'];
-      var data = await (isHomaAlive
-          ? widget.plugin.api!.homa.calcHomaNewMintAmount(input)
-          : widget.plugin.api!.homa.calcHomaMintAmount(input));
+      var data = await widget.plugin.api!.homa.calcHomaNewMintAmount(input);
 
       setState(() {
-        _amountReceive = "${isHomaAlive ? data!['receive'] : data!['received']}";
-        _data = isHomaAlive
-            ? CalcHomaMintAmountData("", "", null)
-            : CalcHomaMintAmountData.fromJson(data as Map<String, dynamic>);
+        _amountReceive = "${data!['receive']}";
+        _data = CalcHomaMintAmountData("", "", null);
       });
     }
   }
@@ -124,9 +118,6 @@ class _MintPageState extends State<MintPage> {
 
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-    final isHomaAlive =
-        (ModalRoute.of(context)!.settings.arguments as Map)['isHomaAlive'];
-
     final call = _data?.suggestRedeemRequests != null &&
             _data!.suggestRedeemRequests!.length > 0
         ? 'mintForRequests'
@@ -143,7 +134,7 @@ class _MintPageState extends State<MintPage> {
     }
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: isHomaAlive ? 'homa' : 'homaLite',
+          module: 'homa',
           call: call,
           txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
           txDisplay: {},
