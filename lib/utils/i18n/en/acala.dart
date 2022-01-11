@@ -232,4 +232,5 @@ const Map<String, String> enDex = {
   'v3.createVaultText': 'Create a vault to start your DeFi adventure',
   'v3.loan.canMint': 'Can Mint',
   'v3.loan.loanRatio': 'Loan Ratio',
+  'v3.loan.submit': 'Submit',
 };

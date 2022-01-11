@@ -217,4 +217,5 @@ const Map<String, String> zhDex = {
   'v3.createVaultText': '创建一个债仓开始你的DeFi之旅',
   'v3.loan.canMint': '可铸造',
   'v3.loan.loanRatio': '借贷率',
+  'v3.loan.submit': '提交',
 };

@@ -131,10 +131,11 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
           ),
           Expanded(
               child: PageView(
+            physics: BouncingScrollPhysics(),
             children: widget.datas
                 .map((e) => Container(
                       padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Center(child: e.context),
+                      child: e.context,
                     ))
                 .toList(),
             controller: _pageController,
