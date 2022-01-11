@@ -37,6 +37,11 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginSliderThumbShape.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginSliderTrackShape.dart';
+import 'package:wave/config.dart';
+
+import 'package:wave/wave.dart';
 
 class LoanPage extends StatefulWidget {
   LoanPage(this.plugin, this.keyring);
@@ -50,9 +55,11 @@ class LoanPage extends StatefulWidget {
 }
 
 class _LoanPageState extends State<LoanPage> {
-  final colorSafe = Color(0xFFB9F6CA);
-  final colorWarn = Color(0xFFFFD180);
-  final colorDanger = Color(0xFFFF8A80);
+  final colorSafe = [Color(0xFF61D49F), Color(0xCCA1FBBE)];
+  final colorWarn = [Color(0xFFE59831), Color(0xCCFFD479)];
+  final colorDanger = [Color(0xFFE3542E), Color(0xCCF27863)];
+
+  double _tip = 0;
 
   Future<void> _fetchData() async {
     widget.plugin.service!.gov.updateBestNumber();
@@ -147,71 +154,153 @@ class _LoanPageState extends State<LoanPage> {
                       final _loans = loans.where(
                           (data) => data.token!.symbol == e.token!.symbol);
                       final loan = _loans.length > 0 ? _loans.first : null;
-
-                      final requiredCollateralRatio = loan != null
-                          ? double.parse(
-                              Fmt.token(loan.type.requiredCollateralRatio, 18))
-                          : 0.0;
                       return LoanTabBarWidgetData(
                           TokenIcon(e.token!.symbol!, widget.plugin.tokenIcons),
                           loan != null
                               ? Column(
                                   children: [
+                                    headView(
+                                        headCardHeight,
+                                        headCardWidth,
+                                        loan,
+                                        double.parse(Fmt.token(
+                                            loan.type.requiredCollateralRatio,
+                                            18))),
                                     Container(
-                                      padding: EdgeInsets.all(6),
-                                      margin: EdgeInsets.only(bottom: 10),
+                                      padding: EdgeInsets.all(7),
+                                      margin: EdgeInsets.only(bottom: 19),
                                       decoration: BoxDecoration(
-                                          color: Color(0x1AFFFFFF),
-                                          borderRadius: const BorderRadius.only(
-                                              bottomLeft: Radius.circular(24),
-                                              topRight: Radius.circular(24),
-                                              bottomRight:
-                                                  Radius.circular(24))),
-                                      width: double.infinity,
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: headCardHeight,
-                                        child: Stack(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.bottomCenter,
-                                              child: Container(
-                                                margin: EdgeInsets.only(
-                                                    right:
-                                                        5 / 347 * headCardWidth,
-                                                    bottom: 47 /
-                                                        210 *
-                                                        headCardHeight),
-                                                width:
-                                                    128 / 347 * headCardWidth,
-                                                height:
-                                                    128 / 347 * headCardWidth,
-                                                child:
-                                                    LiquidCircularProgressIndicator(
-                                                  value:
-                                                      1 / loan.collateralRatio,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  valueColor: AlwaysStoppedAnimation(loan
-                                                              .collateralRatio >
-                                                          requiredCollateralRatio
-                                                      ? loan.collateralRatio >
-                                                              requiredCollateralRatio +
-                                                                  0.2
-                                                          ? colorSafe
-                                                          : colorWarn
-                                                      : colorDanger),
-                                                  // borderRadius: 16,
-                                                  direction: Axis.vertical,
+                                        color: Color(0x1AFFFFFF),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(14)),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                  '${dic['loan.collateral']}(${PluginFmt.tokenView(loan.token!.symbol)})',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline5
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: Colors.white)),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    margin: EdgeInsets.only(
+                                                        right: 2),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 5),
+                                                    decoration: BoxDecoration(
+                                                      color: Color(0x24FFFFFF),
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                                  .all(
+                                                              Radius.circular(
+                                                                  4)),
+                                                    ),
+                                                    child: Text(
+                                                      "222.3456",
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText1
+                                                          ?.copyWith(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "/222.3456",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyText1
+                                                        ?.copyWith(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                          Text(
+                                            "Value \$180.88",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline5
+                                                ?.copyWith(
+                                                    color: Color(0xFFFFFBF9),
+                                                    fontSize: 12),
+                                          ),
+                                          ClipRect(
+                                              child: Align(
+                                                  heightFactor: 0.6,
+                                                  alignment: Alignment.center,
+                                                  child: SliderTheme(
+                                                      data: SliderThemeData(
+                                                          trackHeight: 11,
+                                                          activeTrackColor:
+                                                              Color(0xFFFC8156),
+                                                          inactiveTrackColor:
+                                                              Color(0xFFA1FBBE),
+                                                          overlayColor: Colors
+                                                              .transparent,
+                                                          trackShape:
+                                                              const PluginSliderTrackShape(),
+                                                          thumbShape:
+                                                              const PluginSliderThumbShape()),
+                                                      child: Slider(
+                                                        min: 0,
+                                                        max: 222.8243,
+                                                        // divisions: 19,
+                                                        value: _tip,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _tip = value;
+                                                          });
+                                                        },
+                                                      )))),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  dic['loan.withdraw']!,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline5
+                                                      ?.copyWith(
+                                                          color:
+                                                              Color(0xFFFFFBF9),
+                                                          height: 0.9,
+                                                          fontSize: 12),
                                                 ),
-                                              ),
-                                            ),
-                                            Image.asset(
-                                              "packages/polkawallet_plugin_karura/assets/images/mint_kusd_head.png",
-                                              width: double.infinity,
-                                            )
-                                          ],
-                                        ),
+                                                Text(
+                                                  dic['loan.deposit']!,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline5
+                                                      ?.copyWith(
+                                                          color:
+                                                              Color(0xFFFFFBF9),
+                                                          height: 0.9,
+                                                          fontSize: 12),
+                                                )
+                                              ])
+                                        ],
                                       ),
                                     ),
                                     LoanOverviewCard(
@@ -370,6 +459,223 @@ class _LoanPageState extends State<LoanPage> {
     //     );
     //   },
     // );
+  }
+
+  Widget headView(double headCardHeight, double headCardWidth, LoanData loan,
+      double requiredCollateralRatio) {
+    final price = widget.plugin.store!.assets.prices[loan.token!.symbol]!;
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        widget.plugin, [loan.token!.tokenNameId, karura_stable_coin]);
+    final available = loan.collaterals - loan.requiredCollateral > BigInt.zero
+        ? loan.collaterals - loan.requiredCollateral
+        : BigInt.zero;
+    final availableView =
+        "${Fmt.priceFloorBigInt(available, balancePair[0]!.decimals!, lengthMax: 7)}${loan.token!.symbol}";
+    var availableViewRight = 3 / 347 * headCardWidth +
+        85 -
+        PluginFmt.boundingTextSize(
+            '$availableView',
+            Theme.of(context).textTheme.headline5?.copyWith(
+                  color: Colors.white,
+                  fontSize: 12,
+                )).width;
+    availableViewRight = availableViewRight < 0 ? 0 : availableViewRight;
+
+    final maxToBorrow = loan.maxToBorrow - loan.debits > BigInt.zero
+        ? loan.maxToBorrow - loan.debits
+        : BigInt.zero;
+    final maxToBorrowView =
+        Fmt.priceFloorBigInt(maxToBorrow, balancePair[1]!.decimals!);
+    return Container(
+      padding: EdgeInsets.all(6),
+      margin: EdgeInsets.only(bottom: 19),
+      decoration: BoxDecoration(
+          color: Color(0x1AFFFFFF),
+          borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+              bottomRight: Radius.circular(24))),
+      width: double.infinity,
+      child: Container(
+        width: double.infinity,
+        height: headCardHeight,
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                  margin: EdgeInsets.only(
+                      right: 5 / 347 * headCardWidth,
+                      bottom: 47 / 210 * headCardHeight),
+                  width: 128 / 347 * headCardWidth,
+                  height: 128 / 347 * headCardWidth,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipOval(
+                          child: WaveWidget(
+                        config: CustomConfig(
+                          colors: loan.collateralRatio > requiredCollateralRatio
+                              ? loan.collateralRatio >
+                                      requiredCollateralRatio + 0.2
+                                  ? colorSafe
+                                  : colorWarn
+                              : colorDanger,
+                          durations: [8000, 6000],
+                          heightPercentages: [
+                            1 - 1 / loan.collateralRatio,
+                            1 - 1 / loan.collateralRatio,
+                          ],
+                          blur: MaskFilter.blur(BlurStyle.solid, 5),
+                        ),
+                        waveAmplitude: 0,
+                        size: Size(
+                          double.infinity,
+                          double.infinity,
+                        ),
+                      )),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 18),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(dic['v3.loan.loanRatio']!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    )),
+                            Text(
+                                '${((1 / loan.collateralRatio) * 100).toStringAsFixed(2)}%',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      height: 0.9,
+                                      fontSize: 26.5,
+                                    ))
+                          ],
+                        ),
+                      )
+                    ],
+                  )),
+            ),
+            Image.asset(
+              "packages/polkawallet_plugin_karura/assets/images/mint_kusd_head.png",
+              width: double.infinity,
+            ),
+            Container(
+              padding: EdgeInsets.only(top: 4 / 210 * headCardHeight, left: 5),
+              alignment: Alignment.topLeft,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${dic['liquid.price']!}(${loan.token!.symbol})',
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                            color: Colors.white,
+                            fontSize: 10,
+                          )),
+                  Text(
+                      '≈ \$${Fmt.priceFloorBigInt(loan.liquidationPrice, acala_price_decimals)}',
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                            color: Color(0xFFFC8156),
+                            height: 1.1,
+                            fontSize: 12,
+                          ))
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  top: 4 / 210 * headCardHeight,
+                  right: 13 / 347 * headCardWidth),
+              alignment: Alignment.topRight,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                      '${dic['collateral.price.current']!}(${loan.token!.symbol})',
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                            color: Colors.white,
+                            fontSize: 10,
+                          )),
+                  Text(
+                      '≈ \$${Fmt.priceFloorBigInt(price, acala_price_decimals)}',
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                            color: Color(0xFFA1FBBE),
+                            height: 1.1,
+                            fontSize: 12,
+                          ))
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  left: 20 / 347 * headCardWidth,
+                  bottom: (I18n.of(context)!.locale.languageCode == 'zh'
+                          ? 26
+                          : 25) /
+                      210 *
+                      headCardHeight),
+              alignment: Alignment.bottomLeft,
+              child: Text('${dic['v3.loan.canMint']!}:',
+                  style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Color(0xFF26282d),
+                        fontSize: 10,
+                      )),
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  left: 26 / 347 * headCardWidth,
+                  bottom: 5 / 210 * headCardHeight),
+              alignment: Alignment.bottomLeft,
+              child: Text('$maxToBorrowView ${loan.token!.symbol}',
+                  style: Theme.of(context).textTheme.headline5?.copyWith(
+                        color: Colors.white,
+                        fontSize: 12,
+                      )),
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  right: 15 / 347 * headCardWidth +
+                      77 -
+                      PluginFmt.boundingTextSize(
+                          '${dic['withdraw.able']!}:',
+                          Theme.of(context).textTheme.headline3?.copyWith(
+                                color: Color(0xFF26282d),
+                                fontSize: 10,
+                              )).width,
+                  bottom: I18n.of(context)!.locale.languageCode == 'zh'
+                      ? 51
+                      : 50 / 210 * headCardHeight),
+              alignment: Alignment.bottomRight,
+              child: Text('${dic['withdraw.able']!}:',
+                  style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Color(0xFF26282d),
+                        fontSize: 10,
+                      )),
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  right: availableViewRight, bottom: 30 / 210 * headCardHeight),
+              alignment: Alignment.bottomRight,
+              child: Text('$availableView',
+                  style: Theme.of(context).textTheme.headline5?.copyWith(
+                        color: Colors.white,
+                        fontSize: 12,
+                      )),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

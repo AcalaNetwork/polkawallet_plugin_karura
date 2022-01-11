@@ -8,7 +8,7 @@ import 'homaNew/homaPage.dart';
 Map<String, WidgetBuilder> getNewUiRoutes(
     PluginKarura plugin, Keyring keyring) {
   return {
-    // HomaPage.route: (_) => HomaPage(plugin, keyring),
-    // LoanPage.route: (_) => LoanPage(plugin, keyring),
+    HomaPage.route: (_) => HomaPage(plugin, keyring),
+    LoanPage.route: (_) => LoanPage(plugin, keyring),
   };
 }

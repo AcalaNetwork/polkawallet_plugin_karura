@@ -120,7 +120,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                                   decoration: BoxDecoration(
                                       color: _index == index
                                           ? Colors.transparent
-                                          : Color(0x80000000),
+                                          : Color(0x33000000),
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(15))))
                             ],

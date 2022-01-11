@@ -151,17 +151,6 @@ class _HomaPageState extends State<HomaPage> {
     super.dispose();
   }
 
-  Size boundingTextSize(String text, TextStyle style) {
-    if (text == null || text.isEmpty) {
-      return Size.zero;
-    }
-    final TextPainter textPainter = TextPainter(
-        textDirection: TextDirection.ltr,
-        text: TextSpan(text: text, style: style))
-      ..layout();
-    return textPainter.size;
-  }
-
   @override
   Widget build(_) {
     return Observer(

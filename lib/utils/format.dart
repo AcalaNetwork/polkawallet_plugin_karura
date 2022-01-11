@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -48,7 +49,8 @@ class PluginFmt {
     plugin.store!.earn.dexPools.forEach((e) {
       e.tokens!.forEach((currencyId) {
         final token = AssetsUtils.tokenDataFromCurrencyId(plugin, currencyId);
-        if (tokens.indexWhere((i) => i!.tokenNameId == token!.tokenNameId) < 0) {
+        if (tokens.indexWhere((i) => i!.tokenNameId == token!.tokenNameId) <
+            0) {
           tokens.add(token);
         }
       });
@@ -76,6 +78,17 @@ class PluginFmt {
     } else {
       return null;
     }
+  }
+
+  static Size boundingTextSize(String text, TextStyle? style) {
+    if (text == null || text.isEmpty) {
+      return Size.zero;
+    }
+    final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(text: text, style: style))
+      ..layout();
+    return textPainter.size;
   }
 }
 

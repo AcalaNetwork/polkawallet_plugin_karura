@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -169,17 +170,6 @@ class _HomaPageState extends State<HomaPage> {
     super.dispose();
   }
 
-  Size boundingTextSize(String text, TextStyle? style) {
-    if (text == null || text.isEmpty) {
-      return Size.zero;
-    }
-    final TextPainter textPainter = TextPainter(
-        textDirection: TextDirection.ltr,
-        text: TextSpan(text: text, style: style))
-      ..layout();
-    return textPainter.size;
-  }
-
   @override
   Widget build(_) {
     return Observer(builder: (BuildContext context) {
@@ -325,7 +315,8 @@ class _HomaPageState extends State<HomaPage> {
                               top: riveTop + riveHeight * 0.17,
                               right: paddingHorizontal +
                                   riveWidget * 0.195 -
-                                  boundingTextSize(aprValue, aprStyle).width /
+                                  PluginFmt.boundingTextSize(aprValue, aprStyle)
+                                          .width /
                                       2),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
