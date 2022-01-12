@@ -34,7 +34,6 @@ class _DefiWidgetState extends State<DefiWidget> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
-    final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
     final modulesConfig = widget.plugin.store!.setting.liveModules;
     final List liveModules = modulesConfig.keys.toList().sublist(1);
 
@@ -96,6 +95,9 @@ class _DefiWidgetState extends State<DefiWidget> {
                 margin: EdgeInsets.only(bottom: 16),
                 title: dic!['$e.title']!,
                 describe: dic['$e.brief']!,
+                icon: Image.asset(
+                    "packages/polkawallet_plugin_karura/assets/images/icon_$e.png",
+                    width: 18),
               ),
               onTap: () {
                 if (enabled) {
@@ -146,7 +148,6 @@ class _NFTWidgetState extends State<NFTWidget> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
-    final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
     final modulesConfig = widget.plugin.store!.setting.liveModules;
     final List liveModules = modulesConfig.keys.toList().sublist(1);
 
