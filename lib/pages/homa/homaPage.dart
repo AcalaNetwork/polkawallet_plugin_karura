@@ -56,17 +56,13 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   Future<void> _refreshData() async {
-    widget.plugin.service!.assets.queryMarketPrices([relay_chain_token_symbol]);
+    await widget.plugin.service!.assets
+        .queryMarketPrices([relay_chain_token_symbol]);
     widget.plugin.service!.gov.updateBestNumber();
 
-    await widget.plugin.service!.homa.queryHomaEnv();
     widget.plugin.service!.homa.queryHomaPendingRedeem();
 
-    if (_timer == null) {
-      _timer = Timer.periodic(Duration(seconds: 20), (timer) {
-        _refreshData();
-      });
-    }
+    _timer = new Timer(Duration(seconds: 20), _refreshData);
   }
 
   @override
