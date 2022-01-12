@@ -24,10 +24,11 @@ import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
 class SwapForm extends StatefulWidget {
-  SwapForm(this.plugin, this.keyring, this.enabled);
+  SwapForm(this.plugin, this.keyring, this.enabled, {this.initialSwapPair});
   final PluginKarura plugin;
   final Keyring keyring;
   final bool enabled;
+  final List<String>? initialSwapPair;
 
   @override
   _SwapFormState createState() => _SwapFormState();
@@ -175,7 +176,10 @@ class _SwapFormState extends State<SwapForm> {
   }
 
   void _setUpdateTimer({init = true}) {
-    _updateSwapAmount(init: init);
+    print('swap update timer triggered');
+    if (widget.plugin.sdk.api.connectedNode != null) {
+      _updateSwapAmount(init: init);
+    }
 
     if (mounted) {
       _timer = Timer(Duration(seconds: 10), () {
@@ -390,7 +394,12 @@ class _SwapFormState extends State<SwapForm> {
 
       final cachedSwapPair =
           widget.plugin.store!.swap.swapPair(widget.keyring.current.pubKey);
-      if (cachedSwapPair.length > 0 &&
+      if (widget.initialSwapPair != null &&
+          widget.initialSwapPair?.length == 2) {
+        setState(() {
+          _swapPair = widget.initialSwapPair!;
+        });
+      } else if (cachedSwapPair.length > 0 &&
           AssetsUtils.getBalanceFromTokenNameId(
                       widget.plugin, cachedSwapPair[0])!
                   .symbol !=
@@ -507,17 +516,15 @@ class _SwapFormState extends State<SwapForm> {
                               .marketPrices[balancePair[0]!.symbol],
                           onInputChange: _onSupplyAmountChange,
                           onTokenChange: (token) {
-                            if (token != null) {
-                              setState(() {
-                                _swapPair = token.tokenNameId == swapPair[1]
-                                    ? [token.tokenNameId, swapPair[0]]
-                                    : [token.tokenNameId, swapPair[1]];
-                                _maxInput = null;
-                              });
-                              widget.plugin.store!.swap.setSwapPair(
-                                  _swapPair, widget.keyring.current.pubKey);
-                              _updateSwapAmount();
-                            }
+                            setState(() {
+                              _swapPair = token.tokenNameId == swapPair[1]
+                                  ? [token.tokenNameId, swapPair[0]]
+                                  : [token.tokenNameId, swapPair[1]];
+                              _maxInput = null;
+                            });
+                            widget.plugin.store!.swap.setSwapPair(
+                                _swapPair, widget.keyring.current.pubKey);
+                            _updateSwapAmount();
                           },
                           onSetMax: Fmt.balanceInt(balancePair[0]!.amount) >
                                   BigInt.zero
@@ -556,17 +563,15 @@ class _SwapFormState extends State<SwapForm> {
                                 .marketPrices[balancePair[1]!.symbol],
                             onInputChange: _onTargetAmountChange,
                             onTokenChange: (token) {
-                              if (token != null) {
-                                setState(() {
-                                  _swapPair = token.tokenNameId == swapPair[0]
-                                      ? [swapPair[1], token.tokenNameId]
-                                      : [swapPair[0], token.tokenNameId];
-                                  _maxInput = null;
-                                });
-                                widget.plugin.store!.swap.setSwapPair(
-                                    _swapPair, widget.keyring.current.pubKey);
-                                _updateSwapAmount();
-                              }
+                              setState(() {
+                                _swapPair = token.tokenNameId == swapPair[0]
+                                    ? [swapPair[1], token.tokenNameId]
+                                    : [swapPair[0], token.tokenNameId];
+                                _maxInput = null;
+                              });
+                              widget.plugin.store!.swap.setSwapPair(
+                                  _swapPair, widget.keyring.current.pubKey);
+                              _updateSwapAmount();
                             },
                             onClear: () {
                               setState(() {

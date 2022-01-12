@@ -104,7 +104,8 @@ class _EarnDexListState extends State<EarnDexList> {
           }
         }
 
-        otherDatas.sort((left, right) => right.rewards!.compareTo(left.rewards!));
+        otherDatas
+            .sort((left, right) => right.rewards!.compareTo(left.rewards!));
         datas.addAll(otherDatas);
         dexPools = datas;
       }
@@ -124,8 +125,12 @@ class _EarnDexListState extends State<EarnDexList> {
               padding: EdgeInsets.all(16),
               itemCount: dexPools.length,
               itemBuilder: (_, i) {
-                final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-                    widget.plugin, dexPools[i].tokenNameId)!;
+                final tokenPair = dexPools[i]
+                    .tokens!
+                    .map((e) =>
+                        AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+                    .toList();
+                final tokenSymbol = tokenPair.map((e) => e!.symbol).join('-');
 
                 final BigInt sharesTotal = widget.plugin.store!.earn
                         .dexPoolInfoMap[dexPools[i].tokenNameId]?.sharesTotal ??
@@ -152,15 +157,15 @@ class _EarnDexListState extends State<EarnDexList> {
                         Column(
                           children: [
                             CurrencyWithIcon(
-                              PluginFmt.tokenView(poolToken.symbol ?? ''),
-                              TokenIcon(poolToken.symbol ?? '',
-                                  widget.plugin.tokenIcons),
+                              PluginFmt.tokenView(tokenSymbol),
+                              TokenIcon(tokenSymbol, widget.plugin.tokenIcons),
                               textStyle: Theme.of(context).textTheme.headline4,
                               mainAxisAlignment: MainAxisAlignment.center,
                             ),
                             Divider(height: 24),
                             Text(
-                              Fmt.token(sharesTotal, poolToken.decimals ?? 18),
+                              Fmt.token(
+                                  sharesTotal, tokenPair[0]!.decimals ?? 18),
                               style: Theme.of(context).textTheme.headline4,
                             ),
                             Container(

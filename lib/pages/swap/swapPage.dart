@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapList.dart';
@@ -25,14 +27,29 @@ class _SwapPageState extends State<SwapPage> {
   int _tab = 0;
 
   bool _loading = true;
+  Timer? _waitNetworkTimer;
 
   Future<void> _updateData() async {
-    await widget.plugin.service!.earn.getDexPools();
-    if (mounted) {
-      setState(() {
-        _loading = false;
-      });
+    if (widget.plugin.sdk.api.connectedNode != null) {
+      await widget.plugin.service!.earn.getDexPools();
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
+    } else {
+      /// we need to re-fetch data with timer before wss connected
+      _waitNetworkTimer = new Timer(Duration(seconds: 3), _updateData);
     }
+  }
+
+  @override
+  void dispose() {
+    if (_waitNetworkTimer != null) {
+      _waitNetworkTimer?.cancel();
+    }
+
+    super.dispose();
   }
 
   @override

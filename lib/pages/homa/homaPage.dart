@@ -37,23 +37,6 @@ class HomaPage extends StatefulWidget {
 
 class _HomaPageState extends State<HomaPage> {
   Timer? _timer;
-  String? _unlockingKsm;
-
-  Future<void> _refreshRedeem() async {
-    var data = await widget.plugin.api!.homa
-        .redeemRequested(widget.keyring.current.address);
-    if (!mounted) return;
-
-    if (data != null && data.length > 0) {
-      setState(() {
-        _unlockingKsm = data;
-      });
-    } else if (_unlockingKsm != null) {
-      setState(() {
-        _unlockingKsm = null;
-      });
-    }
-  }
 
   Future<void> _refreshData() async {
     await widget.plugin.service!.assets

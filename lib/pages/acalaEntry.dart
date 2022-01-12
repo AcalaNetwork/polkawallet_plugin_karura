@@ -39,53 +39,53 @@ class _DefiWidgetState extends State<DefiWidget> {
 
     liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e != 'nft');
     return Observer(builder: (_) {
-      if (widget.plugin.sdk.api.connectedNode == null) {
-        return SkaletonList(
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          items: _liveModuleRoutes.length,
-          itemMargin: EdgeInsets.only(bottom: 16),
-          child: Container(
-            padding: EdgeInsets.fromLTRB(9, 6, 6, 11),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 18,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 6),
-                    Container(
-                        width: 18,
-                        height: 18,
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(const Radius.circular(5)),
-                          color: Colors.white,
-                        ))
-                  ],
-                ),
-                SizedBox(height: 7),
-                Container(
-                  width: double.infinity,
-                  height: 11,
-                  color: Colors.white,
-                ),
-                SizedBox(height: 3),
-                Container(
-                  width: double.infinity,
-                  height: 11,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-          ),
-        );
-      }
+      // if (widget.plugin.sdk.api.connectedNode == null) {
+      //   return SkaletonList(
+      //     padding: EdgeInsets.zero,
+      //     shrinkWrap: true,
+      //     physics: NeverScrollableScrollPhysics(),
+      //     items: _liveModuleRoutes.length,
+      //     itemMargin: EdgeInsets.only(bottom: 16),
+      //     child: Container(
+      //       padding: EdgeInsets.fromLTRB(9, 6, 6, 11),
+      //       child: Column(
+      //         children: <Widget>[
+      //           Row(
+      //             children: [
+      //               Container(
+      //                 width: 50,
+      //                 height: 18,
+      //                 color: Colors.white,
+      //               ),
+      //               SizedBox(width: 6),
+      //               Container(
+      //                   width: 18,
+      //                   height: 18,
+      //                   padding: EdgeInsets.all(2),
+      //                   decoration: BoxDecoration(
+      //                     borderRadius:
+      //                         const BorderRadius.all(const Radius.circular(5)),
+      //                     color: Colors.white,
+      //                   ))
+      //             ],
+      //           ),
+      //           SizedBox(height: 7),
+      //           Container(
+      //             width: double.infinity,
+      //             height: 11,
+      //             color: Colors.white,
+      //           ),
+      //           SizedBox(height: 3),
+      //           Container(
+      //             width: double.infinity,
+      //             height: 11,
+      //             color: Colors.white,
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   );
+      // }
       return Container(
         child: Column(
           children: liveModules.map((e) {
