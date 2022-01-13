@@ -106,6 +106,10 @@ class PluginKarura extends PolkawalletPlugin {
 
   Map<String, Widget> _getTokenIcons() {
     final Map<String, Widget> all = {};
+    // store?.assets.allTokens.map((e) => e.symbol).forEach((symbol) {
+    //   all[symbol!] = Image.network(
+    //       'https://cdn.subdao.com/tokens/${symbol}_128_128.png');
+    // });
     acala_token_ids.forEach((token) {
       all[token] = Image.asset(
           'packages/polkawallet_plugin_karura/assets/images/tokens/$token.png');

@@ -24,6 +24,7 @@ dependencies:
   polkawallet_sdk: ^0.3.7
   polkawallet_ui: ^0.3.6
   flutter_screenutil: ^5.0.0+2
+  skeleton_loader: ^2.0.0+4
   rive: ^0.7.33
   wave: ^0.2.0
 

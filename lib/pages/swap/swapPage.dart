@@ -11,6 +11,8 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/pageTitleTaps.dart';
+import 'package:polkawallet_ui/components/roundedCard.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
 
 class SwapPage extends StatefulWidget {
   SwapPage(this.plugin, this.keyring);
@@ -127,22 +129,80 @@ class _SwapPageState extends State<SwapPage> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: _loading
-                      ? Center(
-                          child: CupertinoActivityIndicator(),
-                        )
-                      // todo: enable bootstrap for aca while new aca online
-                      : _tab == 0
-                          ? SwapForm(widget.plugin, widget.keyring, enabled)
-                          : _tab == 1
-                              ? DexPoolList(widget.plugin, widget.keyring)
-                              : BootstrapList(widget.plugin, widget.keyring),
-                )
+                _loading
+                    ? SwapSkeleton()
+                    : Expanded(
+                        child: _tab == 0
+                            ? SwapForm(widget.plugin, widget.keyring, enabled)
+                            : _tab == 1
+                                ? DexPoolList(widget.plugin, widget.keyring)
+                                : BootstrapList(widget.plugin, widget.keyring),
+                      )
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SwapSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return RoundedCard(
+      margin: EdgeInsets.fromLTRB(8, 16, 8, 16),
+      padding: EdgeInsets.all(16),
+      child: Column(
+        children: [0, 1].map((e) {
+          return Container(
+            margin: EdgeInsets.only(bottom: 48),
+            decoration: BoxDecoration(
+                border: Border.all(
+                    width: 0.5, color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.all(Radius.circular(16))),
+            child: SkeletonLoader(
+              builder: Container(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      children: <Widget>[
+                        Container(width: 80, height: 14, color: Colors.white),
+                        Expanded(
+                          child: SizedBox(height: 14),
+                        ),
+                        Container(width: 104, height: 14, color: Colors.white),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      children: <Widget>[
+                        Container(width: 104, height: 24, color: Colors.white),
+                        Expanded(
+                          child: SizedBox(height: 14),
+                        ),
+                        CircleAvatar(
+                          radius: 12,
+                        ),
+                        Container(
+                            margin: EdgeInsets.only(left: 8),
+                            width: 72,
+                            height: 24,
+                            color: Colors.white),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              items: 1,
+              period: Duration(seconds: 2),
+              highlightColor: Color(0xFFC0C0C0),
+              baseColor: Color(0xFFE0E0E0),
+              direction: SkeletonDirection.ltr,
+            ),
+          );
+        }).toList(),
       ),
     );
   }
