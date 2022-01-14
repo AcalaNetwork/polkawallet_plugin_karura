@@ -218,4 +218,11 @@ const Map<String, String> zhDex = {
   'v3.loan.canMint': '可铸造',
   'v3.loan.loanRatio': '借贷率',
   'v3.loan.submit': '提交',
+  'v3.homa.minStakingAmmount': '质押最小值',
+  'v3.homa.minUnstakingAmmount': '提取最小值',
+  'homa.fast.describe': '系统会尽快进行提取，但有可能因为某些原因导致提取失败。如果快速提取失败，系统将不会收取快速提取费。',
+  'dex.swap.describe': '通过【兑换】进行提取将收取交易费',
+  'v3.homa.unbond': '解绑',
+  'v3.homa.unbond.describe': '通过【解绑】进行提取将经历28个era（大概6天）',
+  'v3.selectRedeemMethod': '选择提取方式'
 };

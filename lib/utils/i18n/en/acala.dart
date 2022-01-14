@@ -233,4 +233,13 @@ const Map<String, String> enDex = {
   'v3.loan.canMint': 'Can Mint',
   'v3.loan.loanRatio': 'Loan Ratio',
   'v3.loan.submit': 'Submit',
+  'v3.homa.minStakingAmmount': 'Minimum Staking Ammount',
+  'v3.homa.minUnstakingAmmount': 'Minimum Unstaking Ammount',
+  'homa.fast.describe':
+      'Fast redeem will try to redeem as fast as the system can, but it may failed by some reasons, if fast redeem failed, the system will not charge the fast redeem fee.',
+  'dex.swap.describe': 'Redeem through swap will charge the trading fee.',
+  'v3.homa.unbond': 'Unbond',
+  'v3.homa.unbond.describe':
+      'Redeem through unbond method will go through 28 eras (6 days approximately).',
+  'v3.selectRedeemMethod': 'Select redeem method'
 };

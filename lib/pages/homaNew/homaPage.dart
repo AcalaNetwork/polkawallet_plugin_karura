@@ -570,7 +570,7 @@ class _HomaPageState extends State<HomaPage> {
                                             decoration: BoxDecoration(
                                                 image: DecorationImage(
                                               image: AssetImage(
-                                                  'packages/polkawallet_plugin_karura/assets/images/homa_myStats${claimable > 0 ? '_select' : ''}_item_bg.png'),
+                                                  'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item${claimable > 0 ? '_select' : ''}_bg.png'),
                                             )),
                                             child: Column(
                                               crossAxisAlignment:
