@@ -14,16 +14,11 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/SkaletonList.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginItemCard.dart';
 
-class DefiWidget extends StatefulWidget {
+class DefiWidget extends StatelessWidget {
   DefiWidget(this.plugin);
 
   final PluginKarura plugin;
 
-  @override
-  _DefiWidgetState createState() => _DefiWidgetState();
-}
-
-class _DefiWidgetState extends State<DefiWidget> {
   final _liveModuleRoutes = {
     'loan': LoanPage.route,
     'swap': SwapPage.route,
@@ -34,11 +29,12 @@ class _DefiWidgetState extends State<DefiWidget> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
-    final modulesConfig = widget.plugin.store!.setting.liveModules;
-    final List liveModules = modulesConfig.keys.toList().sublist(1);
-
-    liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e != 'nft');
     return Observer(builder: (_) {
+      final modulesConfig = plugin.store!.setting.liveModules;
+      final List liveModules = modulesConfig.keys.toList().sublist(1);
+
+      liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e != 'nft');
+
       // if (widget.plugin.sdk.api.connectedNode == null) {
       //   return SkaletonList(
       //     padding: EdgeInsets.zero,
@@ -130,16 +126,11 @@ class _DefiWidgetState extends State<DefiWidget> {
   }
 }
 
-class NFTWidget extends StatefulWidget {
+class NFTWidget extends StatelessWidget {
   NFTWidget(this.plugin);
 
   final PluginKarura plugin;
 
-  @override
-  _NFTWidgetState createState() => _NFTWidgetState();
-}
-
-class _NFTWidgetState extends State<NFTWidget> {
   final _liveModuleRoutes = {
     'nft': NFTPage.route,
   };
@@ -147,12 +138,13 @@ class _NFTWidgetState extends State<NFTWidget> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
-    final modulesConfig = widget.plugin.store!.setting.liveModules;
-    final List liveModules = modulesConfig.keys.toList().sublist(1);
-
-    liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e == 'nft');
     return Observer(builder: (_) {
-      if (widget.plugin.sdk.api.connectedNode == null) {
+      final modulesConfig = plugin.store!.setting.liveModules;
+      final List liveModules = modulesConfig.keys.toList().sublist(1);
+
+      liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e == 'nft');
+
+      if (plugin.sdk.api.connectedNode == null) {
         return SkaletonList(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
@@ -241,21 +233,16 @@ class _NFTWidgetState extends State<NFTWidget> {
   }
 }
 
-class GovernanceWidget extends StatefulWidget {
+class GovernanceWidget extends StatelessWidget {
   GovernanceWidget(this.plugin);
   final PluginKarura plugin;
 
-  @override
-  _GovernanceWidgetState createState() => _GovernanceWidgetState();
-}
-
-class _GovernanceWidgetState extends State<GovernanceWidget> {
   @override
   Widget build(BuildContext context) {
     final dicGov = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!;
 
     return Observer(builder: (_) {
-      if (widget.plugin.sdk.api.connectedNode == null) {
+      if (plugin.sdk.api.connectedNode == null) {
         return SkaletonList(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
