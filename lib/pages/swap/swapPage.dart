@@ -66,10 +66,8 @@ class _SwapPageState extends State<SwapPage> {
   @override
   Widget build(_) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    // todo: fix this after new acala online
-    final bool enabled = widget.plugin.basic.name == 'acala'
-        ? ModalRoute.of(context)!.settings.arguments as bool
-        : true;
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    if (args != null && args['swapPair'] != null) {}
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -121,10 +119,8 @@ class _SwapPageState extends State<SwapPage> {
                         padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
                         icon: Icon(Icons.history,
                             color: Theme.of(context).cardColor),
-                        onPressed: enabled
-                            ? () => Navigator.of(context)
-                                .pushNamed(SwapHistoryPage.route)
-                            : null,
+                        onPressed: () => Navigator.of(context)
+                            .pushNamed(SwapHistoryPage.route),
                       ),
                     ],
                   ),
@@ -133,7 +129,9 @@ class _SwapPageState extends State<SwapPage> {
                     ? SwapSkeleton()
                     : Expanded(
                         child: _tab == 0
-                            ? SwapForm(widget.plugin, widget.keyring, enabled)
+                            ? SwapForm(widget.plugin, widget.keyring,
+                                initialSwapPair:
+                                    args != null ? args['swapPair'] : null)
                             : _tab == 1
                                 ? DexPoolList(widget.plugin, widget.keyring)
                                 : BootstrapList(widget.plugin, widget.keyring),

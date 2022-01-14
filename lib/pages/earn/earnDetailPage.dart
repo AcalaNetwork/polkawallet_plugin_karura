@@ -193,7 +193,7 @@ class EarnDetailPage extends StatelessWidget {
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(
                                     AddLiquidityPage.route,
-                                    arguments: pool,
+                                    arguments: {'poolId': pool.tokenNameId},
                                   );
                                 }),
                           ),

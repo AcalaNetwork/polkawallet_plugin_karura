@@ -195,8 +195,9 @@ class _DexPoolCard extends StatelessWidget {
                   content: dic['dex.addLiquidity'],
                   active: true,
                   padding: EdgeInsets.only(top: 8, bottom: 8),
-                  onPressed: () => Navigator.of(context)
-                      .pushNamed(AddLiquidityPage.route, arguments: pool),
+                  onPressed: () => Navigator.of(context).pushNamed(
+                      AddLiquidityPage.route,
+                      arguments: {'poolId': pool?.tokenNameId}),
                 ),
               ),
             ],

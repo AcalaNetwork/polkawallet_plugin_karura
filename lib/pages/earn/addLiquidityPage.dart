@@ -7,6 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/pages/swap/swapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -52,25 +53,35 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   TxFeeEstimateResult? _fee;
 
+  Timer? _waitNetworkTimer;
+
   Future<void> _refreshData() async {
-    final DexPoolData? pool = ModalRoute.of(context)!.settings.arguments as DexPoolData?;
+    if (widget.plugin.sdk.api.connectedNode != null) {
+      await widget.plugin.service!.earn.updateAllDexPoolInfo();
 
-    await widget.plugin.service!.earn.updateAllDexPoolInfo();
+      final args = ModalRoute.of(context)!.settings.arguments as Map?;
+      final pool = widget.plugin.store?.earn.dexPools
+          .firstWhere((e) => e.tokenNameId == args?['poolId']);
 
-    if (mounted) {
-      final balancePair = pool!.tokens!
-          .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
-          .toList();
-      setState(() {
-        final poolInfo =
-            widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
-        _price = Fmt.bigIntToDouble(
-                poolInfo.amountRight, balancePair[0]!.decimals!) /
-            Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[1]!.decimals!);
-      });
-      _timer = Timer(Duration(seconds: 30), () {
-        _refreshData();
-      });
+      if (mounted) {
+        final balancePair = pool!.tokens!
+            .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+            .toList();
+        setState(() {
+          final poolInfo =
+              widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
+          _price = Fmt.bigIntToDouble(
+                  poolInfo.amountRight, balancePair[0]!.decimals!) /
+              Fmt.bigIntToDouble(
+                  poolInfo.amountLeft, balancePair[1]!.decimals!);
+        });
+        _timer = Timer(Duration(seconds: 30), () {
+          _refreshData();
+        });
+      }
+    } else {
+      /// we need to re-fetch data with timer before wss connected
+      _waitNetworkTimer = new Timer(Duration(seconds: 3), _refreshData);
     }
   }
 
@@ -115,14 +126,16 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (index == 1 && _maxInputRight != null) return null;
 
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
-    final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
-    final balancePair = pool.tokens!
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    final pool = widget.plugin.store?.earn.dexPools
+        .firstWhere((e) => e.tokenNameId == args?['poolId']);
+    final balancePair = pool?.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
 
     final v =
         index == 0 ? _amountLeftCtrl.text.trim() : _amountRightCtrl.text.trim();
-    final balance = balancePair[index];
+    final balance = balancePair![index];
 
     String? error = Fmt.validatePrice(v, context);
     if (error == null) {
@@ -135,7 +148,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           available -= accountED +
               Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
         }
-        if (double.parse(v) > Fmt.bigIntToDouble(available, balance.decimals!)) {
+        if (double.parse(v) >
+            Fmt.bigIntToDouble(available, balance.decimals!)) {
           error = dic!['amount.low'];
         }
       }
@@ -143,12 +157,12 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
     // check if user's lp token balance meet existential deposit.
     final balanceLP =
-        widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId];
+        widget.plugin.store!.assets.tokenBalanceMap[pool?.tokenNameId];
     final balanceInt = Fmt.balanceInt(balanceLP?.amount ?? '0');
     if (error == null && index == 0 && balanceInt == BigInt.zero) {
       double min = 0;
       final poolInfo =
-          widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
+          widget.plugin.store!.earn.dexPoolInfoMap[pool?.tokenNameId]!;
       min = Fmt.balanceInt(balanceLP?.minBalance ?? '0') /
           poolInfo.issuance! *
           Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0]!.decimals!);
@@ -211,7 +225,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   Future<void> _onSubmit(int? decimalsLeft, int? decimalsRight) async {
     if (_onValidate()) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
-      final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
+      final args = ModalRoute.of(context)!.settings.arguments as Map?;
+      final pool = widget.plugin.store!.earn.dexPools
+          .firstWhere((e) => e.tokenNameId == args?['poolId']);
 
       final amountLeft = _amountLeftCtrl.text.trim();
       final amountRight = _amountRightCtrl.text.trim();
@@ -229,9 +245,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         _withStake,
       ];
 
-      final poolSymbol =
-          AssetsUtils.getBalanceFromTokenNameId(widget.plugin, pool.tokenNameId)!
-              .symbol;
+      final poolSymbol = AssetsUtils.getBalanceFromTokenNameId(
+              widget.plugin, pool.tokenNameId)!
+          .symbol;
       final tokenPair = pool.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();
@@ -346,6 +362,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       _timer = null;
     }
 
+    if (_waitNetworkTimer != null) {
+      _waitNetworkTimer?.cancel();
+    }
+
     _amountLeftCtrl.dispose();
     _amountRightCtrl.dispose();
     super.dispose();
@@ -357,7 +377,23 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       builder: (BuildContext context) {
         final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-        final DexPoolData pool = ModalRoute.of(context)!.settings.arguments as DexPoolData;
+        if (widget.plugin.sdk.api.connectedNode == null ||
+            widget.plugin.store!.earn.dexPools.length == 0) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(dic['earn.add']!),
+              centerTitle: true,
+              leading: BackBtn(),
+            ),
+            body: SafeArea(
+              child: ListView(children: [SwapSkeleton()]),
+            ),
+          );
+        }
+
+        final args = ModalRoute.of(context)!.settings.arguments as Map?;
+        final pool = widget.plugin.store!.earn.dexPools
+            .firstWhere((e) => e.tokenNameId == args?['poolId']);
         final tokenPair = pool.tokens!
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
@@ -563,8 +599,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                   padding: EdgeInsets.only(top: 16),
                   child: RoundedButton(
                     text: dic['earn.add'],
-                    onPressed: () =>
-                        _onSubmit(tokenPair[0]!.decimals, tokenPair[1]!.decimals),
+                    onPressed: () => _onSubmit(
+                        tokenPair[0]!.decimals, tokenPair[1]!.decimals),
                   ),
                 )
               ],
@@ -601,7 +637,8 @@ class StakeLPTips extends StatelessWidget {
       double savingRewardAPY = 0;
 
       if (plugin.store!.earn.incentives.dex != null) {
-        (plugin.store!.earn.incentives.dex![pool!.tokenNameId!] ?? []).forEach((e) {
+        (plugin.store!.earn.incentives.dex![pool!.tokenNameId!] ?? [])
+            .forEach((e) {
           rewardAPY += e.apr;
         });
         (plugin.store!.earn.incentives.dexSaving[pool!.tokenNameId!] ?? [])
@@ -611,8 +648,10 @@ class StakeLPTips extends StatelessWidget {
       }
       final balanceInt = Fmt.balanceInt(
           plugin.store!.assets.tokenBalanceMap[pool!.tokenNameId]?.amount);
-      final balance = Fmt.priceFloorBigInt(balanceInt,
-          plugin.store!.assets.tokenBalanceMap[pool!.tokenNameId]?.decimals ?? 12,
+      final balance = Fmt.priceFloorBigInt(
+          balanceInt,
+          plugin.store!.assets.tokenBalanceMap[pool!.tokenNameId]?.decimals ??
+              12,
           lengthMax: 4);
       final colorGray = Theme.of(context).unselectedWidgetColor;
       return Column(

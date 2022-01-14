@@ -101,8 +101,7 @@ class _DefiWidgetState extends State<DefiWidget> {
               ),
               onTap: () {
                 if (enabled) {
-                  Navigator.of(context)
-                      .pushNamed(_liveModuleRoutes[e]!, arguments: enabled);
+                  Navigator.of(context).pushNamed(_liveModuleRoutes[e]!);
                 } else {
                   showCupertinoDialog(
                     context: context,

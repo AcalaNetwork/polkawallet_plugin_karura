@@ -25,10 +25,9 @@ import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
 class SwapForm extends StatefulWidget {
-  SwapForm(this.plugin, this.keyring, this.enabled, {this.initialSwapPair});
+  SwapForm(this.plugin, this.keyring, {this.initialSwapPair});
   final PluginKarura plugin;
   final Keyring keyring;
-  final bool enabled;
   final List<String>? initialSwapPair;
 
   @override
@@ -784,7 +783,7 @@ class _SwapFormState extends State<SwapForm> {
               padding: EdgeInsets.only(top: 24),
               child: RoundedButton(
                 text: dic['dex.title'],
-                onPressed: !widget.enabled || _swapRatio == 0
+                onPressed: _swapRatio == 0
                     ? null
                     : () => _onSubmit(
                         balancePair.map((e) => e!.decimals).toList(), minMax),
