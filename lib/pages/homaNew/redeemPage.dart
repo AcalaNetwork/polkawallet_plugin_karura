@@ -284,7 +284,6 @@ class _RedeemPageState extends State<RedeemPage> {
 
   @override
   Widget build(_) {
-    final grey = Theme.of(context).unselectedWidgetColor;
     return Observer(
       builder: (BuildContext context) {
         final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;

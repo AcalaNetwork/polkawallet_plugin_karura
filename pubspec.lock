@@ -906,7 +906,7 @@ packages:
     source: hosted
     version: "0.2.0"
   skeleton_loader:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: skeleton_loader
       url: "https://pub.dartlang.org"
@@ -980,6 +980,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  toast:
+    dependency: "direct main"
+    description:
+      name: toast
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.5"
   transformer_page_view:
     dependency: transitive
     description:

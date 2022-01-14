@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
@@ -29,13 +30,16 @@ import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderThumbShape.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderTrackShape.dart';
+import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:wave/config.dart';
+import 'package:toast/toast.dart';
 
 import 'package:wave/wave.dart';
 
@@ -259,7 +263,7 @@ class _LoanPageState extends State<LoanPage> {
             child: isDataLoading
                 ? Container(
                     height: MediaQuery.of(context).size.width / 2,
-                    child: CupertinoActivityIndicator(),
+                    child: PluginLoadingWidget(),
                   )
                 : LoanTabBarWidget(
                     datas: widget.plugin.store!.loan.loanTypes.map((e) {
@@ -381,7 +385,12 @@ class _LoanPageState extends State<LoanPage> {
                                                 "$maxToBorrow",
                                                 balancePair[0]!.decimals!);
                                             loan.collateralRatio =
-                                                loan.maxToBorrow / loan.debits;
+                                                Fmt.bigIntToDouble(
+                                                        collaterals,
+                                                        balancePair[0]!
+                                                            .decimals!) *
+                                                    availablePrice /
+                                                    debits;
                                           }
                                           setState(() {});
                                         },
@@ -412,8 +421,12 @@ class _LoanPageState extends State<LoanPage> {
                                                     .debitToDebitShare(
                                                         loan.debits);
                                                 loan.collateralRatio =
-                                                    loan.maxToBorrow /
-                                                        loan.debits;
+                                                    Fmt.bigIntToDouble(
+                                                            loan.collaterals,
+                                                            balancePair[0]!
+                                                                .decimals!) *
+                                                        availablePrice /
+                                                        value;
                                                 loan.requiredCollateral =
                                                     Fmt.tokenInt(
                                                         "${value * double.parse(
@@ -806,12 +819,25 @@ class _LoanCollateralState extends State<LoanCollateral> {
                             final _controller =
                                 TextEditingController(text: "$_value");
                             return CupertinoAlertDialog(
-                              content: Card(
-                                elevation: 0.0,
-                                child: CupertinoTextField(
-                                  controller: _controller,
-                                  keyboardType: TextInputType.number,
-                                ),
+                              content: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                          "min:${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
+                                      Text(
+                                          "max:${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
+                                    ],
+                                  ),
+                                  CupertinoTextField(
+                                    controller: _controller,
+                                    keyboardType: TextInputType.number,
+                                    clearButtonMode:
+                                        OverlayVisibilityMode.editing,
+                                  )
+                                ],
                               ),
                               actions: <Widget>[
                                 CupertinoDialogAction(
@@ -825,11 +851,24 @@ class _LoanCollateralState extends State<LoanCollateral> {
                                 CupertinoDialogAction(
                                   onPressed: () {
                                     Navigator.pop(context);
-                                    setState(() {
-                                      _value = double.parse(_controller.text);
-                                    });
-                                    if (widget.onChanged != null) {
-                                      widget.onChanged!(_value);
+                                    if (double.parse(_controller.text) >=
+                                            widget.minNumber &&
+                                        double.parse(_controller.text) <=
+                                            widget.maxNumber) {
+                                      setState(() {
+                                        _value = double.parse(_controller.text);
+                                      });
+                                      if (widget.onChanged != null) {
+                                        widget.onChanged!(_value);
+                                      }
+                                    } else {
+                                      Toast.show(
+                                          I18n.of(context)!.getDic(
+                                              i18n_full_dic_ui,
+                                              'common')!['amount.error']!,
+                                          context,
+                                          duration: Toast.LENGTH_SHORT,
+                                          gravity: Toast.CENTER);
                                     }
                                   },
                                   child: Text(I18n.of(context)!.getDic(
@@ -884,7 +923,7 @@ class _LoanCollateralState extends State<LoanCollateral> {
                     child: Slider(
                       min: widget.minNumber,
                       max: widget.maxNumber,
-                      // divisions: 19,
+                      divisions: 100,
                       value: _value,
                       onChanged: (value) {
                         setState(() {
