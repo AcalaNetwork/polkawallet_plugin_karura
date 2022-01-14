@@ -311,6 +311,9 @@ class _GovernanceWidgetState extends State<GovernanceWidget> {
                 margin: EdgeInsets.only(bottom: 16),
                 title: dicGov['democracy']!,
                 describe: dicGov['democracy.brief']!,
+                icon: Image.asset(
+                    "packages/polkawallet_plugin_karura/assets/images/icon_democracy.png",
+                    width: 18),
               ),
               onTap: () => Navigator.of(context).pushNamed(DemocracyPage.route),
             ),

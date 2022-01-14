@@ -260,7 +260,7 @@ class _HomaPageState extends State<HomaPage> {
                               padding:
                                   EdgeInsets.only(left: 45, right: 15, top: 2),
                               child: Text(
-                                  '1 L$stakeSymbol ≈ ${Fmt.priceFloor(env.exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                  '1 L$stakeSymbol ≈ ${Fmt.priceFloor(env.exchangeRate, lengthMax: 2)} $stakeSymbol',
                                   style: Theme.of(context)
                                       .appBarTheme
                                       .titleTextStyle
@@ -291,7 +291,7 @@ class _HomaPageState extends State<HomaPage> {
                           color: Color(0x33FFFFFF),
                           padding: EdgeInsets.symmetric(horizontal: 5),
                           child: Text(
-                            '${Fmt.priceFloor(env.totalLiquidity, lengthMax: 4)}',
+                            '${Fmt.priceFloor(env.totalLiquidity, lengthMax: 2)}',
                             style: Theme.of(context)
                                 .appBarTheme
                                 .titleTextStyle

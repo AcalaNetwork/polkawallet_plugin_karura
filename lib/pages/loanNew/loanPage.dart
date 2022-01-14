@@ -199,8 +199,7 @@ class _LoanPageState extends State<LoanPage> {
         context: context,
         builder: (_) {
           return CupertinoAlertDialog(
-            content: Text(dic![
-                'loan.warn${widget.plugin.basic.name == plugin_name_karura ? '.KSM' : ''}']!),
+            content: Text(dic!['loan.warn.KSM']!),
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text(dic['loan.warn.back']!),
@@ -261,7 +260,6 @@ class _LoanPageState extends State<LoanPage> {
                 ? Container(
                     height: MediaQuery.of(context).size.width / 2,
                     child: CupertinoActivityIndicator(),
-                    color: Colors.white,
                   )
                 : LoanTabBarWidget(
                     datas: widget.plugin.store!.loan.loanTypes.map((e) {
@@ -546,7 +544,7 @@ class _LoanPageState extends State<LoanPage> {
     final availableView =
         "${Fmt.priceFloorBigInt(available, balancePair[0]!.decimals!, lengthMax: 7)}${loan.token!.symbol}";
     var availableViewRight = 3 / 347 * headCardWidth +
-        85 -
+        85 / 347 * headCardWidth -
         PluginFmt.boundingTextSize(
             '$availableView',
             Theme.of(context).textTheme.headline5?.copyWith(
@@ -628,7 +626,7 @@ class _LoanPageState extends State<LoanPage> {
                                     .headline3
                                     ?.copyWith(
                                       color: Colors.white,
-                                      height: 0.9,
+                                      height: 1.0,
                                       fontSize: 26.5,
                                     ))
                           ],
@@ -717,16 +715,18 @@ class _LoanPageState extends State<LoanPage> {
             Container(
               padding: EdgeInsets.only(
                   right: 15 / 347 * headCardWidth +
-                      77 -
+                      77 / 347 * headCardWidth -
                       PluginFmt.boundingTextSize(
                           '${dic['withdraw.able']!}:',
                           Theme.of(context).textTheme.headline3?.copyWith(
                                 color: Color(0xFF26282d),
                                 fontSize: 10,
                               )).width,
-                  bottom: I18n.of(context)!.locale.languageCode == 'zh'
-                      ? 51
-                      : 50 / 210 * headCardHeight),
+                  bottom: (I18n.of(context)!.locale.languageCode == 'zh'
+                          ? 51
+                          : 50) /
+                      210 *
+                      headCardHeight),
               alignment: Alignment.bottomRight,
               child: Text('${dic['withdraw.able']!}:',
                   style: Theme.of(context).textTheme.headline3?.copyWith(

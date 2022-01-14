@@ -127,6 +127,7 @@ class PluginKarura extends PolkawalletPlugin {
 
   @override
   List<HomeNavItem> getNavItems(BuildContext context, Keyring keyring) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
     return [
       HomeNavItem(
         text: "Defi",
@@ -143,7 +144,7 @@ class PluginKarura extends PolkawalletPlugin {
         content: NFTWidget(this),
       ),
       HomeNavItem(
-        text: "Governance",
+        text: dic['governance']!,
         icon: Container(),
         iconActive: Container(),
         isAdapter: true,
