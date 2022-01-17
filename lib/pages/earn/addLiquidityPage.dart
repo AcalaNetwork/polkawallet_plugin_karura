@@ -16,6 +16,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
@@ -60,10 +61,12 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       await widget.plugin.service!.earn.updateAllDexPoolInfo();
 
       final args = ModalRoute.of(context)!.settings.arguments as Map?;
-      final pool = widget.plugin.store?.earn.dexPools
-          .firstWhere((e) => e.tokenNameId == args?['poolId']);
+      final poolIndex = widget.plugin.store?.earn.dexPools
+              .indexWhere((e) => e.tokenNameId == args?['poolId']) ??
+          0;
 
-      if (mounted) {
+      if (poolIndex > -1 && mounted) {
+        final pool = widget.plugin.store?.earn.dexPools[poolIndex];
         final balancePair = pool!.tokens!
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
@@ -376,6 +379,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     return Observer(
       builder: (BuildContext context) {
         final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+        final args = ModalRoute.of(context)!.settings.arguments as Map?;
 
         if (widget.plugin.sdk.api.connectedNode == null ||
             widget.plugin.store!.earn.dexPools.length == 0) {
@@ -391,9 +395,24 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           );
         }
 
-        final args = ModalRoute.of(context)!.settings.arguments as Map?;
-        final pool = widget.plugin.store!.earn.dexPools
-            .firstWhere((e) => e.tokenNameId == args?['poolId']);
+        final poolIndex = widget.plugin.store!.earn.dexPools
+            .indexWhere((e) => e.tokenNameId == args?['poolId']);
+        if (poolIndex < 0) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(dic['earn.add']!),
+              centerTitle: true,
+              leading: BackBtn(),
+            ),
+            body: SafeArea(
+              child: ListView(children: [
+                Center(child: ListTail(isEmpty: true, isLoading: false))
+              ]),
+            ),
+          );
+        }
+
+        final pool = widget.plugin.store!.earn.dexPools[poolIndex];
         final tokenPair = pool.tokens!
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
