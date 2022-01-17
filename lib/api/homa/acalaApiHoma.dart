@@ -33,10 +33,6 @@ class AcalaApiHoma {
     return res;
   }
 
-  Future<bool?> isHomaAlive() async {
-    return service.isHomaAlive();
-  }
-
   Future<HomaNewEnvData> queryHomaNewEnv() async {
     final dynamic res = await service.queryHomaNewEnv();
     return HomaNewEnvData.fromJson(res);

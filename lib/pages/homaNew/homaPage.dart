@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
@@ -14,9 +15,10 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:rive/rive.dart';
@@ -35,35 +37,13 @@ class HomaPage extends StatefulWidget {
 class _HomaPageState extends State<HomaPage> {
   Timer? _timer;
   String? _unlockingKsm;
-  bool? _isHomaAlive = false;
-
-  Future<void> _refreshRedeem() async {
-    var data = await widget.plugin.api!.homa
-        .redeemRequested(widget.keyring.current.address);
-    if (!mounted) return;
-
-    if (data != null && data.length > 0) {
-      setState(() {
-        _unlockingKsm = data;
-      });
-    } else if (_unlockingKsm != null) {
-      setState(() {
-        _unlockingKsm = null;
-      });
-    }
-  }
 
   Future<void> _refreshData() async {
     widget.plugin.service!.assets.queryMarketPrices([relay_chain_token_symbol]);
     widget.plugin.service!.gov.updateBestNumber();
 
-    if (_isHomaAlive!) {
-      await widget.plugin.service!.homa.queryHomaEnv();
-      widget.plugin.service!.homa.queryHomaPendingRedeem();
-    } else {
-      await widget.plugin.service!.homa.queryHomaLiteStakingPool();
-      _refreshRedeem();
-    }
+    await widget.plugin.service!.homa.queryHomaEnv();
+    widget.plugin.service!.homa.queryHomaPendingRedeem();
 
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
@@ -121,7 +101,7 @@ class _HomaPageState extends State<HomaPage> {
         ))) as Map?;
 
     if (res != null) {
-      _refreshRedeem();
+      _refreshData();
     }
   }
 
@@ -149,19 +129,6 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      final isHomaAlive = await widget.plugin.api!.homa.isHomaAlive();
-      setState(() {
-        _isHomaAlive = isHomaAlive;
-      });
-
-      _refreshData();
-    });
-  }
-
-  @override
   void dispose() {
     if (_timer != null) {
       _timer!.cancel();
@@ -176,7 +143,35 @@ class _HomaPageState extends State<HomaPage> {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
       final stakeSymbol = relay_chain_token_symbol;
 
-      final env = widget.plugin.store!.homa.env!;
+      if (widget.plugin.sdk.api.connectedNode == null) {
+        return Scaffold(
+          appBar: PluginAppBar(
+            title: Text('${dic['homa.title']} $stakeSymbol'),
+            actions: [
+              Container(
+                margin: EdgeInsets.only(right: 16),
+                child: PluginIconButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
+                  icon: Icon(
+                    Icons.history,
+                    size: 22,
+                    color: Color(0xFF17161F),
+                  ),
+                ),
+              )
+            ],
+          ),
+          body: Column(
+            children: [
+              ConnectionChecker(widget.plugin, onConnected: _refreshData),
+              PluginLoadingWidget()
+            ],
+          ),
+        );
+      }
+
+      final env = widget.plugin.store?.homa.env;
       final balances = AssetsUtils.getBalancePairFromTokenNameId(
           widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
       final balanceStakeToken =
@@ -196,7 +191,8 @@ class _HomaPageState extends State<HomaPage> {
           MediaQuery.of(context).size.width - paddingHorizontal * 2;
       final riveHeight = riveWidget / 360 * 292;
 
-      final aprValue = "${Fmt.priceFloor(env.apy * 100, lengthFixed: 0)}%";
+      final aprValue =
+          "${Fmt.priceFloor((env?.apy ?? 0) * 100, lengthFixed: 0)}%";
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -260,7 +256,7 @@ class _HomaPageState extends State<HomaPage> {
                               padding:
                                   EdgeInsets.only(left: 45, right: 15, top: 2),
                               child: Text(
-                                  '1 L$stakeSymbol ≈ ${Fmt.priceFloor(env.exchangeRate, lengthMax: 2)} $stakeSymbol',
+                                  '1 L$stakeSymbol ≈ ${Fmt.priceFloor(env?.exchangeRate ?? 1, lengthMax: 2)} $stakeSymbol',
                                   style: Theme.of(context)
                                       .appBarTheme
                                       .titleTextStyle
@@ -291,7 +287,7 @@ class _HomaPageState extends State<HomaPage> {
                           color: Color(0x33FFFFFF),
                           padding: EdgeInsets.symmetric(horizontal: 5),
                           child: Text(
-                            '${Fmt.priceFloor(env.totalLiquidity, lengthMax: 2)}',
+                            '${Fmt.priceFloor(env?.totalLiquidity ?? 0, lengthMax: 2)}',
                             style: Theme.of(context)
                                 .appBarTheme
                                 .titleTextStyle
@@ -371,7 +367,7 @@ class _HomaPageState extends State<HomaPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${Fmt.priceFloor(env.totalStaking, lengthMax: 4)} KSM',
+                                      '${Fmt.priceFloor(env?.totalStaking ?? 0, lengthMax: 4)} KSM',
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5
@@ -380,7 +376,7 @@ class _HomaPageState extends State<HomaPage> {
                                     Padding(
                                         padding: EdgeInsets.only(left: 8),
                                         child: Text(
-                                          '≈ \$${Fmt.priceFloorFormatter((widget.plugin.store?.assets.marketPrices[stakeSymbol] ?? 0) * env.totalStaking, lengthMax: 2)}',
+                                          '≈ \$${Fmt.priceFloorFormatter((widget.plugin.store?.assets.marketPrices[stakeSymbol] ?? 0) * (env?.totalStaking ?? 0), lengthMax: 2)}',
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline5
@@ -619,9 +615,8 @@ class _HomaPageState extends State<HomaPage> {
                             child: PluginButton(
                           title: '${dic['homa.redeem']} $stakeSymbol',
                           onPressed: () => Navigator.of(context)
-                              .pushNamed(RedeemPage.route, arguments: {
-                            "isHomaAlive": _isHomaAlive
-                          }).then((value) {
+                              .pushNamed(RedeemPage.route)
+                              .then((value) {
                             if (value != null) {
                               _refreshData();
                             }
@@ -633,18 +628,18 @@ class _HomaPageState extends State<HomaPage> {
                         Expanded(
                             child: PluginButton(
                           title: '${dic['homa.mint']} L$stakeSymbol',
-                          backgroundColor:
-                              env.totalStaking < env.stakingSoftCap!
-                                  ? null
-                                  : Color(0x54FFFFFF),
-                          onPressed: env.totalStaking < env.stakingSoftCap!
+                          backgroundColor: (env?.totalStaking ?? 0) <
+                                  (env?.stakingSoftCap ?? 0)
+                              ? null
+                              : Color(0x54FFFFFF),
+                          onPressed: (env?.totalStaking ?? 0) <
+                                  (env?.stakingSoftCap ?? 0)
                               ? () async {
                                   // if (!(await _confirmMint())) return;
 
                                   Navigator.of(context)
-                                      .pushNamed(MintPage.route, arguments: {
-                                    "isHomaAlive": _isHomaAlive
-                                  }).then((value) {
+                                      .pushNamed(MintPage.route)
+                                      .then((value) {
                                     if (value != null) {
                                       _refreshData();
                                     }

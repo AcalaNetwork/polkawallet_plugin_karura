@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapList.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/dexPoolList.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapForm.dart';
@@ -29,7 +30,6 @@ class _SwapPageState extends State<SwapPage> {
   int _tab = 0;
 
   bool _loading = true;
-  Timer? _waitNetworkTimer;
 
   Future<void> _updateData() async {
     if (widget.plugin.sdk.api.connectedNode != null) {
@@ -39,28 +39,7 @@ class _SwapPageState extends State<SwapPage> {
           _loading = false;
         });
       }
-    } else {
-      /// we need to re-fetch data with timer before wss connected
-      _waitNetworkTimer = new Timer(Duration(seconds: 3), _updateData);
     }
-  }
-
-  @override
-  void dispose() {
-    if (_waitNetworkTimer != null) {
-      _waitNetworkTimer?.cancel();
-    }
-
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _updateData();
-    });
   }
 
   @override
@@ -72,6 +51,7 @@ class _SwapPageState extends State<SwapPage> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
+          ConnectionChecker(widget.plugin, onConnected: _updateData),
           Container(
             width: MediaQuery.of(context).size.width,
             height: 240,

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapPage.dart';
@@ -54,10 +55,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
 
   TxFeeEstimateResult? _fee;
 
-  Timer? _waitNetworkTimer;
-
   Future<void> _refreshData() async {
     if (widget.plugin.sdk.api.connectedNode != null) {
+      _getTxFee();
+
       await widget.plugin.service!.earn.updateAllDexPoolInfo();
 
       final args = ModalRoute.of(context)!.settings.arguments as Map?;
@@ -82,9 +83,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           _refreshData();
         });
       }
-    } else {
-      /// we need to re-fetch data with timer before wss connected
-      _waitNetworkTimer = new Timer(Duration(seconds: 3), _refreshData);
     }
   }
 
@@ -349,24 +347,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _refreshData();
-      _getTxFee();
-    });
-  }
-
-  @override
   void dispose() {
     if (_timer != null) {
       _timer!.cancel();
       _timer = null;
-    }
-
-    if (_waitNetworkTimer != null) {
-      _waitNetworkTimer?.cancel();
     }
 
     _amountLeftCtrl.dispose();
@@ -390,7 +374,10 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               leading: BackBtn(),
             ),
             body: SafeArea(
-              child: ListView(children: [SwapSkeleton()]),
+              child: ListView(children: [
+                ConnectionChecker(widget.plugin, onConnected: _refreshData),
+                SwapSkeleton()
+              ]),
             ),
           );
         }

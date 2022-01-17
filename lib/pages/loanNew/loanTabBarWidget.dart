@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class LoanTabBarWidget extends StatefulWidget {
-  LoanTabBarWidget({required this.datas, Key? key}) : super(key: key);
-  final List<LoanTabBarWidgetData> datas;
+  LoanTabBarWidget({required this.data, this.initialTab, Key? key})
+      : super(key: key);
+  final List<LoanTabBarWidgetData> data;
+  final int? initialTab;
 
   @override
   _LoanTabBarWidgetState createState() => _LoanTabBarWidgetState();
@@ -12,13 +14,12 @@ class LoanTabBarWidget extends StatefulWidget {
 class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
   int _index = 0;
   int _min = 0, _max = 0;
-  bool _isTabBarOnClick = false;
   ItemScrollController _scrollController = ItemScrollController();
   ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   PageController _pageController = PageController();
 
   void onChange(int index) {
-    if (index >= widget.datas.length) {
+    if (index >= widget.data.length) {
       index = 0;
     }
 
@@ -30,6 +31,17 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
     });
     _pageController.animateToPage(index,
         duration: Duration(milliseconds: 500), curve: Curves.ease);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (widget.initialTab != null) {
+        onChange(widget.initialTab!);
+      }
+    });
   }
 
   @override
@@ -91,12 +103,11 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                 scrollDirection: Axis.horizontal,
                 itemScrollController: _scrollController,
                 itemPositionsListener: _itemPositionsListener,
-                itemCount: widget.datas.length,
+                itemCount: widget.data.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                       onTap: () {
                         onChange(index);
-                        _isTabBarOnClick = true;
                       },
                       child: Center(
                         child: Container(
@@ -113,7 +124,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                               Container(
                                   width: 30,
                                   height: 30,
-                                  child: widget.datas[index].icon),
+                                  child: widget.data[index].icon),
                               Container(
                                   width: 30,
                                   height: 30,
@@ -132,7 +143,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
           Expanded(
               child: PageView(
             physics: BouncingScrollPhysics(),
-            children: widget.datas
+            children: widget.data
                 .map((e) => Container(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: e.context,
@@ -140,11 +151,8 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                 .toList(),
             controller: _pageController,
             onPageChanged: (index) {
-              if (_isTabBarOnClick == false) {
+              if (index != _index) {
                 onChange(index);
-              }
-              if (index == _index) {
-                _isTabBarOnClick = false;
               }
             },
           ))

@@ -7,6 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
@@ -29,18 +30,17 @@ import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
-import 'package:polkawallet_ui/pages/txConfirmPage.dart';
-import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderThumbShape.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderTrackShape.dart';
+import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
-import 'package:wave/config.dart';
 import 'package:toast/toast.dart';
-
+import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class LoanPage extends StatefulWidget {
@@ -63,6 +63,7 @@ class _LoanPageState extends State<LoanPage> {
   final Map<String, double?> _collaterals = Map<String, double?>();
 
   Future<void> _fetchData() async {
+    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
     widget.plugin.service!.gov.updateBestNumber();
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
@@ -77,25 +78,6 @@ class _LoanPageState extends State<LoanPage> {
       widget.plugin.service!.loan
           .subscribeAccountLoans(widget.keyring.current.address);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      // todo: fix this after new acala online
-      final bool enabled = widget.plugin.basic.name == 'acala'
-          ? ModalRoute.of(context)!.settings.arguments as bool
-          : true;
-      if (enabled) {
-        _fetchData();
-      } else {
-        widget.plugin.store!.loan.setLoansLoading(false);
-      }
-    });
   }
 
   @override
@@ -223,6 +205,7 @@ class _LoanPageState extends State<LoanPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final args = ModalRoute.of(context)?.settings.arguments as Map?;
 
     return Observer(builder: (_) {
       final stableCoinDecimals = widget.plugin.networkState.tokenDecimals![
@@ -235,6 +218,16 @@ class _LoanPageState extends State<LoanPage> {
           widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0);
+
+      /// The initial tab index will be from arguments or user's vault.
+      int initialLoanTypeIndex = 0;
+      if (args != null && args['loanType'] != null) {
+        initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes
+            .indexWhere((e) => e.token?.tokenNameId == args['loanType']);
+      } else if (loans.length > 0) {
+        initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes.indexWhere(
+            (e) => e.token?.tokenNameId == loans[0].token?.tokenNameId);
+      }
 
       final headCardWidth = MediaQuery.of(context).size.width - 16 * 2 - 6 * 2;
       final headCardHeight = headCardWidth / 694 * 420;
@@ -259,14 +252,21 @@ class _LoanPageState extends State<LoanPage> {
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            margin: EdgeInsets.only(top: 20),
+            margin: EdgeInsets.only(top: 16),
             child: isDataLoading
-                ? Container(
-                    height: MediaQuery.of(context).size.width / 2,
-                    child: PluginLoadingWidget(),
+                ? Column(
+                    children: [
+                      ConnectionChecker(widget.plugin, onConnected: _fetchData),
+                      Container(
+                        height: MediaQuery.of(context).size.height / 2,
+                        child: PluginLoadingWidget(),
+                      )
+                    ],
                   )
                 : LoanTabBarWidget(
-                    datas: widget.plugin.store!.loan.loanTypes.map((e) {
+                    initialTab:
+                        initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
+                    data: widget.plugin.store!.loan.loanTypes.map((e) {
                       LoanData? loan = _editorLoans[e.token!.symbol];
                       if (loan == null) {
                         final _loans = loans.where(
@@ -536,8 +536,9 @@ class _LoanPageState extends State<LoanPage> {
                             ));
                       }
                       return LoanTabBarWidgetData(
-                          TokenIcon(e.token!.symbol!, widget.plugin.tokenIcons),
-                          child);
+                        TokenIcon(e.token!.symbol!, widget.plugin.tokenIcons),
+                        child,
+                      );
                     }).toList(),
                   ),
           ));
