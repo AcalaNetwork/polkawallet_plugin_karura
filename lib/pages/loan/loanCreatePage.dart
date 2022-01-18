@@ -88,8 +88,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     _checkAutoValidate();
   }
 
-  void _onAmount2Change(String value, LoanType loanType, int? stableCoinDecimals,
-      int? collateralDecimals) {
+  void _onAmount2Change(String value, LoanType loanType,
+      int? stableCoinDecimals, int? collateralDecimals) {
     String v = value.trim();
     if (v.isEmpty) return;
 
@@ -204,7 +204,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   }
 
   Future<void> _onSubmit(String pageTitle, LoanType loanType,
-      {required int stableCoinDecimals, required int collateralDecimals}) async {
+      {required int stableCoinDecimals,
+      required int collateralDecimals}) async {
     final params = _getTxParams(loanType,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
@@ -226,10 +227,18 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final tokenOptions = _getTokenOptions();
-      setState(() {
-        _token = tokenOptions[0];
-      });
+      final token =
+          ModalRoute.of(context)?.settings.arguments as TokenBalanceData?;
+      if (token != null) {
+        setState(() {
+          _token = token;
+        });
+      } else {
+        final tokenOptions = _getTokenOptions();
+        setState(() {
+          _token = tokenOptions[0];
+        });
+      }
     });
   }
 
@@ -355,8 +364,11 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                               TextInputType.numberWithOptions(decimal: true),
                           validator: (v) => _validateAmount2(v!, loanType,
                               maxToBorrow, balancePair[1]!.decimals),
-                          onChanged: (v) => _onAmount2Change(v, loanType,
-                              balancePair[1]!.decimals, balancePair[0]!.decimals),
+                          onChanged: (v) => _onAmount2Change(
+                              v,
+                              loanType,
+                              balancePair[1]!.decimals,
+                              balancePair[0]!.decimals),
                         ),
                       ],
                     ),

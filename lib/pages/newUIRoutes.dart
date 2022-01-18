@@ -8,13 +8,16 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 
 Map<String, WidgetBuilder> getNewUiRoutes(
     PluginKarura plugin, Keyring keyring) {
-  return {
-    //homa
-    HomaPage.route: (_) => HomaPage(plugin, keyring),
-    MintPage.route: (_) => MintPage(plugin, keyring),
-    RedeemPage.route: (_) => RedeemPage(plugin, keyring),
+  /// use new pages in testnet for now.
+  return (plugin.sdk.api.connectedNode?.name?.contains('dev') ?? false)
+      ? {
+          //homa
+          HomaPage.route: (_) => HomaPage(plugin, keyring),
+          MintPage.route: (_) => MintPage(plugin, keyring),
+          RedeemPage.route: (_) => RedeemPage(plugin, keyring),
 
-    //loan
-    LoanPage.route: (_) => LoanPage(plugin, keyring),
-  };
+          //loan
+          LoanPage.route: (_) => LoanPage(plugin, keyring),
+        }
+      : {};
 }

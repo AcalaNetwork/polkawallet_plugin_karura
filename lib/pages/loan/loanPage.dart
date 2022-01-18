@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
@@ -48,13 +49,18 @@ class LoanPage extends StatefulWidget {
 class _LoanPageState extends State<LoanPage> {
   int _tab = 0;
 
+  bool _autoRouteFinished = false;
+
   Future<void> _fetchData() async {
+    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
     widget.plugin.service!.gov.updateBestNumber();
+
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
 
-    final priceQueryTokens =
-        widget.plugin.store!.loan.loanTypes.map((e) => e.token!.symbol).toList();
+    final priceQueryTokens = widget.plugin.store!.loan.loanTypes
+        .map((e) => e.token!.symbol)
+        .toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
     widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
@@ -64,23 +70,26 @@ class _LoanPageState extends State<LoanPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      // todo: fix this after new acala online
-      final bool enabled = widget.plugin.basic.name == 'acala'
-          ? ModalRoute.of(context)!.settings.arguments as bool
-          : true;
-      if (enabled) {
-        _fetchData();
+  void _doAutoRoute(List<LoanData> loans, List<LoanType> loanTypes) async {
+    final isDataLoading =
+        widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+            // do not show loan card if collateralRatio was not calculated.
+            (loans.length > 0 && loans[0].collateralRatio <= 0);
+    if (!isDataLoading) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map;
+      final loanIndex =
+          loans.indexWhere((e) => e.token?.tokenNameId == args['loanType']);
+      if (loanIndex > -1) {
+        Navigator.of(context)
+            .pushNamed(LoanDetailPage.route, arguments: loans[loanIndex]);
       } else {
-        widget.plugin.store!.loan.setLoansLoading(false);
+        Navigator.of(context).pushNamed(LoanCreatePage.route,
+            arguments: loanTypes
+                .firstWhere((e) => e.token?.tokenNameId == args['loanType'])
+                .token);
       }
-    });
+      _autoRouteFinished = true;
+    }
   }
 
   @override
@@ -92,6 +101,8 @@ class _LoanPageState extends State<LoanPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final args = ModalRoute.of(context)?.settings.arguments as Map?;
+    final canAutoRoute = args != null && args['loanType'] != null;
 
     final stableCoinDecimals = widget.plugin.networkState.tokenDecimals![
         widget.plugin.networkState.tokenSymbol!.indexOf(karura_stable_coin)];
@@ -113,6 +124,12 @@ class _LoanPageState extends State<LoanPage> {
           incentiveTokenOptions.retainWhere((e) {
             final incentive = widget.plugin.store!.earn.incentives.loans![e];
             return incentive != null && (incentive[0].amount ?? 0) > 0;
+          });
+        }
+
+        if (canAutoRoute && !_autoRouteFinished) {
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            _doAutoRoute(loans, widget.plugin.store!.loan.loanTypes.toList());
           });
         }
 
@@ -140,6 +157,7 @@ class _LoanPageState extends State<LoanPage> {
                 widget.keyring.current,
                 Column(
                   children: <Widget>[
+                    ConnectionChecker(widget.plugin, onConnected: _fetchData),
                     Container(
                       margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
                       child: MainTabBar(
@@ -198,12 +216,15 @@ class _LoanPageState extends State<LoanPage> {
                                         .plugin.store!.earn.incentives.loans,
                                     rewards: widget
                                         .plugin.store!.loan.collateralRewards,
-                                    marketPrices:
-                                        widget.plugin.store!.assets.marketPrices,
+                                    marketPrices: widget
+                                        .plugin.store!.assets.marketPrices,
                                     collateralDecimals: stableCoinDecimals,
                                     incentiveTokenSymbol: incentiveTokenSymbol,
-                                    dexIncentiveLoyaltyEndBlock: widget.plugin
-                                        .store!.earn.dexIncentiveLoyaltyEndBlock,
+                                    dexIncentiveLoyaltyEndBlock: widget
+                                        .plugin
+                                        .store!
+                                        .earn
+                                        .dexIncentiveLoyaltyEndBlock,
                                   ),
                           ),
                     Visibility(
@@ -279,6 +300,8 @@ class LoanOverviewCard extends StatelessWidget {
                           : colorWarn
                       : colorDanger),
               borderRadius: 16,
+              borderWidth: 0,
+              borderColor: Colors.white,
               direction: Axis.vertical,
             ),
           ),

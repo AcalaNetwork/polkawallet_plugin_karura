@@ -157,7 +157,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                       widget.balance?.symbol ?? "",
                       TokenIcon(
                           widget.balance?.symbol ?? "", widget.tokenIconsMap!,
-                          small: true),
+                          size: 24),
                       textStyle: Theme.of(context).textTheme.headline4,
                       trailing: widget.onTokenChange != null
                           ? Icon(Icons.keyboard_arrow_down)

@@ -16,18 +16,10 @@ abstract class _HomaStore with Store {
   final StoreCache? cache;
 
   @observable
-  HomaLitePoolInfoData poolInfo = HomaLitePoolInfoData();
-
-  @observable
   HomaNewEnvData? env;
 
   @observable
   HomaPendingRedeemData? userInfo;
-
-  @action
-  void setHomaLitePoolInfoData(HomaLitePoolInfoData data) {
-    poolInfo = data;
-  }
 
   @action
   void setHomaEnv(HomaNewEnvData data) {

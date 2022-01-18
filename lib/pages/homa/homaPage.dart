@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/mintPage.dart';
@@ -49,14 +50,6 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      _refreshData();
-    });
-  }
-
-  @override
   void dispose() {
     if (_timer != null) {
       _timer!.cancel();
@@ -77,16 +70,38 @@ class _HomaPageState extends State<HomaPage> {
 
         final stakeSymbol = relay_chain_token_symbol;
 
-        final poolInfo = widget.plugin.store!.homa.poolInfo;
+        if (widget.plugin.sdk.api.connectedNode == null) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('${dic['homa.title']} $stakeSymbol'),
+              leading: BackBtn(),
+              actions: [
+                Container(
+                  margin: EdgeInsets.only(right: 16),
+                  child: v3.IconButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(HomaHistoryPage.route),
+                    icon: Icon(Icons.history, size: 18),
+                    isBlueBg: true,
+                  ),
+                )
+              ],
+            ),
+            body: Column(
+              children: [
+                ConnectionChecker(widget.plugin, onConnected: _refreshData),
+                Container(
+                  height: MediaQuery.of(context).size.width / 2,
+                  child: CupertinoActivityIndicator(),
+                )
+              ],
+            ),
+          );
+        }
+
         final env = widget.plugin.store!.homa.env;
-        final staked = env != null
-            ? BigInt.from(env.totalStaking)
-            : poolInfo.staked ?? BigInt.zero;
-        final cap = env != null
-            ? BigInt.from(env.stakingSoftCap!)
-            : poolInfo.cap ?? BigInt.zero;
-        final amountLeft = cap - staked;
-        final liquidTokenIssuance = poolInfo.liquidTokenIssuance ?? BigInt.zero;
+        final amountLeft =
+            (env?.stakingSoftCap ?? 0) - (env?.totalStaking ?? 0);
 
         final balances = AssetsUtils.getBalancePairFromTokenNameId(
             widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
@@ -94,14 +109,6 @@ class _HomaPageState extends State<HomaPage> {
             Fmt.balanceDouble(balances[0]!.amount!, balances[0]!.decimals!);
         final balanceLiquidToken =
             Fmt.balanceDouble(balances[1]!.amount!, balances[1]!.decimals!);
-        final exchangeRate = env != null
-            ? 1 / env.exchangeRate
-            : staked > BigInt.zero
-                ? ((poolInfo.liquidTokenIssuance ?? BigInt.zero) / staked)
-                : Fmt.balanceDouble(
-                    widget.plugin.networkConst['homaLite']
-                        ['defaultExchangeRate'],
-                    acala_price_decimals);
 
         final List<charts.Series> seriesList = [
           new charts.Series<num, int?>(
@@ -112,21 +119,13 @@ class _HomaPageState extends State<HomaPage> {
                 : charts.MaterialPalette.gray.shade100,
             measureFn: (num i, _) => i,
             data: [
-              staked.toDouble(),
-              (amountLeft > BigInt.zero ? amountLeft : BigInt.zero).toDouble(),
+              env?.totalStaking ?? 0,
+              amountLeft > 0 ? amountLeft : 0,
             ],
           )
         ];
 
         final nativeDecimal = decimals[symbols.indexOf(stakeSymbol)];
-
-        final minStake = env != null
-            ? env.mintThreshold
-            : (Fmt.balanceInt(widget
-                    .plugin.networkConst['homaLite']['minimumMintThreshold']
-                    .toString()) +
-                Fmt.balanceInt(widget.plugin.networkConst['homaLite']['mintFee']
-                    .toString()));
 
         final primary = Theme.of(context).primaryColor;
         final white = Theme.of(context).cardColor;
@@ -206,11 +205,7 @@ class _HomaPageState extends State<HomaPage> {
                                             style: TextStyle(fontSize: 12),
                                           ),
                                           Text(
-                                            env != null
-                                                ? Fmt.doubleFormat(
-                                                    env.totalStaking)
-                                                : Fmt.token(
-                                                    staked, nativeDecimal),
+                                            Fmt.doubleFormat(env?.totalStaking),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4,
@@ -223,10 +218,8 @@ class _HomaPageState extends State<HomaPage> {
                                             ),
                                           ),
                                           Text(
-                                            env != null
-                                                ? Fmt.doubleFormat(
-                                                    env.stakingSoftCap! * 1.0)
-                                                : Fmt.token(cap, nativeDecimal),
+                                            Fmt.doubleFormat(env?.stakingSoftCap
+                                                ?.toDouble()),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4,
@@ -237,7 +230,7 @@ class _HomaPageState extends State<HomaPage> {
                                   ],
                                 ),
                                 Text(
-                                  '1 KSM ≈ ${Fmt.priceFloor(exchangeRate, lengthMax: 4)} LKSM',
+                                  '1 KSM ≈ ${Fmt.priceFloor(1 / (env?.exchangeRate ?? 1), lengthMax: 4)} LKSM',
                                   style: TextStyle(fontSize: 12),
                                 ),
                                 Divider(height: 24),
@@ -247,8 +240,7 @@ class _HomaPageState extends State<HomaPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       title: dic['homa.pool.min'],
-                                      content:
-                                          '> ${env != null ? env.mintThreshold : Fmt.token(minStake as BigInt?, nativeDecimal)}',
+                                      content: '> ${env?.mintThreshold ?? 0}',
                                     ),
                                     InfoItem(
                                       crossAxisAlignment:
@@ -313,7 +305,7 @@ class _HomaPageState extends State<HomaPage> {
                                         ),
                                         InfoItem(
                                           title:
-                                              '≈ ${Fmt.priceFloor(balanceLiquidToken / exchangeRate, lengthMax: 4)} $stakeSymbol',
+                                              '≈ ${Fmt.priceFloor(balanceLiquidToken * (env?.exchangeRate ?? 1), lengthMax: 4)} $stakeSymbol',
                                           content: Fmt.priceFloor(
                                               balanceLiquidToken,
                                               lengthMax: 4),
@@ -330,7 +322,7 @@ class _HomaPageState extends State<HomaPage> {
                       ),
                     ),
                     Visibility(
-                        visible: liquidTokenIssuance >= BigInt.zero,
+                        visible: (env?.totalLiquidity ?? 0) > 0,
                         child: Row(
                           children: <Widget>[
                             Expanded(
@@ -353,7 +345,7 @@ class _HomaPageState extends State<HomaPage> {
                             ),
                             Expanded(
                               child: Container(
-                                color: staked < cap
+                                color: amountLeft > 0
                                     ? Theme.of(context).accentColor
                                     : Theme.of(context).disabledColor,
                                 child: TextButton(
@@ -361,7 +353,7 @@ class _HomaPageState extends State<HomaPage> {
                                     '${dic['homa.mint']} L$stakeSymbol',
                                     style: TextStyle(color: white),
                                   ),
-                                  onPressed: staked < cap
+                                  onPressed: amountLeft > 0
                                       ? () async {
                                           // if (!(await _confirmMint())) return;
 
@@ -546,27 +538,23 @@ class _HomaUserInfoCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                              dic['homa.claimable']! +
-                                  ' ($relay_chain_token_symbol)',
-                              style: labelStyle),
-                          Visibility(
-                            visible: claimable > 0,
-                            child: GestureDetector(
-                              child: Text(
-                                dic['homa.claim']!,
-                                style: linkStyle,
-                              ),
-                              onTap: () => _claimRedeem(context, claimable),
-                            ),
-                          )
-                        ],
-                      ),
+                      Text(
+                          dic['homa.claimable']! +
+                              ' ($relay_chain_token_symbol)',
+                          style: labelStyle),
                       Text(
                         Fmt.priceFloor(claimable, lengthMax: 4),
                         style: contentStyle,
+                      ),
+                      Visibility(
+                        visible: claimable > 0,
+                        child: GestureDetector(
+                          child: Text(
+                            dic['homa.claim']!,
+                            style: linkStyle,
+                          ),
+                          onTap: () => _claimRedeem(context, claimable),
+                        ),
                       )
                     ],
                   ),
