@@ -93,7 +93,8 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final NFTData? item = ModalRoute.of(context)!.settings.arguments as NFTData?;
+            final NFTData? item =
+                ModalRoute.of(context)!.settings.arguments as NFTData?;
             final list = widget.plugin.store!.assets.nft.toList();
             list.retainWhere((e) => e.classId == item!.classId);
 
@@ -181,7 +182,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                         );
                       }
                       return null;
-                    } as Future<TxConfirmParams> Function()?,
+                    },
                     onFinish: (res) {
                       if (res != null) {
                         Navigator.of(context).pop(res);

@@ -46,7 +46,6 @@ class _SwapPageState extends State<SwapPage> {
   Widget build(_) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
-    if (args != null && args['swapPair'] != null) {}
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(

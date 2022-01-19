@@ -40,7 +40,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
       final govDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov');
       final decimals = widget.plugin.networkState.tokenDecimals![0];
-      final Map args = ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
+      final args = ModalRoute.of(context)!.settings.arguments as Map;
       final ReferendumInfo? info = args['referenda'];
       final bool? voteYes = args['voteYes'];
       final bool isLock = args['isLock'];
@@ -63,7 +63,8 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
           txDisplay: {
             govDic["referenda"]: '#${info.index!.toInt()}',
             govDic["vote"]: voteYes! ? govDic['yes'] : govDic['no'],
-            dic!["amount"]: '$amt ${widget.plugin.networkState.tokenSymbol![0]}',
+            dic!["amount"]:
+                '$amt ${widget.plugin.networkState.tokenSymbol![0]}',
             '': _getConvictionLabel(_voteConviction),
           },
           params: [],
@@ -146,7 +147,8 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
           final balance = Fmt.balanceInt(
               widget.plugin.balances.native!.freeBalance.toString());
 
-          Map args = ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
+          Map args = ModalRoute.of(context)!.settings.arguments
+              as Map<dynamic, dynamic>;
           ReferendumInfo? info = args['referenda'];
           bool voteYes = args['voteYes'];
           return SafeArea(
@@ -207,7 +209,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                   child: TxButton(
                     text: I18n.of(context)!
                         .getDic(i18n_full_dic_ui, 'common')!['tx.submit'],
-                    getTxParams: _getTxParams as Future<TxConfirmParams> Function()?,
+                    getTxParams: _getTxParams,
                     onFinish: (res) {
                       if (res != null) {
                         Navigator.of(context).pop(res);

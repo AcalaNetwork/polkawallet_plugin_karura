@@ -164,6 +164,7 @@ class _HomaPageState extends State<HomaPage> {
               SafeArea(
                 child: Column(
                   children: <Widget>[
+                    ConnectionChecker(widget.plugin, onConnected: _refreshData),
                     Expanded(
                       child: ListView(
                         children: <Widget>[

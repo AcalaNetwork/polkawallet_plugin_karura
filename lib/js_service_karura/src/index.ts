@@ -16,7 +16,7 @@ send("log", "acala main js loaded");
 (<any>window).send = send;
 
 async function connectAll(nodes: string[]) {
-  return Promise.race(nodes.map(node => connect([node])));
+  return Promise.race(nodes.map((node) => connect([node])));
 }
 
 async function connect(nodes: string[]) {
@@ -34,12 +34,12 @@ async function connect(nodes: string[]) {
       if (!(<any>window).api) {
         (<any>window).api = res;
         // (<any>window).apiWallet = new WalletPromise(res);
-        const url = nodes[(<any>res)._options.provider.__private_16_endpointIndex];
+        const url = nodes[(<any>res)._options.provider.__private_9_endpointIndex];
         send("log", `${url} wss connected success`);
         resolve(url);
       } else {
         res.disconnect();
-        const url = nodes[(<any>res)._options.provider.__private_16_endpointIndex];
+        const url = nodes[(<any>res)._options.provider.__private_9_endpointIndex];
         send("log", `${url} wss success and disconnected`);
         resolve(url);
       }

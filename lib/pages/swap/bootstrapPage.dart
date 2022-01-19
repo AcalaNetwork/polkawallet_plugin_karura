@@ -435,7 +435,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                 margin: EdgeInsets.all(16),
                 child: TxButton(
                   text: dic['boot.provision.add'],
-                  getTxParams: _onSubmit as Future<TxConfirmParams> Function()?,
+                  getTxParams: _onSubmit,
                   onFinish: (res) {
                     if (res != null) {
                       _refreshKey.currentState!.show();
