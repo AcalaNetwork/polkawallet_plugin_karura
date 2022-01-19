@@ -85,7 +85,7 @@ const Map<String, String> enDex = {
   'loan.close': 'Close Vault',
   'loan.close.dex': 'Close Vault by Swapping Collateral',
   'loan.close.dex.info':
-      'Part of your collateral will be sold on Swap to pay back all outstanding kUSD. The remaining collateral will be returned to your account. Are you sure to proceed?',
+      'Part of your collateral will be sold on Swap to pay back all the minted kUSD. The remaining collateral will be returned to your account. Are you sure to continue?',
   'loan.close.receive': 'Estimated Receive',
   'txs.action': 'Action',
   'payback.small': 'The remaining debt is too small',
@@ -241,5 +241,10 @@ const Map<String, String> enDex = {
   'v3.homa.unbond': 'Unbond',
   'v3.homa.unbond.describe':
       'Redeem through unbond method will go through 28 eras (6 days approximately).',
-  'v3.selectRedeemMethod': 'Select redeem method'
+  'v3.selectRedeemMethod': 'Select redeem method',
+  'v3.maxCanMint': 'Max can mint',
+  'v3.minimumGenerate': 'Minimum generate',
+  'v3.loan.iUnderstand': 'I understand',
+  'v3.loan.paybackMessage':
+      'You have paid back all the minted kUSD while you still have collateral KSM.If you want to close the vault, you can withdraw all the collateral KSM at the same time.'
 };

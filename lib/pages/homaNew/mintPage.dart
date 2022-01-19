@@ -222,7 +222,10 @@ class _MintPageState extends State<MintPage> {
                         widget.plugin.store!.assets.tokenBalanceMap[stakeToken],
                     tokenIconsMap: widget.plugin.tokenIcons,
                   ),
-                  ErrorMessage(_error),
+                  ErrorMessage(
+                    _error,
+                    margin: EdgeInsets.symmetric(vertical: 2),
+                  ),
                   Visibility(visible: isLoading, child: PluginLoadingWidget()),
                   Visibility(
                       visible: _amountReceive.isNotEmpty &&

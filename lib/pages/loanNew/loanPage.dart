@@ -8,6 +8,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
+import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
@@ -31,6 +32,7 @@ import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
@@ -63,6 +65,8 @@ class _LoanPageState extends State<LoanPage> {
   final Map<String, LoanData?> _editorLoans = Map<String, LoanData?>();
   final Map<String, BigInt?> _collaterals = Map<String, BigInt?>();
   final Map<String, BigInt?> _debitsShares = Map<String, BigInt?>();
+
+  bool isInit = true;
 
   Future<void> _fetchData() async {
     widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
@@ -114,6 +118,24 @@ class _LoanPageState extends State<LoanPage> {
       return null;
     }
 
+    if (loan.type.debitShareToDebit(loan.debitShares) == BigInt.zero &&
+        loan.collaterals > BigInt.zero) {
+      final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+      await showCupertinoDialog(
+          context: context,
+          builder: (_) {
+            return CupertinoAlertDialog(
+              content: Text(dic!['v3.loan.iUnderstand']!),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text(dic['v3.loan.paybackMessage']!),
+                  onPressed: () => Navigator.of(context).pop(false),
+                )
+              ],
+            );
+          });
+    }
+
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         widget.plugin, [loan.token!.symbol, karura_stable_coin]);
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
@@ -150,8 +172,10 @@ class _LoanPageState extends State<LoanPage> {
         // pay less if less than 1 debit(aUSD) will be left,
         // make sure tx success by leaving more than 1 debit(aUSD).
         final debitValueOne = Fmt.tokenInt('1', stableCoinDecimals!);
-        if (loan.debits + debitSubtract > BigInt.zero &&
-            loan.debits + debitSubtract < debitValueOne) {
+        if (debits.abs() - loan.type.debitShareToDebit(debitSubtract).abs() >
+                BigInt.zero &&
+            debits.abs() - loan.type.debitShareToDebit(debitSubtract).abs() <
+                debitValueOne) {
           final bool canContinue =
               await (_confirmPaybackParams() as Future<bool>);
           if (!canContinue) return null;
@@ -160,7 +184,7 @@ class _LoanPageState extends State<LoanPage> {
         }
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(debits.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',
+        '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
         style: Theme.of(context).textTheme.headline1,
       );
     }
@@ -198,6 +222,102 @@ class _LoanPageState extends State<LoanPage> {
     return res;
   }
 
+  Future<SwapOutputData> _queryReceiveAmount(
+      BuildContext ctx, TokenBalanceData collateral, double debit) async {
+    return widget.plugin.api!.swap.queryTokenSwapAmount(
+      null,
+      debit.toStringAsFixed(2),
+      [
+        {...collateral.currencyId!, 'decimals': collateral.decimals},
+        {
+          'Token': karura_stable_coin,
+          'decimals': AssetsUtils.getBalanceFromTokenNameId(
+                  widget.plugin, karura_stable_coin)!
+              .decimals
+        }
+      ],
+      '0.01',
+    );
+  }
+
+  Future<void> _closeVault(
+      LoanData loan, int? collateralDecimal, double debit) async {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_ui, 'common');
+    SwapOutputData? output;
+    final confirmed = await showCupertinoDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return CupertinoAlertDialog(
+          title: Text(dic!['loan.close']!),
+          content: Column(
+            children: [
+              Text(dic['loan.close.dex.info']!),
+              Divider(),
+              FutureBuilder<SwapOutputData>(
+                future: _queryReceiveAmount(ctx, loan.token!, debit),
+                builder: (_, AsyncSnapshot<SwapOutputData> snapshot) {
+                  if (snapshot.hasData) {
+                    output = snapshot.data;
+                    final left = Fmt.bigIntToDouble(
+                            loan.collaterals, collateralDecimal!) -
+                        snapshot.data!.amount!;
+                    return InfoItemRow(dic['loan.close.receive']!,
+                        Fmt.priceFloor(left) + loan.token!.symbol!);
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            CupertinoButton(
+              child: Text(dicCommon!['cancel']!),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            CupertinoButton(
+              child: Text(dicCommon['ok']!),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed) {
+      final params = [
+        loan.token!.currencyId,
+        loan.collaterals.toString(),
+        output != null
+            ? output!.path!
+                .map((e) => AssetsUtils.getBalanceFromTokenNameId(
+                        widget.plugin, e['name'])!
+                    .currencyId)
+                .toList()
+            : null
+      ];
+
+      final isRuntimeOld = await widget.plugin.sdk.webView!.evalJavascript(
+          '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
+          wrapPromise: false);
+      final res = await Navigator.of(context).pushNamed(
+        TxConfirmPage.route,
+        arguments: TxConfirmParams(
+            module: 'honzon',
+            call: 'closeLoanHasDebitByDex',
+            txTitle: dic!['loan.close'],
+            txDisplay: {
+              'collateral': loan.token!.symbol,
+              'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
+            },
+            params: isRuntimeOld ? params : params.sublist(0, 2)),
+      );
+      if (res != null) {
+        Navigator.of(context).pop(res);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
@@ -210,10 +330,12 @@ class _LoanPageState extends State<LoanPage> {
       final loans = widget.plugin.store!.loan.loans.values.toList();
       loans.retainWhere((loan) =>
           loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-      final isDataLoading =
-          widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+      final isDataLoading = isInit
+          ? true
+          : widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0);
+      isInit = false;
 
       /// The initial tab index will be from arguments or user's vault.
       int initialLoanTypeIndex = 0;
@@ -271,7 +393,8 @@ class _LoanPageState extends State<LoanPage> {
                         _editorLoans[e.token!.symbol!] = loan;
                       }
                       Widget child = CreateVaultWidget(onPressed: () {
-                        Navigator.of(context).pushNamed(LoanCreatePage.route);
+                        Navigator.of(context).pushNamed(LoanCreatePage.route,
+                            arguments: e.token);
                       });
                       if (loan != null) {
                         final balancePair =
@@ -435,15 +558,22 @@ class _LoanPageState extends State<LoanPage> {
                                     ],
                                   ),
                                 ),
-                                Padding(
-                                    padding: EdgeInsets.only(bottom: 5),
-                                    child: Text(dic['loan.close.dex']!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline6
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontSize: 10))),
+                                GestureDetector(
+                                  child: Padding(
+                                      padding: EdgeInsets.only(bottom: 5),
+                                      child: Text(dic['loan.close.dex']!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline6
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: 10))),
+                                  onTap: () => _closeVault(
+                                      loan!,
+                                      balancePair[0]!.decimals,
+                                      Fmt.bigIntToDouble(loan.debits,
+                                          balancePair[1]!.decimals!)),
+                                ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -548,7 +678,7 @@ class _LoanPageState extends State<LoanPage> {
         ? loan.collaterals - loan.requiredCollateral
         : BigInt.zero;
     final availableView =
-        "${Fmt.priceFloorBigInt(available, balancePair[0]!.decimals!, lengthMax: 7)}${loan.token!.symbol}";
+        "${Fmt.priceFloorBigInt(available, balancePair[0]!.decimals!, lengthMax: 4)}${loan.token!.symbol}";
     var availableViewRight = 3 / 347 * headCardWidth +
         85 / 347 * headCardWidth -
         PluginFmt.boundingTextSize(

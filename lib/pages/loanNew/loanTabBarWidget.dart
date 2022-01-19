@@ -17,6 +17,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
   ItemScrollController _scrollController = ItemScrollController();
   ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   PageController _pageController = PageController();
+  bool _isTabBarOnClick = false;
 
   void onChange(int index) {
     if (index >= widget.data.length) {
@@ -108,6 +109,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                   return GestureDetector(
                       onTap: () {
                         onChange(index);
+                        _isTabBarOnClick = true;
                       },
                       child: Center(
                         child: Container(
@@ -151,8 +153,11 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                 .toList(),
             controller: _pageController,
             onPageChanged: (index) {
-              if (index != _index) {
+              if (_isTabBarOnClick == false && index != _index) {
                 onChange(index);
+              }
+              if (index == _index) {
+                _isTabBarOnClick = false;
               }
             },
           ))

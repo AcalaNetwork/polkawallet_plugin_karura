@@ -144,7 +144,7 @@ class _HomaPageState extends State<HomaPage> {
       final stakeSymbol = relay_chain_token_symbol;
 
       if (widget.plugin.sdk.api.connectedNode == null) {
-        return Scaffold(
+        return PluginScaffold(
           appBar: PluginAppBar(
             title: Text('${dic['homa.title']} $stakeSymbol'),
             actions: [
@@ -199,6 +199,11 @@ class _HomaPageState extends State<HomaPage> {
           height: 0.9,
           color: Colors.white);
 
+      final redeemRequest = Fmt.balanceDouble(
+          (widget.plugin.store?.homa.userInfo?.redeemRequest ?? {})['amount'] ??
+              '0',
+          balances[0]!.decimals!);
+
       return PluginScaffold(
         appBar: PluginAppBar(
           title: Text('${dic['homa.title']} $stakeSymbol'),
@@ -224,6 +229,7 @@ class _HomaPageState extends State<HomaPage> {
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
             child: Column(
               children: [
+                ConnectionChecker(widget.plugin, onConnected: _refreshData),
                 Expanded(
                     child: SingleChildScrollView(
                         child: Stack(
@@ -318,7 +324,7 @@ class _HomaPageState extends State<HomaPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'APR',
+                                'APY',
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline4
@@ -416,6 +422,7 @@ class _HomaPageState extends State<HomaPage> {
                             ),
                             Container(
                               width: double.infinity,
+                              margin: EdgeInsets.only(bottom: 16),
                               padding: EdgeInsets.only(
                                   left: 11, top: 16, bottom: 20),
                               decoration: BoxDecoration(
@@ -600,6 +607,36 @@ class _HomaPageState extends State<HomaPage> {
                                   ))
                                 ],
                               ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                        padding: EdgeInsets.only(right: 8),
+                                        child: RedeemRequestIcon()),
+                                    Text(
+                                      dic['homa.RedeemRequest']!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4
+                                          ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600),
+                                    )
+                                  ],
+                                ),
+                                Text(
+                                  "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} $stakeSymbol",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline4
+                                      ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w400),
+                                )
+                              ],
                             )
                           ],
                         ),
@@ -653,5 +690,55 @@ class _HomaPageState extends State<HomaPage> {
             )),
       );
     });
+  }
+}
+
+class RedeemRequestIcon extends StatefulWidget {
+  RedeemRequestIcon({Key? key}) : super(key: key);
+
+  @override
+  _RedeemRequestIconState createState() => _RedeemRequestIconState();
+}
+
+class _RedeemRequestIconState extends State<RedeemRequestIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Function(AnimationStatus) _listener;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000));
+    _controller.forward();
+
+    _listener = (status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reset();
+        _controller.forward();
+      }
+    };
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeStatusListener(_listener);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20,
+      height: 20,
+      child: RotationTransition(
+        child: Image.asset(
+          "packages/polkawallet_plugin_karura/assets/images/homa_redeem_request.png",
+          width: 20,
+        ),
+        turns: _controller..addStatusListener(_listener),
+      ),
+    );
   }
 }

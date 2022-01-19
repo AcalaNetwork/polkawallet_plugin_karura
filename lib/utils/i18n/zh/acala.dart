@@ -224,5 +224,10 @@ const Map<String, String> zhDex = {
   'dex.swap.describe': '通过【兑换】进行提取将收取交易费',
   'v3.homa.unbond': '解绑',
   'v3.homa.unbond.describe': '通过【解绑】进行提取将经历28个era（大概6天）',
-  'v3.selectRedeemMethod': '选择提取方式'
+  'v3.selectRedeemMethod': '选择提取方式',
+  'v3.maxCanMint': '最大可生成',
+  'v3.minimumGenerate': '最小生成',
+  'v3.loan.iUnderstand': '我明白了',
+  'v3.loan.paybackMessage':
+      '您已经销毁了所有已铸造的 kUSD，但是你仍然有已抵押的 KSM。如果您想关闭债仓，您可以同时提取所有抵押的 KSM。'
 };

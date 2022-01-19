@@ -349,7 +349,8 @@ class _RedeemPageState extends State<RedeemPage> {
                       ],
                     ),
                   ),
-                  ErrorMessage(_error),
+                  ErrorMessage(_error,
+                      margin: EdgeInsets.symmetric(vertical: 2)),
                   Visibility(visible: isLoading, child: PluginLoadingWidget()),
                   Column(
                     children: [
