@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +61,8 @@ class _LoanPageState extends State<LoanPage> {
   final colorDanger = [Color(0xFFE3542E), Color(0xCCF27863)];
 
   final Map<String, LoanData?> _editorLoans = Map<String, LoanData?>();
-  final Map<String, double?> _collaterals = Map<String, double?>();
+  final Map<String, BigInt?> _collaterals = Map<String, BigInt?>();
+  final Map<String, BigInt?> _debitsShares = Map<String, BigInt?>();
 
   Future<void> _fetchData() async {
     widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
@@ -104,15 +106,8 @@ class _LoanPageState extends State<LoanPage> {
   }
 
   Future<Map?> _getTxParams(LoanData loan, int? stableCoinDecimals) async {
-    final loans = widget.plugin.store!.loan.loans.values.toList();
-    loans.retainWhere(
-        (loan) => loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-
-    final originalLoan =
-        loans.where((data) => data.token!.symbol == loan.token!.symbol).first;
-
-    final collaterals = loan.collaterals - originalLoan.collaterals;
-    final debitShares = loan.debitShares - originalLoan.debitShares;
+    final collaterals = loan.collaterals - _collaterals[loan.token!.symbol]!;
+    final debitShares = loan.debitShares - _debitsShares[loan.token!.symbol]!;
     final debits = loan.type.debitShareToDebit(debitShares);
 
     if (collaterals == BigInt.zero && debitShares == BigInt.zero) {
@@ -138,7 +133,8 @@ class _LoanPageState extends State<LoanPage> {
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
       debitSubtract = loan.type.debitToDebitShare(
-          originalLoan.debits == BigInt.zero &&
+          loan.type.debitShareToDebit(_debitsShares[loan.token!.symbol]!) ==
+                      BigInt.zero &&
                   debits <= loan.type.minimumDebitValue
               ? (loan.type.minimumDebitValue + BigInt.from(10000))
               : debits);
@@ -291,19 +287,11 @@ class _LoanPageState extends State<LoanPage> {
                             balanceBigInt, balancePair[0]!.decimals!);
 
                         if (_collaterals[e.token!.symbol] == null) {
-                          _collaterals[e.token!.symbol!] = Fmt.bigIntToDouble(
-                              loan.collaterals, balancePair[0]!.decimals!);
+                          _collaterals[e.token!.symbol!] = loan.collaterals;
                         }
-
-                        final loans =
-                            widget.plugin.store!.loan.loans.values.toList();
-                        loans.retainWhere((loan) =>
-                            loan.debits > BigInt.zero ||
-                            loan.collaterals > BigInt.zero);
-                        final originalLoan = loans
-                            .where((data) =>
-                                data.token!.symbol == loan!.token!.symbol)
-                            .first;
+                        if (_debitsShares[e.token!.symbol] == null) {
+                          _debitsShares[e.token!.symbol!] = loan.debitShares;
+                        }
 
                         final debits = Fmt.bigIntToDouble(
                             loan.debits, balancePair[1]!.decimals!);
@@ -319,11 +307,14 @@ class _LoanPageState extends State<LoanPage> {
                             Fmt.balanceInt(balancePair[1]!.amount);
 
                         final collateralsValue =
-                            loan.collaterals - originalLoan.collaterals;
+                            loan.collaterals - _collaterals[e.token!.symbol!]!;
                         final debitsSharesValue =
-                            loan.debitShares - originalLoan.debitShares;
+                            loan.debitShares - _debitsShares[e.token!.symbol!]!;
                         final debitsValue =
                             loan.type.debitShareToDebit(debitsSharesValue);
+
+                        final originalDebitsValue = loan.type.debitShareToDebit(
+                            _debitsShares[e.token!.symbol!]!);
 
                         child = SingleChildScrollView(
                             physics: BouncingScrollPhysics(),
@@ -353,9 +344,10 @@ class _LoanPageState extends State<LoanPage> {
                                       LoanCollateral(
                                         title:
                                             '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
-                                        maxNumber:
-                                            _collaterals[e.token!.symbol]! +
-                                                balance,
+                                        maxNumber: Fmt.bigIntToDouble(
+                                                _collaterals[e.token!.symbol]!,
+                                                balancePair[0]!.decimals!) +
+                                            balance,
                                         minNumber: Fmt.bigIntToDouble(
                                             loan.requiredCollateral,
                                             balancePair[0]!.decimals!),
@@ -402,10 +394,10 @@ class _LoanPageState extends State<LoanPage> {
                                                 '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
                                             maxNumber: maxToBorrow,
                                             minNumber: balanceStableCoin >
-                                                    loan.debits
+                                                    originalDebitsValue
                                                 ? 0
                                                 : Fmt.bigIntToDouble(
-                                                    loan.debits -
+                                                    originalDebitsValue -
                                                         balanceStableCoin,
                                                     balancePair[1]!.decimals!),
                                             subtitleLeft: dic['loan.payback']!,
@@ -924,7 +916,6 @@ class _LoanCollateralState extends State<LoanCollateral> {
                     child: Slider(
                       min: widget.minNumber,
                       max: widget.maxNumber,
-                      divisions: 100,
                       value: _value,
                       onChanged: (value) {
                         setState(() {
