@@ -361,7 +361,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             ),
                           )),
                       PluginTagCard(
-                        titleTag: "Amout",
+                        titleTag: dic['v3.earn.amout'],
                         padding: EdgeInsets.only(
                             top: 14, bottom: 16, right: 14, left: 23),
                         margin: EdgeInsets.only(top: 16),
@@ -480,7 +480,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             ]),
                       ),
                       PluginTagCard(
-                        titleTag: "Token Received",
+                        titleTag: dic['v3.earn.tokenReceived']!,
                         padding: EdgeInsets.symmetric(vertical: 19),
                         margin: EdgeInsets.only(top: 16),
                         child: Row(

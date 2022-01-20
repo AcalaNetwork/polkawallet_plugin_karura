@@ -192,7 +192,7 @@ class _DexPoolCard extends StatelessWidget {
                     child: PluginOutlinedButtonSmall(
                       content: dic['dex.removeLiquidity'],
                       color: Colors.white,
-                      active: false,
+                      active: true,
                       padding: EdgeInsets.only(top: 8, bottom: 8),
                       onPressed: () => Navigator.of(context).pushNamed(
                           WithdrawLiquidityPage.route,

@@ -503,10 +503,21 @@ class _SwapFormState extends State<SwapForm> {
               PluginInputBalance(
                 margin: EdgeInsets.only(bottom: 7),
                 inputCtrl: _amountPayCtrl,
-                // titleTag: dic['dex.pay'],
-                marketPrice: widget
-                    .plugin.store!.assets.marketPrices[balancePair[0]!.symbol],
+                tokenOptions: currencyOptionsLeft,
+                tokenSelectTitle: 'Select Collateral',
+                marketPrices: widget.plugin.store!.assets.marketPrices,
                 onInputChange: _onSupplyAmountChange,
+                onTokenChange: (token) {
+                  setState(() {
+                    _swapPair = token.tokenNameId == swapPair[1]
+                        ? [token.tokenNameId, swapPair[0]]
+                        : [token.tokenNameId, swapPair[1]];
+                    _maxInput = null;
+                  });
+                  widget.plugin.store!.swap
+                      .setSwapPair(_swapPair, widget.keyring.current.pubKey);
+                  _updateSwapAmount();
+                },
                 // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
                 //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
                 //         nativeKeepAlive: nativeKeepAlive)
@@ -520,8 +531,48 @@ class _SwapFormState extends State<SwapForm> {
                 balance: balancePair[0],
                 tokenIconsMap: widget.plugin.tokenIcons,
               ),
+              GestureDetector(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8, 10, 8, 0),
+                  child: Icon(
+                    Icons.arrow_downward,
+                    color: Theme.of(context).primaryColor,
+                    size: 18,
+                  ),
+                ),
+                onTap: _swapPair.length > 1 ? () => _switchPair() : null,
+              ),
+              PluginInputBalance(
+                inputCtrl: _amountReceiveCtrl,
+                tokenOptions: currencyOptionsRight,
+                marketPrices: widget.plugin.store!.assets.marketPrices,
+                onInputChange: _onTargetAmountChange,
+                onTokenChange: (token) {
+                  setState(() {
+                    _swapPair = token.tokenNameId == swapPair[0]
+                        ? [swapPair[1], token.tokenNameId]
+                        : [swapPair[0], token.tokenNameId];
+                    _maxInput = null;
+                  });
+                  widget.plugin.store!.swap
+                      .setSwapPair(_swapPair, widget.keyring.current.pubKey);
+                  _updateSwapAmount();
+                },
+                // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
+                //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
+                //         nativeKeepAlive: nativeKeepAlive)
+                //     : null,
+                onClear: () {
+                  setState(() {
+                    _maxInput = null;
+                    _amountReceiveCtrl.text = '';
+                  });
+                },
+                balance: balancePair[1],
+                tokenIconsMap: widget.plugin.tokenIcons,
+              ),
               ErrorMessage(
-                _error,
+                _error ?? _errorReceive,
                 margin: EdgeInsets.symmetric(vertical: 2),
               ),
               RoundedCard(

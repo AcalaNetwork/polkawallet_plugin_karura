@@ -538,7 +538,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                             children: <Widget>[
                               Expanded(
                                 child: Text(
-                                  "LP Token received",
+                                  dic['v3.earn.lpTokenReceived']!,
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline4

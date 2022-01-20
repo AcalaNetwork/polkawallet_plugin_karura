@@ -246,5 +246,8 @@ const Map<String, String> enDex = {
   'v3.minimumGenerate': 'Minimum generate',
   'v3.loan.iUnderstand': 'I understand',
   'v3.loan.paybackMessage':
-      'You have paid back all the minted kUSD while you still have collateral KSM.If you want to close the vault, you can withdraw all the collateral KSM at the same time.'
+      'You have paid back all the minted kUSD while you still have collateral KSM.If you want to close the vault, you can withdraw all the collateral KSM at the same time.',
+  'v3.earn.lpTokenReceived': 'LP Token received',
+  'v3.earn.amout': 'Amout',
+  'v3.earn.tokenReceived': 'Token received',
 };

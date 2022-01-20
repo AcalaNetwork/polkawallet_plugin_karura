@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class LoanTabBarWidget extends StatefulWidget {
-  LoanTabBarWidget({required this.data, this.initialTab, Key? key})
+  LoanTabBarWidget(
+      {required this.data, this.initialTab, this.onChange, Key? key})
       : super(key: key);
   final List<LoanTabBarWidgetData> data;
   final int? initialTab;
+  final Function(int)? onChange;
 
   @override
   _LoanTabBarWidgetState createState() => _LoanTabBarWidgetState();
@@ -32,6 +34,9 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
     });
     _pageController.animateToPage(index,
         duration: Duration(milliseconds: 500), curve: Curves.ease);
+    if (widget.onChange != null) {
+      widget.onChange!(_index);
+    }
   }
 
   @override

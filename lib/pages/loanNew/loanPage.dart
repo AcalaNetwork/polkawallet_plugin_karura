@@ -62,9 +62,9 @@ class _LoanPageState extends State<LoanPage> {
   final colorWarn = [Color(0xFFE59831), Color(0xCCFFD479)];
   final colorDanger = [Color(0xFFE3542E), Color(0xCCF27863)];
 
-  final Map<String, LoanData?> _editorLoans = Map<String, LoanData?>();
-  final Map<String, BigInt?> _collaterals = Map<String, BigInt?>();
-  final Map<String, BigInt?> _debitsShares = Map<String, BigInt?>();
+  Map<String, LoanData?> _editorLoans = Map<String, LoanData?>();
+  Map<String, BigInt?> _collaterals = Map<String, BigInt?>();
+  Map<String, BigInt?> _debitsShares = Map<String, BigInt?>();
 
   bool isInit = true;
 
@@ -84,6 +84,12 @@ class _LoanPageState extends State<LoanPage> {
       widget.plugin.service!.loan
           .subscribeAccountLoans(widget.keyring.current.address);
     }
+
+    Future.delayed(Duration(milliseconds: 500), () {
+      _editorLoans = Map<String, LoanData?>();
+      _collaterals = Map<String, BigInt?>();
+      _debitsShares = Map<String, BigInt?>();
+    });
   }
 
   @override
@@ -105,7 +111,14 @@ class _LoanPageState extends State<LoanPage> {
           params: params['params'],
         ))) as Map?;
     if (res != null) {
-      Navigator.of(context).pop(res);
+      Future.delayed(Duration(milliseconds: 500), () {
+        setState(() {
+          _editorLoans = Map<String, LoanData?>();
+          _collaterals = Map<String, BigInt?>();
+          _debitsShares = Map<String, BigInt?>();
+          _fetchData();
+        });
+      });
     }
   }
 
@@ -125,10 +138,10 @@ class _LoanPageState extends State<LoanPage> {
           context: context,
           builder: (_) {
             return CupertinoAlertDialog(
-              content: Text(dic!['v3.loan.iUnderstand']!),
+              content: Text(dic!['v3.loan.paybackMessage']!),
               actions: <Widget>[
                 CupertinoDialogAction(
-                  child: Text(dic['v3.loan.paybackMessage']!),
+                  child: Text(dic['v3.loan.iUnderstand']!),
                   onPressed: () => Navigator.of(context).pop(false),
                 )
               ],
@@ -154,12 +167,13 @@ class _LoanPageState extends State<LoanPage> {
     BigInt debitSubtract = debitShares;
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
-      debitSubtract = loan.type.debitToDebitShare(
+      debitSubtract =
           loan.type.debitShareToDebit(_debitsShares[loan.token!.symbol]!) ==
                       BigInt.zero &&
                   debits <= loan.type.minimumDebitValue
-              ? (loan.type.minimumDebitValue + BigInt.from(10000))
-              : debits);
+              ? loan.type.debitToDebitShare(
+                  (loan.type.minimumDebitValue + BigInt.from(10000)))
+              : debitShares;
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
 
@@ -172,9 +186,15 @@ class _LoanPageState extends State<LoanPage> {
         // pay less if less than 1 debit(aUSD) will be left,
         // make sure tx success by leaving more than 1 debit(aUSD).
         final debitValueOne = Fmt.tokenInt('1', stableCoinDecimals!);
-        if (debits.abs() - loan.type.debitShareToDebit(debitSubtract).abs() >
+        if (loan.type.debitShareToDebit(debits).abs() -
+                    loan.type
+                        .debitShareToDebit(_debitsShares[loan.token!.symbol]!)
+                        .abs() >
                 BigInt.zero &&
-            debits.abs() - loan.type.debitShareToDebit(debitSubtract).abs() <
+            loan.type.debitShareToDebit(debits).abs() -
+                    loan.type
+                        .debitShareToDebit(_debitsShares[loan.token!.symbol]!)
+                        .abs() <
                 debitValueOne) {
           final bool canContinue =
               await (_confirmPaybackParams() as Future<bool>);
