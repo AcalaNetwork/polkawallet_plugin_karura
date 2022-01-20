@@ -7,7 +7,9 @@ import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/graphql.dart';
@@ -33,9 +35,21 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           //loan
           LoanPage.route: (_) => LoanPage(plugin, keyring),
           LoanCreatePage.route: (_) => LoanCreatePage(plugin, keyring),
+          LoanHistoryPage.route: (_) => ClientProvider(
+                child: Builder(
+                  builder: (_) => LoanHistoryPage(plugin, keyring),
+                ),
+                uri: GraphQLConfig['httpUri']!,
+              ),
 
           //swap
           SwapPage.route: (_) => SwapPage(plugin, keyring),
+          SwapHistoryPage.route: (_) => ClientProvider(
+                child: Builder(
+                  builder: (_) => SwapHistoryPage(plugin, keyring),
+                ),
+                uri: GraphQLConfig['httpUri']!,
+              ),
 
           //earn
           AddLiquidityPage.route: (_) => AddLiquidityPage(plugin, keyring),

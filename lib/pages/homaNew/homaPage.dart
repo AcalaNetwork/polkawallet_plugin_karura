@@ -608,36 +608,39 @@ class _HomaPageState extends State<HomaPage> {
                                 ],
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
+                            Padding(
+                                padding: EdgeInsets.only(bottom: 16),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Padding(
-                                        padding: EdgeInsets.only(right: 8),
-                                        child: RedeemRequestIcon()),
+                                    Row(
+                                      children: [
+                                        Padding(
+                                            padding: EdgeInsets.only(right: 8),
+                                            child: RedeemRequestIcon()),
+                                        Text(
+                                          dic['homa.RedeemRequest']!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                        )
+                                      ],
+                                    ),
                                     Text(
-                                      dic['homa.RedeemRequest']!,
+                                      "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} $stakeSymbol",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline4
                                           ?.copyWith(
                                               color: Colors.white,
-                                              fontWeight: FontWeight.w600),
+                                              fontWeight: FontWeight.w400),
                                     )
                                   ],
-                                ),
-                                Text(
-                                  "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} $stakeSymbol",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w400),
-                                )
-                              ],
-                            )
+                                ))
                           ],
                         ),
                       ),

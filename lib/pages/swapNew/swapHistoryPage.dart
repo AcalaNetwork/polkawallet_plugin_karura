@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
-import 'package:polkawallet_plugin_karura/pages/homa/homaTxDetailPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swap/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -15,19 +15,18 @@ import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
-class HomaHistoryPage extends StatelessWidget {
-  HomaHistoryPage(this.plugin, this.keyring);
+class SwapHistoryPage extends StatelessWidget {
+  SwapHistoryPage(this.plugin, this.keyring);
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static const String route = '/karura/homa/txs';
+  static const String route = '/karura/swap/txs';
 
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final symbols = plugin.networkState.tokenSymbol;
     final decimals = plugin.networkState.tokenDecimals;
-    final symbol = relay_chain_token_symbol;
     return PluginScaffold(
       appBar: PluginAppBar(
         title: Text(dic['loan.txs']!),
@@ -36,7 +35,7 @@ class HomaHistoryPage extends StatelessWidget {
       body: SafeArea(
         child: Query(
           options: QueryOptions(
-            document: gql(homaQuery),
+            document: gql(swapQuery),
             variables: <String, String?>{
               'account': keyring.current.address,
             },
@@ -55,17 +54,9 @@ class HomaHistoryPage extends StatelessWidget {
                 ),
               );
             }
-
-            final list = List.of(result.data!['homaActions']['nodes'])
-                .map((i) =>
-                    TxHomaData.fromJson((i as Map) as Map<String, dynamic>))
+            final list = List.of(result.data!['dexActions']['nodes'])
+                .map((i) => TxSwapData.fromJson(i as Map, plugin))
                 .toList();
-            list.removeWhere((e) =>
-                e.action == TxHomaData.actionRedeemed &&
-                e.amountReceive == BigInt.zero);
-
-            final nativeDecimal = decimals![symbols!.indexOf(symbol)];
-            final liquidDecimal = decimals[symbols.indexOf('L$symbol')];
 
             return ListView.builder(
               itemCount: list.length + 1,
@@ -74,34 +65,22 @@ class HomaHistoryPage extends StatelessWidget {
                   return ListTail(isEmpty: list.length == 0, isLoading: false);
                 }
 
-                final detail = list[i];
-
-                String amountTail = '';
-                String amountTitle = '';
-                TransferIconType type = TransferIconType.redeem;
-
+                final TxSwapData detail = list[i];
+                TransferIconType type = TransferIconType.swap;
                 switch (detail.action) {
-                  case TxHomaData.actionMint:
-                    type = TransferIconType.mint;
-                    amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                  case "removeLiquidity":
+                    type = TransferIconType.remove_liquidity;
                     break;
-                  case TxHomaData.actionRedeem:
-                    amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} $symbol';
+                  case "addProvision":
+                    type = TransferIconType.add_provision;
                     break;
-                  case TxHomaData.actionRedeemed:
-                  case TxHomaData.actionRedeemedByFastMatch:
-                  case TxHomaData.actionRedeemedByUnbond:
-                  case TxHomaData.actionWithdrawRedemption:
-                    amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                  case "addLiquidity":
+                    type = TransferIconType.add_liquidity;
                     break;
-                  case TxHomaData.actionRedeemCancel:
-                    amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} $symbol';
+                  case "swap":
+                    type = TransferIconType.swap;
+                    break;
                 }
-
                 return Container(
                   decoration: BoxDecoration(
                     color: Color(0x14ffffff),
@@ -115,7 +94,7 @@ class HomaHistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${dic['homa.${detail.action}']} $amountTitle',
+                          dic['dex.${detail.action}']!,
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -123,7 +102,8 @@ class HomaHistoryPage extends StatelessWidget {
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                         ),
-                        Text(amountTail,
+                        Text(
+                            '${dic['dex.${detail.action}']!} ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountPay!), decimals![symbols!.indexOf(detail.tokenReceive!)])} ${PluginFmt.tokenView(detail.tokenReceive)} for ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountReceive!), decimals[symbols.indexOf(detail.tokenPay!)])} ${PluginFmt.tokenView(detail.tokenPay)}',
                             textAlign: TextAlign.end,
                             style: Theme.of(context)
                                 .textTheme
@@ -138,10 +118,19 @@ class HomaHistoryPage extends StatelessWidget {
                             .textTheme
                             .headline5
                             ?.copyWith(color: Colors.white, fontSize: 10)),
-                    leading:
-                        TransferIcon(type: type, bgColor: Color(0x57FFFFFF)),
-                    onTap: () => Navigator.of(context)
-                        .pushNamed(HomaTxDetailPage.route, arguments: detail),
+                    leading: TransferIcon(
+                        type:
+                            detail.isSuccess! ? type : TransferIconType.failure,
+                        bgColor: detail.isSuccess!
+                            ? Color(0x57FFFFFF)
+                            : Color(0xFFD7D7D7)),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        SwapDetailPage.route,
+                        arguments: detail,
+                      );
+                    },
                   ),
                 );
               },
