@@ -117,13 +117,15 @@ class _DexPoolCard extends StatelessWidget {
     final tokenPairView =
         balancePair.map((e) => PluginFmt.tokenView(e!.symbol)).join('-');
 
-    BigInt? amountLeft;
-    BigInt? amountRight;
+    double? amountLeft;
+    double? amountRight;
     double ratio = 0;
     if (poolAmount != null) {
-      amountLeft = Fmt.balanceInt(poolAmount![0].toString());
-      amountRight = Fmt.balanceInt(poolAmount![1].toString());
-      ratio = amountLeft > BigInt.zero ? amountRight / amountLeft : 0;
+      amountLeft = Fmt.balanceDouble(
+          poolAmount![0].toString(), balancePair[0]!.decimals!);
+      amountRight = Fmt.balanceDouble(
+          poolAmount![1].toString(), balancePair[1]!.decimals!);
+      ratio = amountLeft > 0 ? amountRight / amountLeft : 0;
     }
 
     return RoundedCard(
@@ -157,18 +159,14 @@ class _DexPoolCard extends StatelessWidget {
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   title: PluginFmt.tokenView(balancePair[0]!.symbol),
-                  content: amountLeft == null
-                      ? '--'
-                      : Fmt.priceFloorBigInt(
-                          amountLeft, balancePair[0]!.decimals!),
+                  content:
+                      amountLeft == null ? '--' : Fmt.priceFloor(amountLeft),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   title: PluginFmt.tokenView(balancePair[1]!.symbol),
-                  content: amountRight == null
-                      ? '--'
-                      : Fmt.priceFloorBigInt(
-                          amountRight, balancePair[1]!.decimals!),
+                  content:
+                      amountRight == null ? '--' : Fmt.priceFloor(amountRight),
                 ),
                 InfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,

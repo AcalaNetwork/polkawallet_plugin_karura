@@ -33,5 +33,5 @@ abstract class _IncentiveItemData {
   Map? currencyId;
   double? amount;
   double? deduction;
-  late double apr;
+  double? apr;
 }

@@ -102,7 +102,8 @@ class _BootstrapListState extends State<BootstrapList> {
     }
   }
 
-  TxConfirmParams _claimLPToken(DexPoolData pool, double amount, int decimals) {
+  TxConfirmParams _claimLPToken(
+      DexPoolData pool, BigInt amount, int decimals, String poolTokenSymbol) {
     setState(() {
       _claimSubmitting = true;
     });
@@ -117,7 +118,7 @@ class _BootstrapListState extends State<BootstrapList> {
         'api.tx.dex.claimDexShare(...${jsonEncode(params)})',
         'api.tx.incentives.depositDexShare(...${jsonEncode([
               {'DEXShare': pool.tokens},
-              Fmt.tokenInt(amount.toString(), decimals).toString()
+              amount.toString()
             ])})',
       ];
       return TxConfirmParams(
@@ -125,14 +126,12 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'utility',
         call: 'batch',
         txDisplay: {
-          dic!['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, pool.tokenNameId)!
-              .symbol,
+          dic!['earn.pool']: poolTokenSymbol,
           "": dic['earn.withStake.info'],
         },
         txDisplayBold: {
           dic['loan.amount']!: Text(
-            '${Fmt.priceFloor(amount, lengthMax: 4)} LP',
+            '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
             style: Theme.of(context).textTheme.headline1,
           ),
         },
@@ -145,13 +144,11 @@ class _BootstrapListState extends State<BootstrapList> {
         module: 'dex',
         call: 'claimDexShare',
         txDisplay: {
-          dic!['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, pool.tokenNameId)!
-              .symbol,
+          dic!['earn.pool']: poolTokenSymbol,
         },
         txDisplayBold: {
           dic['loan.amount']!: Text(
-            '${Fmt.priceFloor(amount, lengthMax: 4)} LP',
+            '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
             style: Theme.of(context).textTheme.headline1,
           ),
         },
@@ -280,7 +277,10 @@ class _BootStrapCard extends StatelessWidget {
         Fmt.balanceInt(pool!.provisioning!.accumulatedProvision![1].toString());
     final progressLeft = nowLeft / targetLeft;
     final progressRight = nowRight / targetRight;
-    final ratio = nowLeft > BigInt.zero ? nowRight / nowLeft : 1.0;
+    final ratio = nowLeft > BigInt.zero
+        ? Fmt.bigIntToDouble(nowRight, balancePair[1]!.decimals!) /
+            Fmt.bigIntToDouble(nowLeft, balancePair[0]!.decimals!)
+        : 1.0;
     final blocksEnd = pool!.provisioning!.notBefore! - bestNumber!;
     final time = bestNumber! > 0
         ? DateTime.now()
@@ -439,7 +439,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
   final String? existentialDeposit;
   final bool? withStake;
   final Function(bool)? onWithStakeChange;
-  final TxConfirmParams Function(DexPoolData, double, int)? onClaimLP;
+  final TxConfirmParams Function(DexPoolData, BigInt, int, String)? onClaimLP;
   final Function(Map?)? onFinish;
   final bool? submitting;
 
@@ -454,13 +454,12 @@ class _BootStrapCardEnabled extends StatelessWidget {
         .toList();
     final tokenPairView =
         balancePair.map((e) => PluginFmt.tokenView(e!.symbol ?? '')).toList();
+    final poolTokenSymbol = tokenPairView.join('-');
 
-    final userLeft = Fmt.balanceDouble(
-        userProvision![0].toString(), balancePair[0]!.decimals!);
-    final userRight = Fmt.balanceDouble(
-        userProvision![1].toString(), balancePair[1]!.decimals!);
-    final ratio = Fmt.balanceDouble(shareRate![1].toString(), 18);
-    final amount = userLeft + userRight * ratio;
+    final userLeft = Fmt.balanceInt(userProvision![0].toString());
+    final userRight = Fmt.balanceInt(userProvision![1].toString());
+    final ratio = Fmt.balanceInt(shareRate![1].toString());
+    final amount = userLeft + (userRight * ratio ~/ Fmt.tokenInt('1', 18));
 
     return RoundedCard(
       margin: EdgeInsets.only(bottom: 16),
@@ -470,12 +469,12 @@ class _BootStrapCardEnabled extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(tokenPairView.join('-'), tokenIcons!),
+                child: TokenIcon(poolTokenSymbol, tokenIcons!),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
                   child: Text(
-                tokenPairView.join('-'),
+                poolTokenSymbol,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -501,12 +500,14 @@ class _BootStrapCardEnabled extends StatelessWidget {
               InfoItem(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 title: tokenPairView[0],
-                content: Fmt.priceFloor(userLeft),
+                content:
+                    Fmt.priceFloorBigInt(userLeft, balancePair[0]!.decimals!),
               ),
               InfoItem(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 title: tokenPairView[1],
-                content: Fmt.priceFloor(userRight),
+                content:
+                    Fmt.priceFloorBigInt(userRight, balancePair[1]!.decimals!),
               ),
             ],
           ),
@@ -540,8 +541,10 @@ class _BootStrapCardEnabled extends StatelessWidget {
           ),
           Container(
             margin: EdgeInsets.only(bottom: 8),
-            child:
-                InfoItemRow('LP tokens', Fmt.priceFloor(amount, lengthMax: 4)),
+            child: InfoItemRow(
+                'LP tokens',
+                Fmt.priceFloorBigInt(amount, balancePair[0]!.decimals!,
+                    lengthMax: 4)),
           ),
           Container(
             margin: EdgeInsets.only(top: 8, bottom: 16),
@@ -552,7 +555,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
             child: StakeLPTips(
               plugin,
               pool: pool,
-              poolSymbol: tokenPairView.join('-'),
+              poolSymbol: poolTokenSymbol,
               switchActive: withStake,
               onSwitch: onWithStakeChange,
             ),
@@ -564,8 +567,8 @@ class _BootStrapCardEnabled extends StatelessWidget {
                 )
               : TxButton(
                   text: 'Claim LP Tokens',
-                  getTxParams: () async =>
-                      onClaimLP!(pool!, amount, balancePair[0]!.decimals!),
+                  getTxParams: () async => onClaimLP!(pool!, amount,
+                      balancePair[0]!.decimals!, poolTokenSymbol),
                   onFinish: onFinish,
                 )
         ],

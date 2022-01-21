@@ -53,7 +53,8 @@ class _LPStakePage extends State<LPStakePage> {
     if (!_isMax && input > available!) {
       return dic!['amount.low'];
     }
-    final LPStakePageParams args = ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
+    final LPStakePageParams args =
+        ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
     final balance =
         widget.plugin.store!.assets.tokenBalanceMap[args.pool.tokenNameId];
     final balanceInt = Fmt.balanceInt(balance?.amount ?? '0');
@@ -77,12 +78,16 @@ class _LPStakePage extends State<LPStakePage> {
     if (!_formKey.currentState!.validate()) return;
 
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final LPStakePageParams params = ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
+    final LPStakePageParams params =
+        ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
     final isStake = params.action == LPStakePage.actionStake;
 
-    final poolSymbol = AssetsUtils.getBalanceFromTokenNameId(
-            widget.plugin, params.pool.tokenNameId)!
-        .symbol;
+    final tokenPair = params.pool.tokens!
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
+    final poolTokenSymbol =
+        tokenPair.map((e) => PluginFmt.tokenView(e?.symbol)).toList().join('-');
+
     String input = _amountCtrl.text.trim();
     BigInt? amount = Fmt.tokenInt(input, decimals!);
     if (_isMax || max! - amount < BigInt.one) {
@@ -93,10 +98,9 @@ class _LPStakePage extends State<LPStakePage> {
         arguments: TxConfirmParams(
           module: 'incentives',
           call: isStake ? 'depositDexShare' : 'withdrawDexShare',
-          txTitle:
-              '${dic['earn.${params.action}']} ${PluginFmt.tokenView(poolSymbol)}',
+          txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol',
           txDisplay: {
-            dic['earn.pool']: poolSymbol,
+            dic['earn.pool']: poolTokenSymbol,
           },
           txDisplayBold: {
             dic['loan.amount']!: Text(
@@ -119,15 +123,19 @@ class _LPStakePage extends State<LPStakePage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
-    final LPStakePageParams args = ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
+    final LPStakePageParams args =
+        ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
 
-    final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-        widget.plugin, args.pool.tokenNameId)!;
+    final tokenPair = args.pool.tokens!
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
+    final poolTokenSymbol =
+        tokenPair.map((e) => PluginFmt.tokenView(e?.symbol)).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            '${dic['earn.${args.action}']} ${PluginFmt.tokenView(poolToken.symbol)}'),
+        title:
+            Text('${dic['earn.${args.action}']} ${poolTokenSymbol.join('-')}'),
         centerTitle: true,
         leading: BackBtn(),
       ),
@@ -147,8 +155,9 @@ class _LPStakePage extends State<LPStakePage> {
                   '0');
             }
 
-            final balanceView =
-                Fmt.priceFloorBigInt(balance, poolToken.decimals!, lengthMax: 6);
+            final balanceView = Fmt.priceFloorBigInt(
+                balance, tokenPair[0]!.decimals!,
+                lengthMax: 6);
             return Column(
               children: [
                 Expanded(
@@ -169,18 +178,18 @@ class _LPStakePage extends State<LPStakePage> {
                                     color: Theme.of(context).primaryColor),
                               ),
                               onTap: () =>
-                                  _onSetMax(balance, poolToken.decimals),
+                                  _onSetMax(balance, tokenPair[0]!.decimals),
                             ),
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(poolToken.decimals!)!
+                            UI.decimalInputFormatter(tokenPair[0]!.decimals!)!
                           ],
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           controller: _amountCtrl,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) =>
-                              _validateAmount(v!, balance, poolToken.decimals),
+                          validator: (v) => _validateAmount(
+                              v!, balance, tokenPair[0]!.decimals),
                           onChanged: (_) {
                             if (_isMax) {
                               setState(() {
@@ -197,7 +206,7 @@ class _LPStakePage extends State<LPStakePage> {
                   padding: EdgeInsets.all(16),
                   child: RoundedButton(
                     text: dic['earn.${args.action}'],
-                    onPressed: () => _onSubmit(balance, poolToken.decimals),
+                    onPressed: () => _onSubmit(balance, tokenPair[0]!.decimals),
                   ),
                 )
               ],

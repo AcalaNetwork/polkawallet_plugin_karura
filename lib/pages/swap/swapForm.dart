@@ -769,8 +769,10 @@ class _SwapFormState extends State<SwapForm> {
                               ),
                               Text(_swapOutput.path != null
                                   ? _swapOutput.path!
-                                      .map(
-                                          (i) => PluginFmt.tokenView(i['name']))
+                                      .map((i) => PluginFmt.tokenView(
+                                          AssetsUtils.getBalanceFromTokenNameId(
+                                                  widget.plugin, i['name'])
+                                              ?.symbol))
                                       .toList()
                                       .join(' > ')
                                   : ""),

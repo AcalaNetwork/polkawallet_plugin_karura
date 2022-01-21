@@ -30,21 +30,22 @@ class ServiceEarn {
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
           .toList();
 
-      final poolInfo = store!.earn.dexPoolInfoMap[k]!;
+      final poolInfo = store!.earn.dexPoolInfoMap[k];
       final prices = store!.assets.marketPrices;
 
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
-      final stakingPoolValue = poolInfo.sharesTotal! /
-          poolInfo.issuance! *
-          (Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0]!.decimals!) *
+      final stakingPoolValue = (poolInfo?.sharesTotal ?? BigInt.zero) /
+          (poolInfo?.issuance ?? BigInt.zero) *
+          (Fmt.bigIntToDouble(poolInfo?.amountLeft, balancePair[0]!.decimals!) *
                   (prices[balancePair[0]!.symbol] ?? 0) +
               Fmt.bigIntToDouble(
-                      poolInfo.amountRight, balancePair[1]!.decimals!) *
+                      poolInfo?.amountRight, balancePair[1]!.decimals!) *
                   (prices[balancePair[1]!.symbol] ?? 0));
 
       v.forEach((e) {
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
-        final rate = e.amount! * (prices[e.tokenNameId] ?? 0) / stakingPoolValue;
+        final rate =
+            e.amount! * (prices[e.tokenNameId] ?? 0) / stakingPoolValue;
         e.apr = rate > 0 ? rate : 0;
       });
     });

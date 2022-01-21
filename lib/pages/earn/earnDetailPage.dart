@@ -93,11 +93,11 @@ class EarnDetailPage extends StatelessWidget {
           final incentiveV2 = plugin.store!.earn.incentives;
           if (incentiveV2.dex != null) {
             (incentiveV2.dex![pool.tokenNameId!] ?? []).forEach((e) {
-              rewardAPR += e.apr;
+              rewardAPR += e.apr ?? 0;
               loyaltyBonus = e.deduction;
             });
             (incentiveV2.dexSaving[pool.tokenNameId!] ?? []).forEach((e) {
-              savingRewardAPR += e.apr;
+              savingRewardAPR += e.apr ?? 0;
               savingLoyaltyBonus = e.deduction;
             });
           }
@@ -366,6 +366,11 @@ class _UserCard extends StatelessWidget {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final DexPoolData pool =
         ModalRoute.of(context)!.settings.arguments as DexPoolData;
+    final tokenPair = pool.tokens!
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+        .toList();
+    final poolTokenSymbol =
+        tokenPair.map((e) => PluginFmt.tokenView(e?.symbol)).toList().join('-');
 
     Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
@@ -377,9 +382,7 @@ class _UserCard extends StatelessWidget {
                 (rewardSaving >= 0.01
                     ? ' + ${Fmt.priceFloor(rewardSaving)} $karura_stable_coin_view'
                     : ''),
-            dic['earn.pool']: AssetsUtils.getBalanceFromTokenNameId(
-                    plugin!, pool.tokenNameId)!
-                .symbol,
+            dic['earn.pool']: poolTokenSymbol,
           },
           params: [],
           rawParams: '[{Dex: {DEXShare: ${jsonEncode(pool.tokens)}}}]',

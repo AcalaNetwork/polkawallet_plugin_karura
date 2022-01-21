@@ -9,7 +9,6 @@ import 'package:polkawallet_plugin_karura/common/components/connectionChecker.da
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapPage.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -18,9 +17,6 @@ import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
-import 'package:polkawallet_ui/components/roundedButton.dart';
-import 'package:polkawallet_ui/components/roundedCard.dart';
-import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
@@ -704,11 +700,11 @@ class StakeLPTips extends StatelessWidget {
       if (plugin.store!.earn.incentives.dex != null) {
         (plugin.store!.earn.incentives.dex![pool!.tokenNameId!] ?? [])
             .forEach((e) {
-          rewardAPY += e.apr;
+          rewardAPY += e.apr ?? 0;
         });
         (plugin.store!.earn.incentives.dexSaving[pool!.tokenNameId!] ?? [])
             .forEach((e) {
-          savingRewardAPY += e.apr;
+          savingRewardAPY += e.apr ?? 0;
         });
       }
       final balanceInt = Fmt.balanceInt(
