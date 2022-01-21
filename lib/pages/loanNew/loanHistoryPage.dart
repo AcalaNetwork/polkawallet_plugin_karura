@@ -62,7 +62,10 @@ class LoanHistoryPage extends StatelessWidget {
                 itemBuilder: (BuildContext context, int i) {
                   if (i == list.length) {
                     return ListTail(
-                        isEmpty: list.length == 0, isLoading: false);
+                      isEmpty: list.length == 0,
+                      isLoading: false,
+                      color: Colors.white,
+                    );
                   }
 
                   final TxLoanData detail = list[i];

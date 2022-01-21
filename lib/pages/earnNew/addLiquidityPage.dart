@@ -392,7 +392,12 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             ),
             body: SafeArea(
               child: ListView(children: [
-                Center(child: ListTail(isEmpty: true, isLoading: false))
+                Center(
+                    child: ListTail(
+                  isEmpty: true,
+                  isLoading: false,
+                  color: Colors.white,
+                ))
               ]),
             ),
           );

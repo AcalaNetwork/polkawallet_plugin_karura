@@ -71,7 +71,11 @@ class HomaHistoryPage extends StatelessWidget {
               itemCount: list.length + 1,
               itemBuilder: (BuildContext context, int i) {
                 if (i == list.length) {
-                  return ListTail(isEmpty: list.length == 0, isLoading: false);
+                  return ListTail(
+                    isEmpty: list.length == 0,
+                    isLoading: false,
+                    color: Colors.white,
+                  );
                 }
 
                 final detail = list[i];
@@ -88,18 +92,21 @@ class HomaHistoryPage extends StatelessWidget {
                     break;
                   case TxHomaData.actionRedeem:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} $symbol';
+                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
+                    break;
+                  case TxHomaData.actionRedeemedByUnbond:
+                    amountTail =
+                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeemed:
                   case TxHomaData.actionRedeemedByFastMatch:
-                  case TxHomaData.actionRedeemedByUnbond:
                   case TxHomaData.actionWithdrawRedemption:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeemCancel:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} $symbol';
+                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
                 }
 
                 return Container(

@@ -107,6 +107,7 @@ class _EarnDexListState extends State<EarnDexList> {
           }
         }
 
+        datas.sort((left, right) => right.rewards!.compareTo(left.rewards!));
         otherDatas
             .sort((left, right) => right.rewards!.compareTo(left.rewards!));
         datas.addAll(otherDatas);
@@ -119,7 +120,11 @@ class _EarnDexListState extends State<EarnDexList> {
                 Center(
                   child: Container(
                     height: MediaQuery.of(context).size.width,
-                    child: ListTail(isEmpty: true, isLoading: _loading),
+                    child: ListTail(
+                      isEmpty: true,
+                      isLoading: _loading,
+                      color: Colors.white,
+                    ),
                   ),
                 )
               ],

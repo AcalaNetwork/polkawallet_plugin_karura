@@ -1376,7 +1376,11 @@ class CollateralIncentiveList extends StatelessWidget {
         (rewards![e]?.reward != null && rewards![e]!.reward!.length > 0));
 
     if (tokenIds.length == 0) {
-      return ListTail(isEmpty: true, isLoading: false);
+      return ListTail(
+        isEmpty: true,
+        isLoading: false,
+        color: Colors.white,
+      );
     }
     final tokens = tokenIds
         .map((e) => AssetsUtils.getBalanceFromTokenNameId(plugin!, e))

@@ -62,7 +62,11 @@ class SwapHistoryPage extends StatelessWidget {
               itemCount: list.length + 1,
               itemBuilder: (BuildContext context, int i) {
                 if (i == list.length) {
-                  return ListTail(isEmpty: list.length == 0, isLoading: false);
+                  return ListTail(
+                    isEmpty: list.length == 0,
+                    isLoading: false,
+                    color: Colors.white,
+                  );
                 }
 
                 final TxSwapData detail = list[i];
