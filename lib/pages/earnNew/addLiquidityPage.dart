@@ -76,9 +76,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           final poolInfo =
               widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
           _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[0]!.decimals!) /
+                  poolInfo.amountRight, balancePair[1]!.decimals!) /
               Fmt.bigIntToDouble(
-                  poolInfo.amountLeft, balancePair[1]!.decimals!);
+                  poolInfo.amountLeft, balancePair[0]!.decimals!);
         });
         _timer = Timer(Duration(seconds: 30), () {
           _refreshData();
@@ -247,16 +247,13 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         _withStake,
       ];
 
-      final poolSymbol = AssetsUtils.getBalanceFromTokenNameId(
-              widget.plugin, pool.tokenNameId)!
-          .symbol;
       final tokenPair = pool.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();
       if (_withStakeAll) {
         final balance =
-            widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]!;
-        final balanceInt = Fmt.balanceInt(balance.amount);
+            widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId];
+        final balanceInt = Fmt.balanceInt(balance?.amount);
         final batchTxs = [
           'api.tx.dex.addLiquidity(...${jsonEncode(params)})',
           'api.tx.incentives.depositDexShare({DEXShare: ${jsonEncode(pool.tokens)}}, "$balanceInt")',
@@ -272,7 +269,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                     '${tokenPair[0]!.symbol}-${tokenPair[1]!.symbol}',
                 "": dic['earn.withStake.info'],
                 dic['earn.withStake.all']: '+ ' +
-                    Fmt.priceFloorBigInt(balanceInt, balance.decimals!,
+                    Fmt.priceFloorBigInt(balanceInt, balance?.decimals ?? 12,
                         lengthMax: 4) +
                     ' LP',
               },
@@ -293,9 +290,11 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           Navigator.of(context).pop(res);
         }
       } else {
-        final txDisplay = {dic!['earn.pool']: poolSymbol};
+        final txDisplay = {
+          dic!['earn.pool']: '${tokenPair[0]!.symbol}-${tokenPair[1]!.symbol}'
+        };
         if (_withStake) {
-          txDisplay[''] = dic['earn.withStake.info'];
+          txDisplay[''] = dic['earn.withStake.info']!;
         }
         final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
             arguments: TxConfirmParams(

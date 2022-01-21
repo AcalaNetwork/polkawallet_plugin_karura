@@ -219,7 +219,6 @@ class _EarnDexListState extends State<EarnDexList> {
                                             padding: EdgeInsets.only(left: 4),
                                             child: Image.asset(
                                               "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
-                                              color: Colors.white,
                                               width: 24,
                                             ))),
                                     Visibility(
@@ -239,7 +238,6 @@ class _EarnDexListState extends State<EarnDexList> {
                                             padding: EdgeInsets.only(left: 4),
                                             child: Image.asset(
                                               "packages/polkawallet_plugin_karura/assets/images/rewards.png",
-                                              color: Colors.white,
                                               width: 24,
                                             ))),
                                   ],

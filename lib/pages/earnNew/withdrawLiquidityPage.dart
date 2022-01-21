@@ -92,7 +92,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
     final shareInputInt = Fmt.tokenInt(v, balancePair[0]!.decimals!);
     final shareFree = Fmt.balanceInt(
-        widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]!.amount);
+        widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]?.amount);
     final shareBalance = _fromPool ? shareFree + poolInfo!.shares! : shareFree;
     if (shareInputInt > shareBalance) {
       return dic!['amount.low'];
