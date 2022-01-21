@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
@@ -52,9 +54,16 @@ Map<String, WidgetBuilder> getNewUiRoutes(
               ),
 
           //earn
+          EarnPage.route: (_) => EarnPage(plugin, keyring),
           AddLiquidityPage.route: (_) => AddLiquidityPage(plugin, keyring),
           WithdrawLiquidityPage.route: (_) =>
               WithdrawLiquidityPage(plugin, keyring),
+          EarnHistoryPage.route: (_) => ClientProvider(
+                child: Builder(
+                  builder: (_) => EarnHistoryPage(plugin, keyring),
+                ),
+                uri: GraphQLConfig['httpUri']!,
+              ),
         }
       : {};
 }

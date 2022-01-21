@@ -448,6 +448,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(children: [
+                  ConnectionChecker(widget.plugin, onConnected: _refreshData),
                   Expanded(
                       child: ListView(
                     padding: EdgeInsets.only(top: 16),

@@ -55,7 +55,7 @@ class _SwapPageState extends State<SwapPage> {
         title: PluginPageTitleTaps(
           names: [dic['dex.title']!, dic['dex.lp']!, dic['boot.title']!],
           activeTab: _tab,
-          onTab: (i) {
+          onTap: (i) {
             if (i != _tab) {
               setState(() {
                 _tab = i;
