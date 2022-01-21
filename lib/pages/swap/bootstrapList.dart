@@ -449,8 +449,6 @@ class _BootStrapCardEnabled extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
     final colorGrey = Theme.of(context).unselectedWidgetColor;
 
-    final poolToken =
-        AssetsUtils.getBalanceFromTokenNameId(plugin, pool!.tokenNameId)!;
     final balancePair = pool!.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
@@ -472,7 +470,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
           Row(
             children: [
               Container(
-                child: TokenIcon(poolToken.symbol!, tokenIcons!),
+                child: TokenIcon(tokenPairView.join('-'), tokenIcons!),
                 margin: EdgeInsets.only(right: 8),
               ),
               Expanded(
@@ -554,7 +552,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
             child: StakeLPTips(
               plugin,
               pool: pool,
-              poolSymbol: poolToken.symbol,
+              poolSymbol: tokenPairView.join('-'),
               switchActive: withStake,
               onSwitch: onWithStakeChange,
             ),

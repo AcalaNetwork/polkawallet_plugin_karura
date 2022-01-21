@@ -57,7 +57,8 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     String v = value.trim();
     if (v.isEmpty) return;
 
-    BigInt collateral = max != null ? max : Fmt.tokenInt(v, collateralDecimals!);
+    BigInt collateral =
+        max != null ? max : Fmt.tokenInt(v, collateralDecimals!);
     setState(() {
       _amountCollateral = collateral;
     });
@@ -171,8 +172,8 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     tokenOptions.retainWhere((e) {
       final incentive = widget.plugin.store!.earn.incentives.loans;
       return incentive != null &&
-          incentive[e as String] != null &&
-          (incentive[e as String]![0].amount ?? 0) > 0;
+          incentive[e?.tokenNameId] != null &&
+          (incentive[e?.tokenNameId]![0].amount ?? 0) > 0;
     });
 
     final loan = widget.plugin.store!.loan.loans[token.tokenNameId];
@@ -191,8 +192,9 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           : BigInt.zero;
     }
 
-    final availableView =
-        Fmt.priceFloorBigInt(available, balancePair[0]!.decimals!, lengthMax: 8);
+    final availableView = Fmt.priceFloorBigInt(
+        available, balancePair[0]!.decimals!,
+        lengthMax: 8);
 
     final pageTitle = '${dic['loan.${params.actionType}']}$titleSuffix';
 

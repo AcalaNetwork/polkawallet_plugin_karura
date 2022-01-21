@@ -140,14 +140,14 @@ class PluginKarura extends PolkawalletPlugin {
         text: "NFT",
         icon: Container(),
         iconActive: Container(),
-        isAdapter: true,
+        // isAdapter: true,
         content: NFTWidget(this),
       ),
       HomeNavItem(
         text: dic['governance']!,
         icon: Container(),
         iconActive: Container(),
-        isAdapter: true,
+        // isAdapter: true,
         content: GovernanceWidget(this),
       )
     ];

@@ -447,6 +447,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             child: ListView(
               padding: EdgeInsets.fromLTRB(8, 16, 8, 32),
               children: <Widget>[
+                ConnectionChecker(widget.plugin, onConnected: _refreshData),
                 RoundedCard(
                   padding: EdgeInsets.all(16),
                   child: Column(
