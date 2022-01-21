@@ -27,6 +27,7 @@ import 'package:polkawallet_plugin_karura/pages/earn/withdrawLiquidityPage.dart'
 import 'package:polkawallet_plugin_karura/pages/gov/democracy/proposalDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/gov/democracy/referendumVotePage.dart';
 import 'package:polkawallet_plugin_karura/pages/gov/democracyPage.dart';
+import 'package:polkawallet_plugin_karura/pages/gov/governance.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homa/homaTxDetailPage.dart';
@@ -44,6 +45,7 @@ import 'package:polkawallet_plugin_karura/pages/nft/nftBurnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftTransferPage.dart';
+import 'package:polkawallet_plugin_karura/pages/nft/nfts.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapHistoryPage.dart';
@@ -141,14 +143,16 @@ class PluginKarura extends PolkawalletPlugin {
         icon: Container(),
         iconActive: Container(),
         // isAdapter: true,
-        content: NFTWidget(this),
+        // content: NFTWidget(this),
+        content: NFTs(this, keyring),
       ),
       HomeNavItem(
         text: dic['governance']!,
         icon: Container(),
         iconActive: Container(),
         // isAdapter: true,
-        content: GovernanceWidget(this),
+        // content: GovernanceWidget(this),
+        content: Gov(this, keyring),
       )
     ];
   }
