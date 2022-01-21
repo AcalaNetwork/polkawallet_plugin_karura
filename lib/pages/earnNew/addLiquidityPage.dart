@@ -25,6 +25,7 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
@@ -639,30 +640,26 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                                       )),
                             ],
                           )),
-                      RoundedPluginCard(
-                        margin: EdgeInsets.only(top: 32, bottom: 16),
-                        padding: EdgeInsets.fromLTRB(8, 20, 8, 20),
-                        child: StakeLPTips(
-                          widget.plugin,
-                          pool: pool,
-                          poolSymbol: tokenPair.join('-'),
-                          switchActive: _withStake,
-                          switch1Active: _withStakeAll,
-                          onSwitch: (v) {
-                            setState(() {
+                      StakeLPTips(
+                        widget.plugin,
+                        pool: pool,
+                        poolSymbol: tokenPair.join('-'),
+                        switchActive: _withStake,
+                        switch1Active: _withStakeAll,
+                        onSwitch: (v) {
+                          setState(() {
+                            _withStake = v;
+                          });
+                        },
+                        onSwitch1: (v) {
+                          setState(() {
+                            _withStakeAll = v;
+                            if (v && !_withStake) {
                               _withStake = v;
-                            });
-                          },
-                          onSwitch1: (v) {
-                            setState(() {
-                              _withStakeAll = v;
-                              if (v && !_withStake) {
-                                _withStake = v;
-                              }
-                            });
-                          },
-                        ),
-                      )
+                            }
+                          });
+                        },
+                      ),
                     ],
                   )),
                   Padding(
@@ -724,85 +721,71 @@ class StakeLPTips extends StatelessWidget {
       final colorGray = Theme.of(context).unselectedWidgetColor;
       return Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Mining ${dic!['earn.apy']}: ',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline3
-                    ?.copyWith(fontSize: 26, color: Colors.white),
-              ),
-              Text(
-                Fmt.ratio(rewardAPY + savingRewardAPY),
-                style: Theme.of(context)
-                    .textTheme
-                    .headline3
-                    ?.copyWith(fontSize: 26, color: Color(0xFFFC8156)),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: balanceInt > BigInt.zero
-                ? MainAxisAlignment.spaceAround
-                : MainAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TapTooltip(
-                    message: dic['earn.withStake.txt']!,
+          RoundedPluginCard(
+              margin: EdgeInsets.only(top: 32, bottom: 16),
+              padding: EdgeInsets.fromLTRB(8, 20, 8, 20),
+              child: Column(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Mining ${dic!['earn.apy']}: ',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline3
+                          ?.copyWith(fontSize: 26, color: Colors.white),
+                    ),
+                    Text(
+                      Fmt.ratio(rewardAPY + savingRewardAPY),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline3
+                          ?.copyWith(fontSize: 26, color: Color(0xFFFC8156)),
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      onSwitch!(!switchActive!);
+                    },
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.info, color: colorGray, size: 16),
+                        PluginRadioButton(value: switchActive!),
                         Padding(
                           padding: EdgeInsets.only(left: 4),
-                          child: Text(dic['earn.withStake']!),
-                        ),
+                          child: Text(dic['earn.withStake.info']!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                      color: Colors.white, fontSize: 14)),
+                        )
                       ],
-                    ),
-                  ),
-                  CupertinoSwitch(
-                    value: switchActive!,
-                    onChanged: onSwitch,
-                  ),
-                ],
-              ),
-              Visibility(
-                  visible: balanceInt > BigInt.zero,
+                    )),
+              ])),
+          Visibility(
+              visible: balanceInt > BigInt.zero,
+              child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    onSwitch1!(!(switch1Active ?? false));
+                  },
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      TapTooltip(
-                        message:
-                            '\n${dic['earn.withStake.all.txt']}\n(${dicCommon!['balance']}: $balance ${PluginFmt.tokenView(poolSymbol)})\n',
-                        child: Row(
-                          children: [
-                            Icon(Icons.info, color: colorGray, size: 16),
-                            Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Text(dic['earn.withStake.all']!),
-                            ),
-                          ],
-                        ),
-                      ),
-                      CupertinoSwitch(
-                        value: switch1Active ?? false,
-                        onChanged: onSwitch1,
-                      ),
+                      PluginRadioButton(value: switch1Active ?? false),
+                      Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text(dic['earn.withStake.all.txt']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(color: Colors.white, fontSize: 14)),
+                      )
                     ],
-                  )),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 16, bottom: 8),
-            child: Text(dic['earn.withStake.info']!,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline5
-                    ?.copyWith(color: Colors.white)),
-          )
+                  ))),
         ],
       );
     });

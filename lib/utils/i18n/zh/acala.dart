@@ -233,4 +233,6 @@ const Map<String, String> zhDex = {
   'v3.earn.lpTokenReceived': '收到的LP Token',
   'v3.earn.amout': '数量',
   'v3.earn.tokenReceived': '收到的Token',
+  'v3.swap.max': '最大兑换',
+  'v3.earn.stakeAllBalance': 'Stake all balance of LP tokens'
 };
