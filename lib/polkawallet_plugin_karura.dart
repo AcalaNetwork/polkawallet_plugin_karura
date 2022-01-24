@@ -426,8 +426,8 @@ class PluginKarura extends PolkawalletPlugin {
 
     _service!.fetchLiveModules();
 
-    // wait tokens config here for subscribe all tokens balances
-    await _service!.fetchTokensConfig();
+    // fetch tokens config here for subscribe all tokens balances
+    _service!.fetchTokensConfig();
   }
 
   @override

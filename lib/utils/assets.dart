@@ -69,32 +69,16 @@ class AssetsUtils {
       return getBalanceFromTokenNameId(
           plugin!, currencyId['token'] ?? currencyId['Token']);
     }
-    if (currencyId['foreignAsset'] != null ||
-        currencyId['ForeignAsset'] != null) {
+    final currencyIdKey = currencyId.keys.toList()[0] as String;
+    if (currencyId[currencyIdKey] != null) {
       final list = (plugin!.store!.assets.tokenBalanceMap.values.length >=
                   plugin.store!.assets.allTokens.length
               ? plugin.store!.assets.tokenBalanceMap.values
               : plugin.store!.assets.allTokens)
           .toList();
       final i = list.indexWhere((e) =>
-          e.type == 'ForeignAsset' &&
-          e.id ==
-              (currencyId['foreignAsset'] ?? currencyId['ForeignAsset'])
-                  .toString());
-      return i > -1 ? list[i] : TokenBalanceData();
-    }
-    if (currencyId['liquidCroadloan'] != null ||
-        currencyId['LiquidCroadloan'] != null) {
-      final list = (plugin!.store!.assets.tokenBalanceMap.values.length >=
-                  plugin.store!.assets.allTokens.length
-              ? plugin.store!.assets.tokenBalanceMap.values
-              : plugin.store!.assets.allTokens)
-          .toList();
-      final i = list.toList().indexWhere((e) =>
-          e.type == 'LiquidCroadloan' &&
-          e.id ==
-              (currencyId['liquidCroadloan'] ?? currencyId['LiquidCroadloan'])
-                  .toString());
+          e.type.toLowerCase() == currencyIdKey.toLowerCase() &&
+          e.id == currencyId[currencyIdKey].toString());
       return i > -1 ? list[i] : TokenBalanceData();
     }
     return TokenBalanceData();
