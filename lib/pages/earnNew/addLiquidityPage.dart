@@ -697,7 +697,6 @@ class StakeLPTips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
-    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     return Observer(builder: (_) {
       double rewardAPY = 0;
       double savingRewardAPY = 0;
@@ -714,12 +713,6 @@ class StakeLPTips extends StatelessWidget {
       }
       final balanceInt = Fmt.balanceInt(
           plugin.store!.assets.tokenBalanceMap[pool!.tokenNameId]?.amount);
-      final balance = Fmt.priceFloorBigInt(
-          balanceInt,
-          plugin.store!.assets.tokenBalanceMap[pool!.tokenNameId]?.decimals ??
-              12,
-          lengthMax: 4);
-      final colorGray = Theme.of(context).unselectedWidgetColor;
       return Column(
         children: [
           RoundedPluginCard(
