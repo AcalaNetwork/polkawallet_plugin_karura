@@ -449,229 +449,213 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             centerTitle: true,
           ),
           body: SafeArea(
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Column(children: [
-                  ConnectionChecker(widget.plugin, onConnected: _refreshData),
-                  Expanded(
-                      child: ListView(
-                    padding: EdgeInsets.only(top: 16),
-                    children: <Widget>[
-                      Visibility(
-                        visible: nativeBalance - accountED <
-                            Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) *
-                                BigInt.two,
-                        child: InsufficientKARWarn(),
-                      ),
-                      PluginInputBalance(
-                        inputCtrl: _amountLeftCtrl,
-                        titleTag: 'token 1',
-                        onInputChange: (v) => _onSupplyAmountChange(v),
-                        onSetMax: tokenPair[0]!.symbol == acala_token_ids[0]
-                            ? null
-                            : (v) => _onSetLeftMax(v, tokenPair[0]!.decimals!),
-                        onClear: () {
-                          setState(() {
-                            _maxInputLeft = null;
-                            _amountLeftCtrl.text = '';
-                          });
-                        },
-                        balance: tokenPair[0],
-                        tokenIconsMap: widget.plugin.tokenIcons,
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 2),
-                        child: _errorLeft == null
-                            ? null
-                            : Row(children: [
-                                Text(
-                                  _errorLeft!,
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.red),
-                                )
-                              ]),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 22),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 32,
-                              )
-                            ],
-                          )),
-                      PluginInputBalance(
-                        inputCtrl: _amountRightCtrl,
-                        tokenBgColor: Colors.white,
-                        titleTag: 'token 2',
-                        onInputChange: (v) => _onTargetAmountChange(v),
-                        onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]
-                            ? null
-                            : (v) => _onSetRightMax(v, tokenPair[1]!.decimals!),
-                        onClear: () {
-                          setState(() {
-                            _maxInputRight = null;
-                            _amountRightCtrl.text = '';
-                          });
-                        },
-                        balance: tokenPair[1],
-                        tokenIconsMap: widget.plugin.tokenIcons,
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 2),
-                        child: _errorRight == null
-                            ? null
-                            : Row(children: [
-                                Text(
-                                  _errorRight!,
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.red),
-                                )
-                              ]),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  dic['v3.earn.lpTokenReceived']!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              Text(
-                                  '≈ ${Fmt.doubleFormat(issuance * userShare, length: 4)} LP ${tokenPairView[0]}-${tokenPairView[1]}',
-                                  textAlign: TextAlign.right,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                      )),
-                            ],
-                          )),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  dic['dex.rate']!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              Text(
-                                  '1 ${tokenPairView[0]} = ${Fmt.doubleFormat(_price, length: 4)} ${tokenPairView[1]}\n1 ${tokenPairView[1]} = ${Fmt.doubleFormat(1 / _price, length: 4)} ${tokenPairView[0]}',
-                                  textAlign: TextAlign.right,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                      )),
-                            ],
-                          )),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  dic['earn.pool']!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              Text(
-                                  '${Fmt.doubleFormat(amountLeft)} ${tokenPairView[0]}\n+ ${Fmt.doubleFormat(amountRight)} ${tokenPairView[1]}',
-                                  textAlign: TextAlign.right,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                      )),
-                            ],
-                          )),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  dic['earn.share']!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              Text(Fmt.ratio(userShare),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                      )),
-                            ],
-                          )),
-                      StakeLPTips(
-                        widget.plugin,
-                        pool: pool,
-                        poolSymbol: tokenPair.join('-'),
-                        switchActive: _withStake,
-                        switch1Active: _withStakeAll,
-                        onSwitch: (v) {
-                          setState(() {
-                            _withStake = v;
-                          });
-                        },
-                        onSwitch1: (v) {
-                          setState(() {
-                            _withStakeAll = v;
-                            if (v && !_withStake) {
-                              _withStake = v;
-                            }
-                          });
-                        },
-                      ),
+              child: ListView(
+            padding: EdgeInsets.only(top: 16, left: 16, right: 16),
+            children: <Widget>[
+              ConnectionChecker(widget.plugin, onConnected: _refreshData),
+              Visibility(
+                visible: nativeBalance - accountED <
+                    Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) *
+                        BigInt.two,
+                child: InsufficientKARWarn(),
+              ),
+              PluginInputBalance(
+                inputCtrl: _amountLeftCtrl,
+                titleTag: 'token 1',
+                onInputChange: (v) => _onSupplyAmountChange(v),
+                onSetMax: tokenPair[0]!.symbol == acala_token_ids[0]
+                    ? null
+                    : (v) => _onSetLeftMax(v, tokenPair[0]!.decimals!),
+                onClear: () {
+                  setState(() {
+                    _maxInputLeft = null;
+                    _amountLeftCtrl.text = '';
+                  });
+                },
+                balance: tokenPair[0],
+                tokenIconsMap: widget.plugin.tokenIcons,
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 2),
+                child: _errorLeft == null
+                    ? null
+                    : Row(children: [
+                        Text(
+                          _errorLeft!,
+                          style: TextStyle(fontSize: 12, color: Colors.red),
+                        )
+                      ]),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 22),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 32,
+                      )
                     ],
                   )),
-                  Padding(
-                      padding: EdgeInsets.only(top: 37, bottom: 38),
-                      child: PluginButton(
-                        title: dic['earn.add']!,
-                        onPressed: () => _onSubmit(
-                            tokenPair[0]!.decimals, tokenPair[1]!.decimals),
-                      )),
-                ])),
-          ),
+              PluginInputBalance(
+                inputCtrl: _amountRightCtrl,
+                tokenBgColor: Colors.white,
+                titleTag: 'token 2',
+                onInputChange: (v) => _onTargetAmountChange(v),
+                onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]
+                    ? null
+                    : (v) => _onSetRightMax(v, tokenPair[1]!.decimals!),
+                onClear: () {
+                  setState(() {
+                    _maxInputRight = null;
+                    _amountRightCtrl.text = '';
+                  });
+                },
+                balance: tokenPair[1],
+                tokenIconsMap: widget.plugin.tokenIcons,
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 2),
+                child: _errorRight == null
+                    ? null
+                    : Row(children: [
+                        Text(
+                          _errorRight!,
+                          style: TextStyle(fontSize: 12, color: Colors.red),
+                        )
+                      ]),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          dic['v3.earn.lpTokenReceived']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Text(
+                          '≈ ${Fmt.doubleFormat(issuance * userShare, length: 4)} LP ${tokenPairView[0]}-${tokenPairView[1]}',
+                          textAlign: TextAlign.right,
+                          style:
+                              Theme.of(context).textTheme.headline4?.copyWith(
+                                    color: Colors.white,
+                                  )),
+                    ],
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          dic['dex.rate']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Text(
+                          '1 ${tokenPairView[0]} = ${Fmt.doubleFormat(_price, length: 4)} ${tokenPairView[1]}\n1 ${tokenPairView[1]} = ${Fmt.doubleFormat(1 / _price, length: 4)} ${tokenPairView[0]}',
+                          textAlign: TextAlign.right,
+                          style:
+                              Theme.of(context).textTheme.headline4?.copyWith(
+                                    color: Colors.white,
+                                  )),
+                    ],
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          dic['earn.pool']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Text(
+                          '${Fmt.doubleFormat(amountLeft)} ${tokenPairView[0]}\n+ ${Fmt.doubleFormat(amountRight)} ${tokenPairView[1]}',
+                          textAlign: TextAlign.right,
+                          style:
+                              Theme.of(context).textTheme.headline4?.copyWith(
+                                    color: Colors.white,
+                                  )),
+                    ],
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          dic['earn.share']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Text(Fmt.ratio(userShare),
+                          style:
+                              Theme.of(context).textTheme.headline4?.copyWith(
+                                    color: Colors.white,
+                                  )),
+                    ],
+                  )),
+              StakeLPTips(
+                widget.plugin,
+                pool: pool,
+                poolSymbol: tokenPair.join('-'),
+                switchActive: _withStake,
+                switch1Active: _withStakeAll,
+                onSwitch: (v) {
+                  setState(() {
+                    _withStake = v;
+                  });
+                },
+                onSwitch1: (v) {
+                  setState(() {
+                    _withStakeAll = v;
+                    if (v && !_withStake) {
+                      _withStake = v;
+                    }
+                  });
+                },
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 37, bottom: 38),
+                  child: PluginButton(
+                    title: dic['earn.add']!,
+                    onPressed: () => _onSubmit(
+                        tokenPair[0]!.decimals, tokenPair[1]!.decimals),
+                  )),
+            ],
+          )),
         );
       },
     );
@@ -713,6 +697,8 @@ class StakeLPTips extends StatelessWidget {
       }
       final balanceInt = Fmt.balanceInt(
           plugin.store!.assets.tokenBalanceMap[pool!.tokenNameId]?.amount);
+
+      final switch1Visible = balanceInt > BigInt.zero && onSwitch1 != null;
       return Column(
         children: [
           RoundedPluginCard(
@@ -760,7 +746,7 @@ class StakeLPTips extends StatelessWidget {
                     )),
               ])),
           Visibility(
-              visible: balanceInt > BigInt.zero,
+              visible: switch1Visible,
               child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {

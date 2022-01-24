@@ -81,8 +81,8 @@ class LoanType extends _LoanType {
       {int? stableCoinDecimals, int? collateralDecimals}) {
     return requiredCollateralRatio > BigInt.zero
         ? tokenToUSD(collaterals, tokenPrice,
-                stableCoinDecimals: stableCoinDecimals!,
-                collateralDecimals: collateralDecimals!) *
+                stableCoinDecimals: stableCoinDecimals ?? 0,
+                collateralDecimals: collateralDecimals ?? 0) *
             BigInt.from(pow(10, acala_price_decimals)) ~/
             requiredCollateralRatio
         : BigInt.zero;

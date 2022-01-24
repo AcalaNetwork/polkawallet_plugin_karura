@@ -309,268 +309,247 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             centerTitle: true,
           ),
           body: SafeArea(
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Column(children: [
-                  Expanded(
-                      child: ListView(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    children: <Widget>[
-                      Visibility(
-                          visible:
-                              (poolInfo?.shares ?? BigInt.zero) > BigInt.zero,
-                          child: PluginTagCard(
-                            titleTag: '$pairView ${dicAssets['balance']}',
-                            padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: 4),
-                              child: Row(
-                                children: [
-                                  PluginInfoItem(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    title: dicAssets['amount.all'],
-                                    titleStyle: Theme.of(context)
-                                        .textTheme
-                                        .headline4
-                                        ?.copyWith(color: Colors.white),
-                                    content: Fmt.priceFloorBigInt(
-                                        shareFreeInt + shareStakedInt!,
-                                        balancePair[0]!.decimals!),
-                                  ),
-                                  PluginInfoItem(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    title: dicAssets['amount.staked'],
-                                    titleStyle: Theme.of(context)
-                                        .textTheme
-                                        .headline4
-                                        ?.copyWith(color: Colors.white),
-                                    content: Fmt.priceFloorBigInt(
-                                        shareStakedInt,
-                                        balancePair[0]!.decimals!),
-                                  ),
-                                  PluginInfoItem(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    title: dicAssets['amount.free'],
-                                    titleStyle: Theme.of(context)
-                                        .textTheme
-                                        .headline4
-                                        ?.copyWith(color: Colors.white),
-                                    content: Fmt.priceFloorBigInt(shareFreeInt,
-                                        balancePair[0]!.decimals!),
-                                  )
-                                ],
-                              ),
-                            ),
-                          )),
-                      PluginTagCard(
-                        titleTag: dic['v3.earn.amout'],
-                        padding: EdgeInsets.only(
-                            top: 14, bottom: 16, right: 14, left: 23),
-                        margin: EdgeInsets.only(top: 16),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Form(
-                                key: _formKey,
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                child: TextFormField(
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline3
-                                      ?.copyWith(
-                                          color: Colors.white, fontSize: 40),
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.zero,
-                                    border: InputBorder.none,
-                                    hintText:
-                                        '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0]!.decimals!, lengthMax: 4)} Shares',
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(
-                                            color: Color(0xffbcbcbc),
-                                            fontWeight: FontWeight.w300),
-                                    suffix: GestureDetector(
-                                      child: Icon(
-                                        CupertinoIcons.clear_thick_circled,
-                                        color: Color(0xFFD8D8D8),
-                                        size: 22,
-                                      ),
-                                      onTap: () {
-                                        setState(() {
-                                          _amountCtrl.text = '';
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  inputFormatters: [
-                                    UI.decimalInputFormatter(
-                                        balancePair[0]!.decimals!)!
-                                  ],
-                                  controller: _amountCtrl,
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      decimal: true),
-                                  validator: _validateInput,
-                                  onChanged: (v) {
-                                    setState(() {});
-                                  },
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  PluginOutlinedButtonSmall(
-                                    color: Color(0xFFFC8156),
-                                    activeTextcolor: Colors.white,
-                                    unActiveTextcolor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 5),
-                                    content: '10%',
-                                    active: !shareEmpty &&
-                                        shareInputInt == shareInt10,
-                                    onPressed: shareEmpty
-                                        ? null
-                                        : () => _onAmountSelect(shareInt10,
-                                            balancePair[0]!.decimals),
-                                  ),
-                                  PluginOutlinedButtonSmall(
-                                    color: Color(0xFFFC8156),
-                                    activeTextcolor: Colors.white,
-                                    unActiveTextcolor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 5),
-                                    content: '25%',
-                                    active: !shareEmpty &&
-                                        shareInputInt == shareInt25,
-                                    onPressed: shareEmpty
-                                        ? null
-                                        : () => _onAmountSelect(shareInt25,
-                                            balancePair[0]!.decimals),
-                                  ),
-                                  PluginOutlinedButtonSmall(
-                                    color: Color(0xFFFC8156),
-                                    activeTextcolor: Colors.white,
-                                    unActiveTextcolor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 5),
-                                    content: '50%',
-                                    active: !shareEmpty &&
-                                        shareInputInt == shareInt50,
-                                    onPressed: shareEmpty
-                                        ? null
-                                        : () => _onAmountSelect(shareInt50,
-                                            balancePair[0]!.decimals),
-                                  ),
-                                  PluginOutlinedButtonSmall(
-                                    color: Color(0xFFFC8156),
-                                    activeTextcolor: Colors.white,
-                                    unActiveTextcolor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 5),
-                                    content: '100%',
-                                    active: !shareEmpty &&
-                                        shareInputInt == shareFromInt,
-                                    onPressed: shareEmpty
-                                        ? null
-                                        : () => _onAmountSelect(shareFromInt,
-                                            balancePair[0]!.decimals,
-                                            isMax: true),
-                                  )
-                                ],
-                              ),
-                            ]),
+              child: ListView(
+            padding: EdgeInsets.all(16),
+            children: <Widget>[
+              Visibility(
+                  visible: (poolInfo?.shares ?? BigInt.zero) > BigInt.zero,
+                  child: PluginTagCard(
+                    titleTag: '$pairView ${dicAssets['balance']}',
+                    padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          PluginInfoItem(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            title: dicAssets['amount.all'],
+                            titleStyle: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(color: Colors.white),
+                            content: Fmt.priceFloorBigInt(
+                                shareFreeInt + shareStakedInt!,
+                                balancePair[0]!.decimals!),
+                          ),
+                          PluginInfoItem(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            title: dicAssets['amount.staked'],
+                            titleStyle: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(color: Colors.white),
+                            content: Fmt.priceFloorBigInt(
+                                shareStakedInt, balancePair[0]!.decimals!),
+                          ),
+                          PluginInfoItem(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            title: dicAssets['amount.free'],
+                            titleStyle: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(color: Colors.white),
+                            content: Fmt.priceFloorBigInt(
+                                shareFreeInt, balancePair[0]!.decimals!),
+                          )
+                        ],
                       ),
-                      PluginTagCard(
-                        titleTag: dic['v3.earn.tokenReceived']!,
-                        padding: EdgeInsets.symmetric(vertical: 19),
-                        margin: EdgeInsets.only(top: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${Fmt.doubleFormat(amountLeft)} ${pairView[0]} + ${Fmt.doubleFormat(amountRight)} ${pairView[1]}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText1
-                                  ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                            )
+                    ),
+                  )),
+              PluginTagCard(
+                titleTag: dic['v3.earn.amout'],
+                padding:
+                    EdgeInsets.only(top: 14, bottom: 16, right: 14, left: 23),
+                margin: EdgeInsets.only(top: 16),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Form(
+                        key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: TextFormField(
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline3
+                              ?.copyWith(color: Colors.white, fontSize: 40),
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.zero,
+                            border: InputBorder.none,
+                            hintText:
+                                '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0]!.decimals!, lengthMax: 4)} Shares',
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(
+                                    color: Color(0xffbcbcbc),
+                                    fontWeight: FontWeight.w300),
+                            suffix: GestureDetector(
+                              child: Icon(
+                                CupertinoIcons.clear_thick_circled,
+                                color: Color(0xFFD8D8D8),
+                                size: 22,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _amountCtrl.text = '';
+                                });
+                              },
+                            ),
+                          ),
+                          inputFormatters: [
+                            UI.decimalInputFormatter(balancePair[0]!.decimals!)!
                           ],
+                          controller: _amountCtrl,
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          validator: _validateInput,
+                          onChanged: (v) {
+                            setState(() {});
+                          },
                         ),
                       ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  dic['dex.rate']!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline4
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              Column(children: [
-                                Text(
-                                    '1 ${pairView[0]} = ${Fmt.doubleFormat(1 / exchangeRate)} ${pairView[1]}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(color: Colors.white)),
-                                Text(
-                                    '1 ${pairView[1]} = ${Fmt.doubleFormat(exchangeRate)} ${pairView[0]}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(color: Colors.white)),
-                              ])
-                            ],
-                          )),
-                      GestureDetector(
-                        child: Padding(
-                            padding: EdgeInsets.only(top: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                PluginRadioButton(value: _fromPool),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 4),
-                                  child: Text(
-                                    dic['earn.fromPool']!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            )),
-                        onTap: () {
-                          setState(() {
-                            _fromPool = !_fromPool;
-                          });
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          PluginOutlinedButtonSmall(
+                            color: Color(0xFFFC8156),
+                            activeTextcolor: Colors.white,
+                            unActiveTextcolor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 5),
+                            content: '10%',
+                            active: !shareEmpty && shareInputInt == shareInt10,
+                            onPressed: shareEmpty
+                                ? null
+                                : () => _onAmountSelect(
+                                    shareInt10, balancePair[0]!.decimals),
+                          ),
+                          PluginOutlinedButtonSmall(
+                            color: Color(0xFFFC8156),
+                            activeTextcolor: Colors.white,
+                            unActiveTextcolor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 5),
+                            content: '25%',
+                            active: !shareEmpty && shareInputInt == shareInt25,
+                            onPressed: shareEmpty
+                                ? null
+                                : () => _onAmountSelect(
+                                    shareInt25, balancePair[0]!.decimals),
+                          ),
+                          PluginOutlinedButtonSmall(
+                            color: Color(0xFFFC8156),
+                            activeTextcolor: Colors.white,
+                            unActiveTextcolor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 5),
+                            content: '50%',
+                            active: !shareEmpty && shareInputInt == shareInt50,
+                            onPressed: shareEmpty
+                                ? null
+                                : () => _onAmountSelect(
+                                    shareInt50, balancePair[0]!.decimals),
+                          ),
+                          PluginOutlinedButtonSmall(
+                            color: Color(0xFFFC8156),
+                            activeTextcolor: Colors.white,
+                            unActiveTextcolor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 5),
+                            content: '100%',
+                            active:
+                                !shareEmpty && shareInputInt == shareFromInt,
+                            onPressed: shareEmpty
+                                ? null
+                                : () => _onAmountSelect(
+                                    shareFromInt, balancePair[0]!.decimals,
+                                    isMax: true),
+                          )
+                        ],
                       ),
+                    ]),
+              ),
+              PluginTagCard(
+                titleTag: dic['v3.earn.tokenReceived']!,
+                padding: EdgeInsets.symmetric(vertical: 19),
+                margin: EdgeInsets.only(top: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${Fmt.doubleFormat(amountLeft)} ${pairView[0]} + ${Fmt.doubleFormat(amountRight)} ${pairView[1]}',
+                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          dic['dex.rate']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Column(children: [
+                        Text(
+                            '1 ${pairView[0]} = ${Fmt.doubleFormat(1 / exchangeRate)} ${pairView[1]}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(color: Colors.white)),
+                        Text(
+                            '1 ${pairView[1]} = ${Fmt.doubleFormat(exchangeRate)} ${pairView[0]}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(color: Colors.white)),
+                      ])
                     ],
                   )),
-                  Padding(
-                      padding: EdgeInsets.only(top: 37, bottom: 38),
-                      child: PluginButton(
-                        title: dic['earn.remove']!,
-                        onPressed: () => _onSubmit(balancePair[0]!.decimals),
-                      )),
-                ])),
-          ),
+              GestureDetector(
+                child: Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        PluginRadioButton(value: _fromPool),
+                        Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Text(
+                            dic['earn.fromPool']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )),
+                onTap: () {
+                  setState(() {
+                    _fromPool = !_fromPool;
+                  });
+                },
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 141, bottom: 38),
+                  child: PluginButton(
+                    title: dic['earn.remove']!,
+                    onPressed: () => _onSubmit(balancePair[0]!.decimals),
+                  )),
+            ],
+          )),
         );
       },
     );

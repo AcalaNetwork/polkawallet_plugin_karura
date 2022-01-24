@@ -298,61 +298,53 @@ class _RedeemPageState extends State<RedeemPage> {
             centerTitle: true,
           ),
           body: SafeArea(
-              child: Column(
-            children: [
-              Expanded(
-                  child: ListView(
-                padding: EdgeInsets.all(16),
-                children: <Widget>[
-                  PluginInputBalance(
-                    margin: EdgeInsets.only(bottom: 2),
-                    titleTag: dic['earn.unStake'],
-                    inputCtrl: _amountPayCtrl,
-                    balance: TokenBalanceData(
-                        symbol: lTokenBalance.symbol,
-                        amount: max.toString(),
-                        decimals: lTokenBalance.decimals),
-                    tokenIconsMap: widget.plugin.tokenIcons,
-                    onInputChange: (v) => _onSupplyAmountChange(v, max),
-                    onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,
-                    onClear: () {
-                      setState(() {
-                        _amountPayCtrl.text = '';
-                      });
-                      _onSupplyAmountChange('', max);
-                    },
-                  ),
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          dic['v3.homa.minUnstakingAmmount']!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          "${minRedeem.toStringAsFixed(4)} $stakeToken",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300),
-                        )
-                      ],
+              child: ListView(
+            padding: EdgeInsets.all(16),
+            children: <Widget>[
+              PluginInputBalance(
+                margin: EdgeInsets.only(bottom: 2),
+                titleTag: dic['earn.unStake'],
+                inputCtrl: _amountPayCtrl,
+                balance: TokenBalanceData(
+                    symbol: lTokenBalance.symbol,
+                    amount: max.toString(),
+                    decimals: lTokenBalance.decimals),
+                tokenIconsMap: widget.plugin.tokenIcons,
+                onInputChange: (v) => _onSupplyAmountChange(v, max),
+                onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,
+                onClear: () {
+                  setState(() {
+                    _amountPayCtrl.text = '';
+                  });
+                  _onSupplyAmountChange('', max);
+                },
+              ),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dic['v3.homa.minUnstakingAmmount']!,
+                      style: Theme.of(context).textTheme.headline5?.copyWith(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300),
                     ),
-                  ),
-                  ErrorMessage(_error,
-                      margin: EdgeInsets.symmetric(vertical: 2)),
-                  Visibility(visible: isLoading, child: PluginLoadingWidget()),
-                  Column(
+                    Text(
+                      "${minRedeem.toStringAsFixed(4)} $stakeToken",
+                      style: Theme.of(context).textTheme.headline5?.copyWith(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300),
+                    )
+                  ],
+                ),
+              ),
+              ErrorMessage(_error, margin: EdgeInsets.symmetric(vertical: 2)),
+              Visibility(visible: isLoading, child: PluginLoadingWidget()),
+              Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Column(
                     children: [
                       PluginTextTag(
                         title: dic['v3.selectRedeemMethod']!,
@@ -410,152 +402,9 @@ class _RedeemPageState extends State<RedeemPage> {
                         ),
                       )
                     ],
-                  ),
-                  // RoundedCard(
-                  //   margin: EdgeInsets.only(top: 20),
-                  //   padding: EdgeInsets.all(16),
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: <Widget>[
-                  //       Visibility(
-                  //           visible: pendingRedeemReq > BigInt.zero &&
-                  //               !_isFastRedeem,
-                  //           child: Container(
-                  //             margin: EdgeInsets.only(bottom: 8),
-                  //             child: Row(
-                  //               children: [
-                  //                 Expanded(
-                  //                     child: TextTag(
-                  //                   dic['homa.redeem.pending']! +
-                  //                       ' $pendingRedeemReqView L$relay_chain_token_symbol' +
-                  //                       '\n${dic['homa.redeem.replace']}',
-                  //                   padding: EdgeInsets.symmetric(
-                  //                       vertical: 4, horizontal: 8),
-                  //                 ))
-                  //               ],
-                  //             ),
-                  //           )),
-                  //       SwapTokenInput(
-                  //         title: dic['dex.pay'],
-                  //         inputCtrl: _amountPayCtrl,
-                  //         balance: TokenBalanceData(
-                  //             symbol: lTokenBalance.symbol,
-                  //             amount: max.toString(),
-                  //             decimals: lTokenBalance.decimals),
-                  //         tokenIconsMap: widget.plugin.tokenIcons,
-                  //         onInputChange: (v) => _onSupplyAmountChange(v, max),
-                  //         onSetMax:
-                  //             karBalance > 0.1 ? (v) => _onSetMax(v) : null,
-                  //         onClear: () {
-                  //           setState(() {
-                  //             _amountPayCtrl.text = '';
-                  //           });
-                  //           _onSupplyAmountChange('', max);
-                  //         },
-                  //       ),
-                  //       ErrorMessage(_error),
-                  //       // Visibility(
-                  //       //     visible: _amountReceive.isNotEmpty,
-                  //       //     child: Container(
-                  //       //       margin: EdgeInsets.only(top: 16),
-                  //       //       child: InfoItemRow(dic['dex.receive'],
-                  //       //           '$_amountReceive L$stakeToken'),
-                  //       //     )),
-                  //       Container(
-                  //         child: Row(
-                  //           mainAxisAlignment: MainAxisAlignment.end,
-                  //           children: [
-                  //             Text(dic['homa.fast']!,
-                  //                 style: TextStyle(fontSize: 13)),
-                  //             Container(
-                  //               margin: EdgeInsets.only(left: 5),
-                  //               child: CupertinoSwitch(
-                  //                 value: _isFastRedeem,
-                  //                 onChanged: _switchFast,
-                  //               ),
-                  //             )
-                  //           ],
-                  //         ),
-                  //       ),
-                  //       Container(
-                  //         margin: EdgeInsets.only(top: 5),
-                  //         padding: EdgeInsets.all(16),
-                  //         decoration: BoxDecoration(
-                  //           borderRadius: BorderRadius.all(Radius.circular(16)),
-                  //           border: Border.all(
-                  //               color: Theme.of(context).disabledColor,
-                  //               width: 0.5),
-                  //         ),
-                  //         child: Column(
-                  //           children: [
-                  //             // Row(
-                  //             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //             //   children: [
-                  //             //     Text(dic['homa.redeem.unbonding']!,
-                  //             //         style: labelStyle),
-                  //             //     Text("$unbondEras Kusama Eras")
-                  //             //   ],
-                  //             // ),
-                  //             Row(
-                  //               mainAxisAlignment:
-                  //                   MainAxisAlignment.spaceBetween,
-                  //               children: [
-                  //                 Text(dic['homa.redeem.receive']!,
-                  //                     style: labelStyle),
-                  //                 Text(
-                  //                     "${_data != null ? _data!.expected : (_receiveAmount ?? 0)} $stakeToken")
-                  //               ],
-                  //             ),
-                  //             Visibility(
-                  //                 visible: _isFastRedeem,
-                  //                 child: Row(
-                  //                   mainAxisAlignment:
-                  //                       MainAxisAlignment.spaceBetween,
-                  //                   children: [
-                  //                     Text(dic['homa.redeem.fee']!,
-                  //                         style: labelStyle),
-                  //                     Text(
-                  //                         "${_data != null ? _data!.fee : _fastFee} L$stakeToken")
-                  //                   ],
-                  //                 )),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //       // Container(
-                  //       //   margin: EdgeInsets.only(top: 8),
-                  //       //   child: Row(
-                  //       //     mainAxisAlignment: MainAxisAlignment.end,
-                  //       //     children: [
-                  //       //       Text(dic['homa.now']!,
-                  //       //           style: TextStyle(fontSize: 13)),
-                  //       //       GestureDetector(
-                  //       //         child: Container(
-                  //       //           padding: EdgeInsets.only(left: 5),
-                  //       //           child: Text(
-                  //       //             'Swap',
-                  //       //             style: TextStyle(
-                  //       //               color: Theme.of(context).primaryColor,
-                  //       //               fontStyle: FontStyle.italic,
-                  //       //               decoration: TextDecoration.underline,
-                  //       //             ),
-                  //       //           ),
-                  //       //         ),
-                  //       //         onTap: () {
-                  //       //           Navigator.popUntil(
-                  //       //               context, ModalRoute.withName('/'));
-                  //       //           Navigator.of(context).pushNamed(SwapPage.route);
-                  //       //         },
-                  //       //       )
-                  //       //     ],
-                  //       //   ),
-                  //       // ),
-                  //     ],
-                  //   ),
-                  // )
-                ],
-              )),
+                  )),
               Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16, bottom: 54),
+                  padding: EdgeInsets.only(bottom: 38, top: 50),
                   child: PluginButton(
                     title: dic['homa.redeem']!,
                     onPressed: _onSubmit,

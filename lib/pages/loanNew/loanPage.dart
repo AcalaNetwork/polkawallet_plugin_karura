@@ -78,14 +78,14 @@ class _LoanPageState extends State<LoanPage> {
         .map((e) => e.token!.symbol)
         .toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
-    widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
+    await widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
     if (mounted) {
-      widget.plugin.service!.loan
+      await widget.plugin.service!.loan
           .subscribeAccountLoans(widget.keyring.current.address);
     }
 
-    Future.delayed(Duration(milliseconds: 500), () {
+    setState(() {
       _editorLoans = Map<String, LoanData?>();
       _collaterals = Map<String, BigInt?>();
       _debitsShares = Map<String, BigInt?>();
@@ -112,12 +112,7 @@ class _LoanPageState extends State<LoanPage> {
         ))) as Map?;
     if (res != null) {
       Future.delayed(Duration(milliseconds: 500), () {
-        setState(() {
-          _editorLoans = Map<String, LoanData?>();
-          _collaterals = Map<String, BigInt?>();
-          _debitsShares = Map<String, BigInt?>();
-          _fetchData();
-        });
+        _fetchData();
       });
     }
   }
@@ -391,298 +386,323 @@ class _LoanPageState extends State<LoanPage> {
             width: double.infinity,
             height: double.infinity,
             margin: EdgeInsets.only(top: 16),
-            child: isDataLoading
-                ? Column(
-                    children: [
-                      ConnectionChecker(widget.plugin, onConnected: _fetchData),
-                      Container(
-                        height: MediaQuery.of(context).size.height / 2,
-                        child: PluginLoadingWidget(),
+            child: SafeArea(
+                child: isDataLoading
+                    ? Column(
+                        children: [
+                          ConnectionChecker(widget.plugin,
+                              onConnected: _fetchData),
+                          Container(
+                            height: MediaQuery.of(context).size.height / 2,
+                            child: PluginLoadingWidget(),
+                          )
+                        ],
                       )
-                    ],
-                  )
-                : LoanTabBarWidget(
-                    initialTab:
-                        initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
-                    data: widget.plugin.store!.loan.loanTypes.map((e) {
-                      LoanData? loan = _editorLoans[e.token!.symbol];
-                      if (loan == null) {
-                        final _loans = loans.where(
-                            (data) => data.token!.symbol == e.token!.symbol);
-                        loan = _loans.length > 0 ? _loans.first : null;
-                        _editorLoans[e.token!.symbol!] = loan;
-                      }
-                      Widget child = CreateVaultWidget(onPressed: () {
-                        Navigator.of(context).pushNamed(LoanCreatePage.route,
-                            arguments: e.token);
-                      });
-                      if (loan != null) {
-                        final balancePair =
-                            AssetsUtils.getBalancePairFromTokenNameId(
-                                widget.plugin,
-                                [loan.token!.symbol, karura_stable_coin]);
+                    : LoanTabBarWidget(
+                        initialTab: initialLoanTypeIndex > -1
+                            ? initialLoanTypeIndex
+                            : 0,
+                        data: widget.plugin.store!.loan.loanTypes.map((e) {
+                          LoanData? loan = _editorLoans[e.token!.symbol];
+                          if (loan == null) {
+                            final _loans = loans.where((data) =>
+                                data.token!.symbol == e.token!.symbol);
+                            loan = _loans.length > 0 ? _loans.first : null;
+                            _editorLoans[e.token!.symbol!] = loan;
+                          }
+                          Widget child = CreateVaultWidget(onPressed: () {
+                            Navigator.of(context).pushNamed(
+                                LoanCreatePage.route,
+                                arguments: e.token);
+                          });
+                          if (loan != null) {
+                            final balancePair =
+                                AssetsUtils.getBalancePairFromTokenNameId(
+                                    widget.plugin,
+                                    [loan.token!.symbol, karura_stable_coin]);
 
-                        final available = Fmt.bigIntToDouble(
-                            loan.collaterals, balancePair[0]!.decimals!);
-                        final BigInt balanceBigInt =
-                            Fmt.balanceInt(balancePair[0]!.amount);
-                        final balance = Fmt.bigIntToDouble(
-                            balanceBigInt, balancePair[0]!.decimals!);
+                            final available = Fmt.bigIntToDouble(
+                                loan.collaterals, balancePair[0]!.decimals!);
+                            final BigInt balanceBigInt =
+                                Fmt.balanceInt(balancePair[0]!.amount);
+                            final balance = Fmt.bigIntToDouble(
+                                balanceBigInt, balancePair[0]!.decimals!);
 
-                        if (_collaterals[e.token!.symbol] == null) {
-                          _collaterals[e.token!.symbol!] = loan.collaterals;
-                        }
-                        if (_debitsShares[e.token!.symbol] == null) {
-                          _debitsShares[e.token!.symbol!] = loan.debitShares;
-                        }
+                            if (_collaterals[e.token!.symbol] == null) {
+                              _collaterals[e.token!.symbol!] = loan.collaterals;
+                            }
+                            if (_debitsShares[e.token!.symbol] == null) {
+                              _debitsShares[e.token!.symbol!] =
+                                  loan.debitShares;
+                            }
 
-                        final debits = Fmt.bigIntToDouble(
-                            loan.debits, balancePair[1]!.decimals!);
-                        final maxToBorrow = Fmt.bigIntToDouble(
-                            loan.maxToBorrow, stableCoinDecimals);
+                            final debits = Fmt.bigIntToDouble(
+                                loan.debits, balancePair[1]!.decimals!);
+                            final maxToBorrow = Fmt.bigIntToDouble(
+                                loan.maxToBorrow, stableCoinDecimals);
 
-                        final availablePrice = Fmt.bigIntToDouble(
-                            widget.plugin.store!.assets
-                                .prices[loan.token!.symbol],
-                            acala_price_decimals);
+                            final availablePrice = Fmt.bigIntToDouble(
+                                widget.plugin.store!.assets
+                                    .prices[loan.token!.symbol],
+                                acala_price_decimals);
 
-                        final BigInt balanceStableCoin =
-                            Fmt.balanceInt(balancePair[1]!.amount);
+                            final BigInt balanceStableCoin =
+                                Fmt.balanceInt(balancePair[1]!.amount);
 
-                        final collateralsValue =
-                            loan.collaterals - _collaterals[e.token!.symbol!]!;
-                        final debitsSharesValue =
-                            loan.debitShares - _debitsShares[e.token!.symbol!]!;
-                        final debitsValue =
-                            loan.type.debitShareToDebit(debitsSharesValue);
+                            final collateralsValue = loan.collaterals -
+                                _collaterals[e.token!.symbol!]!;
+                            final debitsSharesValue = loan.debitShares -
+                                _debitsShares[e.token!.symbol!]!;
+                            final debitsValue =
+                                loan.type.debitShareToDebit(debitsSharesValue);
 
-                        final originalDebitsValue = loan.type.debitShareToDebit(
-                            _debitsShares[e.token!.symbol!]!);
+                            final originalDebitsValue = loan.type
+                                .debitShareToDebit(
+                                    _debitsShares[e.token!.symbol!]!);
 
-                        child = SingleChildScrollView(
-                            physics: BouncingScrollPhysics(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                headView(
-                                    headCardHeight,
-                                    headCardWidth,
-                                    loan,
-                                    double.parse(Fmt.token(
-                                        loan.type.requiredCollateralRatio,
-                                        18))),
-                                Container(
-                                  padding: EdgeInsets.all(7),
-                                  margin: EdgeInsets.only(bottom: 2),
-                                  decoration: BoxDecoration(
-                                    color: Color(0x1AFFFFFF),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(14)),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      LoanCollateral(
-                                        title:
-                                            '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
-                                        maxNumber: Fmt.bigIntToDouble(
-                                                _collaterals[e.token!.symbol]!,
-                                                balancePair[0]!.decimals!) +
-                                            balance,
-                                        minNumber: Fmt.bigIntToDouble(
-                                            loan.requiredCollateral,
-                                            balancePair[0]!.decimals!),
-                                        subtitleLeft: dic['loan.withdraw']!,
-                                        subtitleRight: dic['loan.deposit']!,
-                                        value: available,
-                                        price: availablePrice,
-                                        onChanged: (value) {
-                                          final collaterals = Fmt.tokenInt(
-                                              "$value",
-                                              balancePair[0]!.decimals!);
-                                          final maxToBorrow =
-                                              Fmt.bigIntToDouble(
-                                                      collaterals,
-                                                      balancePair[0]!
-                                                          .decimals!) *
-                                                  availablePrice /
-                                                  double.parse(
-                                                    Fmt.token(
-                                                        loan!.type
-                                                            .requiredCollateralRatio,
-                                                        acala_price_decimals),
-                                                  );
-                                          if (maxToBorrow >= debits) {
-                                            loan.collaterals = collaterals;
-                                            loan.maxToBorrow = Fmt.tokenInt(
-                                                "$maxToBorrow",
-                                                balancePair[0]!.decimals!);
-                                            loan.collateralRatio =
-                                                Fmt.bigIntToDouble(
-                                                        collaterals,
-                                                        balancePair[0]!
-                                                            .decimals!) *
-                                                    availablePrice /
-                                                    debits;
-                                          }
-                                          setState(() {});
-                                        },
+                            child = SingleChildScrollView(
+                                physics: BouncingScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    headView(
+                                        headCardHeight,
+                                        headCardWidth,
+                                        loan,
+                                        double.parse(Fmt.token(
+                                            loan.type.requiredCollateralRatio,
+                                            18))),
+                                    Container(
+                                      padding: EdgeInsets.all(7),
+                                      margin: EdgeInsets.only(bottom: 2),
+                                      decoration: BoxDecoration(
+                                        color: Color(0x1AFFFFFF),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(14)),
                                       ),
-                                      Container(
-                                          margin: EdgeInsets.only(top: 12),
-                                          child: LoanCollateral(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          LoanCollateral(
                                             title:
-                                                '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
-                                            maxNumber: maxToBorrow,
-                                            minNumber: balanceStableCoin >
-                                                    originalDebitsValue
-                                                ? 0
-                                                : Fmt.bigIntToDouble(
-                                                    originalDebitsValue -
-                                                        balanceStableCoin,
-                                                    balancePair[1]!.decimals!),
-                                            subtitleLeft: dic['loan.payback']!,
-                                            subtitleRight: dic['loan.mint']!,
-                                            price: 1.0,
-                                            value: debits,
+                                                '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
+                                            maxNumber: Fmt.bigIntToDouble(
+                                                    _collaterals[
+                                                        e.token!.symbol]!,
+                                                    balancePair[0]!.decimals!) +
+                                                balance,
+                                            minNumber: Fmt.bigIntToDouble(
+                                                loan.requiredCollateral,
+                                                balancePair[0]!.decimals!),
+                                            subtitleLeft: dic['loan.withdraw']!,
+                                            subtitleRight: dic['loan.deposit']!,
+                                            value: available,
+                                            price: availablePrice,
                                             onChanged: (value) {
-                                              setState(() {
-                                                loan!.debits = Fmt.tokenInt(
-                                                    "$value",
+                                              final collaterals = Fmt.tokenInt(
+                                                  "$value",
+                                                  balancePair[0]!.decimals!);
+                                              final maxToBorrow =
+                                                  Fmt.bigIntToDouble(
+                                                          collaterals,
+                                                          balancePair[0]!
+                                                              .decimals!) *
+                                                      availablePrice /
+                                                      double.parse(
+                                                        Fmt.token(
+                                                            loan!.type
+                                                                .requiredCollateralRatio,
+                                                            acala_price_decimals),
+                                                      );
+                                              if (maxToBorrow >= debits) {
+                                                loan.collaterals = collaterals;
+                                                loan.maxToBorrow = Fmt.tokenInt(
+                                                    "$maxToBorrow",
                                                     balancePair[0]!.decimals!);
-                                                loan.debitShares = loan.type
-                                                    .debitToDebitShare(
-                                                        loan.debits);
                                                 loan.collateralRatio =
                                                     Fmt.bigIntToDouble(
-                                                            loan.collaterals,
+                                                            collaterals,
                                                             balancePair[0]!
                                                                 .decimals!) *
                                                         availablePrice /
-                                                        value;
-                                                loan.requiredCollateral =
+                                                        debits;
+                                                loan.liquidationPrice =
                                                     Fmt.tokenInt(
-                                                        "${value * double.parse(
-                                                              Fmt.token(
-                                                                  loan.type
-                                                                      .requiredCollateralRatio,
-                                                                  acala_price_decimals),
-                                                            ) / availablePrice}",
+                                                        '${debits * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / value}',
+                                                        acala_price_decimals);
+                                              }
+                                              setState(() {});
+                                            },
+                                          ),
+                                          Container(
+                                              margin: EdgeInsets.only(top: 12),
+                                              child: LoanCollateral(
+                                                title:
+                                                    '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
+                                                maxNumber: maxToBorrow,
+                                                minNumber: balanceStableCoin >
+                                                        originalDebitsValue
+                                                    ? 0
+                                                    : Fmt.bigIntToDouble(
+                                                        originalDebitsValue -
+                                                            balanceStableCoin,
+                                                        balancePair[1]!
+                                                            .decimals!),
+                                                subtitleLeft:
+                                                    dic['loan.payback']!,
+                                                subtitleRight:
+                                                    dic['loan.mint']!,
+                                                price: 1.0,
+                                                value: debits,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    loan!.debits = Fmt.tokenInt(
+                                                        "$value",
                                                         balancePair[0]!
                                                             .decimals!);
-                                              });
-                                            },
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                                GestureDetector(
-                                  child: Padding(
-                                      padding: EdgeInsets.only(bottom: 5),
-                                      child: Text(dic['loan.close.dex']!,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline6
-                                              ?.copyWith(
+                                                    loan.debitShares = loan.type
+                                                        .debitToDebitShare(
+                                                            loan.debits);
+                                                    loan.collateralRatio =
+                                                        Fmt.bigIntToDouble(
+                                                                loan
+                                                                    .collaterals,
+                                                                balancePair[0]!
+                                                                    .decimals!) *
+                                                            availablePrice /
+                                                            value;
+                                                    loan.requiredCollateral =
+                                                        Fmt.tokenInt(
+                                                            "${value * double.parse(
+                                                                  Fmt.token(
+                                                                      loan.type
+                                                                          .requiredCollateralRatio,
+                                                                      acala_price_decimals),
+                                                                ) / availablePrice}",
+                                                            balancePair[0]!
+                                                                .decimals!);
+                                                    loan.liquidationPrice =
+                                                        Fmt.tokenInt(
+                                                            '${value * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / Fmt.bigIntToDouble(loan.collaterals, balancePair[0]!.decimals!)}',
+                                                            acala_price_decimals);
+                                                  });
+                                                },
+                                              ))
+                                        ],
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      child: Padding(
+                                          padding: EdgeInsets.only(bottom: 5),
+                                          child: Text(dic['loan.close.dex']!,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline6
+                                                  ?.copyWith(
+                                                      color: Colors.white,
+                                                      fontSize: 10))),
+                                      onTap: () => _closeVault(
+                                          loan!,
+                                          balancePair[0]!.decimals,
+                                          Fmt.bigIntToDouble(loan.debits,
+                                              balancePair[1]!.decimals!)),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                            "${debitsSharesValue < BigInt.zero ? dic['loan.payback']! : dic['loan.mint']!}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                    color: Colors.white,
+                                                    height: 2.0,
+                                                    fontWeight:
+                                                        FontWeight.w600)),
+                                        Text(
+                                            "${Fmt.priceCeilBigInt(debitsValue.abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
                                                   color: Colors.white,
-                                                  fontSize: 10))),
-                                  onTap: () => _closeVault(
-                                      loan!,
-                                      balancePair[0]!.decimals,
-                                      Fmt.bigIntToDouble(loan.debits,
-                                          balancePair[1]!.decimals!)),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                        "${debitsSharesValue < BigInt.zero ? dic['loan.payback']! : dic['loan.mint']!}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                height: 2.0,
-                                                fontWeight: FontWeight.w600)),
-                                    Text(
-                                        "${Fmt.priceCeilBigInt(debitsValue.abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              height: 1.5,
-                                            ))
+                                                  height: 1.5,
+                                                ))
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                            "${collateralsValue > BigInt.zero ? dic['loan.deposit']! : dic['loan.withdraw']!}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                    color: Colors.white,
+                                                    height: 2.0,
+                                                    fontWeight:
+                                                        FontWeight.w600)),
+                                        Text(
+                                            "${Fmt.priceCeilBigInt(collateralsValue.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                  color: Colors.white,
+                                                  height: 1.5,
+                                                ))
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(dic['v3.loan.loanRatio']!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                    color: Colors.white,
+                                                    height: 2.0,
+                                                    fontWeight:
+                                                        FontWeight.w600)),
+                                        Text(
+                                            '${((1 / loan.collateralRatio) * 100).toStringAsFixed(2)}%',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                  color: Colors.white,
+                                                  height: 1.5,
+                                                ))
+                                      ],
+                                    ),
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            top: 37, bottom: 38),
+                                        child: PluginButton(
+                                          title: '${dic['v3.loan.submit']}',
+                                          onPressed: () {
+                                            _onSubmit(
+                                                loan!, stableCoinDecimals);
+                                          },
+                                        )),
                                   ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                        "${collateralsValue > BigInt.zero ? dic['loan.deposit']! : dic['loan.withdraw']!}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                height: 2.0,
-                                                fontWeight: FontWeight.w600)),
-                                    Text(
-                                        "${Fmt.priceCeilBigInt(collateralsValue.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              height: 1.5,
-                                            ))
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(dic['v3.loan.loanRatio']!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                height: 2.0,
-                                                fontWeight: FontWeight.w600)),
-                                    Text(
-                                        '${((1 / loan.collateralRatio) * 100).toStringAsFixed(2)}%',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              height: 1.5,
-                                            ))
-                                  ],
-                                ),
-                                Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 37, bottom: 38),
-                                    child: PluginButton(
-                                      title: '${dic['v3.loan.submit']}',
-                                      onPressed: () {
-                                        _onSubmit(loan!, stableCoinDecimals);
-                                      },
-                                    )),
-                              ],
-                            ));
-                      }
-                      return LoanTabBarWidgetData(
-                        TokenIcon(e.token!.symbol!, widget.plugin.tokenIcons),
-                        child,
-                      );
-                    }).toList(),
-                  ),
+                                ));
+                          }
+                          return LoanTabBarWidgetData(
+                            TokenIcon(
+                                e.token!.symbol!, widget.plugin.tokenIcons),
+                            child,
+                          );
+                        }).toList(),
+                      )),
           ));
     });
   }
@@ -713,7 +733,7 @@ class _LoanPageState extends State<LoanPage> {
         ? loan.maxToBorrow - loan.debits
         : BigInt.zero;
     final maxToBorrowView =
-        Fmt.priceFloorBigInt(maxToBorrow, balancePair[1]!.decimals!);
+        Fmt.priceFloorBigIntFormatter(maxToBorrow, balancePair[1]!.decimals!);
     return Container(
       padding: EdgeInsets.all(6),
       margin: EdgeInsets.only(bottom: 19),
@@ -969,9 +989,9 @@ class _LoanCollateralState extends State<LoanCollateral> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                          "min:${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
+                                          "min:${Fmt.priceCeil(widget.minNumber, lengthMax: 2)}"),
                                       Text(
-                                          "max:${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
+                                          "max:${Fmt.priceCeil(widget.maxNumber, lengthMax: 2)}"),
                                     ],
                                   ),
                                   CupertinoTextField(
@@ -1140,7 +1160,7 @@ class CreateVaultWidget extends StatelessWidget {
             ),
           ),
           Container(
-              margin: EdgeInsets.only(bottom: 34, top: 131),
+              margin: EdgeInsets.only(top: 131, bottom: 38),
               child: PluginButton(
                 title: dic['loan.create']!,
                 onPressed: onPressed,

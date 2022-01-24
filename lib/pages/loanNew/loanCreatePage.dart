@@ -293,111 +293,99 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
         appBar: PluginAppBar(title: Text(pageTitle), centerTitle: true),
         body: Builder(builder: (BuildContext context) {
           return SafeArea(
-            child: Column(
+            child: ListView(
+              padding: EdgeInsets.all(16),
               children: <Widget>[
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.all(16),
-                    children: <Widget>[
-                      PluginInputBalance(
-                        inputCtrl: _amountCtrl,
-                        margin: EdgeInsets.only(bottom: 2),
-                        titleTag: dic['loan.collateral'],
-                        onInputChange: (v) => _onAmount1Change(
-                            v, loanType, price, available,
-                            stableCoinDecimals: balancePair[1]!.decimals,
-                            collateralDecimals: balancePair[0]!.decimals),
-                        balance: token,
-                        tokenIconsMap: widget.plugin.tokenIcons,
-                        onClear: () {
-                          setState(() {
-                            _amountCollateral = BigInt.zero;
-                            _maxToBorrow =
-                                loanType.calcMaxToBorrow(BigInt.zero, price);
-                          });
-                        },
-                      ),
-                      ErrorMessage(_error1,
-                          margin: EdgeInsets.symmetric(vertical: 2)),
-                      PluginInputBalance(
-                        inputCtrl: _amountCtrl2,
-                        tokenBgColor: Colors.white,
-                        margin: EdgeInsets.only(bottom: 2, top: 24),
-                        titleTag: assetDic!['amount'],
-                        onInputChange: (v) => _onAmount2Change(
-                            v,
-                            loanType,
-                            balancePair[1]!.decimals,
-                            balancePair[0]!.decimals,
-                            maxToBorrow),
-                        balance: TokenBalanceData(
-                            symbol: karura_stable_coin_view,
-                            decimals: balancePair[1]!.decimals!,
-                            amount: _maxToBorrow.toString()),
-                        tokenIconsMap: widget.plugin.tokenIcons,
-                        onClear: () {
-                          setState(() {
-                            _amountCollateral = BigInt.zero;
-                            _maxToBorrow =
-                                loanType.calcMaxToBorrow(BigInt.zero, price);
-                          });
-                        },
-                      ),
-                      ErrorMessage(_error2,
-                          margin: EdgeInsets.symmetric(vertical: 2)),
-                      Padding(
-                          padding: EdgeInsets.only(bottom: 5, top: 24),
-                          child: InfoItemRow(
-                            dic['v3.maxCanMint']!,
-                            "$maxToBorrow $karura_stable_coin_view",
-                            labelStyle: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                            contentStyle: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400),
-                          )),
-                      Padding(
-                          padding: EdgeInsets.only(bottom: 5),
-                          child: InfoItemRow(
-                            dic['v3.minimumGenerate']!,
-                            "${Fmt.priceCeilBigInt(loanType.minimumDebitValue, balancePair[1]!.decimals!)} $karura_stable_coin_view",
-                            labelStyle: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                            contentStyle: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400),
-                          )),
-                      Padding(
-                          padding: EdgeInsets.only(bottom: 23, top: 15),
-                          child: Image.asset(
-                              "packages/polkawallet_plugin_karura/assets/images/divider.png")),
-                      LoanInfoPanel(
-                        price: price,
-                        liquidationRatio: loanType.liquidationRatio,
-                        requiredRatio: loanType.requiredCollateralRatio,
-                        currentRatio: _currentRatio,
-                        liquidationPrice: _liquidationPrice,
-                      ),
-                    ],
-                  ),
+                PluginInputBalance(
+                  inputCtrl: _amountCtrl,
+                  margin: EdgeInsets.only(bottom: 2),
+                  titleTag: dic['loan.collateral'],
+                  onInputChange: (v) => _onAmount1Change(
+                      v, loanType, price, available,
+                      stableCoinDecimals: balancePair[1]!.decimals,
+                      collateralDecimals: balancePair[0]!.decimals),
+                  balance: token,
+                  tokenIconsMap: widget.plugin.tokenIcons,
+                  onClear: () {
+                    _amountCtrl.text = '';
+                    setState(() {
+                      _amountCollateral = BigInt.zero;
+                      _maxToBorrow = BigInt.zero;
+                    });
+                  },
+                ),
+                ErrorMessage(_error1,
+                    margin: EdgeInsets.symmetric(vertical: 2)),
+                PluginInputBalance(
+                  inputCtrl: _amountCtrl2,
+                  tokenBgColor: Colors.white,
+                  margin: EdgeInsets.only(bottom: 2, top: 24),
+                  titleTag: assetDic!['amount'],
+                  onInputChange: (v) => _onAmount2Change(
+                      v,
+                      loanType,
+                      balancePair[1]!.decimals,
+                      balancePair[0]!.decimals,
+                      maxToBorrow),
+                  balance: TokenBalanceData(
+                      symbol: karura_stable_coin_view,
+                      decimals: balancePair[1]!.decimals!,
+                      amount: _maxToBorrow.toString()),
+                  tokenIconsMap: widget.plugin.tokenIcons,
+                  onClear: () {
+                    _amountCtrl2.text = '';
+                    setState(() {
+                      _amountDebit = BigInt.zero;
+                    });
+                  },
+                ),
+                ErrorMessage(_error2,
+                    margin: EdgeInsets.symmetric(vertical: 2)),
+                Padding(
+                    padding: EdgeInsets.only(bottom: 5, top: 24),
+                    child: InfoItemRow(
+                      dic['v3.maxCanMint']!,
+                      "$maxToBorrow $karura_stable_coin_view",
+                      labelStyle: Theme.of(context)
+                          .textTheme
+                          .headline4
+                          ?.copyWith(
+                              color: Colors.white, fontWeight: FontWeight.w600),
+                      contentStyle: Theme.of(context)
+                          .textTheme
+                          .headline4
+                          ?.copyWith(
+                              color: Colors.white, fontWeight: FontWeight.w400),
+                    )),
+                Padding(
+                    padding: EdgeInsets.only(bottom: 5),
+                    child: InfoItemRow(
+                      dic['v3.minimumGenerate']!,
+                      "${Fmt.priceCeilBigInt(loanType.minimumDebitValue, balancePair[1]!.decimals!)} $karura_stable_coin_view",
+                      labelStyle: Theme.of(context)
+                          .textTheme
+                          .headline4
+                          ?.copyWith(
+                              color: Colors.white, fontWeight: FontWeight.w600),
+                      contentStyle: Theme.of(context)
+                          .textTheme
+                          .headline4
+                          ?.copyWith(
+                              color: Colors.white, fontWeight: FontWeight.w400),
+                    )),
+                Padding(
+                    padding: EdgeInsets.only(bottom: 23, top: 15),
+                    child: Image.asset(
+                        "packages/polkawallet_plugin_karura/assets/images/divider.png")),
+                LoanInfoPanel(
+                  price: price,
+                  liquidationRatio: loanType.liquidationRatio,
+                  requiredRatio: loanType.requiredCollateralRatio,
+                  currentRatio: _currentRatio,
+                  liquidationPrice: _liquidationPrice,
                 ),
                 Padding(
-                    padding: EdgeInsets.only(
-                        top: 37, bottom: 38, left: 16, right: 16),
+                    padding: EdgeInsets.only(top: 37, bottom: 38),
                     child: PluginButton(
                       title: '${dic['v3.loan.submit']}',
                       onPressed: () {

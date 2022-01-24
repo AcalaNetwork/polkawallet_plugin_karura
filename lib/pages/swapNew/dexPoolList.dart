@@ -69,7 +69,7 @@ class _DexPoolListState extends State<DexPoolList> {
         onRefresh: _updateData,
         child: dexPools.length == 0
             ? ListView(
-                padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
+                padding: EdgeInsets.all(16),
                 children: [
                   Center(
                     child: Container(
@@ -84,7 +84,7 @@ class _DexPoolListState extends State<DexPoolList> {
                 ],
               )
             : ListView.builder(
-                padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
+                padding: EdgeInsets.all(16),
                 itemCount: dexPools.length,
                 itemBuilder: (_, i) {
                   final poolAmount =

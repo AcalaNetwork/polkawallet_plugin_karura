@@ -373,7 +373,7 @@ class _HomaPageState extends State<HomaPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${Fmt.priceFloor(env?.totalStaking ?? 0, lengthMax: 4)} KSM',
+                                      '${Fmt.priceFloorFormatter(env?.totalStaking ?? 0, lengthMax: 4)} $stakeSymbol',
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5
@@ -461,7 +461,8 @@ class _HomaPageState extends State<HomaPage> {
                                                           FontWeight.w600),
                                             ),
                                             Text(
-                                              Fmt.priceFloor(balanceLiquidToken,
+                                              Fmt.priceFloorFormatter(
+                                                  balanceLiquidToken,
                                                   lengthMax: 4),
                                               style: Theme.of(context)
                                                   .textTheme
@@ -500,8 +501,7 @@ class _HomaPageState extends State<HomaPage> {
                                                           FontWeight.w600),
                                             ),
                                             Text(
-                                              Fmt.priceFloor(unbonding,
-                                                  lengthMax: 4),
+                                              "${Fmt.priceFloorFormatter(unbonding, lengthMax: 4)} $stakeSymbol",
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline4
@@ -545,7 +545,8 @@ class _HomaPageState extends State<HomaPage> {
                                                           FontWeight.w600),
                                             ),
                                             Text(
-                                              Fmt.priceFloor(balanceStakeToken,
+                                              Fmt.priceFloorFormatter(
+                                                  balanceStakeToken,
                                                   lengthMax: 4),
                                               style: Theme.of(context)
                                                   .textTheme
@@ -590,8 +591,7 @@ class _HomaPageState extends State<HomaPage> {
                                                               FontWeight.w600),
                                                 ),
                                                 Text(
-                                                  Fmt.priceFloor(claimable,
-                                                      lengthMax: 4),
+                                                  "${Fmt.priceFloorFormatter(claimable, lengthMax: 4)} $stakeSymbol",
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .headline4
@@ -608,39 +608,43 @@ class _HomaPageState extends State<HomaPage> {
                                 ],
                               ),
                             ),
-                            Padding(
-                                padding: EdgeInsets.only(bottom: 16),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
+                            Visibility(
+                                visible: redeemRequest > 0,
+                                child: Padding(
+                                    padding: EdgeInsets.only(bottom: 16),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Padding(
-                                            padding: EdgeInsets.only(right: 8),
-                                            child: RedeemRequestIcon()),
+                                        Row(
+                                          children: [
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(right: 8),
+                                                child: RedeemRequestIcon()),
+                                            Text(
+                                              dic['homa.RedeemRequest']!,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline4
+                                                  ?.copyWith(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                            )
+                                          ],
+                                        ),
                                         Text(
-                                          dic['homa.RedeemRequest']!,
+                                          "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} L$stakeSymbol",
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline4
                                               ?.copyWith(
                                                   color: Colors.white,
-                                                  fontWeight: FontWeight.w600),
+                                                  fontWeight: FontWeight.w400),
                                         )
                                       ],
-                                    ),
-                                    Text(
-                                      "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} $stakeSymbol",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline4
-                                          ?.copyWith(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w400),
-                                    )
-                                  ],
-                                ))
+                                    )))
                           ],
                         ),
                       ),

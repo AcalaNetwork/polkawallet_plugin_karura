@@ -110,10 +110,10 @@ class SwapSkeleton extends StatelessWidget {
             width: 50,
             height: 14,
             color: Colors.white,
-            margin: EdgeInsets.only(right: 8),
+            margin: EdgeInsets.only(right: 16),
           ),
           Container(
-            margin: EdgeInsets.only(left: 8, right: 8, top: 8),
+            margin: EdgeInsets.only(left: 16, right: 16, top: 8),
             decoration: BoxDecoration(
                 color: Color(0x24FFFFFF),
                 borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -144,7 +144,7 @@ class SwapSkeleton extends StatelessWidget {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+            margin: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
             decoration: BoxDecoration(
                 color: Color(0x24FFFFFF),
                 borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -178,7 +178,7 @@ class SwapSkeleton extends StatelessWidget {
               width: 90,
               height: 14,
               color: Colors.white,
-              margin: EdgeInsets.only(right: 8)),
+              margin: EdgeInsets.only(right: 16)),
         ],
       ),
       items: 1,
