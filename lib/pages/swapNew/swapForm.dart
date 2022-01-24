@@ -9,8 +9,7 @@ import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/swapPage.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/swapTokenInput.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -18,9 +17,6 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/outlinedButtonSmall.dart';
-import 'package:polkawallet_ui/components/roundedButton.dart';
-import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
@@ -918,8 +914,12 @@ class _SwapFormState extends State<SwapForm>
                                 Text(
                                     _swapOutput.path != null
                                         ? _swapOutput.path!
-                                            .map((i) =>
-                                                PluginFmt.tokenView(i['name']))
+                                            .map((i) => PluginFmt.tokenView(
+                                                AssetsUtils
+                                                        .getBalanceFromTokenNameId(
+                                                            widget.plugin,
+                                                            i['name'])
+                                                    ?.symbol))
                                             .toList()
                                             .join(' > ')
                                         : "",

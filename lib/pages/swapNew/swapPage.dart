@@ -102,48 +102,37 @@ class _SwapPageState extends State<SwapPage> {
 class SwapSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RoundedCard(
-      margin: EdgeInsets.fromLTRB(8, 16, 8, 16),
-      padding: EdgeInsets.all(16),
-      child: Column(
-        children: [0, 1].map((e) {
-          return Container(
-            margin: EdgeInsets.only(bottom: 48),
+    return SkeletonLoader(
+      builder: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Container(
+            width: 50,
+            height: 14,
+            color: Colors.white,
+            margin: EdgeInsets.only(right: 8),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 8, right: 8, top: 8),
             decoration: BoxDecoration(
-                border: Border.all(
-                    width: 0.5, color: Theme.of(context).dividerColor),
-                borderRadius: BorderRadius.all(Radius.circular(16))),
+                color: Color(0x24FFFFFF),
+                borderRadius: BorderRadius.all(Radius.circular(4))),
             child: SkeletonLoader(
               builder: Container(
-                padding: EdgeInsets.all(16),
+                padding:
+                    EdgeInsets.only(left: 8, right: 6, top: 10, bottom: 10),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Row(
                       children: <Widget>[
-                        Container(width: 80, height: 14, color: Colors.white),
+                        Container(width: 140, height: 14, color: Colors.white),
                         Expanded(
                           child: SizedBox(height: 14),
                         ),
-                        Container(width: 104, height: 14, color: Colors.white),
+                        Container(width: 80, height: 34, color: Colors.white),
                       ],
                     ),
-                    SizedBox(height: 16),
-                    Row(
-                      children: <Widget>[
-                        Container(width: 104, height: 24, color: Colors.white),
-                        Expanded(
-                          child: SizedBox(height: 14),
-                        ),
-                        CircleAvatar(
-                          radius: 12,
-                        ),
-                        Container(
-                            margin: EdgeInsets.only(left: 8),
-                            width: 72,
-                            height: 24,
-                            color: Colors.white),
-                      ],
-                    )
                   ],
                 ),
               ),
@@ -153,9 +142,50 @@ class SwapSkeleton extends StatelessWidget {
               baseColor: Color(0xFFE0E0E0),
               direction: SkeletonDirection.ltr,
             ),
-          );
-        }).toList(),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+            decoration: BoxDecoration(
+                color: Color(0x24FFFFFF),
+                borderRadius: BorderRadius.all(Radius.circular(4))),
+            child: SkeletonLoader(
+              builder: Container(
+                padding:
+                    EdgeInsets.only(left: 8, right: 6, top: 10, bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: <Widget>[
+                        Container(width: 140, height: 14, color: Colors.white),
+                        Expanded(
+                          child: SizedBox(height: 14),
+                        ),
+                        Container(width: 80, height: 34, color: Colors.white),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              items: 1,
+              period: Duration(seconds: 2),
+              highlightColor: Color(0xFFC0C0C0),
+              baseColor: Color(0xFFE0E0E0),
+              direction: SkeletonDirection.ltr,
+            ),
+          ),
+          Container(
+              width: 90,
+              height: 14,
+              color: Colors.white,
+              margin: EdgeInsets.only(right: 8)),
+        ],
       ),
+      items: 1,
+      period: Duration(seconds: 2),
+      highlightColor: Color(0xFFC0C0C0),
+      baseColor: Color(0xFFE0E0E0),
+      direction: SkeletonDirection.ltr,
     );
   }
 }

@@ -137,18 +137,25 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
       final DexPoolData pool =
           ModalRoute.of(context)!.settings.arguments as DexPoolData;
-      final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-          widget.plugin, pool.tokenNameId)!;
+      final tokenPair = pool.tokens!
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+          .toList();
+      final poolTokenSymbol = tokenPair
+          .map((e) => PluginFmt.tokenView(e?.symbol))
+          .toList()
+          .join('-');
       final amount = _amountCtrl.text.trim();
       final amountInt = Fmt.tokenInt(amount, shareDecimals!);
-      final free = Fmt.balanceInt(poolToken.amount);
+      final poolToken = AssetsUtils.getBalanceFromTokenNameId(
+          widget.plugin, pool.tokenNameId);
+      final free = Fmt.balanceInt(poolToken?.amount);
 
       TxConfirmParams txParams = TxConfirmParams(
         module: 'dex',
         call: 'removeLiquidity',
         txTitle: I18n.of(context)!
             .getDic(i18n_full_dic_karura, 'acala')!['earn.remove'],
-        txDisplay: {dic['earn.pool']: poolToken.symbol},
+        txDisplay: {dic['earn.pool']: poolTokenSymbol},
         txDisplayBold: {
           dic['loan.amount']!: Text(
             '$amount LP',
@@ -165,7 +172,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txTitle: I18n.of(context)!
                 .getDic(i18n_full_dic_karura, 'acala')!['earn.remove'],
             txDisplay: {
-              dic['earn.pool']: poolToken.symbol,
+              dic['earn.pool']: poolTokenSymbol,
               "": dic['earn.fromPool'],
             },
             txDisplayBold: {
@@ -187,7 +194,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txTitle: I18n.of(context)!
                 .getDic(i18n_full_dic_karura, 'acala')!['earn.remove'],
             txDisplay: {
-              dic['earn.pool']: poolToken.symbol,
+              dic['earn.pool']: poolTokenSymbol,
               "": dic['earn.fromPool'],
             },
             txDisplayBold: {
@@ -242,7 +249,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             ModalRoute.of(context)!.settings.arguments as DexPoolData;
 
         final poolToken = AssetsUtils.getBalanceFromTokenNameId(
-            widget.plugin, pool.tokenNameId)!;
+            widget.plugin, pool.tokenNameId);
         final balancePair = pool.tokens!
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
@@ -273,9 +280,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
         final poolInfo = _getPoolInfoData(pool.tokenNameId);
         if (poolInfo != null) {
-          exchangeRate = poolInfo.amountLeft! / poolInfo.amountRight!;
-
-          shareFreeInt = Fmt.balanceInt(poolToken.amount);
+          shareFreeInt = Fmt.balanceInt(poolToken?.amount);
           shareStakedInt = poolInfo.shares;
           shareFromInt =
               _fromPool ? shareFreeInt + shareStakedInt! : shareFreeInt;
@@ -286,6 +291,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
               poolInfo.amountLeft, balancePair[0]!.decimals!);
           poolRight = Fmt.bigIntToDouble(
               poolInfo.amountRight, balancePair[1]!.decimals!);
+          exchangeRate = poolLeft / poolRight;
 
           shareInt10 = BigInt.from(shareFromInt / BigInt.from(10));
           shareInt25 = BigInt.from(shareFromInt / BigInt.from(4));
@@ -314,8 +320,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           visible:
                               (poolInfo?.shares ?? BigInt.zero) > BigInt.zero,
                           child: PluginTagCard(
-                            titleTag:
-                                '${PluginFmt.tokenView(poolToken.symbol)} ${dicAssets['balance']}',
+                            titleTag: '$pairView ${dicAssets['balance']}',
                             padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
                             child: Container(
                               margin: EdgeInsets.only(bottom: 4),
