@@ -107,7 +107,7 @@ class SwapHistoryPage extends StatelessWidget {
                                   fontWeight: FontWeight.w600),
                         ),
                         Text(
-                            '${dic['dex.${detail.action}']!} ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountPay!), decimals![symbols!.indexOf(detail.tokenReceive!)])} ${PluginFmt.tokenView(detail.tokenReceive)} for ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountReceive!), decimals[symbols.indexOf(detail.tokenPay!)])} ${PluginFmt.tokenView(detail.tokenPay)}',
+                            '${dic['dex.${detail.action}']!} ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountReceive!), decimals![symbols!.indexOf(detail.tokenReceive!)])} ${PluginFmt.tokenView(detail.tokenReceive)} for ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountPay!), decimals[symbols.indexOf(detail.tokenPay!)])} ${PluginFmt.tokenView(detail.tokenPay)}',
                             textAlign: TextAlign.end,
                             style: Theme.of(context)
                                 .textTheme

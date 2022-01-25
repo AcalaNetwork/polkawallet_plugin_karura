@@ -71,8 +71,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       String value, LoanType loanType, BigInt? price, BigInt available,
       {int? stableCoinDecimals, int? collateralDecimals}) {
     String v = value.trim();
-    if (v.isEmpty) return;
-    final error = _validateAmount1(value, available, collateralDecimals);
+
+    var error = _validateAmount1(value, available, collateralDecimals);
     setState(() {
       _error1 = error;
     });
@@ -88,9 +88,20 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
           collateralDecimals: collateralDecimals);
     });
 
+    error = _validateAmount2(
+        _amountCtrl2.text,
+        loanType,
+        Fmt.priceFloorBigInt(_maxToBorrow, stableCoinDecimals!),
+        stableCoinDecimals);
+    setState(() {
+      _error2 = error;
+    });
+
+    if (v.isEmpty) return;
+
     if (_amountDebit > BigInt.zero) {
       _updateState(loanType, collateral, _amountDebit,
-          stableCoinDecimals: stableCoinDecimals!,
+          stableCoinDecimals: stableCoinDecimals,
           collateralDecimals: collateralDecimals);
     }
 
@@ -98,10 +109,14 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   }
 
   void _onAmount2Change(String value, LoanType loanType,
-      int? stableCoinDecimals, int? collateralDecimals, String max) {
+      int? stableCoinDecimals, int? collateralDecimals) {
     String v = value.trim();
     if (v.isEmpty) return;
-    final error = _validateAmount2(value, loanType, max, stableCoinDecimals);
+    final error = _validateAmount2(
+        value,
+        loanType,
+        Fmt.priceFloorBigInt(_maxToBorrow, stableCoinDecimals!),
+        stableCoinDecimals);
     setState(() {
       _error2 = error;
     });
@@ -109,7 +124,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       return;
     }
 
-    BigInt debits = Fmt.tokenInt(v, stableCoinDecimals!);
+    BigInt debits = Fmt.tokenInt(v, stableCoinDecimals);
 
     setState(() {
       _amountDebit = debits;
@@ -169,6 +184,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     final input = double.parse(v);
     final min =
         Fmt.bigIntToDouble(loanType.minimumDebitValue, stableCoinDecimals!);
+    print(input);
     if (input < min) {
       return '${assetDic!['min']} ${min.toStringAsFixed(2)}';
     }
@@ -222,6 +238,25 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   Future<void> _onSubmit(String pageTitle, LoanType loanType,
       {required int stableCoinDecimals,
       required int collateralDecimals}) async {
+    final token = _token ?? widget.plugin.store!.loan.loanTypes[0].token!;
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        widget.plugin, [token.tokenNameId, karura_stable_coin]);
+    var error = _validateAmount1(_amountCtrl.text,
+        Fmt.balanceInt(balancePair[0]!.amount), collateralDecimals);
+    setState(() {
+      _error1 = error;
+    });
+    error = _validateAmount2(
+        _amountCtrl2.text,
+        loanType,
+        Fmt.priceFloorBigInt(_maxToBorrow, stableCoinDecimals),
+        stableCoinDecimals);
+    setState(() {
+      _error2 = error;
+    });
+    if (error != null) {
+      return;
+    }
     final params = _getTxParams(loanType,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
@@ -308,7 +343,14 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                   tokenIconsMap: widget.plugin.tokenIcons,
                   onClear: () {
                     _amountCtrl.text = '';
+                    var error = _validateAmount2(
+                        _amountCtrl2.text,
+                        loanType,
+                        Fmt.priceFloorBigInt(
+                            _maxToBorrow, balancePair[1]!.decimals!),
+                        balancePair[1]!.decimals);
                     setState(() {
+                      _error2 = error;
                       _amountCollateral = BigInt.zero;
                       _maxToBorrow = BigInt.zero;
                     });
@@ -321,12 +363,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                   tokenBgColor: Colors.white,
                   margin: EdgeInsets.only(bottom: 2, top: 24),
                   titleTag: assetDic!['amount'],
-                  onInputChange: (v) => _onAmount2Change(
-                      v,
-                      loanType,
-                      balancePair[1]!.decimals,
-                      balancePair[0]!.decimals,
-                      maxToBorrow),
+                  onInputChange: (v) => _onAmount2Change(v, loanType,
+                      balancePair[1]!.decimals, balancePair[0]!.decimals),
                   balance: TokenBalanceData(
                       symbol: karura_stable_coin_view,
                       decimals: balancePair[1]!.decimals!,

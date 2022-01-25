@@ -38,7 +38,7 @@ class DefiWidget extends StatelessWidget {
 
       liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e != 'nft');
 
-      return Container(
+      return SingleChildScrollView(
         child: Column(
           children: liveModules.map((e) {
             final enabled = modulesConfig[e]['enabled'];
