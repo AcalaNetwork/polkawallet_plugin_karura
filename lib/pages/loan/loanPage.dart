@@ -472,7 +472,7 @@ class CollateralIncentiveList extends StatelessWidget {
     final List<String?> tokensAll = incentives!.keys.toList();
     tokensAll.addAll(rewards!.keys.toList());
     final tokenIds = tokensAll.toSet().toList();
-    tokenIds.removeWhere((e) => e == 'KSM');
+    tokenIds.removeWhere((e) => e == relay_chain_token_symbol);
     tokenIds.retainWhere((e) =>
         incentives![e] != null ||
         (rewards![e]?.reward != null && rewards![e]!.reward!.length > 0));

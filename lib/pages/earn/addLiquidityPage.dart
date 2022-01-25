@@ -330,8 +330,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         widget.keyring.current.address, widget.keyring.current.pubKey);
     final fee = await widget.plugin.sdk.api.tx
         .estimateFees(TxInfoData('dex', 'addLiquidity', sender), [
-      {'Token': 'KAR'},
-      {'Token': 'KSM'},
+      {'Token': widget.plugin.networkState.tokenSymbol![0]},
+      {'Token': relay_chain_token_symbol},
       '1000000000000',
       '100000000000',
       '0',

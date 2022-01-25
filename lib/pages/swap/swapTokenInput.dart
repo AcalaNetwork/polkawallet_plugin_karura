@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -154,7 +155,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                   ),
                   GestureDetector(
                     child: CurrencyWithIcon(
-                      widget.balance?.symbol ?? "",
+                      PluginFmt.tokenView(widget.balance!.symbol),
                       TokenIcon(
                           widget.balance?.symbol ?? "", widget.tokenIconsMap!,
                           size: 24),

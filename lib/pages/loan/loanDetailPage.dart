@@ -136,7 +136,10 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
 
     return Observer(
       builder: (_) {
-        final LoanData loan = ModalRoute.of(context)!.settings.arguments as LoanData;
+        final args = ModalRoute.of(context)!.settings.arguments as LoanData;
+        // we do not use args as loan data, it will not be auto re-flash.
+        final loan = widget.plugin.store?.loan.loans[args.token?.tokenNameId]
+            as LoanData;
 
         final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
             widget.plugin, [loan.token!.tokenNameId, karura_stable_coin]);
@@ -149,7 +152,9 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                   : BigInt.zero,
               balancePair[1]!.decimals!),
         ];
-        final price = widget.plugin.store!.assets.prices[loan.token!.tokenNameId]!;
+        final price =
+            widget.plugin.store!.assets.prices[loan.token!.tokenNameId] ??
+                BigInt.zero;
         final dataChartPrice = [
           Fmt.bigIntToDouble(loan.liquidationPrice, balancePair[1]!.decimals!),
           Fmt.bigIntToDouble(

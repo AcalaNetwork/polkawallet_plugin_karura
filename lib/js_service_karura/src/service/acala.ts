@@ -110,12 +110,10 @@ async function getAllTokens(api: ApiPromise) {
   }));
   const res2 = foreign.map(([args, data]) => {
     const json = data.toJSON();
-    const currencyId = {
-      ForeignAsset: args.toHuman()[0]["ForeignAssetId"],
-    };
+    const currencyId = _getCurrencyIdFromCurrencyIdKey(args.toHuman()[0]);
     return {
-      type: "ForeignAsset",
-      id: currencyId.ForeignAsset,
+      type: Object.keys(currencyId)[0],
+      id: Object.values(currencyId)[0],
       tokenNameId: forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currencyId)),
       currencyId: currencyId,
       ...(data.toHuman() as Object),
@@ -124,6 +122,15 @@ async function getAllTokens(api: ApiPromise) {
     };
   });
   return [...res, ...res2];
+}
+
+function _getCurrencyIdFromCurrencyIdKey(key: Object) {
+  const currencyIdMap = {
+    ERC20: "ERC20",
+    StableAssetId: "StableAssetPoolToken",
+    ForeignAssetId: "ForeignAsset",
+  };
+  return { [currencyIdMap[Object.keys(key)[0]]]: Object.values(key)[0] };
 }
 
 /**
