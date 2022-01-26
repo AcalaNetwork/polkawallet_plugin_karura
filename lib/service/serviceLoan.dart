@@ -70,7 +70,7 @@ class ServiceLoan {
     store!.loan.setLoansLoading(true);
 
     // 1. subscribe all token prices, callback triggers per 5s.
-    api!.assets.subscribeTokenPrices((Map<String?, BigInt> prices) async {
+    api!.assets.subscribeTokenPrices((Map<String, BigInt> prices) async {
       // 2. we need homa staking pool info to calculate price of LDOT
       final homaEnv = await plugin.service!.homa.queryHomaEnv();
       _calcLiquidTokenPrice(prices, homaEnv);

@@ -321,7 +321,8 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                         children: [
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: Text('$pairView ${dicAssets['balance']}'),
+                            child: Text(
+                                '${pairView.join('-')} ${dicAssets['balance']}'),
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 4),

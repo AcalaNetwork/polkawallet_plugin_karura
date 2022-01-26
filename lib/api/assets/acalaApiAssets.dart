@@ -89,7 +89,7 @@ class AcalaApiAssets {
   }
 
   Future<void> subscribeTokenPrices(
-      Function(Map<String?, BigInt>) callback) async {
+      Function(Map<String, BigInt>) callback) async {
     service.subscribeTokenPrices(callback);
   }
 
