@@ -73,11 +73,11 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             .toList();
         setState(() {
           final poolInfo =
-              widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
+              widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId];
           _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[1]!.decimals!) /
+                  poolInfo?.amountRight, balancePair[1]!.decimals!) /
               Fmt.bigIntToDouble(
-                  poolInfo.amountLeft, balancePair[0]!.decimals!);
+                  poolInfo?.amountLeft, balancePair[0]!.decimals!);
         });
         _timer = Timer(Duration(seconds: 30), () {
           _refreshData();

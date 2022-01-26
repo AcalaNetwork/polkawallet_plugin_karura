@@ -427,7 +427,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
       this.existentialDeposit,
       this.withStake,
       this.onWithStakeChange,
-      this.onClaimLP,
+      required this.onClaimLP,
       this.onFinish,
       this.submitting});
 
@@ -439,7 +439,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
   final String? existentialDeposit;
   final bool? withStake;
   final Function(bool)? onWithStakeChange;
-  final TxConfirmParams Function(DexPoolData, BigInt, int, String)? onClaimLP;
+  final TxConfirmParams Function(DexPoolData, BigInt, int, String) onClaimLP;
   final Function(Map?)? onFinish;
   final bool? submitting;
 
@@ -567,7 +567,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
                 )
               : TxButton(
                   text: 'Claim LP Tokens',
-                  getTxParams: () async => onClaimLP!(pool!, amount,
+                  getTxParams: () async => onClaimLP(pool!, amount,
                       balancePair[0]!.decimals!, poolTokenSymbol),
                   onFinish: onFinish,
                 )

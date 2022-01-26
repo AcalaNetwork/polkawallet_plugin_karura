@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -233,8 +232,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         context: context,
         builder: (_) {
           return CupertinoAlertDialog(
-            content: Text(dic![
-                'loan.warn${widget.plugin.basic.name == plugin_name_karura ? '.KSM' : ''}']!),
+            content: Text(dic!['loan.warn.KSM']!),
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text(dic['loan.warn.back']!),

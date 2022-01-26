@@ -20,8 +20,9 @@ class _EarnLoanListState extends State<EarnLoanList> {
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
 
-    final priceQueryTokens =
-        widget.plugin.store!.loan.loanTypes.map((e) => e.token!.symbol).toList();
+    final priceQueryTokens = widget.plugin.store!.loan.loanTypes
+        .map((e) => e.token!.symbol)
+        .toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
     widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
@@ -36,15 +37,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      // todo: fix this after new acala online
-      final bool enabled = widget.plugin.basic.name == 'acala'
-          ? ModalRoute.of(context)!.settings.arguments as bool
-          : true;
-      if (enabled) {
-        _fetchData();
-      } else {
-        widget.plugin.store!.loan.setLoansLoading(false);
-      }
+      _fetchData();
     });
   }
 
