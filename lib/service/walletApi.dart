@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 class WalletApi {
   static const String _endpoint = 'https://api.polkawallet.io';
   static const String _configEndpoint = 'https://acala.subdao.com';
+  static const String _cdnEndpoint = 'https://cdn.subdao.com';
 
   static Future<Map?> getLiveModules() async {
     try {
@@ -21,8 +22,9 @@ class WalletApi {
     }
   }
 
-  static Future<Map?> getTokenPrice(String? token) async {
-    final url = '$_endpoint/price-server/?token=$token';
+  static Future<Map?> getTokenPrice() async {
+    final url =
+        '$_cdnEndpoint/lastPrice.json?t=${DateTime.now().millisecondsSinceEpoch}';
     try {
       Response res = await get(Uri.parse(url));
       if (res == null) {
