@@ -77,6 +77,7 @@ const acala_token_ids = [
   'USDT',
   'KBTC',
   'KINT',
+  'TAI',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',

@@ -47,7 +47,7 @@ class ServiceLoan {
       data[token.tokenNameId] = LoanData.fromJson(
         Map<String, dynamic>.from(i),
         loanTypes.firstWhere((t) => t.token!.tokenNameId == token.tokenNameId),
-        prices[token.symbol] ?? BigInt.zero,
+        prices[token.tokenNameId] ?? BigInt.zero,
         plugin,
       );
     });

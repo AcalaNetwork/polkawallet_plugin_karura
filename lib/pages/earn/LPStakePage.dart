@@ -98,7 +98,7 @@ class _LPStakePage extends State<LPStakePage> {
         arguments: TxConfirmParams(
           module: 'incentives',
           call: isStake ? 'depositDexShare' : 'withdrawDexShare',
-          txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol',
+          txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol LP',
           txDisplay: {
             dic['earn.pool']: poolTokenSymbol,
           },
@@ -130,7 +130,7 @@ class _LPStakePage extends State<LPStakePage> {
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
     final poolTokenSymbol =
-        tokenPair.map((e) => PluginFmt.tokenView(e?.symbol)).join('-');
+        PluginFmt.tokenView(tokenPair.map((e) => e?.symbol).join('-'));
 
     return Scaffold(
       appBar: AppBar(

@@ -256,7 +256,7 @@ class _SwapFormState extends State<SwapForm> {
       }
     } on Exception catch (err) {
       setState(() {
-        _error = err.toString().split(':')[0];
+        _error = err.toString().split(':')[1];
       });
     }
   }
