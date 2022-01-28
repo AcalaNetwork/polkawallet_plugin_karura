@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:polkawallet_plugin_karura/utils/InstrumentItemWidget.dart';
+import 'package:polkawallet_ui/components/SkaletonList.dart';
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/SkaletonList.dart';
 
 class InstrumentWidget extends StatefulWidget {
   InstrumentWidget(this.datas, this.onSwitchChange, this.onSwitchHideBalance,
@@ -33,7 +33,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width - (16.w + 11.w + 34.w) * 2;
+    final width = MediaQuery.of(context).size.width - (24.w + 11.w + 34.w) * 2;
     return Column(
       children: [
         Container(

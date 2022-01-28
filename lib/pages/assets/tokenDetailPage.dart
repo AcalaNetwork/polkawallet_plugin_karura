@@ -74,7 +74,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
           leading: BackBtn()),
       body: Observer(
         builder: (_) {
-          final tokenSymbol = token.symbol?.toUpperCase();
+          final tokenSymbol = token.symbol;
           final balance =
               widget.plugin.store!.assets.tokenBalanceMap[token.tokenNameId];
 
@@ -286,30 +286,29 @@ Widget priceItemBuild(Widget icon, String title, String price, Color color) {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                  height: 16.w,
-                  width: 16.w,
-                  margin: EdgeInsets.only(right: 8.w),
-                  child: icon),
-              Text(
-                title,
-                style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: "TitilliumWeb"),
-              )
-            ],
-          ),
+          Container(
+              height: 16.w,
+              width: 16.w,
+              margin: EdgeInsets.only(right: 8.w),
+              child: icon),
           Text(
-            price,
+            title,
             style: TextStyle(
                 color: color,
                 fontSize: 12,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w600,
                 fontFamily: "TitilliumWeb"),
+          ),
+          Expanded(
+            child: Text(
+              price,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: "TitilliumWeb"),
+            ),
           )
         ],
       ));
@@ -412,7 +411,7 @@ class BalanceCard extends StatelessWidget {
                 ],
               )),
           Container(
-            width: MediaQuery.of(context).size.width * 0.4,
+            width: MediaQuery.of(context).size.width * 0.5,
             child: Column(
               children: [
                 priceItemBuild(

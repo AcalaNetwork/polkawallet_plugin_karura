@@ -14,4 +14,5 @@ export const existential_deposit = {
   BNC: "8000000000",
   VSKSM: "100000000",
   PHA: "40000000000",
+  TAI: "1000000000000",
 };

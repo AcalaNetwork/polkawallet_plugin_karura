@@ -31,10 +31,10 @@ class AcalaServiceAssets {
     dexPairs.forEach((e) {
       final lpToken =
           AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId)!
-              .symbol!
-              .split('-');
+              .symbol
+              ?.split('-');
       plugin.sdk.api
-          .unsubscribeMessage('$tokenBalanceChannel${lpToken.join('')}');
+          .unsubscribeMessage('$tokenBalanceChannel${lpToken?.join('')}');
     });
   }
 

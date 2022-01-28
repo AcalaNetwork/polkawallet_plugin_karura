@@ -185,7 +185,7 @@ class PluginKarura extends PolkawalletPlugin {
       // final total = data.map((e) => e.value).reduce((a, b) => a + b);
       // return Text('total: ${hideBalance ? '***' : total}');
       return InstrumentWidget(
-        instrumentDatas(data, context, priceCurrency: priceCurrency),
+        instrumentData(data, context, priceCurrency: priceCurrency),
         onSwitchBack,
         onSwitchHideBalance,
         hideBalance: hideBalance,
@@ -193,7 +193,7 @@ class PluginKarura extends PolkawalletPlugin {
     });
   }
 
-  List<InstrumentData> instrumentDatas(
+  List<InstrumentData> instrumentData(
       List<AggregatedAssetsData> data, BuildContext context,
       {String priceCurrency = 'USD'}) {
     final List<InstrumentData> datas = [];
@@ -206,24 +206,24 @@ class PluginKarura extends PolkawalletPlugin {
 
     final total = data.map((e) => e.value).reduce((a, b) => a! + b!);
     InstrumentData totalBalance = InstrumentData(total, [],
-        currencySymbol: currencySymbol(priceCurrency),
+        currencySymbol: _currencySymbol(priceCurrency),
         title: I18n.of(context)!
             .getDic(i18n_full_dic_karura, 'acala')!["v3.myDefi"],
         prompt: I18n.of(context)!
             .getDic(i18n_full_dic_karura, 'acala')!["v3.switchBack"]);
     data.forEach((element) {
       totalBalance.items.add(InstrumentItemData(
-          instrumentColor(element.category),
+          _instrumentColor(element.category),
           element.category,
           element.value,
-          instrumentIconName(element.category)));
+          _instrumentIconName(element.category)));
     });
     datas.add(totalBalance);
     datas.add(totalBalance1);
     return datas;
   }
 
-  String currencySymbol(String priceCurrency) {
+  String _currencySymbol(String priceCurrency) {
     switch (priceCurrency) {
       case "USD":
         return "\$";
@@ -234,7 +234,7 @@ class PluginKarura extends PolkawalletPlugin {
     }
   }
 
-  Color instrumentColor(String? category) {
+  Color _instrumentColor(String? category) {
     switch (category) {
       case "Tokens":
         return Color(0xFF5E5C59);
@@ -249,7 +249,7 @@ class PluginKarura extends PolkawalletPlugin {
     }
   }
 
-  String instrumentIconName(String? category) {
+  String _instrumentIconName(String? category) {
     switch (category) {
       case "Tokens":
         return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_black.png";
