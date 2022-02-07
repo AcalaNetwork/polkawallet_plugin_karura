@@ -184,7 +184,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     final input = double.parse(v);
     final min =
         Fmt.bigIntToDouble(loanType.minimumDebitValue, stableCoinDecimals!);
-    print(input);
+
     if (input < min) {
       return '${assetDic!['min']} ${min.toStringAsFixed(2)}';
     }

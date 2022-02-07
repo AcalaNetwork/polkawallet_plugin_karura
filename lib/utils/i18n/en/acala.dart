@@ -251,5 +251,7 @@ const Map<String, String> enDex = {
   'v3.earn.amout': 'Amout',
   'v3.earn.tokenReceived': 'Token received',
   'v3.swap.max': 'Max Swap',
-  'v3.earn.stakeAllBalance': 'Stake all balance of LP tokens'
+  'v3.earn.totalLiquidityAmount': 'Total Liquidity Provider Amount',
+  'v3.earn.extraEarn': 'Extra Earn',
+  'v3.earn.stakedLpInfo': 'Staked LP Info',
 };

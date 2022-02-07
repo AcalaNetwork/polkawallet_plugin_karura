@@ -135,18 +135,97 @@ class CollateralIncentiveList extends StatelessWidget {
   Future<void> _onClaimReward(
       BuildContext context, TokenBalanceData token, String rewardView) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final pool = {'Loans': token.currencyId};
-    final params = TxConfirmParams(
-      module: 'incentives',
-      call: 'claimRewards',
-      txTitle: dic['earn.claim'],
-      txDisplay: {
-        dic['loan.amount']: '≈ $rewardView $incentiveTokenSymbol',
-        dic['earn.stake.pool']: token.symbol,
-      },
-      params: [pool],
-    );
-    Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
+    double? loyaltyBonus = 0;
+    if (incentives![token.tokenNameId] != null) {
+      loyaltyBonus = incentives![token.tokenNameId]![0].deduction;
+    }
+
+    final bestNumber = plugin!.store!.gov.bestNumber;
+    var blockNumber;
+    dexIncentiveLoyaltyEndBlock!.forEach((e) {
+      if (token.tokenNameId == PluginFmt.getPool(plugin, e['pool'])) {
+        blockNumber = e['blockNumber'];
+        return;
+      }
+    });
+    final blocksToEnd =
+        blockNumber != null ? blockNumber - bestNumber.toInt() : null;
+
+    var isClaim = true;
+
+    if (blocksToEnd != null && blocksToEnd > 0) {
+      isClaim = await showCupertinoDialog(
+          context: context,
+          builder: (_) {
+            return CupertinoAlertDialog(
+              title: Text(dic['earn.claim']!),
+              content: Text.rich(TextSpan(children: [
+                TextSpan(
+                    text: I18n.of(context)!.locale.toString().contains('zh')
+                        ? "即刻领取收益将造成"
+                        : "The immediate claim will burn ",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                TextSpan(
+                    text: Fmt.ratio(loyaltyBonus),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                TextSpan(
+                    text: I18n.of(context)!.locale.toString().contains('zh')
+                        ? "的收益损失。"
+                        : " of the total rewards.You will be able to claim the full reward in ",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                TextSpan(
+                    text: Fmt.blockToTime(blocksToEnd ?? 0, 12500,
+                        locale: I18n.of(context)!.locale.toString()),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                I18n.of(context)!.locale.toString().contains('zh')
+                    ? TextSpan(
+                        text: "后，您可以领取全额收益",
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1
+                            ?.copyWith(color: Colors.black, fontSize: 13))
+                    : TextSpan(),
+              ])),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text(dic['homa.redeem.cancel']!),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                CupertinoDialogAction(
+                  child: Text(dic['homa.confirm']!),
+                  onPressed: () => Navigator.of(context).pop(true),
+                )
+              ],
+            );
+          });
+    }
+
+    if (isClaim) {
+      final pool = {'Loans': token.currencyId};
+      final params = TxConfirmParams(
+        module: 'incentives',
+        call: 'claimRewards',
+        txTitle: dic['earn.claim'],
+        txDisplay: {
+          dic['loan.amount']: '≈ $rewardView $incentiveTokenSymbol',
+          dic['earn.stake.pool']: token.symbol,
+        },
+        params: [pool],
+      );
+      Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
+    }
   }
 
   @override
