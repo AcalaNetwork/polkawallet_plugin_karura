@@ -1,10 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
+import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
+import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
+import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
+import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/tapTooltip.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
+import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
+import 'package:polkawallet_ui/components/v3/txButton.dart';
+import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class EarnLoanList extends StatefulWidget {
   EarnLoanList(this.plugin, this.keyring);
@@ -20,8 +36,9 @@ class _EarnLoanListState extends State<EarnLoanList> {
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
 
-    final priceQueryTokens =
-        widget.plugin.store!.loan.loanTypes.map((e) => e.token!.symbol).toList();
+    final priceQueryTokens = widget.plugin.store!.loan.loanTypes
+        .map((e) => e.token!.symbol)
+        .toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
     widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
@@ -88,5 +105,311 @@ class _EarnLoanListState extends State<EarnLoanList> {
               );
       },
     );
+  }
+}
+
+class CollateralIncentiveList extends StatelessWidget {
+  CollateralIncentiveList({
+    this.plugin,
+    this.loans,
+    this.incentives,
+    this.rewards,
+    this.totalCDPs,
+    this.tokenIcons,
+    this.marketPrices,
+    this.collateralDecimals,
+    this.incentiveTokenSymbol,
+    this.dexIncentiveLoyaltyEndBlock,
+  });
+
+  final PluginKarura? plugin;
+  final Map<String?, LoanData>? loans;
+  final Map<String?, List<IncentiveItemData>>? incentives;
+  final Map<String?, CollateralRewardData>? rewards;
+  final Map<String?, TotalCDPData>? totalCDPs;
+  final Map<String, Widget>? tokenIcons;
+  final Map<String?, double>? marketPrices;
+  final int? collateralDecimals;
+  final String? incentiveTokenSymbol;
+  final List<dynamic>? dexIncentiveLoyaltyEndBlock;
+
+  Future<void> _onClaimReward(
+      BuildContext context, TokenBalanceData token, String rewardView) async {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final pool = {'Loans': token.currencyId};
+    final params = TxConfirmParams(
+      module: 'incentives',
+      call: 'claimRewards',
+      txTitle: dic['earn.claim'],
+      txDisplay: {
+        dic['loan.amount']: '≈ $rewardView $incentiveTokenSymbol',
+        dic['earn.stake.pool']: token.symbol,
+      },
+      params: [pool],
+    );
+    Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final List<String?> tokensAll = incentives!.keys.toList();
+    tokensAll.addAll(rewards!.keys.toList());
+    final tokenIds = tokensAll.toSet().toList();
+    tokenIds.removeWhere((e) => e == relay_chain_token_symbol);
+    tokenIds.retainWhere((e) =>
+        incentives![e] != null ||
+        (rewards![e]?.reward != null && rewards![e]!.reward!.length > 0));
+
+    if (tokenIds.length == 0) {
+      return ListTail(isEmpty: true, isLoading: false);
+    }
+    final tokens = tokenIds
+        .map((e) => AssetsUtils.getBalanceFromTokenNameId(plugin!, e))
+        .toList();
+
+    return ListView.builder(
+        padding: EdgeInsets.only(bottom: 32),
+        itemCount: tokens.length,
+        itemBuilder: (_, i) {
+          final token = tokens[i]!;
+          final collateralValue = Fmt.bigIntToDouble(
+              loans![token.tokenNameId]?.collateralInUSD, collateralDecimals!);
+          double apy = 0;
+          if (totalCDPs![token.tokenNameId]!.collateral > BigInt.zero &&
+              marketPrices![token.symbol] != null &&
+              incentives![token.tokenNameId] != null) {
+            incentives![token.tokenNameId]!.forEach((e) {
+              if (e.tokenNameId != 'Any') {
+                final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
+                    plugin!, e.tokenNameId)!;
+                apy += (marketPrices![rewardToken.symbol] ?? 0) *
+                    e.amount! /
+                    Fmt.bigIntToDouble(rewards![token.tokenNameId]?.sharesTotal,
+                        collateralDecimals!) /
+                    marketPrices![token.symbol]!;
+              }
+            });
+          }
+          final deposit = Fmt.priceFloorBigInt(
+              loans![token.tokenNameId]?.collaterals, collateralDecimals!);
+
+          bool canClaim = false;
+          double? loyaltyBonus = 0;
+          if (incentives![token.tokenNameId] != null) {
+            loyaltyBonus = incentives![token.tokenNameId]![0].deduction;
+          }
+
+          final reward = rewards![token.tokenNameId];
+          final rewardView = reward != null && reward.reward!.length > 0
+              ? reward.reward!.map((e) {
+                  final amount = double.parse(e['amount']);
+                  if (amount > 0.0001) {
+                    canClaim = true;
+                  }
+                  return '${Fmt.priceFloor(amount * (1 - loyaltyBonus!))}';
+                }).join(' + ')
+              : '0.00';
+
+          final bestNumber = plugin!.store!.gov.bestNumber;
+          var blockNumber;
+          dexIncentiveLoyaltyEndBlock!.forEach((e) {
+            if (token.tokenNameId == PluginFmt.getPool(plugin, e['pool'])) {
+              blockNumber = e['blockNumber'];
+              return;
+            }
+          });
+          final blocksToEnd =
+              blockNumber != null ? blockNumber - bestNumber.toInt() : null;
+
+          return RoundedPluginCard(
+            borderRadius: const BorderRadius.all(const Radius.circular(14)),
+            margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(9),
+                        topRight: Radius.circular(9)),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  child: Row(
+                    children: [
+                      Container(
+                          margin: EdgeInsets.only(right: 12),
+                          child: PluginTokenIcon(
+                            token.symbol!,
+                            tokenIcons!,
+                            size: 26,
+                          )),
+                      Text(dic!['loan.collateral']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline3
+                              ?.copyWith(fontSize: 18, color: Colors.white))
+                    ],
+                  ),
+                ),
+                Container(
+                    width: double.infinity,
+                    color: Color(0x2BFFFFFF),
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          PluginInfoItem(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            title:
+                                '${dic['earn.reward']} ($incentiveTokenSymbol)',
+                            content: rewardView,
+                            titleStyle:
+                                Theme.of(context).textTheme.headline5?.copyWith(
+                                      color: Colors.white,
+                                      height: 1.0,
+                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    height: 1.5,
+                                    fontWeight: FontWeight.bold),
+                          )
+                        ]),
+                        Row(
+                          children: [
+                            PluginInfoItem(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              title:
+                                  "${dic['earn.staked']} ${PluginFmt.tokenView(token.symbol)}",
+                              content: deposit,
+                              titleStyle: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    height: 1.0,
+                                  ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      height: 1.5,
+                                      fontWeight: FontWeight.bold),
+                            ),
+                            PluginInfoItem(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              title: dic['earn.apy'],
+                              content: Fmt.ratio(apy),
+                              titleStyle: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    height: 1.0,
+                                  ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      height: 1.5,
+                                      fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        )
+                      ],
+                    )),
+                Container(
+                  margin: EdgeInsets.only(top: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TapTooltip(
+                        message: dic['earn.loyal.info']!,
+                        child: Center(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.info,
+                              color: Theme.of(context).disabledColor,
+                              size: 14,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 4),
+                              child: Text(dic['earn.loyal']! + ':',
+                                  style: TextStyle(fontSize: 12)),
+                            )
+                          ],
+                        )),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 8),
+                        child: Text(
+                          Fmt.ratio(loyaltyBonus),
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Visibility(
+                    visible: blocksToEnd != null,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 4),
+                      child: Text(
+                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd ?? 0, 12500)}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    )),
+                Divider(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PluginOutlinedButtonSmall(
+                        content: dic['loan.withdraw'],
+                        active: false,
+                        padding: EdgeInsets.only(top: 8, bottom: 8),
+                        margin: EdgeInsets.only(right: 8),
+                        onPressed: (loans![token.tokenNameId]?.collaterals ??
+                                    BigInt.zero) >
+                                BigInt.zero
+                            ? () => Navigator.of(context).pushNamed(
+                                  LoanDepositPage.route,
+                                  arguments: LoanDepositPageParams(
+                                      LoanDepositPage.actionTypeWithdraw,
+                                      token),
+                                )
+                            : null,
+                      ),
+                    ),
+                    Expanded(
+                      child: PluginOutlinedButtonSmall(
+                        content: dic['loan.deposit'],
+                        active: true,
+                        padding: EdgeInsets.only(top: 8, bottom: 8),
+                        margin: EdgeInsets.only(left: 8),
+                        onPressed: () => Navigator.of(context).pushNamed(
+                          LoanDepositPage.route,
+                          arguments: LoanDepositPageParams(
+                              LoanDepositPage.actionTypeDeposit, token),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
   }
 }
