@@ -330,35 +330,39 @@ class _UserCard extends StatelessWidget {
   final BigInt? bestNumber;
   final List<dynamic>? dexIncentiveLoyaltyEndBlock;
 
-  Future<void> _onClaim(
-      BuildContext context, String rewardV2, double rewardSaving) async {
+  Future<void> _onClaim(BuildContext context, String rewardV2,
+      double rewardSaving, bool withLoyalty) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return CupertinoAlertDialog(
-          title: Text(dic!['earn.claim']!),
-          content: Text(dic['earn.claim.info']!),
-          actions: <Widget>[
-            CupertinoButton(
-              child: Text(I18n.of(context)!
-                  .getDic(i18n_full_dic_karura, 'common')!['cancel']!),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            ),
-            CupertinoButton(
-              child: Text(I18n.of(context)!
-                  .getDic(i18n_full_dic_karura, 'common')!['ok']!),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _onWithdrawReward(context, rewardV2, rewardSaving);
-              },
-            ),
-          ],
-        );
-      },
-    );
+    if (withLoyalty) {
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return CupertinoAlertDialog(
+            title: Text(dic!['earn.claim']!),
+            content: Text(dic['earn.claim.info']!),
+            actions: <Widget>[
+              CupertinoButton(
+                child: Text(I18n.of(context)!
+                    .getDic(i18n_full_dic_karura, 'common')!['cancel']!),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+              CupertinoButton(
+                child: Text(I18n.of(context)!
+                    .getDic(i18n_full_dic_karura, 'common')!['ok']!),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  _onWithdrawReward(context, rewardV2, rewardSaving);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      _onWithdrawReward(context, rewardV2, rewardSaving);
+    }
   }
 
   void _onWithdrawReward(
@@ -588,8 +592,8 @@ class _UserCard extends StatelessWidget {
                     margin: EdgeInsets.only(top: 16),
                     child: RoundedButton(
                         text: dic['earn.claim'],
-                        onPressed: () =>
-                            _onClaim(context, rewardV2, rewardSaving)),
+                        onPressed: () => _onClaim(context, rewardV2,
+                            rewardSaving, blocksToEnd != null)),
                   )),
             ],
           ),
