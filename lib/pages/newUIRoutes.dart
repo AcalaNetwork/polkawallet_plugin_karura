@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
@@ -43,6 +44,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
                 ),
                 uri: GraphQLConfig['httpUri']!,
               ),
+          LoanDepositPage.route: (_) => LoanDepositPage(plugin, keyring),
 
           //swap
           SwapPage.route: (_) => SwapPage(plugin, keyring),

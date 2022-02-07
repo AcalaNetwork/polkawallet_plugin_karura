@@ -4,7 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/loan/loanDepositPage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -13,7 +13,6 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
-import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
@@ -173,8 +172,6 @@ class CollateralIncentiveList extends StatelessWidget {
         itemCount: tokens.length,
         itemBuilder: (_, i) {
           final token = tokens[i]!;
-          final collateralValue = Fmt.bigIntToDouble(
-              loans![token.tokenNameId]?.collateralInUSD, collateralDecimals!);
           double apy = 0;
           if (totalCDPs![token.tokenNameId]!.collateral > BigInt.zero &&
               marketPrices![token.symbol] != null &&
@@ -232,26 +229,40 @@ class CollateralIncentiveList extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(9),
-                        topRight: Radius.circular(9)),
+                        topLeft: Radius.circular(14),
+                        topRight: Radius.circular(14)),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   child: Row(
-                    children: [
-                      Container(
-                          margin: EdgeInsets.only(right: 12),
-                          child: PluginTokenIcon(
-                            token.symbol!,
-                            tokenIcons!,
-                            size: 26,
-                          )),
-                      Text(dic!['loan.collateral']!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline3
-                              ?.copyWith(fontSize: 18, color: Colors.white))
-                    ],
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                                margin: EdgeInsets.only(right: 12),
+                                child: PluginTokenIcon(
+                                  token.symbol!,
+                                  tokenIcons!,
+                                  size: 26,
+                                )),
+                            Text(
+                                "${dic!['loan.collateral']} ${PluginFmt.tokenView(token.symbol)}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3
+                                    ?.copyWith(
+                                        fontSize: 18, color: Colors.white))
+                          ],
+                        ),
+                        Visibility(
+                            visible: canClaim,
+                            child: Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Image.asset(
+                                  "packages/polkawallet_plugin_karura/assets/images/rewards.png",
+                                  width: 24,
+                                ))),
+                      ]),
                 ),
                 Container(
                     width: double.infinity,
@@ -327,86 +338,112 @@ class CollateralIncentiveList extends StatelessWidget {
                         )
                       ],
                     )),
+                // Container(
+                //   margin: EdgeInsets.only(top: 12),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: [
+                //       TapTooltip(
+                //         message: dic['earn.loyal.info']!,
+                //         child: Center(
+                //             child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           children: [
+                //             Icon(
+                //               Icons.info,
+                //               color: Theme.of(context).disabledColor,
+                //               size: 14,
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(left: 4),
+                //               child: Text(dic['earn.loyal']! + ':',
+                //                   style: TextStyle(fontSize: 12)),
+                //             )
+                //           ],
+                //         )),
+                //       ),
+                //       Container(
+                //         margin: EdgeInsets.only(left: 8),
+                //         child: Text(
+                //           Fmt.ratio(loyaltyBonus),
+                //           style: TextStyle(
+                //               fontSize: 14, fontWeight: FontWeight.bold),
+                //         ),
+                //       )
+                //     ],
+                //   ),
+                // ),
+                // Visibility(
+                //     visible: blocksToEnd != null,
+                //     child: Container(
+                //       margin: EdgeInsets.only(top: 4),
+                //       child: Text(
+                //         '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd ?? 0, 12500)}',
+                //         style: TextStyle(fontSize: 10),
+                //       ),
+                //     )),
+                // Divider(height: 24),
                 Container(
-                  margin: EdgeInsets.only(top: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TapTooltip(
-                        message: dic['earn.loyal.info']!,
-                        child: Center(
-                            child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.info,
-                              color: Theme.of(context).disabledColor,
-                              size: 14,
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 13, horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(14),
+                          bottomRight: Radius.circular(14)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: PluginOutlinedButtonSmall(
+                            content: dic['loan.withdraw'],
+                            color: Color(0xFFFF7849),
+                            active: true,
+                            padding: EdgeInsets.only(top: 8, bottom: 8),
+                            margin: EdgeInsets.zero,
+                            onPressed: (loans![token.tokenNameId]
+                                            ?.collaterals ??
+                                        BigInt.zero) >
+                                    BigInt.zero
+                                ? () => Navigator.of(context).pushNamed(
+                                      LoanDepositPage.route,
+                                      arguments: LoanDepositPageParams(
+                                          LoanDepositPage.actionTypeWithdraw,
+                                          token),
+                                    )
+                                : null,
+                          ),
+                        ),
+                        Container(width: 15),
+                        Expanded(
+                          child: PluginOutlinedButtonSmall(
+                            content: dic['loan.deposit'],
+                            color: Color(0xFFFF7849),
+                            active: true,
+                            padding: EdgeInsets.only(top: 8, bottom: 8),
+                            margin: EdgeInsets.zero,
+                            onPressed: () => Navigator.of(context).pushNamed(
+                              LoanDepositPage.route,
+                              arguments: LoanDepositPageParams(
+                                  LoanDepositPage.actionTypeDeposit, token),
                             ),
-                            Container(
-                              margin: EdgeInsets.only(left: 4),
-                              child: Text(dic['earn.loyal']! + ':',
-                                  style: TextStyle(fontSize: 12)),
-                            )
-                          ],
-                        )),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 8),
-                        child: Text(
-                          Fmt.ratio(loyaltyBonus),
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                Visibility(
-                    visible: blocksToEnd != null,
-                    child: Container(
-                      margin: EdgeInsets.only(top: 4),
-                      child: Text(
-                        '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd ?? 0, 12500)}',
-                        style: TextStyle(fontSize: 10),
-                      ),
+                        Container(width: 15),
+                        Expanded(
+                          child: PluginOutlinedButtonSmall(
+                            content: dic['homa.claim'],
+                            color: Color(0xFFFF7849),
+                            active: canClaim,
+                            padding: EdgeInsets.only(top: 8, bottom: 8),
+                            margin: EdgeInsets.zero,
+                            onPressed: canClaim
+                                ? () =>
+                                    _onClaimReward(context, token, rewardView)
+                                : null,
+                          ),
+                        ),
+                      ],
                     )),
-                Divider(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: PluginOutlinedButtonSmall(
-                        content: dic['loan.withdraw'],
-                        active: false,
-                        padding: EdgeInsets.only(top: 8, bottom: 8),
-                        margin: EdgeInsets.only(right: 8),
-                        onPressed: (loans![token.tokenNameId]?.collaterals ??
-                                    BigInt.zero) >
-                                BigInt.zero
-                            ? () => Navigator.of(context).pushNamed(
-                                  LoanDepositPage.route,
-                                  arguments: LoanDepositPageParams(
-                                      LoanDepositPage.actionTypeWithdraw,
-                                      token),
-                                )
-                            : null,
-                      ),
-                    ),
-                    Expanded(
-                      child: PluginOutlinedButtonSmall(
-                        content: dic['loan.deposit'],
-                        active: true,
-                        padding: EdgeInsets.only(top: 8, bottom: 8),
-                        margin: EdgeInsets.only(left: 8),
-                        onPressed: () => Navigator.of(context).pushNamed(
-                          LoanDepositPage.route,
-                          arguments: LoanDepositPageParams(
-                              LoanDepositPage.actionTypeDeposit, token),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           );
