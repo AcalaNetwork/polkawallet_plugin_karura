@@ -82,6 +82,7 @@ class AcalaServiceAssets {
             'type': 'DexShare',
             'tokenNameId': e.tokenNameId,
             'currencyId': currencyId,
+            'minBalance': lpToken[0]?.minBalance,
             'decimals': lpToken[0]!.decimals,
             'balance': data
           });

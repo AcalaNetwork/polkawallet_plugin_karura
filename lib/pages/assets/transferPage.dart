@@ -699,6 +699,7 @@ class _TransferPageState extends State<TransferPage> {
                                 setState(() {
                                   _token = res;
                                   _chainTo = widget.plugin.basic.name;
+                                  _amountMax = null;
                                 });
 
                                 _validateAccountTo(_accountTo);
