@@ -102,13 +102,14 @@ const queryPoolDetail = r'''
     pools(filter: {id: {equalTo: $pool}}) {
       nodes {
         id,
-        token0 { decimal, name }
-        token1 {decimal, name }
+        token0 {id,decimal, name }
+        token1 {id,decimal, name }
         token0Amount
         token1Amount
         tvlUSD
-        dayData(orderBy:DATE_ASC,first:999) {
+        dayData(orderBy:DATE_ASC,first:30) {
           nodes {
+            id
             date
             tvlUSD
             volumeUSD

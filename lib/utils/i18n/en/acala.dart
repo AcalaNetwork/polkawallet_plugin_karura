@@ -254,4 +254,7 @@ const Map<String, String> enDex = {
   'v3.earn.totalLiquidityAmount': 'Total Liquidity Provider Amount',
   'v3.earn.extraEarn': 'Extra Earn',
   'v3.earn.stakedLpInfo': 'Staked LP Info',
+  'v3.earn.inviteFriends': 'Invite Friends',
+  'v3.earn.copyLink': 'Copy Link',
+  'v3.earn.scanMessage': 'Scan the QR Code \nhere to enter the pool',
 };

@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/inviteFriendsPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
@@ -77,6 +78,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
                 uri: GraphQLConfig['httpUri']!,
               ),
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
+          InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
         }
       : {};
 }

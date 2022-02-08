@@ -237,4 +237,7 @@ const Map<String, String> zhDex = {
   'v3.earn.totalLiquidityAmount': '流动资金提供者总数',
   'v3.earn.extraEarn': '额外收益',
   'v3.earn.stakedLpInfo': 'LP质押信息',
+  'v3.earn.inviteFriends': '分享好友',
+  'v3.earn.copyLink': '复制连接',
+  'v3.earn.scanMessage': '扫描二维码\n这里是进入池子的地方',
 };
