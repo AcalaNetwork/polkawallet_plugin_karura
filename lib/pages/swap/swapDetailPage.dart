@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -23,15 +22,11 @@ class SwapDetailPage extends StatelessWidget {
     final Map<String, String> dic =
         I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-    final TxSwapData tx = ModalRoute.of(context)!.settings.arguments as TxSwapData;
+    final TxSwapData tx =
+        ModalRoute.of(context)!.settings.arguments as TxSwapData;
     final token0 = PluginFmt.tokenView(tx.tokenPay);
     final token1 = PluginFmt.tokenView(tx.tokenReceive);
-    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
-        plugin, [tx.tokenPay, tx.tokenReceive]);
     final tokenLP = '$token0-$token1 LP';
-    final amount0 = Fmt.balance(tx.amountPay, balancePair[0]!.decimals!);
-    final amount1 = Fmt.balance(tx.amountReceive, balancePair[1]!.decimals!);
-    final amountLP = Fmt.balance(tx.amountShare, balancePair[0]!.decimals!);
 
     final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
@@ -54,11 +49,11 @@ class SwapDetailPage extends StatelessWidget {
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
-            content: Text('$amount0 $token0', style: amountStyle),
+            content: Text('${tx.amountPay} $token0', style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
-            content: Text('$amount1 $token1', style: amountStyle),
+            content: Text('${tx.amountReceive} $token1', style: amountStyle),
           )
         ]);
         break;
@@ -66,8 +61,8 @@ class SwapDetailPage extends StatelessWidget {
         items.add(TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
-              '$amount0 $token0\n'
-              '+ $amount1 $token1',
+              '${tx.amountPay} $token0\n'
+              '+ ${tx.amountReceive} $token1',
               style: amountStyle,
               textAlign: TextAlign.right,
             )));
@@ -77,14 +72,14 @@ class SwapDetailPage extends StatelessWidget {
           TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
-                '$amount0 $token0\n'
-                '+ $amount1 $token1',
+                '${tx.amountPay} $token0\n'
+                '+ ${tx.amountReceive} $token1',
                 textAlign: TextAlign.right,
                 style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
-            content: Text('$amountLP $tokenLP', style: amountStyle),
+            content: Text('${tx.amountShare} $tokenLP', style: amountStyle),
           )
         ]);
         break;
@@ -92,13 +87,13 @@ class SwapDetailPage extends StatelessWidget {
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
-            content: Text('$amountLP $tokenLP', style: amountStyle),
+            content: Text('${tx.amountShare} $tokenLP', style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
             content: Text(
-                '$amount0 $token0\n'
-                '+ $amount1 $token1',
+                '${tx.amountPay} $token0\n'
+                '+ ${tx.amountReceive} $token1',
                 textAlign: TextAlign.right,
                 style: amountStyle),
           )
