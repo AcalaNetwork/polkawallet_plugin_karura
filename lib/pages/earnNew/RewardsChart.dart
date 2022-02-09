@@ -183,9 +183,9 @@ class RewardsChart extends StatelessWidget {
                   fontSize: 10,
                   fontWeight: FontWeight.w600),
           getTitles: (value) {
-            return Fmt.priceFloorFormatter(value / yBase, lengthFixed: 0);
+            return Fmt.priceFloorFormatter(value / yBase, lengthFixed: 1);
           },
-          reservedSize: 20,
+          reservedSize: 30,
           margin: 10,
         ),
       ),

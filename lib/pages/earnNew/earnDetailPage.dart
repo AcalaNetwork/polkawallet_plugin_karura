@@ -654,47 +654,50 @@ class _UserCard extends StatelessWidget {
       ));
     }
 
-    return Container(
-        width: double.infinity,
-        child: RoundedPluginCard(
-          padding: EdgeInsets.only(top: 24, bottom: 16),
-          margin: EdgeInsets.zero,
-          borderRadius: const BorderRadius.all(const Radius.circular(14)),
-          child: Column(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(bottom: 12),
-                child: Image.asset(
-                  "packages/polkawallet_plugin_karura/assets/images/lp_detail_rewards.png",
-                  width: 100,
-                ),
+    return Visibility(
+        visible: canClaim,
+        child: Container(
+            width: double.infinity,
+            child: RoundedPluginCard(
+              padding: EdgeInsets.only(top: 24, bottom: 16),
+              margin: EdgeInsets.zero,
+              borderRadius: const BorderRadius.all(const Radius.circular(14)),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    child: Image.asset(
+                      "packages/polkawallet_plugin_karura/assets/images/lp_detail_rewards.png",
+                      width: 100,
+                    ),
+                  ),
+                  Text(
+                    "\$ ${Fmt.doubleFormat(rewardPrice)}",
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline1
+                        ?.copyWith(color: Colors.white),
+                  ),
+                  Text(
+                    reward,
+                    style: Theme.of(context).textTheme.headline5?.copyWith(
+                        color: Color(0xFFFFFFFF).withAlpha(178), fontSize: 12),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: PluginOutlinedButtonSmall(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 33, vertical: 3),
+                        color: Color(0xFFFF7849),
+                        active: canClaim,
+                        content: dic['earn.claim'],
+                        onPressed: canClaim
+                            ? () => _onClaim(
+                                context, rewardV2, rewardSaving, blocksToEnd)
+                            : null),
+                  ),
+                ],
               ),
-              Text(
-                "\$ ${Fmt.doubleFormat(rewardPrice)}",
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-              Text(
-                reward,
-                style: Theme.of(context).textTheme.headline5?.copyWith(
-                    color: Color(0xFFFFFFFF).withAlpha(178), fontSize: 12),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 20),
-                child: PluginOutlinedButtonSmall(
-                    padding: EdgeInsets.symmetric(horizontal: 33, vertical: 3),
-                    color: Color(0xFFFF7849),
-                    active: canClaim,
-                    content: dic['earn.claim'],
-                    onPressed: canClaim
-                        ? () => _onClaim(
-                            context, rewardV2, rewardSaving, blocksToEnd)
-                        : null),
-              ),
-            ],
-          ),
-        ));
+            )));
   }
 }

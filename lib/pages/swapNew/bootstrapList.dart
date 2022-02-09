@@ -183,7 +183,8 @@ class _BootstrapListState extends State<BootstrapList> {
                   Center(
                     child: Container(
                       height: MediaQuery.of(context).size.width,
-                      child: ListTail(isEmpty: true, isLoading: false),
+                      child: ListTail(
+                          isEmpty: true, isLoading: false, color: Colors.white),
                     ),
                   )
                 ]

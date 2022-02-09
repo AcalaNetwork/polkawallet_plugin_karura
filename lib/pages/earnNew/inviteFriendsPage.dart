@@ -47,7 +47,6 @@ class InviteFriendsPage extends StatelessWidget {
 
     final url =
         "https://polkawallet.io${AddLiquidityPage.route}?poolId=${Uri.encodeComponent(pool.tokenNameId!)}";
-    print(url);
 
     return PluginScaffold(
       appBar: PluginAppBar(

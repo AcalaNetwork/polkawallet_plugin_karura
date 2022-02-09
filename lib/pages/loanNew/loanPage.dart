@@ -870,7 +870,8 @@ class _LoanPageState extends State<LoanPage> {
                   left: 26 / 347 * headCardWidth,
                   bottom: 5 / 210 * headCardHeight),
               alignment: Alignment.bottomLeft,
-              child: Text('$maxToBorrowView ${loan.token!.symbol}',
+              child: Text(
+                  '$maxToBorrowView ${PluginFmt.tokenView(karura_stable_coin)}',
                   style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
                         fontSize: 12,
@@ -906,6 +907,25 @@ class _LoanPageState extends State<LoanPage> {
                   style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
                         fontSize: 12,
+                      )),
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  right: 15 / 347 * headCardWidth +
+                      77 / 347 * headCardWidth -
+                      PluginFmt.boundingTextSize(
+                          '${dic['collateral.interest']}:${Fmt.ratio(loan.stableFeeYear)}',
+                          Theme.of(context).textTheme.headline3?.copyWith(
+                                color: Color(0xFFFF7849),
+                                fontSize: 11,
+                              )).width,
+                  bottom: 10 / 210 * headCardHeight),
+              alignment: Alignment.bottomRight,
+              child: Text(
+                  '${dic['collateral.interest']}:${Fmt.ratio(loan.stableFeeYear)}',
+                  style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Color(0xFFFF7849),
+                        fontSize: 11,
                       )),
             ),
           ],

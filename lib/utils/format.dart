@@ -27,20 +27,10 @@ class PluginFmt {
 
   static LiquidityShareInfo calcLiquidityShare(
       List<double> pool, List<double> user) {
-    final isPoolLeftZero = pool[0] == 0.0;
-    final isPoolRightZero = pool[1] == 0.0;
-    final xRate = isPoolRightZero ? 0 : pool[0] / pool[1];
-    final totalShare = isPoolRightZero
-        ? (pool[0] * 2)
-        : isPoolLeftZero
-            ? (pool[1] * 2)
-            : pool[0] + pool[1] * xRate;
+    final xRate = pool[1] == 0.0 ? 0 : pool[0] / pool[1];
+    final totalShare = pool[0] + pool[1] * xRate;
 
-    final userShare = isPoolRightZero
-        ? (user[0] * 2)
-        : isPoolLeftZero
-            ? (user[1] * 2)
-            : user[0] + user[1] * xRate;
+    final userShare = user[0] + user[1] * xRate;
     return LiquidityShareInfo(userShare, userShare / totalShare);
   }
 

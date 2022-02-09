@@ -437,7 +437,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           try {
             final double amountInput =
                 double.parse(input.isEmpty ? '0' : input);
-            userShare = amountInput / (amountInput + amountLeft);
+            userShare = amountInput / amountLeft;
           } catch (_) {
             // parse double failed
           }

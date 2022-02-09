@@ -312,7 +312,8 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
               Visibility(
                   visible: (poolInfo?.shares ?? BigInt.zero) > BigInt.zero,
                   child: PluginTagCard(
-                    titleTag: '$pairView ${dicAssets['balance']}',
+                    titleTag:
+                        '${PluginFmt.tokenView(balancePair.map((e) => e!.symbol).join('-'))} ${dicAssets['balance']}',
                     padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
                     child: Container(
                       margin: EdgeInsets.only(bottom: 4),
