@@ -1,3 +1,7 @@
+## [0.4.1] - 20220209
+- bump polkawallet_sdk v0.4.1.
+- ui v3 update.
+
 ## [0.4.0] - 20220104
 - update homa module.
 - ui v3 update.

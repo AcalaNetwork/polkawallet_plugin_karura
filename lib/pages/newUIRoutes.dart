@@ -25,7 +25,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 Map<String, WidgetBuilder> getNewUiRoutes(
     PluginKarura plugin, Keyring keyring) {
   /// use new pages in testnet for now.
-  final isTest = true;
+  final isTest = false;
   return isTest
       ? {
           //homa
