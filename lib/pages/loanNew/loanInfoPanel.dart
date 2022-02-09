@@ -15,6 +15,7 @@ class LoanInfoPanel extends StatelessWidget {
     this.requiredRatio,
     this.currentRatio,
     this.liquidationPrice,
+    this.stableFeeYear,
   });
   final String? debits;
   final String? collateral;
@@ -23,6 +24,7 @@ class LoanInfoPanel extends StatelessWidget {
   final BigInt? requiredRatio;
   final double? currentRatio;
   final BigInt? liquidationPrice;
+  final double? stableFeeYear;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +110,21 @@ class LoanInfoPanel extends StatelessWidget {
             child: InfoItemRow(
               dic['liquid.price']!,
               '\$$liquidationPriceString',
+              colorPrimary: true,
+              labelStyle: Theme.of(context)
+                  .textTheme
+                  .headline4
+                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+              contentStyle: Theme.of(context)
+                  .textTheme
+                  .headline4
+                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.w400),
+            )),
+        Padding(
+            padding: EdgeInsets.only(bottom: 5),
+            child: InfoItemRow(
+              dic['collateral.interest']!,
+              Fmt.ratio(stableFeeYear),
               colorPrimary: true,
               labelStyle: Theme.of(context)
                   .textTheme

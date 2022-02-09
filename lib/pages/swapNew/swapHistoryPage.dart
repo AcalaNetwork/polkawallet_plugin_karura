@@ -25,8 +25,6 @@ class SwapHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final symbols = plugin.networkState.tokenSymbol;
-    final decimals = plugin.networkState.tokenDecimals;
     return PluginScaffold(
       appBar: PluginAppBar(
         title: Text(dic['loan.txs']!),
@@ -107,8 +105,8 @@ class SwapHistoryPage extends StatelessWidget {
                                   fontWeight: FontWeight.w600),
                         ),
                         Text(
-                            '${dic['dex.${detail.action}']!} ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountReceive!), decimals![symbols!.indexOf(detail.tokenReceive!)])} ${PluginFmt.tokenView(detail.tokenReceive)} for ${Fmt.priceFloorBigInt(BigInt.tryParse(detail.amountPay!), decimals[symbols.indexOf(detail.tokenPay!)])} ${PluginFmt.tokenView(detail.tokenPay)}',
-                            textAlign: TextAlign.end,
+                            '${dic['dex.${detail.action}']!} ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}',
+                            textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5

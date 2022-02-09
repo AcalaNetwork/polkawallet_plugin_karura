@@ -919,7 +919,7 @@ class _LoanPageState extends State<LoanPage> {
                                 color: Color(0xFFFF7849),
                                 fontSize: 11,
                               )).width,
-                  bottom: 10 / 210 * headCardHeight),
+                  bottom: 9 / 210 * headCardHeight),
               alignment: Alignment.bottomRight,
               child: Text(
                   '${dic['collateral.interest']}:${Fmt.ratio(loan.stableFeeYear)}',

@@ -142,11 +142,15 @@ class EarnDetailPage extends StatelessWidget {
                                                   .length >
                                               0) {
                                         final List<TimeSeriesAmount> datas = [];
-                                        result.data!["pools"]["nodes"][0]
+                                        result
+                                            .data!["pools"]["nodes"][0]
                                                 ["dayData"]["nodes"]
+                                            .reversed
+                                            .toList()
                                             .forEach((element) {
                                           datas.add(TimeSeriesAmount(
-                                              DateTime.parse(element["date"]),
+                                              DateTime.parse(element["date"])
+                                                  .add(Duration(days: -1)),
                                               Fmt.balanceDouble(
                                                   element["tvlUSD"], 18)));
                                         });

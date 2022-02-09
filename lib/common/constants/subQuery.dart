@@ -107,7 +107,7 @@ const queryPoolDetail = r'''
         token0Amount
         token1Amount
         tvlUSD
-        dayData(orderBy:DATE_ASC,first:30) {
+        dayData(orderBy:DATE_DESC,first:30) {
           nodes {
             id
             date

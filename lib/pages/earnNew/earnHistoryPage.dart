@@ -115,7 +115,7 @@ class EarnHistoryPage extends StatelessWidget {
                                   fontWeight: FontWeight.w600),
                         ),
                         Text(amount!,
-                            textAlign: TextAlign.end,
+                            textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5

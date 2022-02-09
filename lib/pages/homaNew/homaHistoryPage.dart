@@ -131,7 +131,7 @@ class HomaHistoryPage extends StatelessWidget {
                                   fontWeight: FontWeight.w600),
                         ),
                         Text(amountTail,
-                            textAlign: TextAlign.end,
+                            textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5

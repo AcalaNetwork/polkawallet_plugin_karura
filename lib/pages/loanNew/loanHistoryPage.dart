@@ -109,7 +109,7 @@ class LoanHistoryPage extends StatelessWidget {
                                     fontWeight: FontWeight.w600),
                           ),
                           Text('$amount $token',
-                              textAlign: TextAlign.end,
+                              textAlign: TextAlign.start,
                               style: Theme.of(context)
                                   .textTheme
                                   .headline5
