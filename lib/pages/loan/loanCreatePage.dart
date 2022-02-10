@@ -44,7 +44,6 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   BigInt _amountCollateral = BigInt.zero;
   BigInt _amountDebit = BigInt.zero;
 
-  BigInt _maxToBorrow = BigInt.zero;
   double _currentRatio = 0;
   BigInt _liquidationPrice = BigInt.zero;
 
@@ -74,9 +73,6 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     BigInt collateral = Fmt.tokenInt(v, collateralDecimals!);
     setState(() {
       _amountCollateral = collateral;
-      _maxToBorrow = loanType.calcMaxToBorrow(collateral, price,
-          stableCoinDecimals: stableCoinDecimals,
-          collateralDecimals: collateralDecimals);
     });
 
     if (_amountDebit > BigInt.zero) {
@@ -139,8 +135,8 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     return null;
   }
 
-  String? _validateAmount2(
-      String value, LoanType loanType, String max, int? stableCoinDecimals) {
+  String? _validateAmount2(String value, LoanType loanType, BigInt maxToBorrow,
+      String max, int? stableCoinDecimals) {
     final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
@@ -157,7 +153,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       return '${assetDic!['min']} ${min.toStringAsFixed(2)}';
     }
     BigInt debits = Fmt.tokenInt(v, stableCoinDecimals);
-    if (debits >= _maxToBorrow) {
+    if (debits >= maxToBorrow) {
       return '${dic!['loan.max']} $max';
     }
     return null;
@@ -273,8 +269,13 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       final balanceView = Fmt.priceFloorBigInt(
           available, balancePair[0]!.decimals!,
           lengthMax: 4);
-      final maxToBorrow =
-          Fmt.priceFloorBigInt(_maxToBorrow, balancePair[1]!.decimals!);
+
+      final maxToBorrow = loanType.calcMaxToBorrow(
+          _amountCollateral > balance ? balance : _amountCollateral, price,
+          stableCoinDecimals: balancePair[1]?.decimals,
+          collateralDecimals: balancePair[0]?.decimals);
+      final maxToBorrowView =
+          Fmt.priceFloorBigInt(maxToBorrow, balancePair[1]!.decimals!);
 
       return Scaffold(
         appBar: AppBar(
@@ -354,7 +355,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                           decoration: InputDecoration(
                             hintText: assetDic['amount'],
                             labelText:
-                                '${assetDic['amount']} (${dic['loan.max']}: $maxToBorrow $karura_stable_coin_view)',
+                                '${assetDic['amount']} (${dic['loan.max']}: $maxToBorrowView $karura_stable_coin_view)',
                           ),
                           inputFormatters: [
                             UI.decimalInputFormatter(balancePair[1]!.decimals!)!
@@ -362,8 +363,12 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                           controller: _amountCtrl2,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) => _validateAmount2(v!, loanType,
-                              maxToBorrow, balancePair[1]!.decimals),
+                          validator: (v) => _validateAmount2(
+                              v!,
+                              loanType,
+                              maxToBorrow,
+                              maxToBorrowView,
+                              balancePair[1]!.decimals),
                           onChanged: (v) => _onAmount2Change(
                               v,
                               loanType,
