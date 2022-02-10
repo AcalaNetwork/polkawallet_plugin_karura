@@ -44,12 +44,16 @@ class ServiceLoan {
     final data = Map<String?, LoanData>();
     loans.forEach((i) {
       final token = AssetsUtils.tokenDataFromCurrencyId(plugin, i['currency'])!;
-      data[token.tokenNameId] = LoanData.fromJson(
-        Map<String, dynamic>.from(i),
-        loanTypes.firstWhere((t) => t.token!.tokenNameId == token.tokenNameId),
-        prices[token.tokenNameId] ?? BigInt.zero,
-        plugin,
-      );
+      final loanTypeIndex = loanTypes
+          .indexWhere((t) => t.token!.tokenNameId == token.tokenNameId);
+      if (loanTypeIndex > -1) {
+        data[token.tokenNameId] = LoanData.fromJson(
+          Map<String, dynamic>.from(i),
+          loanTypes[loanTypeIndex],
+          prices[token.tokenNameId] ?? BigInt.zero,
+          plugin,
+        );
+      }
     });
     return data;
   }
@@ -59,6 +63,7 @@ class ServiceLoan {
 
     await plugin.service!.earn.updateAllDexPoolInfo();
     final res = await api!.loan.queryLoanTypes();
+    res.removeWhere((e) => e.requiredCollateralRatio == BigInt.zero);
     store!.loan.setLoanTypes(res);
 
     queryTotalCDPs();
