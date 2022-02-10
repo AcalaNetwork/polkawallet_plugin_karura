@@ -257,4 +257,5 @@ const Map<String, String> enDex = {
   'v3.earn.inviteFriends': 'Invite Friends',
   'v3.earn.copyLink': 'Copy Link',
   'v3.earn.scanMessage': 'Scan the QR Code \nhere to enter the pool',
+  'v3.tap': 'TAP',
 };

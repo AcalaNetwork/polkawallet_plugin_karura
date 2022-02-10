@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:polkawallet_plugin_karura/utils/InstrumentItemWidget.dart';
+import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/SkaletonList.dart';
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -77,7 +79,8 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                               fontWeight: FontWeight.w400,
                               color: Theme.of(context)
                                   .textSelectionTheme
-                                  .selectionColor)),
+                                  .selectionColor
+                                  ?.withAlpha(191))),
                       GestureDetector(
                           onTap: () {
                             widget.onSwitchHideBalance!();
@@ -143,12 +146,16 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
                                           Color(0xFF74716C),
                                         ])),
                                 child: Center(
-                                  child: Container(
-                                    margin: EdgeInsets.only(bottom: 5),
-                                    width: 22.w,
-                                    height: 15.w,
-                                    child: Image.asset(
-                                        'assets/images/icon_instrument_2.png'),
+                                  child: Text(
+                                    I18n.of(context)!.getDic(
+                                        i18n_full_dic_karura,
+                                        'acala')!['v3.tap']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            color: Color(0xFF757371),
+                                            fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               )),

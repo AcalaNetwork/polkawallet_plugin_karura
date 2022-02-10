@@ -723,7 +723,7 @@ class _LoanPageState extends State<LoanPage> {
     final maxToBorrowView =
         Fmt.priceFloorBigIntFormatter(maxToBorrow, balancePair[1]!.decimals!);
     return Container(
-      padding: EdgeInsets.all(6),
+      padding: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 10),
       margin: EdgeInsets.only(bottom: 19),
       decoration: BoxDecoration(
           color: Color(0x1AFFFFFF),
