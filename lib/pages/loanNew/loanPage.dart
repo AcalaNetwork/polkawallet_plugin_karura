@@ -910,17 +910,8 @@ class _LoanPageState extends State<LoanPage> {
                       )),
             ),
             Container(
-              padding: EdgeInsets.only(
-                  right: 15 / 347 * headCardWidth +
-                      77 / 347 * headCardWidth -
-                      PluginFmt.boundingTextSize(
-                          '${dic['collateral.interest']}:${Fmt.ratio(loan.stableFeeYear)}',
-                          Theme.of(context).textTheme.headline3?.copyWith(
-                                color: Color(0xFFFF7849),
-                                fontSize: 11,
-                              )).width,
-                  bottom: 9 / 210 * headCardHeight),
-              alignment: Alignment.bottomRight,
+              padding: EdgeInsets.only(left: 3, bottom: 5),
+              alignment: Alignment.bottomCenter,
               child: Text(
                   '${dic['collateral.interest']}:${Fmt.ratio(loan.stableFeeYear)}',
                   style: Theme.of(context).textTheme.headline3?.copyWith(
