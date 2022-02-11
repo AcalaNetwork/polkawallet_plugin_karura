@@ -58,7 +58,7 @@ class _EarnPageState extends State<EarnPage> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.fromLTRB(0, 16, 114, 16),
+              margin: EdgeInsets.fromLTRB(16, 16, 0, 16),
               child: PluginPageTitleTaps(
                 names: [dic['earn.dex']!, dic['earn.loan']!],
                 activeTab: _tab,

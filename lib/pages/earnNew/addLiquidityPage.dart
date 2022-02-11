@@ -500,7 +500,6 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                   )),
               PluginInputBalance(
                 inputCtrl: _amountRightCtrl,
-                tokenBgColor: Colors.white,
                 titleTag: 'token 2',
                 onInputChange: (v) => _onTargetAmountChange(v),
                 onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]

@@ -105,343 +105,265 @@ class EarnDetailPage extends StatelessWidget {
                   '0');
 
           return SafeArea(
-              child: Padding(
+              child: Stack(
+            children: [
+              Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Stack(
-                    children: [
-                      SingleChildScrollView(
-                          child: Column(
-                        children: <Widget>[
-                          PluginTagCard(
-                            titleTag: dic['v3.earn.totalLiquidityAmount'],
-                            radius: const Radius.circular(14),
-                            backgroundColor: Color(0x1AFFFFFF),
-                            margin: EdgeInsets.only(bottom: 20),
-                            padding: EdgeInsets.symmetric(vertical: 11),
-                            child: Column(
-                              children: [
-                                Query(
-                                    options: QueryOptions(
-                                      document: gql(queryPoolDetail),
-                                      variables: <String, String?>{
-                                        'pool': poolInfo!.tokenNameId,
-                                      },
-                                    ),
-                                    builder: (
-                                      QueryResult result, {
-                                      Future<QueryResult?> Function()? refetch,
-                                      FetchMore? fetchMore,
-                                    }) {
-                                      if (result.data != null &&
-                                          result.data!["pools"]["nodes"]
-                                                  .length >
-                                              0 &&
-                                          result
-                                                  .data!["pools"]["nodes"][0]
-                                                      ["dayData"]["nodes"]
-                                                  .length >
-                                              0) {
-                                        final List<TimeSeriesAmount> datas = [];
-                                        result
-                                            .data!["pools"]["nodes"][0]
-                                                ["dayData"]["nodes"]
-                                            .reversed
-                                            .toList()
-                                            .forEach((element) {
-                                          datas.add(TimeSeriesAmount(
-                                              DateTime.parse(element["date"])
-                                                  .add(Duration(days: -1)),
-                                              Fmt.balanceDouble(
-                                                  element["tvlUSD"], 18)));
-                                        });
-                                        return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 50),
-                                              child: Text(
-                                                "TVL",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline5
-                                                    ?.copyWith(
-                                                        color: Colors.white,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                              ),
-                                            ),
-                                            Container(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2.4,
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 16),
-                                              child:
-                                                  RewardsChart.withData(datas),
-                                            )
-                                          ],
-                                        );
-                                      }
-                                      return Container();
-                                    }),
-                                Container(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  color: Color(0xFF494b4e),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          PluginInfoItem(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            title: 'APR',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                            titleStyle: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(color: Colors.white),
-                                            content: Fmt.ratio(
-                                                rewardAPR + savingRewardAPR),
-                                          ),
-                                          PluginInfoItem(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            title: dic['v3.earn.extraEarn'],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                            titleStyle: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(color: Colors.white),
-                                            content: Fmt.ratio(plugin
-                                                .service!.earn
-                                                .getSwapFee()),
-                                          ),
-                                          PluginInfoItem(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            title: '${dic['earn.staked']} LP',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                            titleStyle: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(color: Colors.white),
-                                            content: Fmt.priceFloorBigInt(share,
-                                                balancePair[0]!.decimals!,
-                                                lengthFixed: 4),
-                                          ),
-                                          PluginInfoItem(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            title: '${dic['earn.share']} LP',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                            titleStyle: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(color: Colors.white),
-                                            content: Fmt.ratio(
-                                                shareTotal > BigInt.zero
-                                                    ? share / shareTotal
-                                                    : 0),
-                                          ),
-                                        ],
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(
-                                            top: 12, bottom: 6, left: 27),
-                                        child: Row(
-                                          children: [
-                                            Image.asset(
-                                                'packages/polkawallet_plugin_karura/assets/images/info.png',
-                                                width: 14),
-                                            Padding(
-                                              padding: EdgeInsets.only(left: 2),
-                                              child: Text(
-                                                  "${dic['v3.earn.stakedLpInfo']}: $lpAmountString",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline5
-                                                      ?.copyWith(
-                                                          color: Colors.white,
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w600)),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                  child: SingleChildScrollView(
+                      child: Column(
+                    children: <Widget>[
+                      PluginTagCard(
+                        titleTag: dic['v3.earn.totalLiquidityAmount'],
+                        radius: const Radius.circular(14),
+                        backgroundColor: Color(0x1AFFFFFF),
+                        margin: EdgeInsets.only(bottom: 20),
+                        padding: EdgeInsets.symmetric(vertical: 11),
+                        child: Column(
+                          children: [
+                            Query(
+                                options: QueryOptions(
+                                  document: gql(queryPoolDetail),
+                                  variables: <String, String?>{
+                                    'pool': poolInfo!.tokenNameId,
+                                  },
                                 ),
-                                Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 10, right: 10, top: 13),
-                                    child: Row(
+                                builder: (
+                                  QueryResult result, {
+                                  Future<QueryResult?> Function()? refetch,
+                                  FetchMore? fetchMore,
+                                }) {
+                                  if (result.data != null &&
+                                      result.data!["pools"]["nodes"].length >
+                                          0 &&
+                                      result
+                                              .data!["pools"]["nodes"][0]
+                                                  ["dayData"]["nodes"]
+                                              .length >
+                                          0) {
+                                    final List<TimeSeriesAmount> datas = [];
+                                    result
+                                        .data!["pools"]["nodes"][0]["dayData"]
+                                            ["nodes"]
+                                        .reversed
+                                        .toList()
+                                        .forEach((element) {
+                                      datas.add(TimeSeriesAmount(
+                                          DateTime.parse(element["date"])
+                                              .add(Duration(days: -1)),
+                                          Fmt.balanceDouble(
+                                              element["tvlUSD"], 18)));
+                                    });
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: PluginOutlinedButtonSmall(
-                                            content: dic['earn.stake']!,
-                                            margin: EdgeInsets.zero,
-                                            active: balance > BigInt.zero,
-                                            color: Color(0xFFFF7849),
-                                            onPressed: balance > BigInt.zero
-                                                ? () => _onStake(
-                                                    context,
-                                                    LPStakePage.actionStake,
-                                                    pool)
-                                                : null,
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 50),
+                                          child: Text(
+                                            "TVL",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline5
+                                                ?.copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
                                           ),
                                         ),
-                                        Container(width: 20),
-                                        Expanded(
-                                          child: PluginOutlinedButtonSmall(
-                                            active: share > BigInt.zero,
-                                            margin: EdgeInsets.zero,
-                                            color: Color(0xFFFF7849),
-                                            content: dic['earn.unStake']!,
-                                            onPressed: share > BigInt.zero
-                                                ? () => _onStake(
-                                                    context,
-                                                    LPStakePage.actionUnStake,
-                                                    pool)
-                                                : null,
-                                          ),
+                                        Container(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2.4,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16),
+                                          child: RewardsChart.withData(datas),
                                         )
                                       ],
-                                    ))
-                              ],
+                                    );
+                                  }
+                                  return Container();
+                                }),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              color: Color(0xFF494b4e),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      PluginInfoItem(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        title: 'APR',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600),
+                                        titleStyle: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(color: Colors.white),
+                                        content: Fmt.ratio(
+                                            rewardAPR + savingRewardAPR),
+                                      ),
+                                      PluginInfoItem(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        title: dic['v3.earn.extraEarn'],
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600),
+                                        titleStyle: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(color: Colors.white),
+                                        content: Fmt.ratio(
+                                            plugin.service!.earn.getSwapFee()),
+                                      ),
+                                      PluginInfoItem(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        title: '${dic['earn.staked']} LP',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600),
+                                        titleStyle: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(color: Colors.white),
+                                        content: Fmt.priceFloorBigInt(
+                                            share, balancePair[0]!.decimals!,
+                                            lengthFixed: 4),
+                                      ),
+                                      PluginInfoItem(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        title: '${dic['earn.share']} LP',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600),
+                                        titleStyle: Theme.of(context)
+                                            .textTheme
+                                            .headline5
+                                            ?.copyWith(color: Colors.white),
+                                        content: Fmt.ratio(
+                                            shareTotal > BigInt.zero
+                                                ? share / shareTotal
+                                                : 0),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                        top: 12, bottom: 6, left: 27),
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                            padding: EdgeInsets.only(top: 1),
+                                            child: Image.asset(
+                                                'packages/polkawallet_plugin_karura/assets/images/info.png',
+                                                width: 14)),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 2),
+                                          child: Text(
+                                              "${dic['v3.earn.stakedLpInfo']}: $lpAmountString",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline5
+                                                  ?.copyWith(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                          _UserCard(
-                              plugin: plugin,
-                              share: stakeShare,
-                              poolInfo: poolInfo,
-                              poolSymbol: pool.tokens!
-                                  .map((e) =>
-                                      AssetsUtils.tokenDataFromCurrencyId(
-                                              plugin, e)!
-                                          .symbol)
-                                  .join('-'),
-                              rewardAPY: rewardAPR,
-                              rewardSavingAPY: savingRewardAPR,
-                              loyaltyBonus: loyaltyBonus,
-                              savingLoyaltyBonus: savingLoyaltyBonus,
-                              fee: plugin.service!.earn.getSwapFee(),
-                              incentiveCoinSymbol: symbols![0],
-                              stableCoinSymbol: karura_stable_coin,
-                              stableCoinDecimal:
-                                  plugin.networkState.tokenDecimals![
-                                      symbols.indexOf(karura_stable_coin)],
-                              bestNumber: plugin.store!.gov.bestNumber,
-                              dexIncentiveLoyaltyEndBlock: this
-                                  .plugin
-                                  .store!
-                                  .earn
-                                  .dexIncentiveLoyaltyEndBlock),
-                          // Row(
-                          //   children: <Widget>[
-                          //     Expanded(
-                          //       child: Container(
-                          //         color: Colors.redAccent,
-                          //         child: TextButton(
-                          //             child: Text(
-                          //               dic['earn.add']!,
-                          //               style: TextStyle(color: cardColor),
-                          //             ),
-                          //             onPressed: () {
-                          //               Navigator.of(context).pushNamed(
-                          //                 AddLiquidityPage.route,
-                          //                 arguments: {'poolId': pool.tokenNameId},
-                          //               );
-                          //             }),
-                          //       ),
-                          //     ),
-                          //     Visibility(
-                          //         visible: balance > BigInt.zero,
-                          //         child: Expanded(
-                          //           child: Container(
-                          //             color: primaryColor,
-                          //             child: TextButton(
-                          //               child: Text(
-                          //                 dic['earn.remove']!,
-                          //                 style: TextStyle(color: cardColor),
-                          //               ),
-                          //               onPressed: () => Navigator.of(context).pushNamed(
-                          //                 WithdrawLiquidityPage.route,
-                          //                 arguments: pool,
-                          //               ),
-                          //             ),
-                          //           ),
-                          //         )),
-                          //   ],
-                          // ),
-                        ],
-                      )),
-                      Align(
-                          alignment: Alignment.topRight,
-                          child: GestureDetector(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                  InviteFriendsPage.route,
-                                  arguments: pool),
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                alignment: Alignment.center,
-                                margin: EdgeInsets.only(top: 40),
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(
-                                      const Radius.circular(24)),
-                                  color: Color(0xFFFF7849),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(0xFFFF9A77),
-                                      blurRadius: 8.0,
-                                      spreadRadius: 0.0,
-                                      offset: Offset(
-                                        0.0,
-                                        0.0,
+                            Padding(
+                                padding: EdgeInsets.only(
+                                    left: 10, right: 10, top: 13),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: PluginOutlinedButtonSmall(
+                                        content: dic['earn.stake']!,
+                                        margin: EdgeInsets.zero,
+                                        active: balance > BigInt.zero,
+                                        color: Color(0xFFFF7849),
+                                        onPressed: balance > BigInt.zero
+                                            ? () => _onStake(context,
+                                                LPStakePage.actionStake, pool)
+                                            : null,
+                                      ),
+                                    ),
+                                    Container(width: 20),
+                                    Expanded(
+                                      child: PluginOutlinedButtonSmall(
+                                        active: share > BigInt.zero,
+                                        margin: EdgeInsets.zero,
+                                        color: Color(0xFFFF7849),
+                                        content: dic['earn.unStake']!,
+                                        onPressed: share > BigInt.zero
+                                            ? () => _onStake(context,
+                                                LPStakePage.actionUnStake, pool)
+                                            : null,
                                       ),
                                     )
                                   ],
-                                ),
-                                child: Image.asset(
-                                  "packages/polkawallet_plugin_karura/assets/images/invite_icon.png",
-                                  width: 37,
-                                ),
-                              )))
+                                ))
+                          ],
+                        ),
+                      ),
+                      _UserCard(
+                          plugin: plugin,
+                          share: stakeShare,
+                          poolInfo: poolInfo,
+                          poolSymbol: pool.tokens!
+                              .map((e) => AssetsUtils.tokenDataFromCurrencyId(
+                                      plugin, e)!
+                                  .symbol)
+                              .join('-'),
+                          rewardAPY: rewardAPR,
+                          rewardSavingAPY: savingRewardAPR,
+                          loyaltyBonus: loyaltyBonus,
+                          savingLoyaltyBonus: savingLoyaltyBonus,
+                          fee: plugin.service!.earn.getSwapFee(),
+                          incentiveCoinSymbol: symbols![0],
+                          stableCoinSymbol: karura_stable_coin,
+                          stableCoinDecimal: plugin.networkState.tokenDecimals![
+                              symbols.indexOf(karura_stable_coin)],
+                          bestNumber: plugin.store!.gov.bestNumber,
+                          dexIncentiveLoyaltyEndBlock: this
+                              .plugin
+                              .store!
+                              .earn
+                              .dexIncentiveLoyaltyEndBlock),
                     ],
-                  )));
+                  ))),
+              InviteFriendsBtn(
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(InviteFriendsPage.route, arguments: pool)),
+            ],
+          ));
         },
       ),
     );
@@ -703,5 +625,65 @@ class _UserCard extends StatelessWidget {
                 ],
               ),
             )));
+  }
+}
+
+class InviteFriendsBtn extends StatefulWidget {
+  InviteFriendsBtn({Key? key, this.onTap}) : super(key: key);
+  Function()? onTap;
+
+  @override
+  State<InviteFriendsBtn> createState() => _InviteFriendsBtnState();
+}
+
+class _InviteFriendsBtnState extends State<InviteFriendsBtn> {
+  Offset? offset;
+
+  @override
+  Widget build(BuildContext context) {
+    if (offset == null) {
+      offset = Offset(MediaQuery.of(context).size.width - 48, 20);
+    }
+    return Stack(
+      children: [
+        Positioned(
+            left: offset!.dx,
+            top: offset!.dy,
+            child: GestureDetector(
+                onTap: widget.onTap,
+                onPanUpdate: (details) {
+                  setState(() {
+                    offset = Offset(offset!.dx + details.delta.dx,
+                        offset!.dy + details.delta.dy);
+                  });
+                },
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.only(top: 40),
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        const BorderRadius.all(const Radius.circular(24)),
+                    color: Color(0xFFFF7849),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFFFF9A77),
+                        blurRadius: 8.0,
+                        spreadRadius: 0.0,
+                        offset: Offset(
+                          0.0,
+                          0.0,
+                        ),
+                      )
+                    ],
+                  ),
+                  child: Image.asset(
+                    "packages/polkawallet_plugin_karura/assets/images/invite_icon.png",
+                    width: 37,
+                  ),
+                )))
+      ],
+    );
   }
 }
