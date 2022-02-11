@@ -162,7 +162,7 @@ class _DexPoolCard extends StatelessWidget {
               )),
           Container(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-            color: Color(0x2bFFFFFF),
+            color: Color(0xFF494b4e),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -193,9 +193,8 @@ class _DexPoolCard extends StatelessWidget {
                   Expanded(
                     child: PluginOutlinedButtonSmall(
                       content: dic['dex.removeLiquidity'],
-                      color: Colors.white,
+                      color: Color(0xFFcdcdce),
                       active: true,
-                      padding: EdgeInsets.only(top: 8, bottom: 8),
                       onPressed: () => Navigator.of(context).pushNamed(
                           WithdrawLiquidityPage.route,
                           arguments: pool),
@@ -206,7 +205,6 @@ class _DexPoolCard extends StatelessWidget {
                       content: dic['dex.addLiquidity'],
                       color: Color(0xFFFC8156),
                       active: true,
-                      padding: EdgeInsets.only(top: 8, bottom: 8),
                       onPressed: () => Navigator.of(context).pushNamed(
                           AddLiquidityPage.route,
                           arguments: {'poolId': pool?.tokenNameId}),

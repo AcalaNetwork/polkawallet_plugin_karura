@@ -118,7 +118,7 @@ class InviteFriendsPage extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     decoration: BoxDecoration(
-                        color: Colors.black,
+                        color: Color(0xFF24262A),
                         borderRadius: BorderRadius.circular((size - 6) / 2)),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -150,17 +150,18 @@ class InviteFriendsPage extends StatelessWidget {
               Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.all(8),
+                    margin: EdgeInsets.only(top: 20, bottom: 18),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         QrImage(
+                          padding: EdgeInsets.zero,
                           data: url,
                           size: 58,
                           foregroundColor: Colors.white,
                         ),
                         Padding(
-                            padding: EdgeInsets.only(right: 13),
+                            padding: EdgeInsets.only(right: 13, left: 15),
                             child: Text(
                               dic['v3.earn.scanMessage']!,
                               style: Theme.of(context)

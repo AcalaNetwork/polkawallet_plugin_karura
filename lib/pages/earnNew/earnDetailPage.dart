@@ -190,7 +190,7 @@ class EarnDetailPage extends StatelessWidget {
                                     }),
                                 Container(
                                   padding: EdgeInsets.symmetric(vertical: 10),
-                                  color: Color(0x2BFFFFFF),
+                                  color: Color(0xFF494b4e),
                                   child: Column(
                                     children: [
                                       Row(
@@ -415,13 +415,13 @@ class EarnDetailPage extends StatelessWidget {
                                   InviteFriendsPage.route,
                                   arguments: pool),
                               child: Container(
-                                width: 36,
-                                height: 36,
+                                width: 48,
+                                height: 48,
                                 alignment: Alignment.center,
                                 margin: EdgeInsets.only(top: 40),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
-                                      const Radius.circular(18)),
+                                      const Radius.circular(24)),
                                   color: Color(0xFFFF7849),
                                   boxShadow: [
                                     BoxShadow(
@@ -437,7 +437,7 @@ class EarnDetailPage extends StatelessWidget {
                                 ),
                                 child: Image.asset(
                                   "packages/polkawallet_plugin_karura/assets/images/invite_icon.png",
-                                  width: 28,
+                                  width: 37,
                                 ),
                               )))
                     ],

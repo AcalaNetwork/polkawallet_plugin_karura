@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 
 class EarnLoanList extends StatefulWidget {
   EarnLoanList(this.plugin, this.keyring);
@@ -64,7 +65,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
         return isDataLoading
             ? Container(
                 height: MediaQuery.of(context).size.width / 2,
-                child: CupertinoActivityIndicator(),
+                child: PluginLoadingWidget(),
               )
             : CollateralIncentiveList(
                 plugin: widget.plugin,

@@ -468,9 +468,7 @@ class _HomaPageState extends State<HomaPage> {
                                                   .textTheme
                                                   .headline4
                                                   ?.copyWith(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600),
+                                                      color: Colors.white),
                                             )
                                           ],
                                         ),
@@ -506,9 +504,7 @@ class _HomaPageState extends State<HomaPage> {
                                                   .textTheme
                                                   .headline4
                                                   ?.copyWith(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600),
+                                                      color: Colors.white),
                                             )
                                           ],
                                         ),
@@ -552,9 +548,7 @@ class _HomaPageState extends State<HomaPage> {
                                                   .textTheme
                                                   .headline4
                                                   ?.copyWith(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600),
+                                                      color: Colors.white),
                                             )
                                           ],
                                         ),
@@ -586,7 +580,9 @@ class _HomaPageState extends State<HomaPage> {
                                                       .textTheme
                                                       .headline4
                                                       ?.copyWith(
-                                                          color: Colors.white,
+                                                          color: claimable > 0
+                                                              ? Colors.black
+                                                              : Colors.white,
                                                           fontWeight:
                                                               FontWeight.w600),
                                                 ),
@@ -596,9 +592,9 @@ class _HomaPageState extends State<HomaPage> {
                                                       .textTheme
                                                       .headline4
                                                       ?.copyWith(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w600),
+                                                          color: claimable > 0
+                                                              ? Colors.black
+                                                              : Colors.white),
                                                 )
                                               ],
                                             ),

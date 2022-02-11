@@ -241,4 +241,5 @@ const Map<String, String> zhDex = {
   'v3.earn.copyLink': '复制连接',
   'v3.earn.scanMessage': '扫描二维码\n这里是进入池子的地方',
   'v3.tap': '切换',
+  'v3.swap.selectToken': '选择代币',
 };

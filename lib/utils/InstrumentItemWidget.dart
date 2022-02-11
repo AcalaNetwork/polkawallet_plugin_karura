@@ -159,12 +159,8 @@ class InstrumentData {
   final int lengthMax;
   final String currencySymbol;
   final String? title;
-  final String? prompt;
   List<InstrumentItemData> items;
 
   InstrumentData(this.sumValue, this.items,
-      {this.lengthMax = 2,
-      this.currencySymbol = "\$",
-      this.title = "",
-      this.prompt = ""});
+      {this.lengthMax = 2, this.currencySymbol = "\$", this.title = ""});
 }

@@ -669,7 +669,10 @@ class StakeLPTips extends StatelessWidget {
       this.switchActive,
       this.switch1Active,
       this.onSwitch,
-      this.onSwitch1});
+      this.onSwitch1,
+      this.color = const Color(0xFF3A3D40),
+      this.padding,
+      this.margin});
   final PluginKarura plugin;
   final String? poolSymbol;
   final DexPoolData? pool;
@@ -677,6 +680,9 @@ class StakeLPTips extends StatelessWidget {
   final bool? switch1Active;
   final Function(bool)? onSwitch;
   final Function(bool)? onSwitch1;
+  final Color color;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -702,8 +708,9 @@ class StakeLPTips extends StatelessWidget {
       return Column(
         children: [
           RoundedPluginCard(
-              margin: EdgeInsets.only(top: 32, bottom: 16),
-              padding: EdgeInsets.fromLTRB(8, 20, 8, 20),
+              margin: this.margin ?? EdgeInsets.only(top: 32, bottom: 16),
+              padding: this.padding ?? EdgeInsets.fromLTRB(8, 20, 8, 20),
+              color: color,
               child: Column(children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

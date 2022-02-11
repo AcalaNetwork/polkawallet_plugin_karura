@@ -13,6 +13,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class HomaHistoryPage extends StatelessWidget {
@@ -52,13 +53,14 @@ class HomaHistoryPage extends StatelessWidget {
                 height: MediaQuery.of(context).size.height / 3,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [CupertinoActivityIndicator()],
+                  children: [PluginLoadingWidget()],
                 ),
               );
             }
 
             final list = List.of(result.data!['homaActions']['nodes'])
-                .map((i) => TxHomaData.fromJson((i as Map) as Map<String, dynamic>))
+                .map((i) =>
+                    TxHomaData.fromJson((i as Map) as Map<String, dynamic>))
                 .toList();
             list.removeWhere((e) =>
                 e.action == TxHomaData.actionRedeemed &&

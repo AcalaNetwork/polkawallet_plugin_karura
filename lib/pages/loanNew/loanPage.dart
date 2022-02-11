@@ -722,6 +722,10 @@ class _LoanPageState extends State<LoanPage> {
         : BigInt.zero;
     final maxToBorrowView =
         Fmt.priceFloorBigIntFormatter(maxToBorrow, balancePair[1]!.decimals!);
+    final debitRatio = loan.debits /
+        loan.collateralInUSD *
+        Fmt.bigIntToDouble(loan.type.liquidationRatio, 18);
+
     return Container(
       padding: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 10),
       margin: EdgeInsets.only(bottom: 19),
@@ -759,8 +763,8 @@ class _LoanPageState extends State<LoanPage> {
                               : colorDanger,
                           durations: [8000, 6000],
                           heightPercentages: [
-                            1 - 1 / loan.collateralRatio - 0.04,
-                            1 - 1 / loan.collateralRatio - 0.04,
+                            1 - debitRatio - 0.04,
+                            1 - debitRatio - 0.04,
                           ],
                           blur: MaskFilter.blur(BlurStyle.solid, 5),
                         ),
@@ -783,8 +787,7 @@ class _LoanPageState extends State<LoanPage> {
                                       color: Colors.white,
                                       fontSize: 18,
                                     )),
-                            Text(
-                                '${((1 / loan.collateralRatio) * 100).toStringAsFixed(2)}%',
+                            Text(Fmt.ratio(debitRatio),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline3
@@ -995,7 +998,9 @@ class _LoanCollateralState extends State<LoanCollateral> {
                                   ),
                                   CupertinoTextField(
                                     controller: _controller,
-                                    keyboardType: TextInputType.number,
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
                                     clearButtonMode:
                                         OverlayVisibilityMode.editing,
                                   )

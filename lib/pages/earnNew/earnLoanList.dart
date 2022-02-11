@@ -349,7 +349,7 @@ class CollateralIncentiveList extends StatelessWidget {
                 ),
                 Container(
                     width: double.infinity,
-                    color: Color(0x2BFFFFFF),
+                    color: Color(0xFF494b4e),
                     padding: EdgeInsets.symmetric(vertical: 24),
                     child: Column(
                       children: [

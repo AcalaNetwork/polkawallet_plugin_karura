@@ -255,7 +255,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                 borderRadius: BorderRadius.only(
                                     bottomLeft: Radius.circular(9),
                                     bottomRight: Radius.circular(9)),
-                                color: Color(0x2BFFFFFF)),
+                                color: Color(0xFF494b4e)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

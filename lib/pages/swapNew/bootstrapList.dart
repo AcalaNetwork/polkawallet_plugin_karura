@@ -22,6 +22,7 @@ import 'package:polkawallet_ui/components/v3/plugin/PluginTxButton.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -297,7 +298,6 @@ class _BootStrapCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
       borderRadius: const BorderRadius.all(const Radius.circular(14)),
-      color: Color(0x19FFFFFF),
       child: Column(
         children: [
           Padding(
@@ -327,7 +327,7 @@ class _BootStrapCard extends StatelessWidget {
               )),
           Container(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-              color: Color(0x2bFFFFFF),
+              color: Color(0xFF494b4e),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -434,7 +434,7 @@ class _BootStrapCard extends StatelessWidget {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(bottom: 14, top: 12, left: 12, right: 12),
+            margin: EdgeInsets.only(bottom: 14, left: 12, right: 12),
             child: InfoItemRow(dic['boot.ratio']!, ratioView,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 labelStyle: Theme.of(context)
@@ -507,7 +507,6 @@ class _BootStrapCardEnabled extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
       borderRadius: const BorderRadius.all(const Radius.circular(14)),
-      color: Color(0x19FFFFFF),
       child: Column(
         children: [
           Padding(
@@ -537,7 +536,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
               )),
           Container(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-              color: Color(0xFFFFFFFF).withAlpha(43),
+              color: Color(0xFF494b4e),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -628,6 +627,9 @@ class _BootStrapCardEnabled extends StatelessWidget {
                   poolSymbol: poolTokenSymbol,
                   switchActive: withStake,
                   onSwitch: onWithStakeChange,
+                  color: Color(0xFF494b4e),
+                  margin: EdgeInsets.only(top: 16, bottom: 10),
+                  padding: EdgeInsets.only(top: 20, bottom: 20),
                 )
               ],
             ),
@@ -637,7 +639,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
               child: submitting!
                   ? PluginButton(
                       title: 'Claim LP Tokens',
-                      icon: CupertinoActivityIndicator(),
+                      icon: PluginLoadingWidget(),
                     )
                   : PluginTxButton(
                       text: 'Claim LP Tokens',

@@ -261,14 +261,13 @@ class _BootstrapPageState extends State<BootstrapPage> {
                       PluginTagCard(
                         titleTag: dic['boot.my']!,
                         radius: Radius.circular(14),
-                        backgroundColor: Color(0x1AFFFFFF),
                         child: Column(
                           children: [
                             Container(
                                 width: double.infinity,
                                 padding: EdgeInsets.symmetric(vertical: 17),
                                 decoration: BoxDecoration(
-                                    color: Color(0x2BFFFFFF),
+                                    color: Color(0xFF494b4e),
                                     borderRadius: BorderRadius.only(
                                         topRight: Radius.circular(14))),
                                 alignment: Alignment.center,
@@ -330,7 +329,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                         padding: EdgeInsets.all(16),
                         margin: EdgeInsets.only(top: 16),
                         radius: Radius.circular(14),
-                        backgroundColor: Color(0x2BFFFFFF),
+                        backgroundColor: Color(0xFF494b4e),
                         child: Column(
                           children: [
                             Container(
@@ -343,6 +342,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                         vertical: 2, horizontal: 10),
                                     activeTextcolor: Colors.white,
                                     unActiveTextcolor: Colors.white,
+                                    color: Color(0xFFFF7849),
                                     active: _addTab == 0,
                                     onPressed: () {
                                       if (_addTab != 0) {
@@ -360,6 +360,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                         vertical: 2, horizontal: 10),
                                     activeTextcolor: Colors.white,
                                     unActiveTextcolor: Colors.white,
+                                    color: Color(0xFFFF7849),
                                     active: _addTab == 1,
                                     onPressed: () {
                                       if (_addTab != 1) {
@@ -377,6 +378,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                         vertical: 2, horizontal: 10),
                                     activeTextcolor: Colors.white,
                                     unActiveTextcolor: Colors.white,
+                                    color: Color(0xFFFF7849),
                                     active: _addTab == 2,
                                     onPressed: () {
                                       if (_addTab != 2) {
@@ -403,7 +405,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                               title: dic['earn.add'],
                                               inputCtrl: _amountLeftCtrl,
                                               balance: balancePair[0],
-                                              color: Color(0xFF393B3E),
+                                              color: Color(0xFF3a3d40),
                                               borderRadius: _addTab == 2
                                                   ? BorderRadius.only(
                                                       topLeft:
@@ -432,8 +434,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                             child: SwapTokenInput(
                                               title: dic['earn.add'],
                                               color: _addTab == 2
-                                                  ? Color(0x1AFFFFFF)
-                                                  : Color(0xFF393B3E),
+                                                  ? Color(0xFF595a5d)
+                                                  : Color(0xFF3a3d40),
                                               borderRadius: _addTab == 2
                                                   ? BorderRadius.only(
                                                       bottomLeft:
@@ -491,7 +493,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                               ),
                             ),
                             Container(
-                              margin: EdgeInsets.only(top: 8),
+                              margin: EdgeInsets.only(top: 3),
                               child: InfoItemRow(
                                 estShareLabel,
                                 '+${Fmt.ratio(poolInfoAfter.ratio)}',

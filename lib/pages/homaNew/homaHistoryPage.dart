@@ -12,6 +12,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -51,7 +52,7 @@ class HomaHistoryPage extends StatelessWidget {
                 height: MediaQuery.of(context).size.height / 3,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [CupertinoActivityIndicator()],
+                  children: [PluginLoadingWidget()],
                 ),
               );
             }

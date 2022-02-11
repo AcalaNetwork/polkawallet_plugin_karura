@@ -350,7 +350,8 @@ class _RedeemPageState extends State<RedeemPage> {
                             EdgeInsets.symmetric(horizontal: 11, vertical: 14),
                         margin: EdgeInsets.only(bottom: 20),
                         decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 1),
+                            border:
+                                Border.all(color: Color(0xCCFFFFFF), width: 1),
                             borderRadius: const BorderRadius.only(
                                 bottomLeft: Radius.circular(17),
                                 topRight: Radius.circular(17),
@@ -434,7 +435,7 @@ class UnStakeTypeItemWidget extends StatelessWidget {
     return GestureDetector(
         onTap: ontap,
         child: Container(
-          height: 110,
+          height: 125,
           padding: EdgeInsets.all(10),
           margin: margin,
           decoration: BoxDecoration(
@@ -469,7 +470,7 @@ class UnStakeTypeItemWidget extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w300,
-                        fontSize: 10),
+                        fontSize: 12),
                   ))
             ],
           ),

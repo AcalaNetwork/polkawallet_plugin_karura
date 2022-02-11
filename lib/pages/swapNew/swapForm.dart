@@ -548,7 +548,7 @@ class _SwapFormState extends State<SwapForm>
                       margin: EdgeInsets.only(bottom: 7),
                       inputCtrl: _amountPayCtrl,
                       tokenOptions: currencyOptionsLeft,
-                      tokenSelectTitle: 'Select Collateral',
+                      tokenSelectTitle: dic['v3.swap.selectToken']!,
                       marketPrices: widget.plugin.store!.assets.marketPrices,
                       onInputChange: _onSupplyAmountChange,
                       onTokenChange: (token) {
@@ -578,6 +578,7 @@ class _SwapFormState extends State<SwapForm>
                     PluginInputBalance(
                       inputCtrl: _amountReceiveCtrl,
                       tokenOptions: currencyOptionsRight,
+                      tokenSelectTitle: dic['v3.swap.selectToken']!,
                       marketPrices: widget.plugin.store!.assets.marketPrices,
                       onInputChange: _onTargetAmountChange,
                       onTokenChange: (token) {
@@ -634,7 +635,7 @@ class _SwapFormState extends State<SwapForm>
                         style: Theme.of(context)
                             .textTheme
                             .headline5
-                            ?.copyWith(color: Colors.white, fontSize: 10),
+                            ?.copyWith(color: Colors.white),
                       ),
                       GestureDetector(
                           onTap: () {
@@ -646,7 +647,7 @@ class _SwapFormState extends State<SwapForm>
                             margin: EdgeInsets.only(left: 4),
                             child: Image.asset(
                                 'packages/polkawallet_plugin_karura/assets/images/swap_repeat.png',
-                                width: 16),
+                                width: 20),
                           )),
                     ],
                   ),
@@ -660,7 +661,7 @@ class _SwapFormState extends State<SwapForm>
                       style: Theme.of(context)
                           .textTheme
                           .headline5
-                          ?.copyWith(color: Colors.white, fontSize: 10)),
+                          ?.copyWith(color: Colors.white)),
                   GestureDetector(
                       child: Container(
                         margin: EdgeInsets.only(left: 3),
@@ -673,8 +674,10 @@ class _SwapFormState extends State<SwapForm>
                           Fmt.ratio(_slippage),
                           style: Theme.of(context)
                               .textTheme
-                              .headline5
-                              ?.copyWith(color: Colors.white, fontSize: 10),
+                              .headline4
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
                         ),
                       ),
                       onTap: _onSetSlippage),
@@ -695,7 +698,6 @@ class _SwapFormState extends State<SwapForm>
                         color: Color(0xFFFF7849),
                         unActiveTextcolor: Colors.white,
                         activeTextcolor: Colors.white,
-                        fontSize: 8,
                         content: '0.1 %',
                         active: _slippage == 0.001,
                         onPressed: () => _updateSlippage(0.001),
@@ -706,7 +708,6 @@ class _SwapFormState extends State<SwapForm>
                         color: Color(0xFFFF7849),
                         unActiveTextcolor: Colors.white,
                         activeTextcolor: Colors.white,
-                        fontSize: 8,
                         content: '0.5 %',
                         active: _slippage == 0.005,
                         onPressed: () => _updateSlippage(0.005),
@@ -717,35 +718,32 @@ class _SwapFormState extends State<SwapForm>
                         color: Color(0xFFFF7849),
                         unActiveTextcolor: Colors.white,
                         activeTextcolor: Colors.white,
-                        fontSize: 8,
                         content: '1 %',
                         active: _slippage == 0.01,
                         onPressed: () => _updateSlippage(0.01),
                       ),
                       Container(
-                        width: 97,
+                        width: 137,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             CupertinoTextField(
                               textAlign: TextAlign.right,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5
+                                  .headline4
                                   ?.copyWith(
                                       color: Colors.white,
-                                      fontSize: 10,
                                       fontWeight: FontWeight.w300),
                               padding: EdgeInsets.fromLTRB(4, 0, 4, 0),
-                              placeholder: I18n.of(context)!.getDic(
-                                  i18n_full_dic_karura, 'common')!['custom'],
+                              placeholder:
+                                  "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['custom']}  ${Fmt.ratio(_slippage)}",
                               placeholderStyle: Theme.of(context)
                                   .textTheme
-                                  .headline5
+                                  .headline4
                                   ?.copyWith(
-                                      color: grey,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w300),
+                                      color: grey, fontWeight: FontWeight.w300),
                               inputFormatters: [UI.decimalInputFormatter(6)!],
                               keyboardType: TextInputType.numberWithOptions(
                                   decimal: true),

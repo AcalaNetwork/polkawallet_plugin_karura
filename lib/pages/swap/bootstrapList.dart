@@ -24,6 +24,7 @@ import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class BootstrapList extends StatefulWidget {
@@ -563,7 +564,7 @@ class _BootStrapCardEnabled extends StatelessWidget {
           submitting!
               ? RoundedButton(
                   text: 'Claim LP Tokens',
-                  icon: CupertinoActivityIndicator(),
+                  icon: PluginLoadingWidget(),
                 )
               : TxButton(
                   text: 'Claim LP Tokens',

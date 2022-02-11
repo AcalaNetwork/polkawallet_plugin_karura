@@ -14,6 +14,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class EarnHistoryPage extends StatelessWidget {
@@ -51,7 +52,7 @@ class EarnHistoryPage extends StatelessWidget {
                 height: MediaQuery.of(context).size.height / 3,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [CupertinoActivityIndicator()],
+                  children: [PluginLoadingWidget()],
                 ),
               );
             }
@@ -61,7 +62,8 @@ class EarnHistoryPage extends StatelessWidget {
             nodes.removeWhere(
                 (e) => jsonDecode(e['data'][1]['value'])['loans'] != null);
             final list = nodes
-                .map((i) => TxDexIncentiveData.fromJson((i as Map) as Map<String, dynamic>, plugin))
+                .map((i) => TxDexIncentiveData.fromJson(
+                    (i as Map) as Map<String, dynamic>, plugin))
                 .toList();
 
             return ListView.builder(

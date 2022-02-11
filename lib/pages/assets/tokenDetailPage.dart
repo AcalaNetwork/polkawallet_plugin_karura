@@ -20,6 +20,7 @@ import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/components/v3/borderedTitle.dart';
 import 'package:polkawallet_ui/components/v3/cardButton.dart';
 import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -238,7 +239,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                             return Container(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: [CupertinoActivityIndicator()],
+                                children: [PluginLoadingWidget()],
                               ),
                             );
                           }
