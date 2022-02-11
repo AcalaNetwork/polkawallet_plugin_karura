@@ -638,52 +638,68 @@ class InviteFriendsBtn extends StatefulWidget {
 
 class _InviteFriendsBtnState extends State<InviteFriendsBtn> {
   Offset? offset;
+  final GlobalKey globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     if (offset == null) {
-      offset = Offset(MediaQuery.of(context).size.width - 48, 20);
+      offset = Offset(MediaQuery.of(context).size.width - 48, 0);
     }
-    return Stack(
-      children: [
-        Positioned(
-            left: offset!.dx,
-            top: offset!.dy,
-            child: GestureDetector(
-                onTap: widget.onTap,
-                onPanUpdate: (details) {
-                  setState(() {
-                    offset = Offset(offset!.dx + details.delta.dx,
-                        offset!.dy + details.delta.dy);
-                  });
-                },
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.only(top: 40),
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        const BorderRadius.all(const Radius.circular(24)),
-                    color: Color(0xFFFF7849),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFFFF9A77),
-                        blurRadius: 8.0,
-                        spreadRadius: 0.0,
-                        offset: Offset(
-                          0.0,
-                          0.0,
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Image.asset(
-                    "packages/polkawallet_plugin_karura/assets/images/invite_icon.png",
-                    width: 37,
-                  ),
-                )))
-      ],
-    );
+    return Container(
+        key: globalKey,
+        child: Stack(
+          children: [
+            Positioned(
+                left: offset!.dx,
+                top: offset!.dy,
+                child: GestureDetector(
+                    onTap: widget.onTap,
+                    onPanUpdate: (details) {
+                      var dx = offset!.dx + details.delta.dx;
+                      if (dx < 0) {
+                        dx = 0;
+                      } else if (dx >
+                          globalKey.currentContext!.size!.width - 48) {
+                        dx = globalKey.currentContext!.size!.width - 48;
+                      }
+                      var dy = offset!.dy + details.delta.dy;
+                      if (dy < -40) {
+                        dy = -40;
+                      } else if (dy >
+                          globalKey.currentContext!.size!.height - 40 - 48) {
+                        dy = globalKey.currentContext!.size!.height - 40 - 48;
+                      }
+                      setState(() {
+                        offset = Offset(dx, dy);
+                      });
+                    },
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.only(top: 40),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(const Radius.circular(24)),
+                        color: Color(0xFFFF7849),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFFFF9A77),
+                            blurRadius: 8.0,
+                            spreadRadius: 0.0,
+                            offset: Offset(
+                              0.0,
+                              0.0,
+                            ),
+                          )
+                        ],
+                      ),
+                      child: Image.asset(
+                        "packages/polkawallet_plugin_karura/assets/images/invite_icon.png",
+                        width: 37,
+                      ),
+                    )))
+          ],
+        ));
   }
 }
