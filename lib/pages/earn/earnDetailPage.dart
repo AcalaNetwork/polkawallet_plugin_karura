@@ -592,11 +592,8 @@ class _UserCard extends StatelessWidget {
                     margin: EdgeInsets.only(top: 16),
                     child: RoundedButton(
                         text: dic['earn.claim'],
-                        onPressed: () => _onClaim(
-                            context,
-                            rewardV2,
-                            rewardSaving,
-                            blocksToEnd != null && blocksToEnd > 0)),
+                        onPressed: () => _onClaim(context, rewardV2,
+                            rewardSaving, loyaltyBonus != 0)),
                   )),
             ],
           ),

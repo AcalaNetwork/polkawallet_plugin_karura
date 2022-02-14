@@ -687,7 +687,7 @@ class _SwapFormState extends State<SwapForm>
             Visibility(
                 visible: _slippageSettingVisible,
                 child: Container(
-                  margin: EdgeInsets.only(left: 8, top: 3),
+                  margin: EdgeInsets.only(left: 8, top: 3, bottom: 3),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -736,7 +736,7 @@ class _SwapFormState extends State<SwapForm>
                                   ?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300),
-                              padding: EdgeInsets.fromLTRB(4, 0, 4, 0),
+                              padding: EdgeInsets.fromLTRB(4, 3, 4, 3),
                               placeholder:
                                   "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['custom']}  ${Fmt.ratio(_slippage)}",
                               placeholderStyle: Theme.of(context)
@@ -782,44 +782,46 @@ class _SwapFormState extends State<SwapForm>
                 )),
             Visibility(
                 visible: showExchangeRate && _swapOutput.amount != null,
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      child: Row(
-                        children: [
-                          Text(
-                            dicGov['detail']!,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline4
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 6),
-                            child: Transform.rotate(
-                                angle: angle,
-                                child: SvgPicture.asset(
-                                  "packages/polkawallet_ui/assets/images/triangle_bottom.svg",
-                                  color: Color(0xFFFF7849),
-                                )),
-                          )
-                        ],
-                      ),
-                      onTap: () {
-                        if (!_detailShow) {
-                          _animationController!.forward();
-                        } else {
-                          _animationController!.reverse();
-                        }
-                        setState(() {
-                          _detailShow = !_detailShow;
-                        });
-                      },
-                    )
-                  ],
-                )),
+                child: Row(children: [
+                  GestureDetector(
+                    child: Container(
+                        color: Colors.transparent,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              dicGov['detail']!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline4
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 6, top: 5, bottom: 5, right: 10),
+                              child: Transform.rotate(
+                                  angle: angle,
+                                  child: SvgPicture.asset(
+                                    "packages/polkawallet_ui/assets/images/triangle_bottom.svg",
+                                    color: Color(0xFFFF7849),
+                                  )),
+                            )
+                          ],
+                        )),
+                    onTap: () {
+                      if (!_detailShow) {
+                        _animationController!.forward();
+                      } else {
+                        _animationController!.reverse();
+                      }
+                      setState(() {
+                        _detailShow = !_detailShow;
+                      });
+                    },
+                  )
+                ])),
             Visibility(
                 visible: _detailShow,
                 child: Container(

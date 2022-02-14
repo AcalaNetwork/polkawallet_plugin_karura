@@ -36,11 +36,11 @@ const node_list = [
     'ss58': ss58_prefix_karura,
     'endpoint': 'wss://karura.api.onfinality.io/public-ws',
   },
-  {
-    'name': 'Karura (Polkawallet dev node)',
-    'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://kusama-1.polkawallet.io:3000',
-  },
+  // {
+  //   'name': 'Karura (Polkawallet dev node)',
+  //   'ss58': ss58_prefix_karura,
+  //   'endpoint': 'wss://kusama-1.polkawallet.io:3000',
+  // },
   // {
   //   'name': 'Karura (Polkawallet dev node pha)',
   //   'ss58': ss58_prefix_karura,

@@ -27,6 +27,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderThumbShape.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderTrackShape.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -448,6 +449,11 @@ class _LoanPageState extends State<LoanPage> {
                                 .debitShareToDebit(
                                     _debitsShares[e.token!.symbol!]!);
 
+                            final debitRatio = loan.debits /
+                                loan.collateralInUSD *
+                                Fmt.bigIntToDouble(
+                                    loan.type.liquidationRatio, 18);
+
                             child = SingleChildScrollView(
                                 physics: BouncingScrollPhysics(),
                                 child: Column(
@@ -462,7 +468,8 @@ class _LoanPageState extends State<LoanPage> {
                                             loan.type.requiredCollateralRatio,
                                             18))),
                                     Container(
-                                      padding: EdgeInsets.all(7),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 9),
                                       margin: EdgeInsets.only(bottom: 2),
                                       decoration: BoxDecoration(
                                         color: Color(0x1AFFFFFF),
@@ -482,10 +489,24 @@ class _LoanPageState extends State<LoanPage> {
                                                     balancePair[0]!.decimals!) +
                                                 balance,
                                             minNumber: Fmt.bigIntToDouble(
-                                                loan.requiredCollateral,
-                                                balancePair[0]!.decimals!),
+                                                        loan.requiredCollateral,
+                                                        balancePair[0]!
+                                                            .decimals!) >
+                                                    available
+                                                ? available
+                                                : Fmt.bigIntToDouble(
+                                                    loan.requiredCollateral,
+                                                    balancePair[0]!.decimals!),
                                             subtitleLeft: dic['loan.withdraw']!,
                                             subtitleRight: dic['loan.deposit']!,
+                                            error:
+                                                "${dic['v3.loan.errorMessage1']} ${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.errorMessage2']}",
+                                            isShowError: Fmt.bigIntToDouble(
+                                                        loan.requiredCollateral,
+                                                        balancePair[0]!
+                                                            .decimals!) >=
+                                                    available &&
+                                                balance == 0,
                                             value: available,
                                             price: availablePrice,
                                             onChanged: (value) {
@@ -506,6 +527,19 @@ class _LoanPageState extends State<LoanPage> {
                                                       );
                                               if (maxToBorrow >= debits) {
                                                 loan.collaterals = collaterals;
+                                                // loan.collateralInUSD =
+                                                //     loan.tokenToUSD(
+                                                //         collaterals,
+                                                //         tokenPrice,
+                                                //         stableCoinDecimals: widget
+                                                //             .plugin
+                                                //             .store!
+                                                //             .assets
+                                                //             .tokenBalanceMap[
+                                                //                 karura_stable_coin]!
+                                                //             .decimals!,
+                                                //         collateralDecimals: loan
+                                                //             .token!.decimals!);
                                                 loan.maxToBorrow = Fmt.tokenInt(
                                                     "$maxToBorrow",
                                                     balancePair[0]!.decimals!);
@@ -529,7 +563,9 @@ class _LoanPageState extends State<LoanPage> {
                                               child: LoanCollateral(
                                                 title:
                                                     '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
-                                                maxNumber: maxToBorrow,
+                                                maxNumber: maxToBorrow < debits
+                                                    ? debits
+                                                    : maxToBorrow,
                                                 minNumber: balanceStableCoin >
                                                         originalDebitsValue
                                                     ? 0
@@ -542,6 +578,15 @@ class _LoanPageState extends State<LoanPage> {
                                                     dic['loan.payback']!,
                                                 subtitleRight:
                                                     dic['loan.mint']!,
+                                                error:
+                                                    "${dic['v3.loan.errorMessage3']}  ${PluginFmt.tokenView(karura_stable_coin)} ${dic['v3.loan.errorMessage4']} ",
+                                                isShowError: maxToBorrow <=
+                                                        debits &&
+                                                    Fmt.bigIntToDouble(
+                                                            balanceStableCoin,
+                                                            balancePair[1]!
+                                                                .decimals!) ==
+                                                        0,
                                                 price: 1.0,
                                                 value: debits,
                                                 onChanged: (value) {
@@ -660,8 +705,7 @@ class _LoanPageState extends State<LoanPage> {
                                                     height: 2.0,
                                                     fontWeight:
                                                         FontWeight.w600)),
-                                        Text(
-                                            '${((1 / loan.collateralRatio) * 100).toStringAsFixed(2)}%',
+                                        Text('${Fmt.ratio(debitRatio)}',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4
@@ -685,7 +729,7 @@ class _LoanPageState extends State<LoanPage> {
                                 ));
                           }
                           return LoanTabBarWidgetData(
-                            TokenIcon(
+                            PluginTokenIcon(
                                 e.token!.symbol!, widget.plugin.tokenIcons),
                             child,
                           );
@@ -939,6 +983,8 @@ class LoanCollateral extends StatefulWidget {
       required this.price,
       this.minNumber = 0,
       this.onChanged,
+      this.error = '',
+      this.isShowError = false,
       Key? key})
       : super(key: key);
   final Function(double)? onChanged;
@@ -949,6 +995,8 @@ class LoanCollateral extends StatefulWidget {
   double price;
   String subtitleLeft;
   String subtitleRight;
+  String error;
+  bool isShowError;
 
   @override
   _LoanCollateralState createState() => _LoanCollateralState();
@@ -968,154 +1016,180 @@ class _LoanCollateralState extends State<LoanCollateral> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(widget.title,
-                style: Theme.of(context).textTheme.headline5?.copyWith(
-                    fontWeight: FontWeight.w600, color: Colors.white)),
-            Row(
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 9),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                    onTap: () {
-                      showCupertinoDialog(
-                          context: context,
-                          builder: (context) {
-                            final _controller =
-                                TextEditingController(text: "$_value");
-                            return CupertinoAlertDialog(
-                              content: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                Text(widget.title,
+                    style: Theme.of(context).textTheme.headline5?.copyWith(
+                        fontWeight: FontWeight.w600, color: Colors.white)),
+                Row(
+                  children: [
+                    GestureDetector(
+                        onTap: () {
+                          showCupertinoDialog(
+                              context: context,
+                              builder: (context) {
+                                final _controller =
+                                    TextEditingController(text: "$_value");
+                                return CupertinoAlertDialog(
+                                  content: Column(
                                     children: [
-                                      Text(
-                                          "min:${Fmt.priceCeil(widget.minNumber, lengthMax: 2)}"),
-                                      Text(
-                                          "max:${Fmt.priceCeil(widget.maxNumber, lengthMax: 2)}"),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                              "min:${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
+                                          Text(
+                                              "max:${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
+                                        ],
+                                      ),
+                                      CupertinoTextField(
+                                        controller: _controller,
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                decimal: true),
+                                        clearButtonMode:
+                                            OverlayVisibilityMode.editing,
+                                      )
                                     ],
                                   ),
-                                  CupertinoTextField(
-                                    controller: _controller,
-                                    keyboardType:
-                                        TextInputType.numberWithOptions(
-                                            decimal: true),
-                                    clearButtonMode:
-                                        OverlayVisibilityMode.editing,
-                                  )
-                                ],
-                              ),
-                              actions: <Widget>[
-                                CupertinoDialogAction(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(I18n.of(context)!.getDic(
-                                      i18n_full_dic_karura,
-                                      'common')!['cancel']!),
-                                ),
-                                CupertinoDialogAction(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    if (double.parse(_controller.text) >=
-                                            widget.minNumber &&
-                                        double.parse(_controller.text) <=
-                                            widget.maxNumber) {
-                                      setState(() {
-                                        _value = double.parse(_controller.text);
-                                      });
-                                      if (widget.onChanged != null) {
-                                        widget.onChanged!(_value);
-                                      }
-                                    } else {
-                                      Toast.show(
-                                          I18n.of(context)!.getDic(
-                                              i18n_full_dic_ui,
-                                              'common')!['amount.error']!,
-                                          context,
-                                          duration: Toast.LENGTH_SHORT,
-                                          gravity: Toast.CENTER);
-                                    }
-                                  },
-                                  child: Text(I18n.of(context)!.getDic(
-                                      i18n_full_dic_karura, 'common')!['ok']!),
-                                ),
-                              ],
-                            );
-                          });
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(right: 2),
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                        color: Color(0x24FFFFFF),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
-                      ),
-                      child: Text(
-                        Fmt.priceFloorFormatter(_value, lengthMax: 4),
-                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                            color: Colors.white, fontWeight: FontWeight.w600),
-                      ),
-                    )),
-                Text(
-                  "/${Fmt.priceFloorFormatter(widget.maxNumber, lengthMax: 4)}",
-                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.w600),
+                                  actions: <Widget>[
+                                    CupertinoDialogAction(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(I18n.of(context)!.getDic(
+                                          i18n_full_dic_karura,
+                                          'common')!['cancel']!),
+                                    ),
+                                    CupertinoDialogAction(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        if (double.parse(_controller.text) >=
+                                                widget.minNumber &&
+                                            double.parse(_controller.text) <=
+                                                widget.maxNumber) {
+                                          setState(() {
+                                            _value =
+                                                double.parse(_controller.text);
+                                          });
+                                          if (widget.onChanged != null) {
+                                            widget.onChanged!(_value);
+                                          }
+                                        } else {
+                                          Toast.show(
+                                              I18n.of(context)!.getDic(
+                                                  i18n_full_dic_ui,
+                                                  'common')!['amount.error']!,
+                                              context,
+                                              duration: Toast.LENGTH_SHORT,
+                                              gravity: Toast.CENTER);
+                                        }
+                                      },
+                                      child: Text(I18n.of(context)!.getDic(
+                                          i18n_full_dic_karura,
+                                          'common')!['ok']!),
+                                    ),
+                                  ],
+                                );
+                              });
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 2),
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          decoration: BoxDecoration(
+                            color: Color(0x24FFFFFF),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(4)),
+                          ),
+                          child: Text(
+                            Fmt.priceFloorFormatter(_value, lengthMax: 4),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText1
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                          ),
+                        )),
+                    Text(
+                      "/${Fmt.priceFloorFormatter(widget.maxNumber, lengthMax: 4)}",
+                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.w600),
+                    )
+                  ],
                 )
               ],
-            )
-          ],
-        ),
-        Text(
-          "Value \$${Fmt.priceFloorFormatter(_value * widget.price, lengthMax: 4)}",
-          style: Theme.of(context)
-              .textTheme
-              .headline5
-              ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12),
-        ),
-        ClipRect(
-            child: Align(
-                heightFactor: 0.6,
-                alignment: Alignment.center,
-                child: SliderTheme(
-                    data: SliderThemeData(
-                        trackHeight: 11,
-                        activeTrackColor: Color(0xFFFC8156),
-                        inactiveTrackColor: Color(0xFFA1FBBE),
-                        overlayColor: Colors.transparent,
-                        trackShape: const PluginSliderTrackShape(),
-                        thumbShape: const PluginSliderThumbShape()),
-                    child: Slider(
-                      min: widget.minNumber,
-                      max: widget.maxNumber,
-                      value: _value,
-                      onChanged: (value) {
-                        setState(() {
-                          _value = value;
-                        });
-                        if (widget.onChanged != null) {
-                          widget.onChanged!(_value);
-                        }
-                      },
-                    )))),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(
-            widget.subtitleLeft,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                ?.copyWith(color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
-          ),
-          Text(
-            widget.subtitleRight,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                ?.copyWith(color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
-          )
-        ])
+            )),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 9),
+            child: Text(
+              "Value \$${Fmt.priceFloorFormatter(_value * widget.price, lengthMax: 4)}",
+              style: Theme.of(context)
+                  .textTheme
+                  .headline5
+                  ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12),
+            )),
+        !widget.isShowError
+            ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: 9),
+                child: ClipRect(
+                    child: Align(
+                        heightFactor: 0.6,
+                        alignment: Alignment.center,
+                        child: SliderTheme(
+                            data: SliderThemeData(
+                                trackHeight: 11,
+                                activeTrackColor: Color(0xFFFC8156),
+                                inactiveTrackColor: Color(0xFFA1FBBE),
+                                overlayColor: Colors.transparent,
+                                trackShape: const PluginSliderTrackShape(),
+                                thumbShape: const PluginSliderThumbShape()),
+                            child: Slider(
+                              min: widget.minNumber,
+                              max: widget.maxNumber,
+                              value: _value,
+                              onChanged: (value) {
+                                setState(() {
+                                  _value = value;
+                                });
+                                if (widget.onChanged != null) {
+                                  widget.onChanged!(_value);
+                                }
+                              },
+                            )))))
+            : Container(
+                color: Color(0xFF292A2C),
+                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 9),
+                margin: EdgeInsets.symmetric(vertical: 5),
+                width: double.infinity,
+                child: Text(
+                  widget.error,
+                  style: Theme.of(context).textTheme.headline5?.copyWith(
+                      color: Color(0xFFFF7849),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12),
+                ),
+              ),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 9),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.subtitleLeft,
+                    style: Theme.of(context).textTheme.headline5?.copyWith(
+                        color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
+                  ),
+                  Text(
+                    widget.subtitleRight,
+                    style: Theme.of(context).textTheme.headline5?.copyWith(
+                        color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
+                  )
+                ]))
       ],
     );
   }

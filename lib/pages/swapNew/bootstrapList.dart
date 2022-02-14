@@ -23,6 +23,7 @@ import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -305,7 +306,7 @@ class _BootStrapCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    child: TokenIcon(poolSymbol, tokenIcons!, size: 26),
+                    child: PluginTokenIcon(poolSymbol, tokenIcons!, size: 26),
                     margin: EdgeInsets.only(right: 12),
                   ),
                   Expanded(
@@ -514,7 +515,8 @@ class _BootStrapCardEnabled extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    child: TokenIcon(poolTokenSymbol, tokenIcons!, size: 26),
+                    child:
+                        PluginTokenIcon(poolTokenSymbol, tokenIcons!, size: 26),
                     margin: EdgeInsets.only(right: 12),
                   ),
                   Expanded(

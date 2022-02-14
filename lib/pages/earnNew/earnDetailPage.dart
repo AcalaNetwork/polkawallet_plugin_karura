@@ -405,7 +405,7 @@ class _UserCard extends StatelessWidget {
   Future<void> _onClaim(BuildContext context, String rewardV2,
       double rewardSaving, dynamic blocksToEnd) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    if (blocksToEnd != null && blocksToEnd > 0) {
+    if (loyaltyBonus != 0) {
       showCupertinoDialog(
           context: context,
           builder: (_) {

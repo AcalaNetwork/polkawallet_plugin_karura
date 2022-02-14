@@ -1,22 +1,28 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/utils/index.dart';
 
 class LPStakePageParams {
   LPStakePageParams(this.pool, this.action);
@@ -39,6 +45,22 @@ class LPStakePage extends StatefulWidget {
 
 class _LPStakePage extends State<LPStakePage> {
   final TextEditingController _amountCtrl = new TextEditingController();
+
+  final TextEditingController _amountLeftCtrl = new TextEditingController();
+  final TextEditingController _amountRightCtrl = new TextEditingController();
+
+  int _inputIndex = 0;
+  BigInt? _maxInputLeft;
+  BigInt? _maxInputRight;
+  String? _errorLeft;
+  String? _errorRight;
+  double _price = 0;
+
+  TxFeeEstimateResult? _fee;
+
+  Timer? _timer;
+
+  bool switchActive = true;
 
   bool _isMax = false;
 
@@ -101,28 +123,496 @@ class _LPStakePage extends State<LPStakePage> {
       amount = max;
       input = Fmt.token(max, decimals);
     }
-    final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
-        arguments: TxConfirmParams(
-          module: 'incentives',
-          call: isStake ? 'depositDexShare' : 'withdrawDexShare',
-          txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol LP',
-          txDisplay: {
-            dic['earn.pool']: poolTokenSymbol,
-          },
-          txDisplayBold: {
-            dic['loan.amount']!: Text(
-              '$input LP',
-              style: Theme.of(context).textTheme.headline1,
-            ),
-          },
-          params: [
-            {'DEXShare': params.pool.tokens},
-            amount.toString()
-          ],
-        ))) as Map?;
-    if (res != null) {
-      Navigator.of(context).pop(res);
+
+    if (isStake && switchActive) {
+      if (!_onValidate()) {
+        return;
+      }
+      final addLiquidityParams = [
+        params.pool.tokens![0],
+        params.pool.tokens![1],
+        _maxInputLeft != null
+            ? _maxInputLeft.toString()
+            : Fmt.tokenInt(
+                    _amountLeftCtrl.text.trim(), tokenPair[0]?.decimals ?? 12)
+                .toString(),
+        _maxInputRight != null
+            ? _maxInputRight.toString()
+            : Fmt.tokenInt(
+                    _amountRightCtrl.text.trim(), tokenPair[1]?.decimals ?? 12)
+                .toString(),
+        '0',
+        true,
+      ];
+      final depositDexShareParams = [
+        {'DEXShare': params.pool.tokens},
+        amount.toString()
+      ];
+      final batchTxs = [
+        'api.tx.dex.addLiquidity(...${jsonEncode(addLiquidityParams)})',
+        'api.tx.incentives.depositDexShare(...${jsonEncode(depositDexShareParams)})',
+      ];
+
+      final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
+          arguments: TxConfirmParams(
+            module: 'utility',
+            call: 'batch',
+            txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol LP',
+            txDisplay: {
+              dic['earn.pool']: poolTokenSymbol,
+              "": dic['v3.earn.addLiquidityEarn']
+            },
+            txDisplayBold: {
+              dic['loan.amount']!: Text(
+                '$input LP',
+                style: Theme.of(context).textTheme.headline1,
+              ),
+              "Token 1": Text(
+                '${_amountLeftCtrl.text.trim()} ${tokenPair[0]!.symbol}',
+                style: Theme.of(context).textTheme.headline1,
+              ),
+              "Token 2": Text(
+                '${_amountRightCtrl.text.trim()} ${tokenPair[1]!.symbol}',
+                style: Theme.of(context).textTheme.headline1,
+              ),
+            },
+            params: [],
+            rawParams: '[[${batchTxs.join(',')}]]',
+          ))) as Map?;
+      if (res != null) {
+        Navigator.of(context).pop(res);
+      }
+    } else {
+      final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
+          arguments: TxConfirmParams(
+            module: 'incentives',
+            call: isStake ? 'depositDexShare' : 'withdrawDexShare',
+            txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol LP',
+            txDisplay: {
+              dic['earn.pool']: poolTokenSymbol,
+            },
+            txDisplayBold: {
+              dic['loan.amount']!: Text(
+                '$input LP',
+                style: Theme.of(context).textTheme.headline1,
+              ),
+            },
+            params: [
+              {'DEXShare': params.pool.tokens},
+              amount.toString()
+            ],
+          ))) as Map?;
+      if (res != null) {
+        Navigator.of(context).pop(res);
+      }
     }
+  }
+
+  Future<void> _refreshData() async {
+    if (widget.plugin.sdk.api.connectedNode != null) {
+      _getTxFee();
+
+      await widget.plugin.service!.earn.updateAllDexPoolInfo();
+
+      if (mounted) {
+        final args =
+            ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
+        final pool = args.pool;
+        final balancePair = pool.tokens!
+            .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+            .toList();
+        setState(() {
+          final poolInfo =
+              widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
+          _price = Fmt.bigIntToDouble(
+                  poolInfo.amountRight, balancePair[1]?.decimals ?? 12) /
+              Fmt.bigIntToDouble(
+                  poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
+        });
+        _timer = Timer(Duration(seconds: 30), () {
+          _refreshData();
+        });
+      }
+    }
+  }
+
+  Future<String> _getTxFee() async {
+    if (_fee?.partialFee != null) {
+      return _fee!.partialFee.toString();
+    }
+
+    final sender = TxSenderData(
+        widget.keyring.current.address, widget.keyring.current.pubKey);
+    final fee = await widget.plugin.sdk.api.tx
+        .estimateFees(TxInfoData('dex', 'addLiquidity', sender), [
+      {'Token': widget.plugin.networkState.tokenSymbol![0]},
+      {'Token': relay_chain_token_symbol},
+      '1000000000000',
+      '100000000000',
+      '0',
+      true,
+    ]);
+    if (mounted) {
+      setState(() {
+        _fee = fee;
+      });
+    }
+    return fee.partialFee.toString();
+  }
+
+  Future<void> _onSupplyAmountChange(String supply,
+      {bool isSetMax = false}) async {
+    final value = supply.trim();
+    double v = 0;
+    try {
+      v = value.isEmpty ? 0 : double.parse(value);
+    } catch (e) {}
+    setState(() {
+      _inputIndex = 0;
+      _amountRightCtrl.text = v == 0 ? '' : (v * _price).toStringAsFixed(8);
+      // clear max input on amount changes
+      if (!isSetMax) {
+        _maxInputLeft = null;
+      }
+    });
+    _onValidate();
+  }
+
+  Future<void> _onTargetAmountChange(String target,
+      {bool isSetMax = false}) async {
+    final value = target.trim();
+    double v = 0;
+    try {
+      v = value.isEmpty ? 0 : double.parse(value);
+    } catch (e) {}
+    setState(() {
+      _inputIndex = 1;
+      _amountLeftCtrl.text = v == 0 ? '' : (v / _price).toStringAsFixed(8);
+      // clear max input on amount changes
+      if (!isSetMax) {
+        _maxInputRight = null;
+      }
+    });
+    _onValidate();
+  }
+
+  bool _onValidate() {
+    final errorLeft = _onValidateInput(0);
+    if (errorLeft != null) {
+      setState(() {
+        _errorLeft = errorLeft;
+        _errorRight = null;
+      });
+      return false;
+    }
+    final errorRight = _onValidateInput(1);
+    if (errorRight != null) {
+      setState(() {
+        _errorLeft = null;
+        _errorRight = errorRight;
+      });
+      return false;
+    }
+    setState(() {
+      _errorLeft = null;
+      _errorRight = null;
+    });
+    return true;
+  }
+
+  String? _onValidateInput(int index) {
+    if (index == 0 && _maxInputLeft != null) return null;
+    if (index == 1 && _maxInputRight != null) return null;
+
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final args =
+        ModalRoute.of(context)!.settings.arguments as LPStakePageParams;
+    final pool = args.pool;
+    final balancePair = pool.tokens!
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
+
+    final v =
+        index == 0 ? _amountLeftCtrl.text.trim() : _amountRightCtrl.text.trim();
+    final balance = balancePair[index];
+
+    String? error = Fmt.validatePrice(v, context);
+    if (error == null) {
+      if ((index == 0 && _maxInputLeft == null) ||
+          (index == 1 && _maxInputRight == null)) {
+        BigInt available = Fmt.balanceInt(balance?.amount ?? '0');
+        // limit user's input for tx fee if token is KAR
+        if (balance!.symbol == acala_token_ids[0]) {
+          final accountED = PluginFmt.getAccountED(widget.plugin);
+          available -= accountED +
+              Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
+        }
+        if (double.parse(v) >
+            Fmt.bigIntToDouble(available, balance.decimals ?? 12)) {
+          error = dic!['amount.low'];
+        }
+      }
+    }
+
+    // check if user's lp token balance meet existential deposit.
+    final balanceLP =
+        widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId];
+    final balanceInt = Fmt.balanceInt(balanceLP?.amount ?? '0');
+    if (error == null && index == 0 && balanceInt == BigInt.zero) {
+      double min = 0;
+      final poolInfo =
+          widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
+      min = Fmt.balanceInt(balanceLP?.minBalance ?? '0') /
+          poolInfo.issuance! *
+          Fmt.bigIntToDouble(
+              poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
+
+      final inputLeft = _inputIndex == 0
+          ? double.parse(_amountLeftCtrl.text.trim())
+          : (double.parse(_amountRightCtrl.text.trim()) / _price);
+      if (inputLeft < min) {
+        error = '${dic!['amount.min']} ${Fmt.priceCeil(min, lengthMax: 6)}';
+      }
+    }
+
+    return error;
+  }
+
+  void _onSetLeftMax(BigInt max, int decimals) {
+    final amount = Fmt.bigIntToDouble(max, decimals).toStringAsFixed(6);
+    setState(() {
+      _amountLeftCtrl.text = amount;
+      _maxInputLeft = max;
+      _maxInputRight = null;
+    });
+    _onSupplyAmountChange(amount, isSetMax: true);
+  }
+
+  void _onSetRightMax(BigInt max, int decimals) {
+    final amount = Fmt.bigIntToDouble(max, decimals).toStringAsFixed(6);
+    setState(() {
+      _amountRightCtrl.text = amount;
+      _maxInputLeft = null;
+      _maxInputRight = max;
+    });
+    _onTargetAmountChange(amount, isSetMax: true);
+  }
+
+  Widget addLiquidity(List<TokenBalanceData?> tokenPair, DexPoolData pool) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final tokenPairView = [
+      PluginFmt.tokenView(tokenPair[0]!.symbol),
+      PluginFmt.tokenView(tokenPair[1]!.symbol)
+    ];
+
+    double userShare = 0;
+    double amountLeft = 0;
+    double amountRight = 0;
+
+    final poolInfo = widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId];
+    if (poolInfo != null) {
+      amountLeft =
+          Fmt.bigIntToDouble(poolInfo.amountLeft, tokenPair[0]?.decimals ?? 12);
+      amountRight = Fmt.bigIntToDouble(
+          poolInfo.amountRight, tokenPair[1]?.decimals ?? 12);
+
+      String input = _amountLeftCtrl.text.trim();
+      try {
+        final double amountInput = double.parse(input.isEmpty ? '0' : input);
+        userShare = amountInput / amountLeft;
+      } catch (_) {
+        // parse double failed
+      }
+    }
+
+    return Container(
+      child: Column(
+        children: [
+          GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() {
+                  switchActive = !switchActive;
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.only(top: 12, bottom: 30),
+                child: Row(
+                  children: [
+                    PluginRadioButton(value: switchActive),
+                    Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Text(
+                          "${dic['v3.earn.addLiquidityEarn']} (${dic['earn.fee']}:${Fmt.ratio(widget.plugin.service!.earn.getSwapFee())})",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(color: Colors.white, fontSize: 14)),
+                    )
+                  ],
+                ),
+              )),
+          Visibility(
+              visible: switchActive,
+              child: Column(children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Column(
+                      children: [
+                        PluginInputBalance(
+                          inputCtrl: _amountLeftCtrl,
+                          onInputChange: (v) => _onSupplyAmountChange(v),
+                          marketPrices:
+                              widget.plugin.store!.assets.marketPrices,
+                          onSetMax: tokenPair[0]!.symbol == acala_token_ids[0]
+                              ? null
+                              : (v) => _onSetLeftMax(
+                                  v, tokenPair[0]?.decimals ?? 12),
+                          onClear: () {
+                            setState(() {
+                              _maxInputLeft = null;
+                              _amountLeftCtrl.text = '';
+                            });
+                          },
+                          balance: tokenPair[0],
+                          tokenIconsMap: widget.plugin.tokenIcons,
+                        ),
+                        Container(
+                          height: tokenPair[0]!.symbol == acala_token_ids[0] &&
+                                  tokenPair[1]!.symbol == acala_token_ids[0]
+                              ? 10
+                              : 0,
+                        ),
+                        PluginInputBalance(
+                          inputCtrl: _amountRightCtrl,
+                          onInputChange: (v) => _onTargetAmountChange(v),
+                          marketPrices:
+                              widget.plugin.store!.assets.marketPrices,
+                          onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]
+                              ? null
+                              : (v) => _onSetRightMax(
+                                  v, tokenPair[1]?.decimals ?? 12),
+                          onClear: () {
+                            setState(() {
+                              _maxInputRight = null;
+                              _amountRightCtrl.text = '';
+                            });
+                          },
+                          balance: tokenPair[1],
+                          tokenIconsMap: widget.plugin.tokenIcons,
+                        ),
+                      ],
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(
+                            top: tokenPair[0]!.symbol != acala_token_ids[0]
+                                ? 20
+                                : 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 32,
+                            )
+                          ],
+                        )),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 2),
+                  child: _errorLeft == null && _errorRight == null
+                      ? null
+                      : Row(children: [
+                          Text(
+                            _errorLeft == null
+                                ? _errorRight ?? ""
+                                : _errorLeft ?? "",
+                            style: TextStyle(fontSize: 12, color: Colors.red),
+                          )
+                        ]),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            dic['dex.rate']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Text(
+                            '1 ${tokenPairView[0]} = ${Fmt.doubleFormat(_price, length: 4)} ${tokenPairView[1]}\n1 ${tokenPairView[1]} = ${Fmt.doubleFormat(1 / _price, length: 4)} ${tokenPairView[0]}',
+                            textAlign: TextAlign.right,
+                            style:
+                                Theme.of(context).textTheme.headline4?.copyWith(
+                                      color: Colors.white,
+                                    )),
+                      ],
+                    )),
+                Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            dic['earn.pool']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Text(
+                            '${Fmt.doubleFormat(amountLeft)} ${tokenPairView[0]}\n+ ${Fmt.doubleFormat(amountRight)} ${tokenPairView[1]}',
+                            textAlign: TextAlign.right,
+                            style:
+                                Theme.of(context).textTheme.headline4?.copyWith(
+                                      color: Colors.white,
+                                    )),
+                      ],
+                    )),
+                Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            dic['earn.share']!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Text(Fmt.ratio(userShare),
+                            style:
+                                Theme.of(context).textTheme.headline4?.copyWith(
+                                      color: Colors.white,
+                                    )),
+                      ],
+                    )),
+              ]))
+        ],
+      ),
+    );
   }
 
   @override
@@ -138,8 +628,6 @@ class _LPStakePage extends State<LPStakePage> {
         .toList();
     final poolTokenSymbol =
         PluginFmt.tokenView(tokenPair.map((e) => e?.symbol).join('-'));
-
-    print(widget.plugin.tokenIcons.toString());
 
     return PluginScaffold(
       appBar: PluginAppBar(
@@ -167,6 +655,10 @@ class _LPStakePage extends State<LPStakePage> {
                   child: ListView(
                     padding: EdgeInsets.only(left: 16, right: 16),
                     children: [
+                      isStake
+                          ? ConnectionChecker(widget.plugin,
+                              onConnected: _refreshData)
+                          : Container(),
                       PluginInputBalance(
                         titleTag: assetDic!['amount'],
                         inputCtrl: _amountCtrl,
@@ -181,7 +673,7 @@ class _LPStakePage extends State<LPStakePage> {
                         },
                         balance: TokenBalanceData(
                             symbol: poolTokenSymbol,
-                            decimals: tokenPair[0]!.decimals!,
+                            decimals: tokenPair[0]?.decimals ?? 12,
                             amount: balance.toString()),
                         tokenIconsMap: widget.plugin.tokenIcons,
                       ),
@@ -189,6 +681,9 @@ class _LPStakePage extends State<LPStakePage> {
                         _error1,
                         margin: EdgeInsets.zero,
                       ),
+                      isStake
+                          ? addLiquidity(tokenPair, args.pool)
+                          : Container(),
                     ],
                   ),
                 ),

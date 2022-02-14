@@ -9,6 +9,7 @@ import 'package:polkawallet_ui/components/currencyWithIcon.dart';
 import 'package:polkawallet_ui/components/textTag.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginCurrencyWithIcon.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -172,7 +173,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                   GestureDetector(
                     child: PluginCurrencyWithIcon(
                       PluginFmt.tokenView(widget.balance!.symbol),
-                      TokenIcon(
+                      PluginTokenIcon(
                           widget.balance?.symbol ?? "", widget.tokenIconsMap!,
                           size: 24),
                       textStyle: Theme.of(context)

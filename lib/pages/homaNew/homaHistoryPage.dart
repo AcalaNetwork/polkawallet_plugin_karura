@@ -82,32 +82,37 @@ class HomaHistoryPage extends StatelessWidget {
                 final detail = list[i];
 
                 String amountTail = '';
-                String amountTitle = '';
                 TransferIconType type = TransferIconType.redeem;
 
                 switch (detail.action) {
                   case TxHomaData.actionMint:
                     type = TransferIconType.mint;
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                        'mint ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol by ${Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeem:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
+                        '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeemedByUnbond:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
+                        'redeem ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol by unbond';
+                    break;
+                  case TxHomaData.actionRedeemedByFastMatch:
+                    amountTail =
+                        'fast redeemed ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeemed:
-                  case TxHomaData.actionRedeemedByFastMatch:
+                    amountTail =
+                        'redeem ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
+                    break;
                   case TxHomaData.actionWithdrawRedemption:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
+                        'claim ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeemCancel:
                     amountTail =
-                        '${dic['homa.${detail.action}']} ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                        'cancel redeem with ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
                 }
 
                 return Container(
@@ -123,7 +128,7 @@ class HomaHistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${dic['homa.${detail.action}']} $amountTitle',
+                          '${dic['homa.${detail.action}']}',
                           style: Theme.of(context)
                               .textTheme
                               .headline5

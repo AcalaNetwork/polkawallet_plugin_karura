@@ -70,23 +70,30 @@ class LoanHistoryPage extends StatelessWidget {
                   }
 
                   final TxLoanData detail = list[i];
-                  String? amount = detail.amountDebit;
-                  String token = karura_stable_coin_view;
-                  if (detail.actionType == TxLoanData.actionTypeDeposit ||
-                      detail.actionType == TxLoanData.actionTypeWithdraw) {
-                    amount = detail.amountCollateral;
-                    token = PluginFmt.tokenView(detail.token);
-                  }
 
                   TransferIconType type = TransferIconType.mint;
+                  var describe =
+                      "mint ${detail.amountDebit} ${PluginFmt.tokenView(karura_stable_coin_view)} by ${detail.amountCollateral} ${PluginFmt.tokenView(detail.token)}";
                   if (detail.actionType == TxLoanData.actionTypeDeposit) {
                     type = TransferIconType.deposit;
+                    describe =
+                        "deposit ${detail.amountCollateral} ${PluginFmt.tokenView(detail.token)}";
                   } else if (detail.actionType ==
                       TxLoanData.actionTypeWithdraw) {
                     type = TransferIconType.withdraw;
+                    describe =
+                        "withdraw ${detail.amountCollateral} ${PluginFmt.tokenView(detail.token)}";
                   } else if (detail.actionType ==
                       TxLoanData.actionTypePayback) {
                     type = TransferIconType.payback;
+                    describe =
+                        "payback ${detail.amountDebit} ${PluginFmt.tokenView(karura_stable_coin_view)} from collateral（${PluginFmt.tokenView(detail.token)}）";
+                  } else if (detail.actionType == TxLoanData.actionTypeCreate) {
+                    describe =
+                        "${detail.amountDebit} ${PluginFmt.tokenView(karura_stable_coin_view)}  to create vault（${PluginFmt.tokenView(detail.token)}）";
+                  } else if (detail.actionType == TxLoanData.actionLiquidate) {
+                    describe =
+                        "confiscate ${detail.amountCollateral} ${PluginFmt.tokenView(detail.token)} and ${detail.amountDebit} ${PluginFmt.tokenView(karura_stable_coin_view)}";
                   }
                   return Container(
                     decoration: BoxDecoration(
@@ -109,7 +116,7 @@ class LoanHistoryPage extends StatelessWidget {
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600),
                           ),
-                          Text('$amount $token',
+                          Text(describe,
                               textAlign: TextAlign.start,
                               style: Theme.of(context)
                                   .textTheme

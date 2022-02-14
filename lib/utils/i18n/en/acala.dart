@@ -259,4 +259,9 @@ const Map<String, String> enDex = {
   'v3.earn.scanMessage': 'Scan the QR Code \nhere to enter the pool',
   'v3.tap': 'TAP',
   'v3.swap.selectToken': 'select Token',
+  'v3.loan.errorMessage1': 'Insufficient balance of collateral, add',
+  'v3.loan.errorMessage2': 'to deposit the collateral',
+  'v3.loan.errorMessage3': 'No enough balance to mint, add',
+  'v3.loan.errorMessage4': 'to payback debt',
+  'v3.earn.addLiquidityEarn': 'Add liquidity to earn',
 };

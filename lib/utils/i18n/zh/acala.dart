@@ -242,4 +242,9 @@ const Map<String, String> zhDex = {
   'v3.earn.scanMessage': '扫描二维码\n这里是进入池子的地方',
   'v3.tap': '切换',
   'v3.swap.selectToken': '选择代币',
+  'v3.loan.errorMessage1': '抵押物余额不足，增加',
+  'v3.loan.errorMessage2': '存入抵押物',
+  'v3.loan.errorMessage3': '没有足够的余额来铸造，增加',
+  'v3.loan.errorMessage4': '来偿还债务',
+  'v3.earn.addLiquidityEarn': '增加流动性来盈利',
 };

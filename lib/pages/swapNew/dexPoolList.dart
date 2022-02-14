@@ -16,6 +16,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -144,7 +145,7 @@ class _DexPoolCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    child: TokenIcon(
+                    child: PluginTokenIcon(
                         balancePair.map((e) => e!.symbol).join('-'),
                         tokenIcons!,
                         size: 26),

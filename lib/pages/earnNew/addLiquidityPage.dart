@@ -76,9 +76,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           final poolInfo =
               widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
           _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[1]!.decimals!) /
+                  poolInfo.amountRight, balancePair[1]?.decimals ?? 12) /
               Fmt.bigIntToDouble(
-                  poolInfo.amountLeft, balancePair[0]!.decimals!);
+                  poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
         });
         _timer = Timer(Duration(seconds: 30), () {
           _refreshData();
@@ -151,7 +151,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
         }
         if (double.parse(v) >
-            Fmt.bigIntToDouble(available, balance.decimals!)) {
+            Fmt.bigIntToDouble(available, balance.decimals ?? 12)) {
           error = dic!['amount.low'];
         }
       }
@@ -167,7 +167,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           widget.plugin.store!.earn.dexPoolInfoMap[pool?.tokenNameId]!;
       min = Fmt.balanceInt(balanceLP?.minBalance ?? '0') /
           poolInfo.issuance! *
-          Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0]!.decimals!);
+          Fmt.bigIntToDouble(
+              poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
 
       final inputLeft = _inputIndex == 0
           ? double.parse(_amountLeftCtrl.text.trim())
@@ -425,13 +426,13 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         final poolInfo =
             widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId];
         if (poolInfo != null) {
-          amountLeft =
-              Fmt.bigIntToDouble(poolInfo.amountLeft, tokenPair[0]!.decimals!);
-          amountRight =
-              Fmt.bigIntToDouble(poolInfo.amountRight, tokenPair[1]!.decimals!);
+          amountLeft = Fmt.bigIntToDouble(
+              poolInfo.amountLeft, tokenPair[0]?.decimals ?? 12);
+          amountRight = Fmt.bigIntToDouble(
+              poolInfo.amountRight, tokenPair[1]?.decimals ?? 12);
 
-          issuance =
-              Fmt.bigIntToDouble(poolInfo.issuance, tokenPair[0]!.decimals!);
+          issuance = Fmt.bigIntToDouble(
+              poolInfo.issuance, tokenPair[0]?.decimals ?? 12);
 
           String input = _amountLeftCtrl.text.trim();
           try {
@@ -465,7 +466,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                 onInputChange: (v) => _onSupplyAmountChange(v),
                 onSetMax: tokenPair[0]!.symbol == acala_token_ids[0]
                     ? null
-                    : (v) => _onSetLeftMax(v, tokenPair[0]!.decimals!),
+                    : (v) => _onSetLeftMax(v, tokenPair[0]?.decimals ?? 12),
                 onClear: () {
                   setState(() {
                     _maxInputLeft = null;
@@ -504,7 +505,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                 onInputChange: (v) => _onTargetAmountChange(v),
                 onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]
                     ? null
-                    : (v) => _onSetRightMax(v, tokenPair[1]!.decimals!),
+                    : (v) => _onSetRightMax(v, tokenPair[1]?.decimals ?? 12),
                 onClear: () {
                   setState(() {
                     _maxInputRight = null;

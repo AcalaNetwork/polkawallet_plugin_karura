@@ -19,6 +19,7 @@ import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -445,72 +446,5 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
         }),
       );
     });
-  }
-}
-
-class CurrencySelector extends StatelessWidget {
-  CurrencySelector({
-    this.tokenOptions,
-    this.tokenIcons,
-    this.token,
-    this.price,
-    this.onSelect,
-  });
-  final List<TokenBalanceData?>? tokenOptions;
-  final Map<String, Widget>? tokenIcons;
-  final TokenBalanceData? token;
-  final BigInt? price;
-  final Function(TokenBalanceData)? onSelect;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 16.0, // has the effect of softening the shadow
-            spreadRadius: 4.0, // has the effect of extending the shadow
-            offset: Offset(
-              2.0, // horizontal, move right 10
-              2.0, // vertical, move down 10
-            ),
-          )
-        ],
-      ),
-      child: ListTile(
-        dense: true,
-        leading: TokenIcon(token!.symbol!, tokenIcons!),
-        title: Text(
-          PluginFmt.tokenView(token!.symbol),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-        subtitle: price != null
-            ? Text(
-                '\$${Fmt.token(price, acala_price_decimals)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).unselectedWidgetColor,
-                ),
-              )
-            : null,
-        trailing: Icon(Icons.arrow_forward_ios, size: 18),
-        onTap: tokenOptions!.length > 0
-            ? () async {
-                final res = await Navigator.of(context).pushNamed(
-                  CurrencySelectPage.route,
-                  arguments: tokenOptions,
-                );
-                if (res != null) {
-                  onSelect!(res as TokenBalanceData);
-                }
-              }
-            : null,
-      ),
-    );
   }
 }

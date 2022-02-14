@@ -70,18 +70,27 @@ class SwapHistoryPage extends StatelessWidget {
 
                 final TxSwapData detail = list[i];
                 TransferIconType type = TransferIconType.swap;
+                String describe = "";
                 switch (detail.action) {
                   case "removeLiquidity":
                     type = TransferIconType.remove_liquidity;
+                    describe =
+                        "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
                     break;
                   case "addProvision":
                     type = TransferIconType.add_provision;
+                    describe =
+                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
                     break;
                   case "addLiquidity":
                     type = TransferIconType.add_liquidity;
+                    describe =
+                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
                     break;
                   case "swap":
                     type = TransferIconType.swap;
+                    describe =
+                        "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
                     break;
                 }
                 return Container(
@@ -105,8 +114,7 @@ class SwapHistoryPage extends StatelessWidget {
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                         ),
-                        Text(
-                            '${dic['dex.${detail.action}']!} ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}',
+                        Text(describe,
                             textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme

@@ -125,7 +125,9 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
   Future<void> _onSubmit(
       String title, LoanData? loan, int? stableCoinDecimals) async {
+    print("_onSubmit");
     final params = await _getTxParams(loan, stableCoinDecimals);
+    print(params);
     if (params == null) return null;
 
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
@@ -268,7 +270,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                   title: I18n.of(context)!
                       .getDic(i18n_full_dic_ui, 'common')!['tx.submit']!,
                   onPressed: () {
-                    if (_error1 != null) {
+                    if (_error1 == null) {
                       _onSubmit(pageTitle, loan, balancePair[1]!.decimals);
                     }
                   },

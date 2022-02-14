@@ -76,7 +76,6 @@ class InviteFriendsPage extends StatelessWidget {
                             balancePair.map((e) => e!.symbol).join('-')),
                         plugin.tokenIcons,
                         size: 40,
-                        isFold: true,
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 16),
