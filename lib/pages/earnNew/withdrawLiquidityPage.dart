@@ -12,16 +12,16 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 
 class WithdrawLiquidityPage extends StatefulWidget {
   WithdrawLiquidityPage(this.plugin, this.keyring);
@@ -41,6 +41,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   Timer? _timer;
 
   bool _fromPool = false;
+  BigInt? _maxShare;
 
   DEXPoolInfo? _getPoolInfoData(String? poolId) {
     final poolInfo = widget.plugin.store!.earn.dexPoolInfoMap[poolId];
@@ -63,6 +64,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
   void _onAmountSelect(BigInt v, int? decimals, {bool isMax = false}) {
     setState(() {
+      _maxShare = isMax ? v : null;
       _amountCtrl.text =
           Fmt.bigIntToDouble(v, decimals!).toStringAsFixed(decimals);
     });
@@ -87,7 +89,8 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
     final poolInfo = _getPoolInfoData(pool.tokenNameId);
 
-    final shareInputInt = Fmt.tokenInt(v, balancePair[0]!.decimals!);
+    final shareInputInt =
+        _maxShare ?? Fmt.tokenInt(v, balancePair[0]!.decimals!);
     final shareFree = Fmt.balanceInt(
         widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]?.amount);
     final shareBalance = _fromPool ? shareFree + poolInfo!.shares! : shareFree;
@@ -95,7 +98,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
       return dic!['amount.low'];
     }
 
-    final shareInput = double.parse(v.trim());
+    final shareInput = _maxShare != null
+        ? Fmt.bigIntToDouble(_maxShare, balancePair[0]!.decimals!)
+        : double.parse(v.trim());
     double min = 0;
     if (balancePair[0]!.symbol != symbols![0] &&
         Fmt.balanceInt(balancePair[0]!.amount) == BigInt.zero) {
@@ -142,7 +147,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
           .toList()
           .join('-');
       final amount = _amountCtrl.text.trim();
-      final amountInt = Fmt.tokenInt(amount, shareDecimals!);
+      final amountInt = _maxShare ?? Fmt.tokenInt(amount, shareDecimals!);
       final poolToken = AssetsUtils.getBalanceFromTokenNameId(
           widget.plugin, pool.tokenNameId);
       final free = Fmt.balanceInt(poolToken?.amount);
@@ -389,6 +394,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               ),
                               onTap: () {
                                 setState(() {
+                                  _maxShare = null;
                                   _amountCtrl.text = '';
                                 });
                               },
@@ -402,7 +408,11 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               TextInputType.numberWithOptions(decimal: true),
                           validator: _validateInput,
                           onChanged: (v) {
-                            setState(() {});
+                            setState(() {
+                              if (_maxShare != null) {
+                                _maxShare = null;
+                              }
+                            });
                           },
                         ),
                       ),

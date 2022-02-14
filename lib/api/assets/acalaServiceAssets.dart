@@ -91,25 +91,6 @@ class AcalaServiceAssets {
     });
   }
 
-  Future<Map> queryAirdropTokens(String address) async {
-    final res = await plugin.sdk.webView!.evalJavascript(
-        'JSON.stringify(api.registry.createType("AirDropCurrencyId").defKeys)',
-        wrapPromise: false);
-    if (res != null) {
-      final List tokens = jsonDecode(res);
-      final queries = tokens
-          .map((i) => 'api.query.airDrop.airDrops("$address", "$i")')
-          .join(",");
-      final List? amount =
-          await plugin.sdk.webView!.evalJavascript('Promise.all([$queries])');
-      return {
-        'tokens': tokens,
-        'amount': amount,
-      };
-    }
-    return {};
-  }
-
   Future<void> subscribeTokenPrices(
       Function(Map<String, BigInt>) callback) async {
     final List? res = await plugin.sdk.webView!
