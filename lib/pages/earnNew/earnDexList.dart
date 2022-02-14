@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/earnDetailPage.dart';
@@ -228,8 +229,8 @@ class _EarnDexListState extends State<EarnDexList> {
                                                 BigInt.zero,
                                         child: Padding(
                                             padding: EdgeInsets.only(left: 4),
-                                            child: Image.asset(
-                                              "packages/polkawallet_plugin_karura/assets/images/staked.png",
+                                            child: SvgPicture.asset(
+                                              "packages/polkawallet_plugin_karura/assets/images/staked.svg",
                                               color: Colors.white,
                                               width: 24,
                                             ))),
