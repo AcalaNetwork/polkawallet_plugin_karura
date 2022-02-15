@@ -527,19 +527,18 @@ class _LoanPageState extends State<LoanPage> {
                                                       );
                                               if (maxToBorrow >= debits) {
                                                 loan.collaterals = collaterals;
-                                                // loan.collateralInUSD =
-                                                //     loan.tokenToUSD(
-                                                //         collaterals,
-                                                //         tokenPrice,
-                                                //         stableCoinDecimals: widget
-                                                //             .plugin
-                                                //             .store!
-                                                //             .assets
-                                                //             .tokenBalanceMap[
-                                                //                 karura_stable_coin]!
-                                                //             .decimals!,
-                                                //         collateralDecimals: loan
-                                                //             .token!.decimals!);
+                                                loan.collateralInUSD = loan.type
+                                                    .tokenToUSD(
+                                                        collaterals, loan.price,
+                                                        stableCoinDecimals: widget
+                                                            .plugin
+                                                            .store!
+                                                            .assets
+                                                            .tokenBalanceMap[
+                                                                karura_stable_coin]!
+                                                            .decimals!,
+                                                        collateralDecimals: loan
+                                                            .token!.decimals!);
                                                 loan.maxToBorrow = Fmt.tokenInt(
                                                     "$maxToBorrow",
                                                     balancePair[0]!.decimals!);
