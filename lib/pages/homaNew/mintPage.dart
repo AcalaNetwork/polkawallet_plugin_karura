@@ -115,7 +115,9 @@ class _MintPageState extends State<MintPage> {
       _error = _validateInput(amount.toString(), balance, minStake);
     });
 
-    _updateReceiveAmount(amount);
+    if (_error == null) {
+      _updateReceiveAmount(amount);
+    }
   }
 
   Future<void> _onSubmit(int stakeDecimal) async {

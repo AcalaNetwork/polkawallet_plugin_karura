@@ -177,7 +177,9 @@ class _RedeemPageState extends State<RedeemPage> {
       _error = _validateInput(amount.toString(), max);
     });
 
-    _updateReceiveAmount(amount);
+    if (_error == null) {
+      _updateReceiveAmount(amount);
+    }
   }
 
   BigInt _getMaxAmount() {
