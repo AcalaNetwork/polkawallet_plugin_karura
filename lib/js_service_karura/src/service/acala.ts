@@ -833,7 +833,11 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
     const blockNumber = key.args[0].toNumber();
 
     const inner = (data: any) => {
-      if (data.method === "updateClaimRewardDeductionRates" && data.section === "incentives") {
+      data = data.asValue ? data.asValue : data;
+
+      const call = api.createType("Call", data.callIndex);
+
+      if (call.method === "updateClaimRewardDeductionRates" && call.section === "incentives") {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         const args = data.args as any;
 
@@ -851,7 +855,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
         });
       }
 
-      if (data.method === "batchAll" && data.section === "utility") {
+      if (call.method === "batchAll" && call.section === "utility") {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         ((data.args[0] as any) as any[]).forEach((item) => inner(item));
       }
