@@ -276,11 +276,11 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               },
               txDisplayBold: {
                 "Token 1": Text(
-                  '$amountLeft ${tokenPair[0]!.symbol}',
+                  '$amountLeft ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
                   style: Theme.of(context).textTheme.headline1,
                 ),
                 "Token 2": Text(
-                  '$amountRight ${tokenPair[1]!.symbol}',
+                  '$amountRight ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
                   style: Theme.of(context).textTheme.headline1,
                 ),
               },
@@ -306,11 +306,11 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               txDisplay: txDisplay,
               txDisplayBold: {
                 "Token 1": Text(
-                  '$amountLeft ${tokenPair[0]!.symbol}',
+                  '$amountLeft ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
                   style: Theme.of(context).textTheme.headline1,
                 ),
                 "Token 2": Text(
-                  '$amountRight ${tokenPair[1]!.symbol}',
+                  '$amountRight ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
                   style: Theme.of(context).textTheme.headline1,
                 ),
               },
