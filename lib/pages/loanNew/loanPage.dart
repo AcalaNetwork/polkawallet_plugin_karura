@@ -18,7 +18,6 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
@@ -52,10 +51,6 @@ class _LoanPageState extends State<LoanPage> {
   final colorDanger = [Color(0xFFE3542E), Color(0xCCF27863)];
 
   Map<String, LoanData?> _editorLoans = Map<String, LoanData?>();
-  Map<String, BigInt?> _collaterals = Map<String, BigInt?>();
-  Map<String, BigInt?> _debitsShares = Map<String, BigInt?>();
-
-  bool isInit = true;
 
   Future<void> _fetchData() async {
     widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
@@ -76,8 +71,6 @@ class _LoanPageState extends State<LoanPage> {
 
     setState(() {
       _editorLoans = Map<String, LoanData?>();
-      _collaterals = Map<String, BigInt?>();
-      _debitsShares = Map<String, BigInt?>();
     });
   }
 
@@ -87,8 +80,9 @@ class _LoanPageState extends State<LoanPage> {
     widget.plugin.service!.loan.unsubscribeAccountLoans();
   }
 
-  Future<void> _onSubmit(LoanData loan, int? stableCoinDecimals) async {
-    final params = await _getTxParams(loan, stableCoinDecimals);
+  Future<void> _onSubmit(
+      LoanData loan, LoanData originalLoan, int? stableCoinDecimals) async {
+    final params = await _getTxParams(loan, originalLoan, stableCoinDecimals);
     if (params == null) return null;
 
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
@@ -106,9 +100,10 @@ class _LoanPageState extends State<LoanPage> {
     }
   }
 
-  Future<Map?> _getTxParams(LoanData loan, int? stableCoinDecimals) async {
-    final collaterals = loan.collaterals - _collaterals[loan.token!.symbol]!;
-    final debitShares = loan.debitShares - _debitsShares[loan.token!.symbol]!;
+  Future<Map?> _getTxParams(
+      LoanData loan, LoanData originalLoan, int? stableCoinDecimals) async {
+    final collaterals = loan.collaterals - originalLoan.collaterals;
+    final debitShares = loan.debitShares - originalLoan.debitShares;
     final debits = loan.type.debitShareToDebit(debitShares);
 
     if (collaterals == BigInt.zero && debitShares == BigInt.zero) {
@@ -151,13 +146,12 @@ class _LoanPageState extends State<LoanPage> {
     BigInt debitSubtract = debitShares;
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
-      debitSubtract =
-          loan.type.debitShareToDebit(_debitsShares[loan.token!.symbol]!) ==
-                      BigInt.zero &&
-                  debits <= loan.type.minimumDebitValue
-              ? loan.type.debitToDebitShare(
-                  (loan.type.minimumDebitValue + BigInt.from(10000)))
-              : debitShares;
+      debitSubtract = loan.type.debitShareToDebit(originalLoan.debitShares) ==
+                  BigInt.zero &&
+              debits <= loan.type.minimumDebitValue
+          ? loan.type.debitToDebitShare(
+              (loan.type.minimumDebitValue + BigInt.from(10000)))
+          : debitShares;
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
 
@@ -172,12 +166,12 @@ class _LoanPageState extends State<LoanPage> {
         final debitValueOne = Fmt.tokenInt('1', stableCoinDecimals!);
         if (loan.type.debitShareToDebit(debits).abs() -
                     loan.type
-                        .debitShareToDebit(_debitsShares[loan.token!.symbol]!)
+                        .debitShareToDebit(originalLoan.debitShares)
                         .abs() >
                 BigInt.zero &&
             loan.type.debitShareToDebit(debits).abs() -
                     loan.type
-                        .debitShareToDebit(_debitsShares[loan.token!.symbol]!)
+                        .debitShareToDebit(originalLoan.debitShares)
                         .abs() <
                 debitValueOne) {
           final bool canContinue =
@@ -334,12 +328,10 @@ class _LoanPageState extends State<LoanPage> {
       final loans = widget.plugin.store!.loan.loans.values.toList();
       loans.retainWhere((loan) =>
           loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-      final isDataLoading = isInit
-          ? true
-          : widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+      final isDataLoading =
+          widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0);
-      isInit = false;
 
       /// The initial tab index will be from arguments or user's vault.
       int initialLoanTypeIndex = 0;
@@ -393,10 +385,14 @@ class _LoanPageState extends State<LoanPage> {
                             : 0,
                         data: widget.plugin.store!.loan.loanTypes.map((e) {
                           LoanData? loan = _editorLoans[e.token!.symbol];
+                          final _loans = loans.where(
+                              (data) => data.token!.symbol == e.token!.symbol);
+                          final originalLoan =
+                              _loans.length > 0 ? _loans.first : null;
                           if (loan == null) {
-                            final _loans = loans.where((data) =>
-                                data.token!.symbol == e.token!.symbol);
-                            loan = _loans.length > 0 ? _loans.first : null;
+                            loan = originalLoan != null
+                                ? originalLoan.deepCopy()
+                                : null;
                             _editorLoans[e.token!.symbol!] = loan;
                           }
                           Widget child = CreateVaultWidget(onPressed: () {
@@ -417,14 +413,6 @@ class _LoanPageState extends State<LoanPage> {
                             final balance = Fmt.bigIntToDouble(
                                 balanceBigInt, balancePair[0]!.decimals!);
 
-                            if (_collaterals[e.token!.symbol] == null) {
-                              _collaterals[e.token!.symbol!] = loan.collaterals;
-                            }
-                            if (_debitsShares[e.token!.symbol] == null) {
-                              _debitsShares[e.token!.symbol!] =
-                                  loan.debitShares;
-                            }
-
                             final debits = Fmt.bigIntToDouble(
                                 loan.debits, balancePair[1]!.decimals!);
                             final maxToBorrow = Fmt.bigIntToDouble(
@@ -438,16 +426,15 @@ class _LoanPageState extends State<LoanPage> {
                             final BigInt balanceStableCoin =
                                 Fmt.balanceInt(balancePair[1]!.amount);
 
-                            final collateralsValue = loan.collaterals -
-                                _collaterals[e.token!.symbol!]!;
-                            final debitsSharesValue = loan.debitShares -
-                                _debitsShares[e.token!.symbol!]!;
+                            final collateralsValue =
+                                loan.collaterals - originalLoan!.collaterals;
+                            final debitsSharesValue =
+                                loan.debitShares - originalLoan.debitShares;
                             final debitsValue =
                                 loan.type.debitShareToDebit(debitsSharesValue);
 
                             final originalDebitsValue = loan.type
-                                .debitShareToDebit(
-                                    _debitsShares[e.token!.symbol!]!);
+                                .debitShareToDebit(originalLoan.debitShares);
 
                             final debitRatio = loan.debits /
                                 loan.collateralInUSD *
@@ -484,8 +471,7 @@ class _LoanPageState extends State<LoanPage> {
                                             title:
                                                 '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
                                             maxNumber: Fmt.bigIntToDouble(
-                                                    _collaterals[
-                                                        e.token!.symbol]!,
+                                                    originalLoan.collaterals,
                                                     balancePair[0]!.decimals!) +
                                                 balance,
                                             minNumber: Fmt.bigIntToDouble(
@@ -720,8 +706,8 @@ class _LoanPageState extends State<LoanPage> {
                                         child: PluginButton(
                                           title: '${dic['v3.loan.submit']}',
                                           onPressed: () {
-                                            _onSubmit(
-                                                loan!, stableCoinDecimals);
+                                            _onSubmit(loan!, originalLoan,
+                                                stableCoinDecimals);
                                           },
                                         )),
                                   ],

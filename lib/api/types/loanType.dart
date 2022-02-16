@@ -138,6 +138,25 @@ class LoanData extends _LoanData {
         collateralDecimals: collateralDecimals);
     return data;
   }
+
+  LoanData deepCopy() {
+    LoanData data = LoanData();
+    data.token = this.token;
+    data.type = this.type;
+    data.price = this.price;
+    data.stableCoinPrice = this.stableCoinPrice;
+    data.debitShares = this.debitShares;
+    data.debits = this.debits;
+    data.collaterals = this.collaterals;
+    data.debitInUSD = this.debitInUSD;
+    data.collateralInUSD = this.collateralInUSD;
+    data.collateralRatio = this.collateralRatio;
+    data.requiredCollateral = this.requiredCollateral;
+    data.maxToBorrow = this.maxToBorrow;
+    data.stableCoinPrice = this.stableCoinPrice;
+    data.liquidationPrice = this.liquidationPrice;
+    return data;
+  }
 }
 
 abstract class _LoanData {
