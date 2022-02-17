@@ -226,13 +226,13 @@ class _BootstrapListState extends State<BootstrapList> {
                   }).toList(),
                   ...bootstraps.map((e) {
                     return _BootStrapCard(
-                      plugin: widget.plugin,
-                      pool: e,
-                      bestNumber: _bestNumber,
-                      tokenIcons: widget.plugin.tokenIcons,
-                      relayChainTokenPrice: widget.plugin.store!.assets
-                          .marketPrices[relay_chain_token_symbol],
-                    );
+                        plugin: widget.plugin,
+                        pool: e,
+                        bestNumber: _bestNumber,
+                        tokenIcons: widget.plugin.tokenIcons,
+                        relayChainTokenPrice: widget.plugin.store!.assets
+                            .marketPrices[relay_chain_token_symbol],
+                        onRefresh: _updateData);
                   }).toList(),
                 ],
         ),
@@ -247,13 +247,15 @@ class _BootStrapCard extends StatelessWidget {
       this.pool,
       this.bestNumber,
       this.tokenIcons,
-      this.relayChainTokenPrice});
+      this.relayChainTokenPrice,
+      this.onRefresh});
 
   final PluginKarura? plugin;
   final DexPoolData? pool;
   final int? bestNumber;
   final Map<String, Widget>? tokenIcons;
   final double? relayChainTokenPrice;
+  final Function()? onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -453,7 +455,12 @@ class _BootStrapCard extends StatelessWidget {
                 title: dic['boot.title']!,
                 onPressed: () {
                   Navigator.of(context)
-                      .pushNamed(BootstrapPage.route, arguments: pool);
+                      .pushNamed(BootstrapPage.route, arguments: pool)
+                      .then((value) {
+                    if (value != null && this.onRefresh != null) {
+                      this.onRefresh!();
+                    }
+                  });
                 },
               ))
         ],

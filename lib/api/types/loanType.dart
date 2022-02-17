@@ -155,6 +155,7 @@ class LoanData extends _LoanData {
     data.maxToBorrow = this.maxToBorrow;
     data.stableCoinPrice = this.stableCoinPrice;
     data.liquidationPrice = this.liquidationPrice;
+    data.stableFeeYear = this.stableFeeYear;
     return data;
   }
 }

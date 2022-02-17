@@ -48,13 +48,19 @@ class _BootstrapPageState extends State<BootstrapPage> {
   Timer? _delayTimer;
 
   Future<void> _queryData() async {
-    widget.plugin.service!.earn.getBootstraps();
-
-    final DexPoolData pool =
+    final pools = await widget.plugin.api!.swap.getBootstraps();
+    final DexPoolData args =
         ModalRoute.of(context)!.settings.arguments as DexPoolData;
+    final poolIndex =
+        pools.indexWhere((element) => args.tokenNameId == element.tokenNameId);
+    if (poolIndex < 0) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    widget.plugin.store!.earn.setBootstraps(pools);
     final List res = await Future.wait([
       widget.plugin.sdk.webView!.evalJavascript(
-          'api.query.dex.provisioningPool(${jsonEncode(pool.tokens)}, "${widget.keyring.current.address}")'),
+          'api.query.dex.provisioningPool(${jsonEncode(args.tokens)}, "${widget.keyring.current.address}")'),
       widget.plugin.service!.assets
           .queryMarketPrices([relay_chain_token_symbol]),
     ]);
@@ -191,8 +197,15 @@ class _BootstrapPageState extends State<BootstrapPage> {
     final DexPoolData? args =
         ModalRoute.of(context)!.settings.arguments as DexPoolData?;
     return Observer(builder: (_) {
-      final pool = widget.plugin.store!.earn.bootstraps
-          .firstWhere((e) => e.tokenNameId == args!.tokenNameId);
+      final poolIndex = widget.plugin.store!.earn.bootstraps
+          .indexWhere((e) => e.tokenNameId == args!.tokenNameId);
+      if (poolIndex < 0) {
+        return Scaffold(
+            appBar:
+                AppBar(title: Text('${dic!['boot.title']}'), centerTitle: true),
+            body: Container());
+      }
+      final pool = widget.plugin.store!.earn.bootstraps[poolIndex];
       final balancePair = pool.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();

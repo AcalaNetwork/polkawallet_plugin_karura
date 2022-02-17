@@ -117,9 +117,6 @@ class _RedeemPageState extends State<RedeemPage> {
           '0.1');
       setState(() {
         _swapAmount = swapRes.amount!;
-      });
-
-      setState(() {
         isLoading = false;
       });
     }
