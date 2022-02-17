@@ -7,21 +7,6 @@ class WalletApi {
   static const String _configEndpoint = 'https://acala.subdao.com';
   static const String _cdnEndpoint = 'https://cdn.subdao.com';
 
-  static Future<Map?> getLiveModules() async {
-    try {
-      Response res =
-          await get(Uri.parse('$_configEndpoint/config/modules.json'));
-      if (res == null) {
-        return null;
-      } else {
-        return jsonDecode(res.body) as Map?;
-      }
-    } catch (err) {
-      print(err);
-      return null;
-    }
-  }
-
   static Future<Map?> getTokenPrice() async {
     final url =
         '$_cdnEndpoint/lastPrice.json?t=${DateTime.now().millisecondsSinceEpoch}';
@@ -38,8 +23,9 @@ class WalletApi {
     }
   }
 
-  static Future<Map?> getTokensConfig() async {
-    final url = '$_configEndpoint/config/karuraTokens.json';
+  static Future<Map?> getRemoteConfig() async {
+    final url = '$_configEndpoint/config/karuraConfig.json';
+    // final url = '$_endpoint/config/karuraConfig.json';
     try {
       Response res = await get(Uri.parse(url));
       if (res == null) {

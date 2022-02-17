@@ -79,8 +79,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
           final balance =
               widget.plugin.store!.assets.tokenBalanceMap[token.tokenNameId];
 
-          final disabledTokens =
-              widget.plugin.store!.setting.tokensConfig['disabled'];
+          final tokensConfig =
+              widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+          final disabledTokens = tokensConfig['disabled'];
           bool transferDisabled = false;
           if (disabledTokens != null) {
             transferDisabled = List.of(disabledTokens).contains(tokenSymbol);

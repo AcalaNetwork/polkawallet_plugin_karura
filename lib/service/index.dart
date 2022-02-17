@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/serviceAssets.dart';
 import 'package:polkawallet_plugin_karura/service/serviceEarn.dart';
@@ -47,21 +45,10 @@ class PluginService {
     return password;
   }
 
-  Future<void> fetchLiveModules() async {
-    final res = plugin.basic.name == plugin_name_karura
-        ? await WalletApi.getLiveModules()
-        : config_modules;
+  Future<void> fetchRemoteConfig() async {
+    final res = await WalletApi.getRemoteConfig();
     if (res != null) {
-      plugin.store!.setting.setLiveModules(res);
-    } else {
-      plugin.store!.setting.setLiveModules(config_modules);
-    }
-  }
-
-  Future<void> fetchTokensConfig() async {
-    final res = await WalletApi.getTokensConfig();
-    if (res != null) {
-      plugin.store!.setting.setTokensConfig(res);
+      plugin.store!.setting.setRemoteConfig(res);
     }
   }
 }

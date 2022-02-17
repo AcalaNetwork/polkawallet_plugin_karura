@@ -358,16 +358,11 @@ class PluginKarura extends PolkawalletPlugin {
   PluginService? get service => _service;
 
   Future<void> _subscribeTokenBalances(KeyPairData acc) async {
-    // todo: fix this after new acala online
-    final enabled = basic.name == 'acala'
-        ? _store!.setting.liveModules['assets']['enabled']
-        : true;
-
     _api!.assets.subscribeTokenBalances(acc.address, (data) {
       _store!.assets.setTokenBalanceMap(data, acc.pubKey);
 
       balances.setTokens(data);
-    }, transferEnabled: enabled);
+    });
 
     _service!.assets.queryAggregatedAssets();
 
@@ -386,9 +381,10 @@ class PluginKarura extends PolkawalletPlugin {
 
       _store!.assets.loadCache(acc.pubKey);
       final tokens = _store!.assets.tokenBalanceMap.values.toList();
-      if (service!.plugin.store!.setting.tokensConfig['invisible'] != null) {
-        final invisible =
-            List.of(service!.plugin.store!.setting.tokensConfig['invisible']);
+      final tokensConfig =
+          service!.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+      if (tokensConfig['invisible'] != null) {
+        final invisible = List.of(tokensConfig['invisible']);
         if (invisible.length > 0) {
           tokens.removeWhere(
               (token) => invisible.contains(token.symbol?.toUpperCase()));
@@ -420,10 +416,8 @@ class PluginKarura extends PolkawalletPlugin {
 
     _loadCacheData(keyring.current);
 
-    _service!.fetchLiveModules();
-
     // fetch tokens config here for subscribe all tokens balances
-    _service!.fetchTokensConfig();
+    _service!.fetchRemoteConfig();
   }
 
   @override

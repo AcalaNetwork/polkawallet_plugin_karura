@@ -157,12 +157,11 @@ class _TransferPageState extends State<TransferPage> {
   void _onSelectChain(Map<String, Widget> crossChainIcons) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
-    final List tokenXcmConfig =
-        widget.plugin.store!.setting.tokensConfig['xcm'] != null
-            ? widget.plugin.store!.setting.tokensConfig['xcm']
-                    [_token!.symbol!.toUpperCase()] ??
-                []
-            : [];
+    final tokensConfig =
+        widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+    final List tokenXcmConfig = tokensConfig['xcm'] != null
+        ? tokensConfig['xcm'][_token!.symbol!.toUpperCase()] ?? []
+        : [];
     final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
     showCupertinoModalPopup(
@@ -438,10 +437,10 @@ class _TransferPageState extends State<TransferPage> {
         final tokenSymbol = token.symbol!.toUpperCase();
         final tokenView = PluginFmt.tokenView(token.symbol);
 
+        final tokensConfig =
+            widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
         final List? tokenXcmConfig =
-            widget.plugin.store!.setting.tokensConfig['xcm'] != null
-                ? widget.plugin.store!.setting.tokensConfig['xcm'][tokenSymbol]
-                : [];
+            tokensConfig['xcm'] != null ? tokensConfig['xcm'][tokenSymbol] : [];
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
@@ -673,18 +672,12 @@ class _TransferPageState extends State<TransferPage> {
                               final tokens = widget
                                   .plugin.store!.assets.tokenBalanceMap.values
                                   .toList();
-                              if (widget.plugin.store!.setting
-                                          .tokensConfig['invisible'] !=
-                                      null &&
-                                  widget.plugin.store!.setting
-                                          .tokensConfig['disabled'] !=
-                                      null) {
+                              if (tokensConfig['invisible'] != null &&
+                                  tokensConfig['disabled'] != null) {
                                 tokens.removeWhere((e) =>
-                                    List.of(widget.plugin.store!.setting
-                                            .tokensConfig['invisible'])
+                                    List.of(tokensConfig['invisible'])
                                         .contains(e.symbol) ||
-                                    List.of(widget.plugin.store!.setting
-                                            .tokensConfig['disabled'])
+                                    List.of(tokensConfig['disabled'])
                                         .contains(e.symbol));
                               }
                               final res = (await Navigator.of(context)
@@ -884,9 +877,8 @@ class _TransferPageState extends State<TransferPage> {
                             visible: isCrossChain,
                             child: _CrossChainTransferWarning(
                               token: tokenSymbol,
-                              chain: (widget.plugin.store!.setting
-                                      .tokensConfig['warning'] ??
-                                  {})[tokenSymbol],
+                              chain:
+                                  (tokensConfig['warning'] ?? {})[tokenSymbol],
                             )),
                       ],
                     ),
