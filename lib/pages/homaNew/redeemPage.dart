@@ -199,11 +199,17 @@ class _RedeemPageState extends State<RedeemPage> {
     final txDisplay = {
       dic['dex.pay']!: Text(
         '$pay L$stakeToken',
-        style: Theme.of(context).textTheme.headline1,
+        style: Theme.of(context)
+            .textTheme
+            .headline1
+            ?.copyWith(color: Colors.white),
       ),
       dic['dex.receive']!: Text(
         '≈ ${Fmt.priceFloor((selectIndex == 0 ? _fastReceiveAmount : selectIndex == 1 ? _swapAmount : _receiveAmount) as double?)} $stakeToken',
-        style: Theme.of(context).textTheme.headline1,
+        style: Theme.of(context)
+            .textTheme
+            .headline1
+            ?.copyWith(color: Colors.white),
       ),
     };
 
@@ -259,6 +265,7 @@ class _RedeemPageState extends State<RedeemPage> {
           txDisplayBold: txDisplay,
           params: params,
           rawParams: paramsRaw,
+          isPlugin: true,
         ))) as Map?;
 
     if (res != null) {

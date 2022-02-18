@@ -98,6 +98,7 @@ class _HomaPageState extends State<HomaPage> {
               "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.redeem.cancel']}${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.redeem']}$relay_chain_token_symbol",
           txDisplay: txDisplay,
           params: params,
+          isPlugin: true,
         ))) as Map?;
 
     if (res != null) {
@@ -117,10 +118,14 @@ class _HomaPageState extends State<HomaPage> {
         txDisplayBold: {
           dic['loan.amount']!: Text(
             '${Fmt.priceFloor(claimable as double?, lengthMax: 4)} $relay_chain_token_symbol',
-            style: Theme.of(context).textTheme.headline1,
+            style: Theme.of(context)
+                .textTheme
+                .headline1
+                ?.copyWith(color: Colors.white),
           ),
         },
         params: [widget.keyring.current.address],
+        isPlugin: true,
       ),
     );
     if (res != null) {

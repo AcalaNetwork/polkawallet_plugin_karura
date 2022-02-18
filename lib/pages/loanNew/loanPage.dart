@@ -92,6 +92,7 @@ class _LoanPageState extends State<LoanPage> {
           txTitle: "adjust Vault",
           txDisplayBold: params['detail'],
           params: params['params'],
+          isPlugin: true,
         ))) as Map?;
     if (res != null) {
       Future.delayed(Duration(milliseconds: 500), () {
@@ -301,14 +302,16 @@ class _LoanPageState extends State<LoanPage> {
       final res = await Navigator.of(context).pushNamed(
         TxConfirmPage.route,
         arguments: TxConfirmParams(
-            module: 'honzon',
-            call: 'closeLoanHasDebitByDex',
-            txTitle: dic!['loan.close'],
-            txDisplay: {
-              'collateral': loan.token!.symbol,
-              'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
-            },
-            params: isRuntimeOld ? params : params.sublist(0, 2)),
+          module: 'honzon',
+          call: 'closeLoanHasDebitByDex',
+          txTitle: dic!['loan.close'],
+          txDisplay: {
+            'collateral': loan.token!.symbol,
+            'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
+          },
+          params: isRuntimeOld ? params : params.sublist(0, 2),
+          isPlugin: true,
+        ),
       );
       if (res != null) {
         Navigator.of(context).pop(res);

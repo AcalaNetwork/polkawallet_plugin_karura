@@ -223,6 +223,7 @@ class CollateralIncentiveList extends StatelessWidget {
           dic['earn.stake.pool']: token.symbol,
         },
         params: [pool],
+        isPlugin: true,
       );
       Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
     }

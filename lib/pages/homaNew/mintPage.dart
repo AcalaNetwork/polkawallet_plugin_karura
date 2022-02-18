@@ -150,14 +150,21 @@ class _MintPageState extends State<MintPage> {
           txDisplayBold: {
             dic['dex.pay']!: Text(
               '$pay $relay_chain_token_symbol',
-              style: Theme.of(context).textTheme.headline1,
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: Colors.white),
             ),
             dic['dex.receive']!: Text(
               '≈ ${Fmt.priceFloor(double.tryParse(_amountReceive), lengthMax: 4)} L$relay_chain_token_symbol',
-              style: Theme.of(context).textTheme.headline1,
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: Colors.white),
             ),
           },
           params: params,
+          isPlugin: true,
         ))) as Map?;
 
     if (res != null) {

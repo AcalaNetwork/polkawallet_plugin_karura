@@ -519,6 +519,7 @@ class _UserCard extends StatelessWidget {
           },
           params: [],
           rawParams: '[{Dex: {DEXShare: ${jsonEncode(pool.tokens)}}}]',
+          isPlugin: true,
         ));
   }
 

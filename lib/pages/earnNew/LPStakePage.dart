@@ -165,19 +165,29 @@ class _LPStakePage extends State<LPStakePage> {
             txDisplayBold: {
               dic['loan.amount']!: Text(
                 '$input LP',
-                style: Theme.of(context).textTheme.headline1,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
               ),
               "Token 1": Text(
                 '${_amountLeftCtrl.text.trim()} ${tokenPair[0]!.symbol}',
-                style: Theme.of(context).textTheme.headline1,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
               ),
               "Token 2": Text(
                 '${_amountRightCtrl.text.trim()} ${tokenPair[1]!.symbol}',
-                style: Theme.of(context).textTheme.headline1,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
               ),
             },
             params: [],
             rawParams: '[[${batchTxs.join(',')}]]',
+            isPlugin: true,
           ))) as Map?;
       if (res != null) {
         Navigator.of(context).pop(res);
@@ -194,13 +204,17 @@ class _LPStakePage extends State<LPStakePage> {
             txDisplayBold: {
               dic['loan.amount']!: Text(
                 '$input LP',
-                style: Theme.of(context).textTheme.headline1,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
               ),
             },
             params: [
               {'DEXShare': params.pool.tokens},
               amount.toString()
             ],
+            isPlugin: true,
           ))) as Map?;
       if (res != null) {
         Navigator.of(context).pop(res);

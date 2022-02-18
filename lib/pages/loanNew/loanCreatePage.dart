@@ -268,6 +268,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
           txTitle: pageTitle,
           txDisplayBold: params['detail'],
           params: params['params'],
+          isPlugin: true,
         ))) as Map?;
     if (res != null) {
       Navigator.of(context).pop(res);

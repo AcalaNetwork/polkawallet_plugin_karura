@@ -277,15 +277,22 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               txDisplayBold: {
                 "Token 1": Text(
                   '$amountLeft ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
                 ),
                 "Token 2": Text(
                   '$amountRight ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
                 ),
               },
               params: [],
               rawParams: '[[${batchTxs.join(',')}]]',
+              isPlugin: true,
             ))) as Map?;
         if (res != null) {
           Navigator.of(context).pop(res);
@@ -307,14 +314,21 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               txDisplayBold: {
                 "Token 1": Text(
                   '$amountLeft ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
                 ),
                 "Token 2": Text(
                   '$amountRight ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
                 ),
               },
               params: params,
+              isPlugin: true,
             ))) as Map?;
         if (res != null) {
           Navigator.of(context).pop(res);
