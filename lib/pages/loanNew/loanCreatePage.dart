@@ -325,7 +325,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
 
       final loans = widget.plugin.store!.loan.loans.values.toList();
       final loan =
-          loans.firstWhere((data) => data.token!.symbol == _token!.symbol);
+          loans.firstWhere((data) => data.token!.symbol == token.symbol);
 
       final maxToBorrow =
           Fmt.priceFloorBigInt(_maxToBorrow, balancePair[1]!.decimals!);

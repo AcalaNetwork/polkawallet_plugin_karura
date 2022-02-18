@@ -445,10 +445,13 @@ class _LoanPageState extends State<LoanPage> {
                             final originalDebitsValue = loan.type
                                 .debitShareToDebit(originalLoan.debitShares);
 
-                            final debitRatio = loan.debits /
-                                loan.collateralInUSD *
-                                Fmt.bigIntToDouble(
-                                    loan.type.liquidationRatio, 18);
+                            final debitRatio =
+                                loan.collateralInUSD == BigInt.zero
+                                    ? 0.0
+                                    : loan.debits /
+                                        loan.collateralInUSD *
+                                        Fmt.bigIntToDouble(
+                                            loan.type.liquidationRatio, 18);
 
                             child = SingleChildScrollView(
                                 physics: BouncingScrollPhysics(),
@@ -524,35 +527,34 @@ class _LoanPageState extends State<LoanPage> {
                                                                 .requiredCollateralRatio,
                                                             acala_price_decimals),
                                                       );
-                                              if (maxToBorrow >= debits) {
-                                                loan.collaterals = collaterals;
-                                                loan.collateralInUSD = loan.type
-                                                    .tokenToUSD(
-                                                        collaterals, loan.price,
-                                                        stableCoinDecimals: widget
-                                                            .plugin
-                                                            .store!
-                                                            .assets
-                                                            .tokenBalanceMap[
-                                                                karura_stable_coin]!
-                                                            .decimals!,
-                                                        collateralDecimals: loan
-                                                            .token!.decimals!);
-                                                loan.maxToBorrow = Fmt.tokenInt(
-                                                    "$maxToBorrow",
-                                                    balancePair[0]!.decimals!);
-                                                loan.collateralRatio =
-                                                    Fmt.bigIntToDouble(
-                                                            collaterals,
-                                                            balancePair[0]!
-                                                                .decimals!) *
-                                                        availablePrice /
-                                                        debits;
-                                                loan.liquidationPrice =
-                                                    Fmt.tokenInt(
-                                                        '${debits * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / value}',
-                                                        acala_price_decimals);
-                                              }
+                                              loan.collaterals = collaterals;
+                                              loan.collateralInUSD = loan.type
+                                                  .tokenToUSD(
+                                                      collaterals, loan.price,
+                                                      stableCoinDecimals: widget
+                                                          .plugin
+                                                          .store!
+                                                          .assets
+                                                          .tokenBalanceMap[
+                                                              karura_stable_coin]!
+                                                          .decimals!,
+                                                      collateralDecimals: loan
+                                                          .token!.decimals!);
+                                              loan.maxToBorrow = Fmt.tokenInt(
+                                                  "$maxToBorrow",
+                                                  balancePair[0]!.decimals!);
+                                              loan.collateralRatio =
+                                                  Fmt.bigIntToDouble(
+                                                          collaterals,
+                                                          balancePair[0]!
+                                                              .decimals!) *
+                                                      availablePrice /
+                                                      debits;
+                                              loan.liquidationPrice = value == 0
+                                                  ? BigInt.zero
+                                                  : Fmt.tokenInt(
+                                                      '${debits * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / value}',
+                                                      acala_price_decimals);
                                               setState(() {});
                                             },
                                           ),
@@ -767,9 +769,11 @@ class _LoanPageState extends State<LoanPage> {
         : BigInt.zero;
     final maxToBorrowView =
         Fmt.priceFloorBigIntFormatter(maxToBorrow, balancePair[1]!.decimals!);
-    final debitRatio = loan.debits /
-        loan.collateralInUSD *
-        Fmt.bigIntToDouble(loan.type.liquidationRatio, 18);
+    final debitRatio = loan.collateralInUSD == BigInt.zero
+        ? 0.0
+        : loan.debits /
+            loan.collateralInUSD *
+            Fmt.bigIntToDouble(loan.type.liquidationRatio, 18);
 
     return Container(
       padding: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 10),
@@ -808,8 +812,8 @@ class _LoanPageState extends State<LoanPage> {
                               : colorDanger,
                           durations: [8000, 6000],
                           heightPercentages: [
-                            1 - debitRatio - 0.04,
-                            1 - debitRatio - 0.04,
+                            debitRatio == 0 ? 1 : 1 - debitRatio - 0.04,
+                            debitRatio == 0 ? 1 : 1 - debitRatio - 0.04,
                           ],
                           blur: MaskFilter.blur(BlurStyle.solid, 5),
                         ),
@@ -1014,6 +1018,12 @@ class _LoanCollateralState extends State<LoanCollateral> {
   void initState() {
     _value = widget.value;
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _value = widget.value;
+    super.didChangeDependencies();
   }
 
   @override
