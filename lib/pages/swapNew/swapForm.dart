@@ -516,7 +516,8 @@ class _SwapFormState extends State<SwapForm>
               child: InsufficientKARWarn(),
             ),
             Visibility(
-                visible: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero,
+                visible: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero &&
+                    balancePair[0]!.symbol != acala_token_ids[0],
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -562,10 +563,6 @@ class _SwapFormState extends State<SwapForm>
                             _swapPair, widget.keyring.current.pubKey);
                         _updateSwapAmount();
                       },
-                      // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
-                      //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
-                      //         nativeKeepAlive: nativeKeepAlive)
-                      //     : null,
                       onClear: () {
                         setState(() {
                           _maxInput = null;
@@ -609,8 +606,7 @@ class _SwapFormState extends State<SwapForm>
                 ),
                 GestureDetector(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                        top: _amountPayCtrl.text.isNotEmpty ? 53.5 : 43.5),
+                    padding: EdgeInsets.only(top: 33),
                     child: Image.asset(
                         'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
                         width: 39),

@@ -67,6 +67,8 @@ class EarnDetailPage extends StatelessWidget {
           String lpAmountString = '~';
 
           final poolInfo = plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId];
+          double leftPrice = 0, rightPrice = 0;
+
           if (poolInfo != null) {
             issuance = poolInfo.issuance;
             shareTotal = poolInfo.sharesTotal;
@@ -80,6 +82,15 @@ class EarnDetailPage extends StatelessWidget {
             final lpAmount2 = Fmt.bigIntToDouble(
                     poolInfo.amountRight, balancePair[1]!.decimals!) *
                 poolShare;
+
+            leftPrice = Fmt.bigIntToDouble(
+                    poolInfo.amountLeft, balancePair[0]!.decimals!) *
+                plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!;
+
+            rightPrice = Fmt.bigIntToDouble(
+                    poolInfo.amountRight, balancePair[1]!.decimals!) *
+                plugin.store!.assets.marketPrices[balancePair[1]!.symbol]!;
+
             lpAmountString =
                 '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0]!.symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1]!.symbol)}';
           }
@@ -113,7 +124,7 @@ class EarnDetailPage extends StatelessWidget {
                       child: Column(
                     children: <Widget>[
                       PluginTagCard(
-                        titleTag: dic['v3.earn.totalLiquidityAmount'],
+                        titleTag: dic['v3.earn.totalValueLocked'],
                         radius: const Radius.circular(14),
                         backgroundColor: Color(0x1AFFFFFF),
                         margin: EdgeInsets.only(bottom: 20),
@@ -159,7 +170,7 @@ class EarnDetailPage extends StatelessWidget {
                                         Padding(
                                           padding: EdgeInsets.only(left: 50),
                                           child: Text(
-                                            "TVL",
+                                            "TVL: \$ ${Fmt.priceCeil(leftPrice + rightPrice)}; ${dic['v3.earn.stakedValue']}: ${Fmt.priceFloorBigInt(shareTotal, balancePair[0]!.decimals!, lengthFixed: 4)}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
@@ -182,7 +193,21 @@ class EarnDetailPage extends StatelessWidget {
                                       ],
                                     );
                                   }
-                                  return Container();
+                                  return Container(
+                                    alignment: Alignment.centerLeft,
+                                    padding:
+                                        EdgeInsets.only(left: 16, bottom: 10),
+                                    child: Text(
+                                      "TVL: \$ ${Fmt.priceCeil(leftPrice + rightPrice)}; ${dic['v3.earn.stakedValue']}: ",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline5
+                                          ?.copyWith(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600),
+                                    ),
+                                  );
                                 }),
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 10),
@@ -230,7 +255,7 @@ class EarnDetailPage extends StatelessWidget {
                                       PluginInfoItem(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
-                                        title: '${dic['earn.staked']} LP',
+                                        title: '${dic['v3.earn.staked']} LP',
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline5

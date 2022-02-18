@@ -495,6 +495,10 @@ class _LoanPageState extends State<LoanPage> {
                                                 balance == 0,
                                             value: available,
                                             price: availablePrice,
+                                            balanceString:
+                                                "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceBigInt, balancePair[0]!.decimals!)}",
+                                            valueString:
+                                                "\$${Fmt.priceFloorFormatter(available * availablePrice)}",
                                             onChanged: (value) {
                                               final collaterals = Fmt.tokenInt(
                                                   "$value",
@@ -574,6 +578,8 @@ class _LoanPageState extends State<LoanPage> {
                                                         0,
                                                 price: 1.0,
                                                 value: debits,
+                                                balanceString:
+                                                    "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)}",
                                                 onChanged: (value) {
                                                   setState(() {
                                                     loan!.debits = Fmt.tokenInt(
@@ -622,9 +628,10 @@ class _LoanPageState extends State<LoanPage> {
                                                       color: Colors.white,
                                                       fontSize: 10))),
                                       onTap: () => _closeVault(
-                                          loan!,
+                                          originalLoan,
                                           balancePair[0]!.decimals,
-                                          Fmt.bigIntToDouble(loan.debits,
+                                          Fmt.bigIntToDouble(
+                                              originalLoan.debits,
                                               balancePair[1]!.decimals!)),
                                     ),
                                     Row(
@@ -842,7 +849,7 @@ class _LoanPageState extends State<LoanPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${dic['liquid.price']!}(${loan.token!.symbol})',
+                  Text('${dic['liquid.price']!} (${loan.token!.symbol})',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
@@ -867,7 +874,7 @@ class _LoanPageState extends State<LoanPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                      '${dic['collateral.price.current']!}(${loan.token!.symbol})',
+                      '${dic['collateral.price.current']!} (${loan.token!.symbol})',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
@@ -945,7 +952,7 @@ class _LoanPageState extends State<LoanPage> {
               padding: EdgeInsets.only(left: 3, bottom: 5),
               alignment: Alignment.bottomCenter,
               child: Text(
-                  '${dic['collateral.interest']}:${Fmt.ratio(loan.stableFeeYear)}',
+                  '${dic['collateral.interest']}: ${Fmt.ratio(loan.stableFeeYear)}',
                   style: Theme.of(context).textTheme.headline3?.copyWith(
                         color: Color(0xFFFF7849),
                         fontSize: 11,
@@ -970,6 +977,8 @@ class LoanCollateral extends StatefulWidget {
       this.onChanged,
       this.error = '',
       this.isShowError = false,
+      this.balanceString = "",
+      this.valueString,
       Key? key})
       : super(key: key);
   final Function(double)? onChanged;
@@ -977,6 +986,8 @@ class LoanCollateral extends StatefulWidget {
   double maxNumber;
   double minNumber;
   double value;
+  String balanceString;
+  String? valueString;
   double price;
   String subtitleLeft;
   String subtitleRight;
@@ -1026,9 +1037,9 @@ class _LoanCollateralState extends State<LoanCollateral> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                              "min:${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
+                                              "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.min']}:${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
                                           Text(
-                                              "max:${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
+                                              "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.max']}:${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
                                         ],
                                       ),
                                       CupertinoTextField(
@@ -1111,12 +1122,24 @@ class _LoanCollateralState extends State<LoanCollateral> {
             )),
         Padding(
             padding: EdgeInsets.symmetric(horizontal: 9),
-            child: Text(
-              "Value \$${Fmt.priceFloorFormatter(_value * widget.price, lengthMax: 4)}",
-              style: Theme.of(context)
-                  .textTheme
-                  .headline5
-                  ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(widget.balanceString,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12)),
+                Visibility(
+                    visible: widget.valueString != null,
+                    child: Text(
+                      widget.valueString ?? "",
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12),
+                    ))
+              ],
             )),
         !widget.isShowError
             ? Padding(

@@ -135,6 +135,7 @@ class _EarnDexListState extends State<EarnDexList> {
                     .map((e) =>
                         AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
                     .toList();
+
                 final tokenSymbol = tokenPair.map((e) => e!.symbol).join('-');
 
                 final rewardsEmpty = incentivesV2.dex == null;
@@ -143,12 +144,12 @@ class _EarnDexListState extends State<EarnDexList> {
                     .plugin.store!.earn.dexPoolInfoMap[dexPools[i].tokenNameId];
                 final leftPrice = Fmt.bigIntToDouble(
                         poolInfo?.amountLeft ?? BigInt.zero,
-                        tokenPair[0]!.decimals!) *
+                        tokenPair[0]?.decimals ?? 12) *
                     widget.plugin.store!.assets
                         .marketPrices[tokenPair[0]!.symbol]!;
                 final rightPrice = Fmt.bigIntToDouble(
                         poolInfo?.amountRight ?? BigInt.zero,
-                        tokenPair[1]!.decimals!) *
+                        tokenPair[1]?.decimals ?? 12) *
                     widget.plugin.store!.assets
                         .marketPrices[tokenPair[1]!.symbol]!;
 

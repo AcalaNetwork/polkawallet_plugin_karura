@@ -544,7 +544,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                         ),
                       ),
                       Text(
-                          '≈ ${Fmt.doubleFormat(issuance * userShare, length: 4)} LP ${tokenPairView[0]}-${tokenPairView[1]}',
+                          '≈ ${Fmt.doubleFormat(issuance * userShare, length: 4)}',
                           textAlign: TextAlign.right,
                           style:
                               Theme.of(context).textTheme.headline4?.copyWith(

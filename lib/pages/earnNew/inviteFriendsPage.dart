@@ -146,41 +146,50 @@ class InviteFriendsPage extends StatelessWidget {
                   ),
                 ),
               ),
-              Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 20, bottom: 18),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        QrImage(
-                          padding: EdgeInsets.zero,
-                          data: url,
-                          size: 58,
-                          foregroundColor: Colors.white,
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(right: 13, left: 15),
-                            child: Text(
+              Container(
+                  margin: EdgeInsets.symmetric(vertical: 15),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                          child: Container(
+                              padding: EdgeInsets.only(right: 16),
+                              alignment: Alignment.centerRight,
+                              child: QrImage(
+                                padding: EdgeInsets.zero,
+                                data: url,
+                                size: 119,
+                                foregroundColor: Colors.white,
+                              ))),
+                      Expanded(
+                          child: Container(
+                        margin: EdgeInsets.only(right: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
                               dic['v3.earn.scanMessage']!,
+                              softWrap: true,
+                              textAlign: TextAlign.start,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline4
-                                  ?.copyWith(color: Colors.white),
-                            ))
-                      ],
-                    ),
-                  ),
-                  PluginOutlinedButtonSmall(
-                    active: true,
-                    margin: EdgeInsets.zero,
-                    padding: EdgeInsets.symmetric(horizontal: 33, vertical: 3),
-                    color: Color(0xFFFF7849),
-                    content: dic['v3.earn.copyLink']!,
-                    onPressed: () => UI.copyAndNotify(context, url),
-                  )
-                ],
-              )
+                                  .headline5
+                                  ?.copyWith(color: Colors.white, height: 1.7),
+                            ),
+                            PluginOutlinedButtonSmall(
+                              active: true,
+                              margin: EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 33, vertical: 3),
+                              color: Color(0xFFFF7849),
+                              content: dic['v3.earn.copyLink']!,
+                              onPressed: () => UI.copyAndNotify(context, url),
+                            )
+                          ],
+                        ),
+                      )),
+                    ],
+                  ))
             ],
           ),
         ),

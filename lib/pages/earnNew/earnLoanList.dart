@@ -379,7 +379,7 @@ class CollateralIncentiveList extends StatelessWidget {
                             PluginInfoItem(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               title:
-                                  "${dic['earn.staked']} ${PluginFmt.tokenView(token.symbol)}",
+                                  "${dic['loan.collateral']} ${PluginFmt.tokenView(token.symbol)}",
                               content: deposit,
                               titleStyle: Theme.of(context)
                                   .textTheme
@@ -421,51 +421,6 @@ class CollateralIncentiveList extends StatelessWidget {
                         )
                       ],
                     )),
-                // Container(
-                //   margin: EdgeInsets.only(top: 12),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.center,
-                //     children: [
-                //       TapTooltip(
-                //         message: dic['earn.loyal.info']!,
-                //         child: Center(
-                //             child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.center,
-                //           children: [
-                //             Icon(
-                //               Icons.info,
-                //               color: Theme.of(context).disabledColor,
-                //               size: 14,
-                //             ),
-                //             Container(
-                //               margin: EdgeInsets.only(left: 4),
-                //               child: Text(dic['earn.loyal']! + ':',
-                //                   style: TextStyle(fontSize: 12)),
-                //             )
-                //           ],
-                //         )),
-                //       ),
-                //       Container(
-                //         margin: EdgeInsets.only(left: 8),
-                //         child: Text(
-                //           Fmt.ratio(loyaltyBonus),
-                //           style: TextStyle(
-                //               fontSize: 14, fontWeight: FontWeight.bold),
-                //         ),
-                //       )
-                //     ],
-                //   ),
-                // ),
-                // Visibility(
-                //     visible: blocksToEnd != null,
-                //     child: Container(
-                //       margin: EdgeInsets.only(top: 4),
-                //       child: Text(
-                //         '${dic['earn.loyal.end']}: ${Fmt.blockToTime(blocksToEnd ?? 0, 12500)}',
-                //         style: TextStyle(fontSize: 10),
-                //       ),
-                //     )),
-                // Divider(height: 24),
                 Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(vertical: 13, horizontal: 8),

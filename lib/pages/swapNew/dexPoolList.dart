@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earn/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -114,7 +116,6 @@ class _DexPoolCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final colorGrey = Theme.of(context).unselectedWidgetColor;
 
     final balancePair = pool!.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
@@ -131,6 +132,40 @@ class _DexPoolCard extends StatelessWidget {
       amountRight = Fmt.balanceDouble(
           poolAmount![1].toString(), balancePair[1]!.decimals!);
       ratio = amountLeft > 0 ? amountRight / amountLeft : 0;
+    }
+
+    final poolInfo = plugin!.store!.earn.dexPoolInfoMap[pool!.tokenNameId];
+    bool canClaim = false;
+    double? savingLoyaltyBonus = 0;
+    final incentiveV2 = plugin!.store!.earn.incentives;
+    if (incentiveV2.dex != null) {
+      (incentiveV2.dexSaving[pool!.tokenNameId!] ?? []).forEach((e) {
+        savingLoyaltyBonus = e.deduction;
+      });
+    }
+    var rewardSaving =
+        (poolInfo?.reward?.saving ?? 0) * (1 - (savingLoyaltyBonus ?? 0));
+    if (rewardSaving < 0) {
+      rewardSaving = 0;
+    }
+    final savingRewardTokenMin = Fmt.balanceDouble(
+        plugin!.store!.assets.tokenBalanceMap[karura_stable_coin]!.minBalance!,
+        plugin!.networkState.tokenDecimals![
+            plugin!.networkState.tokenSymbol!.indexOf(karura_stable_coin)]);
+    canClaim = rewardSaving > savingRewardTokenMin;
+
+    (poolInfo?.reward?.incentive ?? []).forEach((e) {
+      final amount = double.parse(e['amount']);
+      if (amount > 0.001) {
+        canClaim = true;
+      }
+    });
+
+    bool unstaked = false;
+    final balance =
+        AssetsUtils.getBalanceFromTokenNameId(plugin!, pool!.tokenNameId);
+    if (balance != null && Fmt.balanceInt(balance.amount) > BigInt.zero) {
+      unstaked = true;
     }
 
     return RoundedPluginCard(
@@ -159,6 +194,36 @@ class _DexPoolCard extends StatelessWidget {
                         .headline3
                         ?.copyWith(color: Colors.white, fontSize: 18),
                   )),
+                  Row(
+                    children: [
+                      Visibility(
+                          visible: unstaked,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Image.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
+                                width: 24,
+                              ))),
+                      Visibility(
+                          visible:
+                              (poolInfo?.shares ?? BigInt.zero) != BigInt.zero,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: SvgPicture.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/staked.svg",
+                                color: Colors.white,
+                                width: 24,
+                              ))),
+                      Visibility(
+                          visible: canClaim,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Image.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/rewards.png",
+                                width: 24,
+                              ))),
+                    ],
+                  )
                 ],
               )),
           Container(
