@@ -150,29 +150,36 @@ class _BootstrapPageState extends State<BootstrapPage> {
     final leftAmount = left.isEmpty ? '0' : left;
     final rightAmount = right.isEmpty ? '0' : right;
     return TxConfirmParams(
-      txTitle: dic['boot.provision.add'],
-      module: 'dex',
-      call: 'addProvision',
-      txDisplay: {
-        dic['earn.pool']: '${balancePair[0]!.symbol}-${balancePair[1]!.symbol}',
-      },
-      txDisplayBold: {
-        "Token 1": Text(
-          '$leftAmount ${balancePair[0]!.symbol}',
-          style: Theme.of(context).textTheme.headline1,
-        ),
-        "Token 2": Text(
-          '$rightAmount ${balancePair[1]!.symbol}',
-          style: Theme.of(context).textTheme.headline1,
-        ),
-      },
-      params: [
-        pool.tokens![0],
-        pool.tokens![1],
-        Fmt.tokenInt(leftAmount, balancePair[0]!.decimals!).toString(),
-        Fmt.tokenInt(rightAmount, balancePair[1]!.decimals!).toString(),
-      ],
-    );
+        txTitle: dic['boot.provision.add'],
+        module: 'dex',
+        call: 'addProvision',
+        txDisplay: {
+          dic['earn.pool']:
+              '${balancePair[0]!.symbol}-${balancePair[1]!.symbol}',
+        },
+        txDisplayBold: {
+          "Token 1": Text(
+            '$leftAmount ${balancePair[0]!.symbol}',
+            style: Theme.of(context)
+                .textTheme
+                .headline1
+                ?.copyWith(color: Colors.white),
+          ),
+          "Token 2": Text(
+            '$rightAmount ${balancePair[1]!.symbol}',
+            style: Theme.of(context)
+                .textTheme
+                .headline1
+                ?.copyWith(color: Colors.white),
+          ),
+        },
+        params: [
+          pool.tokens![0],
+          pool.tokens![1],
+          Fmt.tokenInt(leftAmount, balancePair[0]!.decimals!).toString(),
+          Fmt.tokenInt(rightAmount, balancePair[1]!.decimals!).toString(),
+        ],
+        isPlugin: true);
   }
 
   @override

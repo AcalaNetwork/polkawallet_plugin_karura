@@ -138,26 +138,29 @@ class _BootstrapListState extends State<BootstrapList> {
         },
         params: [],
         rawParams: '[[${batchTxs.join(',')}]]',
+        isPlugin: true,
       );
     }
     return TxConfirmParams(
-        txTitle: 'Claim LP Token',
-        module: 'dex',
-        call: 'claimDexShare',
-        txDisplay: {
-          dic!['earn.pool']: poolTokenSymbol,
-        },
-        txDisplayBold: {
-          dic['loan.amount']!: Text(
-            '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
-            style: Theme.of(context).textTheme.headline1,
-          ),
-        },
-        params: [
-          widget.keyring.current.address,
-          pool.tokens![0],
-          pool.tokens![1]
-        ]);
+      txTitle: 'Claim LP Token',
+      module: 'dex',
+      call: 'claimDexShare',
+      txDisplay: {
+        dic!['earn.pool']: poolTokenSymbol,
+      },
+      txDisplayBold: {
+        dic['loan.amount']!: Text(
+          '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+      },
+      params: [
+        widget.keyring.current.address,
+        pool.tokens![0],
+        pool.tokens![1]
+      ],
+      isPlugin: true,
+    );
   }
 
   @override

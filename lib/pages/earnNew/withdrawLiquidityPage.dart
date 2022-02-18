@@ -161,10 +161,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
         txDisplayBold: {
           dic['loan.amount']!: Text(
             '$amount LP',
-            style: Theme.of(context).textTheme.headline1,
+            style: Theme.of(context)
+                .textTheme
+                .headline1
+                ?.copyWith(color: Colors.white),
           ),
         },
         params: _getTxParams(amountInt, false),
+        isPlugin: true,
       );
       if (_fromPool && amountInt > free) {
         if (free == BigInt.zero) {
@@ -180,10 +184,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             txDisplayBold: {
               dic['loan.amount']!: Text(
                 '$amount LP',
-                style: Theme.of(context).textTheme.headline1,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
               ),
             },
             params: _getTxParams(amountInt, true),
+            isPlugin: true,
           );
         } else {
           final batchTxs = [

@@ -140,7 +140,10 @@ class _LoanPageState extends State<LoanPage> {
       }
       detail[dic![dicValue]!] = Text(
         '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',
-        style: Theme.of(context).textTheme.headline1,
+        style: Theme.of(context)
+            .textTheme
+            .headline1
+            ?.copyWith(color: Colors.white),
       );
     }
 
@@ -184,7 +187,10 @@ class _LoanPageState extends State<LoanPage> {
       }
       detail[dic![dicValue]!] = Text(
         '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
-        style: Theme.of(context).textTheme.headline1,
+        style: Theme.of(context)
+            .textTheme
+            .headline1
+            ?.copyWith(color: Colors.white),
       );
     }
 

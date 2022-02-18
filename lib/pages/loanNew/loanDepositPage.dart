@@ -95,7 +95,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           'detail': {
             dic!['loan.deposit']: Text(
               '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan!.token!.symbol)}',
-              style: Theme.of(context).textTheme.headline1,
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: Colors.white),
             ),
           },
           'params': [
@@ -109,7 +112,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           'detail': {
             dic!['loan.withdraw']: Text(
               '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan!.token!.symbol)}',
-              style: Theme.of(context).textTheme.headline1,
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: Colors.white),
             ),
           },
           'params': [
@@ -137,6 +143,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           txTitle: title,
           txDisplayBold: params['detail'],
           params: params['params'],
+          isPlugin: true,
         ))) as Map?;
     if (res != null) {
       Navigator.of(context).pop(res);
