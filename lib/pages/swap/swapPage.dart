@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:polkawallet_plugin_karura/common/components/connectionChecker.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapList.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/dexPoolList.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapForm.dart';
