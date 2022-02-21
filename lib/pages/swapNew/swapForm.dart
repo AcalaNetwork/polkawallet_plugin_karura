@@ -368,14 +368,14 @@ class _SwapFormState extends State<SwapForm>
             txTitle: dic['dex.title'],
             txDisplayBold: {
               dic['dex.pay']!: Text(
-                '$pay ${AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0])!.symbol}',
+                '$pay ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0])!.symbol)}',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
                     ?.copyWith(color: Colors.white),
               ),
               dic['dex.receive']!: Text(
-                '$receive ${AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1])!.symbol}',
+                '$receive ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1])!.symbol)}',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
