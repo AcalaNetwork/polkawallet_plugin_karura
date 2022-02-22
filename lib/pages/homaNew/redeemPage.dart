@@ -58,7 +58,7 @@ class _RedeemPageState extends State<RedeemPage> {
 
   bool isLoading = false;
 
-  num selectIndex = 0;
+  num _selectIndex = 0;
 
   @override
   void initState() {
@@ -87,20 +87,17 @@ class _RedeemPageState extends State<RedeemPage> {
         isLoading = true;
       });
 
-      final fastData =
-          await (widget.plugin.api!.homa.calcHomaNewRedeemAmount(input, true)
-              as FutureOr<Map<dynamic, dynamic>>);
+      final data = await Future.wait([
+        widget.plugin.api!.homa.calcHomaNewRedeemAmount(input, true),
+        widget.plugin.api!.homa.calcHomaNewRedeemAmount(input, false),
+      ]);
 
       setState(() {
-        _fastReceiveAmount = fastData['receive'];
-      });
-
-      final data =
-          await (widget.plugin.api!.homa.calcHomaNewRedeemAmount(input, false)
-              as FutureOr<Map<dynamic, dynamic>>);
-
-      setState(() {
-        _receiveAmount = data['receive'];
+        _fastReceiveAmount = data[0]!['receive'];
+        _receiveAmount = data[1]!['receive'];
+        if (data[0]!['receive'] == 0) {
+          _selectIndex = 1;
+        }
       });
 
       final lToken =
@@ -199,17 +196,11 @@ class _RedeemPageState extends State<RedeemPage> {
     final txDisplay = {
       dic['dex.pay']!: Text(
         '$pay L$stakeToken',
-        style: Theme.of(context)
-            .textTheme
-            .headline1
-            ?.copyWith(color: Colors.white),
+        style: Theme.of(context).textTheme.headline1,
       ),
       dic['dex.receive']!: Text(
-        '≈ ${Fmt.priceFloor((selectIndex == 0 ? _fastReceiveAmount : selectIndex == 1 ? _swapAmount : _receiveAmount) as double?)} $stakeToken',
-        style: Theme.of(context)
-            .textTheme
-            .headline1
-            ?.copyWith(color: Colors.white),
+        '≈ ${Fmt.priceFloor((_selectIndex == 0 ? _fastReceiveAmount : _selectIndex == 1 ? _swapAmount : _receiveAmount) as double?)} $stakeToken',
+        style: Theme.of(context).textTheme.headline1,
       ),
     };
 
@@ -220,7 +211,7 @@ class _RedeemPageState extends State<RedeemPage> {
       false,
     ];
     String? paramsRaw;
-    if (selectIndex == 0) {
+    if (_selectIndex == 0 && _fastReceiveAmount > 0) {
       //fast redeem
       module = 'utility';
       call = 'batch';
@@ -233,7 +224,7 @@ class _RedeemPageState extends State<RedeemPage> {
           'api.tx.homa.fastMatchRedeems(["${widget.keyring.current.address}"])'
           ']]';
       params = [];
-    } else if (selectIndex == 1) {
+    } else if (_selectIndex == 1) {
       // swap
       module = 'utility';
       call = 'batch';
@@ -257,7 +248,7 @@ class _RedeemPageState extends State<RedeemPage> {
           module: module,
           call: call,
           txTitle: dic['homa.redeem'],
-          txDisplay: selectIndex != 2
+          txDisplay: _selectIndex != 2
               ? {
                   dic['homa.fast']: '',
                 }
@@ -265,7 +256,6 @@ class _RedeemPageState extends State<RedeemPage> {
           txDisplayBold: txDisplay,
           params: params,
           rawParams: paramsRaw,
-          isPlugin: true,
         ))) as Map?;
 
     if (res != null) {
@@ -298,121 +288,135 @@ class _RedeemPageState extends State<RedeemPage> {
             title: Text('${dic['homa.redeem']} $stakeToken'),
             centerTitle: true,
           ),
-          body: SafeArea(
-              child: ListView(
-            padding: EdgeInsets.all(16),
-            children: <Widget>[
-              PluginInputBalance(
-                margin: EdgeInsets.only(bottom: 2),
-                titleTag: dic['earn.unStake'],
-                inputCtrl: _amountPayCtrl,
-                balance: TokenBalanceData(
-                    symbol: lTokenBalance.symbol,
-                    amount: max.toString(),
-                    decimals: lTokenBalance.decimals),
-                tokenIconsMap: widget.plugin.tokenIcons,
-                onInputChange: (v) => _onSupplyAmountChange(v, max),
-                onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,
-                onClear: () {
-                  setState(() {
-                    _amountPayCtrl.text = '';
-                  });
-                  _onSupplyAmountChange('', max);
-                },
-              ),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      dic['v3.homa.minUnstakingAmmount']!,
-                      style: Theme.of(context).textTheme.headline5?.copyWith(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300),
-                    ),
-                    Text(
-                      "${minRedeem.toStringAsFixed(4)} $stakeToken",
-                      style: Theme.of(context).textTheme.headline5?.copyWith(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300),
-                    )
-                  ],
-                ),
-              ),
-              ErrorMessage(_error, margin: EdgeInsets.symmetric(vertical: 2)),
-              Visibility(visible: isLoading, child: PluginLoadingWidget()),
-              Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Column(
-                    children: [
-                      PluginTextTag(
-                        title: dic['v3.selectRedeemMethod']!,
-                      ),
-                      Container(
-                        width: double.infinity,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 11, vertical: 14),
-                        margin: EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                            border:
-                                Border.all(color: Color(0xCCFFFFFF), width: 1),
-                            borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(17),
-                                topRight: Radius.circular(17),
-                                bottomRight: Radius.circular(17))),
-                        child: Column(
-                          children: [
-                            UnStakeTypeItemWidget(
-                              title: dic['homa.fast']!,
-                              value:
-                                  "$_fastReceiveAmount $relay_chain_token_symbol",
-                              describe: dic['homa.fast.describe']!,
-                              isSelect: selectIndex == 0,
-                              ontap: () {
-                                setState(() {
-                                  selectIndex = 0;
-                                });
-                              },
-                            ),
-                            UnStakeTypeItemWidget(
-                              title: dic['dex.swap']!,
-                              value: "$_swapAmount $relay_chain_token_symbol",
-                              margin: EdgeInsets.symmetric(vertical: 14),
-                              describe: dic['dex.swap.describe']!,
-                              isSelect: selectIndex == 1,
-                              ontap: () {
-                                setState(() {
-                                  selectIndex = 1;
-                                });
-                              },
-                            ),
-                            UnStakeTypeItemWidget(
-                              title: dic['v3.homa.unbond']!,
-                              value:
-                                  "$_receiveAmount $relay_chain_token_symbol",
-                              describe: dic['v3.homa.unbond.describe']!,
-                              isSelect: selectIndex == 2,
-                              ontap: () {
-                                setState(() {
-                                  selectIndex = 2;
-                                });
-                              },
-                            ),
-                          ],
+          body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: <Widget>[
+                  PluginInputBalance(
+                    margin: EdgeInsets.only(bottom: 2),
+                    titleTag: dic['earn.unStake'],
+                    inputCtrl: _amountPayCtrl,
+                    balance: TokenBalanceData(
+                        symbol: lTokenBalance.symbol,
+                        amount: max.toString(),
+                        decimals: lTokenBalance.decimals),
+                    tokenIconsMap: widget.plugin.tokenIcons,
+                    onInputChange: (v) => _onSupplyAmountChange(v, max),
+                    onSetMax: karBalance > 0.1 ? (v) => _onSetMax(v) : null,
+                    onClear: () {
+                      setState(() {
+                        _amountPayCtrl.text = '';
+                      });
+                      _onSupplyAmountChange('', max);
+                    },
+                  ),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          dic['v3.homa.minUnstakingAmmount']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w300),
                         ),
-                      )
-                    ],
-                  )),
-              Padding(
-                  padding: EdgeInsets.only(bottom: 38, top: 50),
-                  child: PluginButton(
-                    title: dic['homa.redeem']!,
-                    onPressed: _onSubmit,
-                  ))
-            ],
-          )),
+                        Text(
+                          "${minRedeem.toStringAsFixed(4)} $stakeToken",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w300),
+                        )
+                      ],
+                    ),
+                  ),
+                  ErrorMessage(_error,
+                      margin: EdgeInsets.symmetric(vertical: 2)),
+                  Visibility(visible: isLoading, child: PluginLoadingWidget()),
+                  Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Column(
+                        children: [
+                          PluginTextTag(
+                            title: dic['v3.selectRedeemMethod']!,
+                          ),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 11, vertical: 14),
+                            margin: EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Color(0xCCFFFFFF), width: 1),
+                                borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(17),
+                                    topRight: Radius.circular(17),
+                                    bottomRight: Radius.circular(17))),
+                            child: Column(
+                              children: [
+                                UnStakeTypeItemWidget(
+                                  title: dic['homa.fast']!,
+                                  value:
+                                      "$_fastReceiveAmount $relay_chain_token_symbol",
+                                  describe: dic['homa.fast.describe']!,
+                                  isSelect: _selectIndex == 0,
+                                  ontap: () {
+                                    if (_fastReceiveAmount > 0) {
+                                      setState(() {
+                                        _selectIndex = 0;
+                                      });
+                                    }
+                                  },
+                                ),
+                                UnStakeTypeItemWidget(
+                                  title: dic['dex.swap']!,
+                                  value:
+                                      "$_swapAmount $relay_chain_token_symbol",
+                                  margin: EdgeInsets.symmetric(vertical: 14),
+                                  describe: dic['dex.swap.describe']!,
+                                  isSelect: _selectIndex == 1,
+                                  ontap: () {
+                                    setState(() {
+                                      _selectIndex = 1;
+                                    });
+                                  },
+                                ),
+                                UnStakeTypeItemWidget(
+                                  title: dic['v3.homa.unbond']!,
+                                  value:
+                                      "$_receiveAmount $relay_chain_token_symbol",
+                                  describe: dic['v3.homa.unbond.describe']!,
+                                  isSelect: _selectIndex == 2,
+                                  ontap: () {
+                                    setState(() {
+                                      _selectIndex = 2;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      )),
+                  Padding(
+                      padding: EdgeInsets.only(bottom: 24, top: 24),
+                      child: PluginButton(
+                        title: dic['homa.redeem']!,
+                        onPressed: _onSubmit,
+                      ))
+                ],
+              ),
+            ),
+          ),
         );
       },
     );
@@ -476,6 +480,7 @@ class UnStakeTypeItemWidget extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w300,
+                        height: 1.3,
                         fontSize: 12),
                   ))
             ],
