@@ -142,16 +142,6 @@ class _EarnDexListState extends State<EarnDexList> {
 
                 final poolInfo = widget
                     .plugin.store!.earn.dexPoolInfoMap[dexPools[i].tokenNameId];
-                final leftPrice = Fmt.bigIntToDouble(
-                        poolInfo?.amountLeft ?? BigInt.zero,
-                        tokenPair[0]?.decimals ?? 12) *
-                    widget.plugin.store!.assets
-                        .marketPrices[tokenPair[0]!.symbol]!;
-                final rightPrice = Fmt.bigIntToDouble(
-                        poolInfo?.amountRight ?? BigInt.zero,
-                        tokenPair[1]?.decimals ?? 12) *
-                    widget.plugin.store!.assets
-                        .marketPrices[tokenPair[1]!.symbol]!;
 
                 bool canClaim = false;
                 double? savingLoyaltyBonus = 0;
@@ -297,7 +287,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                           fontSize: 24),
                                 ),
                                 Text(
-                                  'TVL \$ ${Fmt.priceCeil(leftPrice + rightPrice)}',
+                                  '${dic['earn.staked']} \$ ${Fmt.priceCeil(Fmt.bigIntToDouble(poolInfo!.sharesTotal, tokenPair[0]?.decimals ?? 12) * widget.plugin.store!.assets.marketPrices[tokenPair[0]!.symbol]!)}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline5

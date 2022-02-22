@@ -170,7 +170,7 @@ class EarnDetailPage extends StatelessWidget {
                                         Padding(
                                           padding: EdgeInsets.only(left: 50),
                                           child: Text(
-                                            "TVL: \$ ${Fmt.priceCeil(leftPrice + rightPrice)}; ${dic['v3.earn.stakedValue']}: ${Fmt.priceFloorBigInt(shareTotal, balancePair[0]!.decimals!, lengthFixed: 4)}",
+                                            "TVL: \$ ${Fmt.priceCeil(leftPrice + rightPrice)}; ${dic['earn.staked']}: \$ ${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!)}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
