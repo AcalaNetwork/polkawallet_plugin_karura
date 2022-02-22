@@ -548,7 +548,10 @@ class _UserCard extends StatelessWidget {
     canClaim = rewardSaving > savingRewardTokenMin;
     var rewardPrice = 0.0;
     final String rewardV2 = poolInfo!.reward!.incentive.map((e) {
-      final amount = double.parse(e['amount']);
+      double amount = double.parse(e['amount']);
+      if (amount < 0) {
+        amount = 0;
+      }
       if (amount > 0.001) {
         canClaim = true;
       }
