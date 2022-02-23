@@ -257,7 +257,8 @@ class CollateralIncentiveList extends StatelessWidget {
         itemBuilder: (_, i) {
           final token = tokens[i]!;
           double apy = 0;
-          if (totalCDPs![token.tokenNameId]!.collateral > BigInt.zero &&
+          if (((totalCDPs![token.tokenNameId])?.collateral ?? BigInt.zero) >
+                  BigInt.zero &&
               marketPrices![token.symbol] != null &&
               incentives![token.tokenNameId] != null) {
             incentives![token.tokenNameId]!.forEach((e) {

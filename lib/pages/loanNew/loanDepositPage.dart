@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -18,7 +16,6 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
-import 'package:polkawallet_ui/utils/index.dart';
 
 class LoanDepositPage extends StatefulWidget {
   LoanDepositPage(this.plugin, this.keyring);
@@ -50,7 +47,6 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
   void _onAmount1Change(
     String value,
-    LoanType loanType,
     BigInt? price,
     int? stableCoinDecimals,
     int? collateralDecimals, {
@@ -85,7 +81,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     return null;
   }
 
-  Future<Map> _getTxParams(LoanData? loan, int? stableCoinDecimals) async {
+  Future<Map> _getTxParams(int? stableCoinDecimals) async {
     final LoanDepositPageParams params =
         ModalRoute.of(context)!.settings.arguments as LoanDepositPageParams;
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
@@ -94,7 +90,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
         return {
           'detail': {
             dic!['loan.deposit']: Text(
-              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan!.token!.symbol)}',
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(params.token.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
@@ -111,7 +107,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
         return {
           'detail': {
             dic!['loan.withdraw']: Text(
-              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(loan!.token!.symbol)}',
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(params.token.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
@@ -129,10 +125,9 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     }
   }
 
-  Future<void> _onSubmit(
-      String title, LoanData? loan, int? stableCoinDecimals) async {
+  Future<void> _onSubmit(String title, int? stableCoinDecimals) async {
     print("_onSubmit");
-    final params = await _getTxParams(loan, stableCoinDecimals);
+    final params = await _getTxParams(stableCoinDecimals);
     print(params);
     if (params == null) return null;
 
@@ -160,7 +155,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
       final loan = widget.plugin.store!.loan.loans[params.token.tokenNameId];
       setState(() {
-        _amountCollateral = loan!.collaterals;
+        _amountCollateral = loan?.collaterals ?? BigInt.zero;
         _token = params.token;
       });
     });
@@ -245,7 +240,6 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                         });
                         _onAmount1Change(
                           availableView,
-                          loan!.type,
                           price,
                           balancePair[1]!.decimals,
                           balancePair[0]!.decimals,
@@ -258,12 +252,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                         _amountCollateral = BigInt.zero;
                         _amountCtrl.text = "0";
                       });
-                      _onAmount1Change("0", loan!.type, price,
-                          balancePair[1]!.decimals, balancePair[0]!.decimals,
+                      _onAmount1Change("0", price, balancePair[1]!.decimals,
+                          balancePair[0]!.decimals,
                           max: available);
                     },
                     inputCtrl: _amountCtrl,
-                    onInputChange: (v) => _onAmount1Change(v, loan!.type, price,
+                    onInputChange: (v) => _onAmount1Change(v, price,
                         balancePair[1]!.decimals, balancePair[0]!.decimals,
                         max: available),
                   ),
@@ -278,7 +272,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                       .getDic(i18n_full_dic_ui, 'common')!['tx.submit']!,
                   onPressed: () {
                     if (_error1 == null) {
-                      _onSubmit(pageTitle, loan, balancePair[1]!.decimals);
+                      _onSubmit(pageTitle, balancePair[1]!.decimals);
                     }
                   },
                 ),
