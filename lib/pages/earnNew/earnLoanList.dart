@@ -231,7 +231,7 @@ class CollateralIncentiveList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final List<String?> tokensAll = incentives!.keys.toList();
     tokensAll.addAll(rewards!.keys.toList());
     final tokenIds = tokensAll.toSet().toList();
@@ -333,8 +333,7 @@ class CollateralIncentiveList extends StatelessWidget {
                                   tokenIcons!,
                                   size: 26,
                                 )),
-                            Text(
-                                "${dic!['loan.collateral']} ${PluginFmt.tokenView(token.symbol)}",
+                            Text(PluginFmt.tokenView(token.symbol),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline3
@@ -384,7 +383,7 @@ class CollateralIncentiveList extends StatelessWidget {
                             PluginInfoItem(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               title:
-                                  "${dic['loan.collateral']} ${PluginFmt.tokenView(token.symbol)}",
+                                  "${dic['loan.collateral']} (${PluginFmt.tokenView(token.symbol)})",
                               content: deposit,
                               titleStyle: Theme.of(context)
                                   .textTheme

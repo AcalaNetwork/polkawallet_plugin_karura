@@ -14,10 +14,9 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
-import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -268,6 +267,7 @@ class _DexPoolCard extends StatelessWidget {
                   ),
                   Expanded(
                     child: PluginOutlinedButtonSmall(
+                      margin: EdgeInsets.all(0),
                       content: dic['dex.addLiquidity'],
                       color: Color(0xFFFC8156),
                       active: true,

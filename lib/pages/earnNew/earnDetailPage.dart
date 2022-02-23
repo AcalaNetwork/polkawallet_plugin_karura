@@ -170,7 +170,7 @@ class EarnDetailPage extends StatelessWidget {
                                         Padding(
                                           padding: EdgeInsets.only(left: 50),
                                           child: Text(
-                                            "TVL: \$ ${Fmt.priceCeil(leftPrice + rightPrice)}; ${dic['earn.staked']}: \$ ${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!)}",
+                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!)}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
@@ -274,7 +274,7 @@ class EarnDetailPage extends StatelessWidget {
                                       PluginInfoItem(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
-                                        title: '${dic['earn.share']} LP',
+                                        title: dic['earn.share'],
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline5
@@ -293,32 +293,35 @@ class EarnDetailPage extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                        top: 12, bottom: 6, left: 27),
-                                    child: Row(
-                                      children: [
-                                        Padding(
-                                            padding: EdgeInsets.only(top: 1),
-                                            child: Image.asset(
-                                                'packages/polkawallet_plugin_karura/assets/images/info.png',
-                                                width: 14)),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 2),
-                                          child: Text(
-                                              "${dic['v3.earn.stakedLpInfo']}: $lpAmountString",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline5
-                                                  ?.copyWith(
-                                                      color: Colors.white,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600)),
-                                        )
-                                      ],
+                                  Visibility(
+                                    visible: share > BigInt.zero,
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                          top: 12, bottom: 6, left: 27),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                              padding: EdgeInsets.only(top: 1),
+                                              child: Image.asset(
+                                                  'packages/polkawallet_plugin_karura/assets/images/info.png',
+                                                  width: 14)),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 2),
+                                            child: Text(
+                                                "${Fmt.priceFloorBigInt(share, balancePair[0]!.decimals!, lengthFixed: 4)} LP ≈ $lpAmountString",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headline5
+                                                    ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w600)),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -384,8 +387,9 @@ class EarnDetailPage extends StatelessWidget {
                     ],
                   ))),
               InviteFriendsBtn(
-                  onTap: () => Navigator.of(context)
-                      .pushNamed(InviteFriendsPage.route, arguments: pool)),
+                onTap: () => Navigator.of(context)
+                    .pushNamed(InviteFriendsPage.route, arguments: pool),
+              ),
             ],
           ));
         },
@@ -671,7 +675,7 @@ class _InviteFriendsBtnState extends State<InviteFriendsBtn> {
   @override
   Widget build(BuildContext context) {
     if (offset == null) {
-      offset = Offset(MediaQuery.of(context).size.width - 48, 0);
+      offset = Offset(MediaQuery.of(context).size.width - 56, 0);
     }
     return Container(
         key: globalKey,
