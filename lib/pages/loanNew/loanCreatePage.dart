@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -13,13 +12,11 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -338,6 +335,9 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
               padding: EdgeInsets.all(16),
               children: <Widget>[
                 PluginInputBalance(
+                  tokenViewFunction: (value) {
+                    return PluginFmt.tokenView(value);
+                  },
                   inputCtrl: _amountCtrl,
                   margin: EdgeInsets.only(bottom: 2),
                   titleTag: dic['loan.collateral'],
@@ -365,6 +365,9 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                 ErrorMessage(_error1,
                     margin: EdgeInsets.symmetric(vertical: 2)),
                 PluginInputBalance(
+                  tokenViewFunction: (value) {
+                    return PluginFmt.tokenView(value);
+                  },
                   inputCtrl: _amountCtrl2,
                   tokenBgColor: Colors.white,
                   margin: EdgeInsets.only(bottom: 2, top: 24),

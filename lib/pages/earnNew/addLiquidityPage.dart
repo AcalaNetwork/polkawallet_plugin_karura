@@ -475,6 +475,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                 child: InsufficientKARWarn(),
               ),
               PluginInputBalance(
+                tokenViewFunction: (value) {
+                  return PluginFmt.tokenView(value);
+                },
                 inputCtrl: _amountLeftCtrl,
                 titleTag: 'token 1',
                 onInputChange: (v) => _onSupplyAmountChange(v),
@@ -514,6 +517,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                     ],
                   )),
               PluginInputBalance(
+                tokenViewFunction: (value) {
+                  return PluginFmt.tokenView(value);
+                },
                 inputCtrl: _amountRightCtrl,
                 titleTag: 'token 2',
                 onInputChange: (v) => _onTargetAmountChange(v),

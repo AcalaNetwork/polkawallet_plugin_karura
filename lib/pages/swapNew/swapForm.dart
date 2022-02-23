@@ -553,6 +553,9 @@ class _SwapFormState extends State<SwapForm>
                 Column(
                   children: [
                     PluginInputBalance(
+                      tokenViewFunction: (value) {
+                        return PluginFmt.tokenView(value);
+                      },
                       margin: EdgeInsets.only(bottom: 7),
                       inputCtrl: _amountPayCtrl,
                       tokenOptions: currencyOptionsLeft,
@@ -580,6 +583,9 @@ class _SwapFormState extends State<SwapForm>
                       tokenIconsMap: widget.plugin.tokenIcons,
                     ),
                     PluginInputBalance(
+                      tokenViewFunction: (value) {
+                        return PluginFmt.tokenView(value);
+                      },
                       inputCtrl: _amountReceiveCtrl,
                       tokenOptions: currencyOptionsRight,
                       tokenSelectTitle: dic['v3.swap.selectToken']!,

@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -302,6 +303,9 @@ class _RedeemPageState extends State<RedeemPage> {
               child: Column(
                 children: <Widget>[
                   PluginInputBalance(
+                    tokenViewFunction: (value) {
+                      return PluginFmt.tokenView(value);
+                    },
                     margin: EdgeInsets.only(bottom: 2),
                     titleTag: dic['earn.unStake'],
                     inputCtrl: _amountPayCtrl,

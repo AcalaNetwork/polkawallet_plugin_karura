@@ -224,6 +224,9 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                 padding: EdgeInsets.only(top: 16, left: 16, right: 16),
                 children: <Widget>[
                   PluginInputBalance(
+                    tokenViewFunction: (value) {
+                      return PluginFmt.tokenView(value);
+                    },
                     titleTag: dic['loan.${params.actionType}'],
                     balance: TokenBalanceData(
                         symbol: balancePair[0]!.symbol,

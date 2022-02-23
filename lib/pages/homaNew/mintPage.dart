@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart'
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -209,6 +210,9 @@ class _MintPageState extends State<MintPage> {
             padding: EdgeInsets.all(16),
             children: <Widget>[
               PluginInputBalance(
+                tokenViewFunction: (value) {
+                  return PluginFmt.tokenView(value);
+                },
                 inputCtrl: _amountPayCtrl,
                 margin: EdgeInsets.only(bottom: 2),
                 titleTag: dic['earn.stake'],
@@ -236,6 +240,9 @@ class _MintPageState extends State<MintPage> {
                   visible: _amountReceive.isNotEmpty &&
                       _amountPayCtrl.text.length > 0,
                   child: PluginInputBalance(
+                    tokenViewFunction: (value) {
+                      return PluginFmt.tokenView(value);
+                    },
                     enabled: false,
                     text: _amountReceive,
                     margin: EdgeInsets.only(bottom: 2),

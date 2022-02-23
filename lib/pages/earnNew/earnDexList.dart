@@ -336,7 +336,7 @@ class _EarnDexListState extends State<EarnDexList> {
                   crossAxisCount: 2,
                   mainAxisSpacing: 24,
                   crossAxisSpacing: 20,
-                  childAspectRatio: 168 / 176.0),
+                  childAspectRatio: 168 / 190.0),
             );
     });
   }

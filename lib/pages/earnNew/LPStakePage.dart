@@ -475,6 +475,9 @@ class _LPStakePage extends State<LPStakePage> {
                     Column(
                       children: [
                         PluginInputBalance(
+                          tokenViewFunction: (value) {
+                            return PluginFmt.tokenView(value);
+                          },
                           inputCtrl: _amountLeftCtrl,
                           onInputChange: (v) => _onSupplyAmountChange(v),
                           marketPrices:
@@ -499,6 +502,9 @@ class _LPStakePage extends State<LPStakePage> {
                               : 0,
                         ),
                         PluginInputBalance(
+                          tokenViewFunction: (value) {
+                            return PluginFmt.tokenView(value);
+                          },
                           inputCtrl: _amountRightCtrl,
                           onInputChange: (v) => _onTargetAmountChange(v),
                           marketPrices:
@@ -674,6 +680,9 @@ class _LPStakePage extends State<LPStakePage> {
                               onConnected: _refreshData)
                           : Container(),
                       PluginInputBalance(
+                        tokenViewFunction: (value) {
+                          return PluginFmt.tokenView(value);
+                        },
                         titleTag: assetDic!['amount'],
                         inputCtrl: _amountCtrl,
                         onSetMax: (max) =>
