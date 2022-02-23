@@ -391,7 +391,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,
                             hintText:
-                                '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0]!.decimals!, lengthMax: 4)} Shares',
+                                '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0]!.decimals!, lengthMax: 4)}',
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .headline5
