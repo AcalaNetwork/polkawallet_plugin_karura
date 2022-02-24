@@ -6,7 +6,8 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/txDetail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class EarnTxDetailPage extends StatelessWidget {
@@ -19,15 +20,19 @@ class EarnTxDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+    final amountStyle = TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: PluginColorsDark.headline1);
 
-    final TxDexIncentiveData tx = ModalRoute.of(context)!.settings.arguments as TxDexIncentiveData;
+    final TxDexIncentiveData tx =
+        ModalRoute.of(context)!.settings.arguments as TxDexIncentiveData;
 
     String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
       networkName = '${networkName!.split('-')[0]}-testnet';
     }
-    return TxDetail(
+    return PluginTxDetail(
       current: keyring.current,
       success: tx.isSuccess,
       action: dic['earn.${tx.event}'],
@@ -50,8 +55,8 @@ class EarnTxDetailPage extends StatelessWidget {
           content: Text(tx.poolId, style: amountStyle),
         ),
         TxDetailInfoItem(
-          label:
-              I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['amount'],
+          label: I18n.of(context)!
+              .getDic(i18n_full_dic_karura, 'common')!['amount'],
           content: Text(tx.amountShare!, style: amountStyle),
         )
       ],

@@ -8,7 +8,9 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/txDetail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class LoanTxDetailPage extends StatelessWidget {
@@ -22,9 +24,13 @@ class LoanTxDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> dic =
         I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+    final amountStyle = TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: PluginColorsDark.headline1);
 
-    final TxLoanData tx = ModalRoute.of(context)!.settings.arguments as TxLoanData;
+    final TxLoanData tx =
+        ModalRoute.of(context)!.settings.arguments as TxLoanData;
 
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
@@ -63,7 +69,7 @@ class LoanTxDetailPage extends StatelessWidget {
     if (plugin.basic.isTestNet) {
       networkName = '${networkName!.split('-')[0]}-testnet';
     }
-    return TxDetail(
+    return PluginTxDetail(
       success: tx.isSuccess,
       action: dic['loan.${tx.actionType}'],
       // blockNum: int.parse(tx.block),

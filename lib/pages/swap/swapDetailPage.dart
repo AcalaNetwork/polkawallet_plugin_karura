@@ -7,7 +7,8 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/txDetail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class SwapDetailPage extends StatelessWidget {
@@ -28,7 +29,10 @@ class SwapDetailPage extends StatelessWidget {
     final token1 = PluginFmt.tokenView(tx.tokenReceive);
     final tokenLP = '$token0-$token1 LP';
 
-    final amountStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+    final amountStyle = TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: PluginColorsDark.headline1);
 
     String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
@@ -100,7 +104,7 @@ class SwapDetailPage extends StatelessWidget {
         ]);
     }
 
-    return TxDetail(
+    return PluginTxDetail(
       success: tx.isSuccess,
       action: dic['dex.${tx.action}'],
       // blockNum: int.parse(tx.block),
