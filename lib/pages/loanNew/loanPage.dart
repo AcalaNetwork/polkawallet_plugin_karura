@@ -425,7 +425,7 @@ class _LoanPageState extends State<LoanPage> {
                             final debits = Fmt.bigIntToDouble(
                                 loan.debits, balancePair[1]!.decimals!);
                             final maxToBorrow = Fmt.bigIntToDouble(
-                                loan.maxToBorrow, stableCoinDecimals);
+                                loan.maxToBorrow, balancePair[1]!.decimals!);
 
                             final availablePrice = Fmt.bigIntToDouble(
                                 widget.plugin.store!.assets
@@ -542,7 +542,7 @@ class _LoanPageState extends State<LoanPage> {
                                                           .token!.decimals!);
                                               loan.maxToBorrow = Fmt.tokenInt(
                                                   "$maxToBorrow",
-                                                  balancePair[0]!.decimals!);
+                                                  balancePair[1]!.decimals!);
                                               loan.collateralRatio =
                                                   Fmt.bigIntToDouble(
                                                           collaterals,
@@ -595,7 +595,7 @@ class _LoanPageState extends State<LoanPage> {
                                                   setState(() {
                                                     loan!.debits = Fmt.tokenInt(
                                                         "$value",
-                                                        balancePair[0]!
+                                                        balancePair[1]!
                                                             .decimals!);
                                                     loan.debitShares = loan.type
                                                         .debitToDebitShare(
