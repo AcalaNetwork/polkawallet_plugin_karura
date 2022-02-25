@@ -50,6 +50,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     BigInt? price,
     int? stableCoinDecimals,
     int? collateralDecimals, {
+    required BigInt available,
     BigInt? max,
   }) {
     String v = value.trim();
@@ -61,10 +62,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
       _amountCollateral = collateral;
     });
 
-    var error = _validateAmount1(value, collateralDecimals, max!);
-    setState(() {
-      _error1 = error;
-    });
+    if (max == null) {
+      var error = _validateAmount1(value, collateralDecimals, available);
+      setState(() {
+        _error1 = error;
+      });
+    }
   }
 
   String? _validateAmount1(
@@ -199,9 +202,15 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
     if (params.actionType == LoanDepositPage.actionTypeWithdraw) {
       // max to withdraw
-      available = loan!.collaterals - loan.requiredCollateral > BigInt.zero
-          ? loan.collaterals - loan.requiredCollateral
-          : BigInt.zero;
+      if (loan == null) {
+        available = widget.plugin.store!.loan
+                .collateralRewards[token.tokenNameId]?.shares ??
+            BigInt.zero;
+      } else {
+        available = loan.collaterals - loan.requiredCollateral > BigInt.zero
+            ? loan.collaterals - loan.requiredCollateral
+            : BigInt.zero;
+      }
     }
 
     final availableView = Fmt.priceFloorBigInt(
@@ -233,23 +242,29 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                         decimals: balancePair[0]!.decimals!,
                         amount: available.toString()),
                     tokenIconsMap: widget.plugin.tokenIcons,
-                    onSetMax: (max) {
-                      {
-                        setState(() {
-                          _amountCollateral = max;
-                          _amountCtrl.text =
-                              Fmt.bigIntToDouble(max, balancePair[0]!.decimals!)
-                                  .toString();
-                        });
-                        _onAmount1Change(
-                          availableView,
-                          price,
-                          balancePair[1]!.decimals,
-                          balancePair[0]!.decimals,
-                          max: max,
-                        );
-                      }
-                    },
+                    onSetMax: (params.actionType ==
+                                LoanDepositPage.actionTypeDeposit &&
+                            token.symbol ==
+                                widget.plugin.networkState.tokenSymbol![0])
+                        ? null
+                        : (max) {
+                            {
+                              setState(() {
+                                _amountCollateral = max;
+                                _amountCtrl.text = Fmt.bigIntToDouble(
+                                        max, balancePair[0]!.decimals!)
+                                    .toString();
+                              });
+                              _onAmount1Change(
+                                availableView,
+                                price,
+                                balancePair[1]!.decimals,
+                                balancePair[0]!.decimals,
+                                available: available,
+                                max: max,
+                              );
+                            }
+                          },
                     onClear: () {
                       setState(() {
                         _amountCollateral = BigInt.zero;
@@ -257,12 +272,12 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                       });
                       _onAmount1Change("0", price, balancePair[1]!.decimals,
                           balancePair[0]!.decimals,
-                          max: available);
+                          available: available);
                     },
                     inputCtrl: _amountCtrl,
                     onInputChange: (v) => _onAmount1Change(v, price,
                         balancePair[1]!.decimals, balancePair[0]!.decimals,
-                        max: available),
+                        available: available),
                   ),
                   ErrorMessage(_error1,
                       margin: EdgeInsets.symmetric(vertical: 2)),

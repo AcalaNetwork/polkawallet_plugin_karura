@@ -100,6 +100,6 @@ class ServiceEarn {
           PluginFmt.getAllDexTokens(plugin).map((e) => e!.symbol).toList())
     ]);
 
-    queryIncentives();
+    await queryIncentives();
   }
 }
