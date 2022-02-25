@@ -44,14 +44,9 @@ class AcalaServiceLoan {
     return res;
   }
 
-  Future<List?> queryCollateralRewards(
-      List<Map?> collaterals, String address) async {
-    final query = collaterals
-        .map((e) =>
-            'acala.fetchCollateralRewards(api, ${jsonEncode(e)}, "$address")')
-        .join(',');
-    final List? res =
-        await plugin.sdk.webView!.evalJavascript('Promise.all([$query])');
+  Future<List?> queryCollateralRewards(String address) async {
+    final List? res = await plugin.sdk.webView!
+        .evalJavascript('acala.fetchCollateralRewards(api, "$address")');
     return res;
   }
 }

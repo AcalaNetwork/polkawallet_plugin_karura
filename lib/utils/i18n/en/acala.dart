@@ -108,7 +108,7 @@ const Map<String, String> enDex = {
   'earn.unStake.info':
       'Note: unstake LP tokens before program ends will claim earned rewards & lose Loyalty Bonus.',
   'earn.staked': 'Staked',
-  'earn.claim': 'Claim Rewards',
+  'earn.claim': 'Claim Reward',
   'earn.claim.info':
       'Note: Claim now will forego your Loyalty Bonus. Are you sure to continue?',
   'earn.apy': 'APR',

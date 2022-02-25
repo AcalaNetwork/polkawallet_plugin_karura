@@ -457,7 +457,7 @@ class CollateralIncentiveList extends StatelessWidget {
                         Container(width: 15),
                         Expanded(
                           child: PluginOutlinedButtonSmall(
-                            content: dic['homa.claim'],
+                            content: dic['earn.claim'],
                             color: Color(0xFFFF7849),
                             active: canClaim,
                             padding: EdgeInsets.only(top: 8, bottom: 8),

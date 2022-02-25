@@ -171,10 +171,15 @@ async function getBootstraps(api: ApiPromise) {
 
 /**
  * fetchCollateralRewards
- * @param {String} poolId
  * @param {String} address
  */
-async function fetchCollateralRewards(api: ApiPromise, pool: any, address: string) {
+async function fetchCollateralRewards(api: ApiPromise, address: string) {
+  const pools = await api.query.rewards.poolInfos.entries();
+  const loanPools = pools.map(([key, _]) => key.toHuman()[0]).filter((token) => Object.keys(token)[0] === "Loans");
+  return Promise.all(loanPools.map(({ Loans }) => _fetchCollateralRewards(api, Loans, address)));
+}
+
+async function _fetchCollateralRewards(api: ApiPromise, pool: any, address: string) {
   const res = (await Promise.all([
     api.query.rewards.poolInfos({ Loans: pool }),
     api.query.rewards.sharesAndWithdrawnRewards({ Loans: pool }, address),

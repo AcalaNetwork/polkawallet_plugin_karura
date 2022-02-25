@@ -106,16 +106,7 @@ class ServiceLoan {
   }
 
   Future<void> queryCollateralRewards(String address) async {
-    final incentiveCollaterals = store!.earn.incentives.loans?.keys
-            .toList()
-            .map((e) =>
-                AssetsUtils.getBalanceFromTokenNameId(plugin, e)?.currencyId)
-            .toList() ??
-        [];
-    if (incentiveCollaterals.length == 0) return;
-
-    final res =
-        await api!.loan.queryCollateralRewards(incentiveCollaterals, address);
+    final res = await api!.loan.queryCollateralRewards(address);
     store!.loan.setCollateralRewards(res);
   }
 
