@@ -187,6 +187,9 @@ class _RedeemPageState extends State<RedeemPage> {
   }
 
   Future<void> _onSubmit() async {
+    if (_fastReceiveAmount == 0 && _selectIndex == 0) {
+      return;
+    }
     final pay = _amountPayCtrl.text.trim();
 
     if (_error != null || pay.isEmpty || (_data == null && _receiveAmount == 0))
@@ -381,11 +384,9 @@ class _RedeemPageState extends State<RedeemPage> {
                                   describe: dic['homa.fast.describe']!,
                                   isSelect: _selectIndex == 0,
                                   ontap: () {
-                                    if (_fastReceiveAmount > 0) {
-                                      setState(() {
-                                        _selectIndex = 0;
-                                      });
-                                    }
+                                    setState(() {
+                                      _selectIndex = 0;
+                                    });
                                   },
                                 ),
                                 UnStakeTypeItemWidget(
@@ -415,7 +416,21 @@ class _RedeemPageState extends State<RedeemPage> {
                                 ),
                               ],
                             ),
-                          )
+                          ),
+                          Visibility(
+                              visible: _fastReceiveAmount == 0 &&
+                                  _selectIndex == 0 &&
+                                  _amountPayCtrl.text.length > 0,
+                              child: Text(
+                                dic['v3.fastRedeemError']!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w300),
+                              )),
                         ],
                       )),
                   Padding(

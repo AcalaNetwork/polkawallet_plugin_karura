@@ -226,7 +226,7 @@ const Map<String, String> zhDex = {
   'v3.homa.unbond.describe': '通过【解绑】进行提取将经历28个era（大概6天）',
   'v3.selectRedeemMethod': '选择提取方式',
   'v3.maxCanMint': '最大可生成',
-  'v3.minimumGenerate': '最小生成',
+  'v3.minimumGenerate': '最少生成',
   'v3.loan.iUnderstand': '我明白了',
   'v3.loan.paybackMessage':
       '您已经销毁了所有已铸造的 kUSD，但是你仍然有已抵押的 KSM。如果您想关闭债仓，您可以同时提取所有抵押的 KSM。',
@@ -238,7 +238,7 @@ const Map<String, String> zhDex = {
   'v3.earn.extraEarn': '额外收益',
   'v3.earn.stakedLpInfo': 'LP质押信息',
   'v3.earn.inviteFriends': '分享好友',
-  'v3.earn.copyLink': '复制连接',
+  'v3.earn.copyLink': '复制链接',
   'v3.earn.scanMessage': '扫一扫二维码，开启流动性挖矿赚取收益',
   'v3.tap': '切换',
   'v3.swap.selectToken': '选择代币',
@@ -251,4 +251,5 @@ const Map<String, String> zhDex = {
   'v3.loan.max': '最大值',
   'v3.earn.staked': '我的质押',
   'v3.earn.stakedValue': '质押值',
+  'v3.fastRedeemError': '快速赎回当前不可用。'
 };

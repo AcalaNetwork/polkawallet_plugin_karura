@@ -268,4 +268,5 @@ const Map<String, String> enDex = {
   'v3.loan.max': 'max',
   'v3.earn.staked': 'My Staked',
   'v3.earn.stakedValue': 'Staked Value',
+  'v3.fastRedeemError': 'The fast redeem is not available at the present.'
 };
