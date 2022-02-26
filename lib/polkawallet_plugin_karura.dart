@@ -12,6 +12,7 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/common/constants/nodeList.dart';
 import 'package:polkawallet_plugin_karura/pages/acalaEntry.dart';
+import 'package:polkawallet_plugin_karura/pages/assets/nativeTokenTransfers.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/tokenDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
@@ -258,6 +259,12 @@ class PluginKarura extends PolkawalletPlugin {
       default:
         return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_yellow.png";
     }
+  }
+
+  @override
+  Widget? getNativeTokenTransfers(
+      {required String address, int transferType = 0}) {
+    return NativeTokenTransfers(this, address, transferType);
   }
 
   @override
