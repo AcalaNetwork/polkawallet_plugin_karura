@@ -556,7 +556,7 @@ async function queryAggregatedAssets(api: ApiPromise, address: string) {
     api.query.system.account(address),
     api.query.tokens.accounts.entries(address),
     Promise.all(dexPools.map((e) => fetchDexPoolInfo(api, { DEXShare: e.tokens }, address))),
-    Promise.all(loanTypes.map((e) => fetchCollateralRewards(api, e.currency, address))),
+    Promise.all(loanTypes.map((e) => _fetchCollateralRewards(api, e.currency, address))),
     queryIncentives(api),
   ]);
   const [loansMap, loanRewardsMap] = _calcLoanAssets(api, allTokens, loanTypes, loans, loanRewards, incentives);
