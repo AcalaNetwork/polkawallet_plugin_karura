@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -16,6 +15,7 @@ import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
@@ -93,10 +93,6 @@ class _LPStakePage extends State<LPStakePage> {
   }
 
   void _onSetMax(BigInt? max, int? decimals) {
-    var error = _validateAmount(max.toString(), max, decimals);
-    setState(() {
-      _error1 = error;
-    });
     setState(() {
       _amountCtrl.text = Fmt.bigIntToDouble(max, decimals!).toStringAsFixed(6);
       _isMax = true;
@@ -692,6 +688,7 @@ class _LPStakePage extends State<LPStakePage> {
                               v, balance, tokenPair[0]!.decimals);
                           setState(() {
                             _error1 = error;
+                            _isMax = false;
                           });
                         },
                         balance: TokenBalanceData(
