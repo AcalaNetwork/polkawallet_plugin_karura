@@ -6,7 +6,6 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
-import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loan/loanHistoryPage.dart';
@@ -18,6 +17,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
@@ -130,7 +130,7 @@ class _LoanPageState extends State<LoanPage> {
     }
 
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
-        widget.plugin, [loan.token!.symbol, karura_stable_coin]);
+        widget.plugin, [loan.token!.tokenNameId, karura_stable_coin]);
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final Map<String, Widget> detail = Map<String, Widget>();
     if (collaterals != BigInt.zero) {
@@ -412,8 +412,10 @@ class _LoanPageState extends State<LoanPage> {
                           if (loan != null) {
                             final balancePair =
                                 AssetsUtils.getBalancePairFromTokenNameId(
-                                    widget.plugin,
-                                    [loan.token!.symbol, karura_stable_coin]);
+                                    widget.plugin, [
+                              loan.token!.tokenNameId,
+                              karura_stable_coin
+                            ]);
 
                             final available = Fmt.bigIntToDouble(
                                 loan.collaterals, balancePair[0]!.decimals!);
@@ -429,7 +431,7 @@ class _LoanPageState extends State<LoanPage> {
 
                             final availablePrice = Fmt.bigIntToDouble(
                                 widget.plugin.store!.assets
-                                    .prices[loan.token!.symbol],
+                                    .prices[loan.token!.tokenNameId],
                                 acala_price_decimals);
 
                             final BigInt balanceStableCoin =
@@ -744,7 +746,7 @@ class _LoanPageState extends State<LoanPage> {
 
   Widget headView(double headCardHeight, double headCardWidth, LoanData loan,
       double requiredCollateralRatio) {
-    final price = widget.plugin.store!.assets.prices[loan.token!.symbol]!;
+    final price = widget.plugin.store!.assets.prices[loan.token!.tokenNameId]!;
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
