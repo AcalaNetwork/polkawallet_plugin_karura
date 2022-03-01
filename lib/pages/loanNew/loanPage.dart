@@ -46,9 +46,9 @@ class LoanPage extends StatefulWidget {
 }
 
 class _LoanPageState extends State<LoanPage> {
-  final colorSafe = [Color(0xFF61D49F), Color(0xCCA1FBBE)];
-  final colorWarn = [Color(0xFFE59831), Color(0xCCFFD479)];
-  final colorDanger = [Color(0xFFE3542E), Color(0xCCF27863)];
+  final colorSafe = [Color(0xFF60FFA7), Color(0x8860FFA7)];
+  final colorWarn = [Color(0xFFE59831), Color(0x88FFD479)];
+  final colorDanger = [Color(0xFFE3542E), Color(0x88F27863)];
 
   Map<String, LoanData?> _editorLoans = Map<String, LoanData?>();
 
@@ -1033,8 +1033,6 @@ class _LoanCollateralState extends State<LoanCollateral> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "widget.minNumber:${widget.minNumber}====_value:${_value}=====widget.maxNumber:${widget.maxNumber}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1178,7 +1176,7 @@ class _LoanCollateralState extends State<LoanCollateral> {
                             data: SliderThemeData(
                                 trackHeight: 11,
                                 activeTrackColor: Color(0xFFFC8156),
-                                inactiveTrackColor: Color(0xFFA1FBBE),
+                                inactiveTrackColor: Color(0xFF60FFA7),
                                 overlayColor: Colors.transparent,
                                 trackShape: const PluginSliderTrackShape(),
                                 thumbShape: const PluginSliderThumbShape()),
