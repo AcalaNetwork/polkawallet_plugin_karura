@@ -256,7 +256,7 @@ const Map<String, String> enDex = {
   'v3.earn.stakedLpInfo': 'Staked LP Info',
   'v3.earn.inviteFriends': 'Invite Friends',
   'v3.earn.copyLink': 'Copy Link',
-  'v3.earn.scanMessage': 'Scan the QR coed to start minging and earn rewards!',
+  'v3.earn.scanMessage': 'Scan the QR code to start mining and earn rewards!',
   'v3.tap': 'TAP',
   'v3.swap.selectToken': 'select Token',
   'v3.loan.errorMessage1': 'Insufficient balance of collateral, add',
