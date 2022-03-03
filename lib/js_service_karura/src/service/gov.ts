@@ -2,8 +2,8 @@ import { ApiPromise } from "@polkadot/api";
 import { DeriveCollectiveProposal, DeriveReferendumExt, DeriveCouncilVotes } from "@polkadot/api-derive/types";
 import { SubmittableExtrinsic } from "@polkadot/api/types";
 import { getTypeDef, Option, Bytes } from "@polkadot/types";
-import { OpenTip, AccountId } from "@polkadot/types/interfaces";
-import { formatBalance, stringToU8a, BN_ZERO, hexToString } from "@polkadot/util";
+import { OpenTip } from "@polkadot/types/interfaces";
+import { BN_MILLION, stringToU8a, BN_ZERO, hexToString } from "@polkadot/util";
 import BN from "bn.js";
 
 import { approxChanges } from "../utils/referendumApproxChanges";
@@ -157,15 +157,30 @@ const TREASURY_ACCOUNT = stringToU8a("modlpy/trsry".padEnd(32, "\0"));
  * Query overview of treasury and spend proposals.
  */
 async function getTreasuryOverview(api: ApiPromise) {
-  const proposals = await api.derive.treasury.proposals();
-  const balance = await api.derive.balances.account(TREASURY_ACCOUNT as AccountId);
+  const [bounties, proposals, balance] = await Promise.all([
+    api.derive.bounties?.bounties(),
+    api.derive.treasury.proposals(),
+    api.derive.balances.account(TREASURY_ACCOUNT as any),
+  ]);
+  const pendingBounties = bounties.reduce(
+    (total, { bounty: { status, value } }) => total.iadd(status.isApproved ? value : BN_ZERO),
+    new BN(0)
+  );
+  const pendingProposals = proposals.approvals.reduce((total, { proposal: { value } }) => total.iadd(value), new BN(0));
+  const burn =
+    balance.freeBalance.gt(BN_ZERO) && !(api.consts.treasury.burn as any).isZero()
+      ? (api.consts.treasury.burn as any).mul(balance.freeBalance).div(BN_MILLION)
+      : BN_ZERO;
   const res: any = {
     ...proposals,
   };
-  res["balance"] = formatBalance(balance.freeBalance, {
-    forceUnit: "-",
-    withSi: false,
-  }).split(".")[0];
+  res["balance"] = balance.freeBalance.toString();
+  res["burn"] = burn.toString();
+  res["approved"] = pendingProposals.toString();
+  res["spendable"] = balance.freeBalance
+    .sub(pendingBounties)
+    .sub(pendingProposals)
+    .toString();
   res.proposals.forEach((e: any) => {
     if (e.council.length) {
       e.council = e.council.map((i: any) => ({
