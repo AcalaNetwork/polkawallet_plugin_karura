@@ -150,8 +150,7 @@ class _LoanPageState extends State<LoanPage> {
     BigInt debitSubtract = debitShares;
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
-      debitSubtract = loan.type.debitShareToDebit(originalLoan.debitShares) ==
-                  BigInt.zero &&
+      debitSubtract = originalLoan.debits == BigInt.zero &&
               debits <= loan.type.minimumDebitValue
           ? loan.type.debitToDebitShare(
               (loan.type.minimumDebitValue + BigInt.from(10000)))
@@ -159,34 +158,34 @@ class _LoanPageState extends State<LoanPage> {
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
 
-        final BigInt balanceStableCoin = Fmt.balanceInt(balancePair[1]!.amount);
-        if (balanceStableCoin <= debits) {
-          debitSubtract = loan.type.debitToDebitShare(debits *
-              Fmt.tokenInt("${1 - 0.000001}", balancePair[1]!.decimals!));
+        final BigInt balanceStableCoin =
+            Fmt.balanceInt(balancePair[1]!.amount) -
+                Fmt.balanceInt(balancePair[1]!.minBalance);
+        BigInt minDebigSubtract = BigInt.zero;
+        if (balanceStableCoin <= debits.abs()) {
+          minDebigSubtract =
+              loan.type.debitToDebitShare(debits.abs() ~/ BigInt.from(1000000));
         }
 
         // pay less if less than 1 debit(aUSD) will be left,
         // make sure tx success by leaving more than 1 debit(aUSD).
-        final debitValueOne = Fmt.tokenInt('1', stableCoinDecimals!);
-        if (loan.type.debitShareToDebit(debits).abs() -
-                    loan.type
-                        .debitShareToDebit(originalLoan.debitShares)
-                        .abs() >
-                BigInt.zero &&
-            loan.type.debitShareToDebit(debits).abs() -
-                    loan.type
-                        .debitShareToDebit(originalLoan.debitShares)
-                        .abs() <
-                debitValueOne) {
-          final bool canContinue =
-              await (_confirmPaybackParams() as Future<bool>);
+        if (originalLoan.debits - debits.abs() > BigInt.zero &&
+            originalLoan.debits - debits.abs() < loan.type.minimumDebitValue) {
+          final bool canContinue = await (_confirmPaybackParams(
+                  Fmt.bigIntToDouble(
+                      loan.type.minimumDebitValue, balancePair[1]!.decimals!))
+              as Future<bool>);
           if (!canContinue) return null;
-          debitSubtract =
-              debitSubtract + loan.type.debitToDebitShare(debitValueOne);
+          minDebigSubtract = minDebigSubtract >
+                  loan.type.debitToDebitShare(loan.type.minimumDebitValue)
+              ? minDebigSubtract
+              : loan.type.debitToDebitShare(loan.type.minimumDebitValue);
         }
+
+        debitSubtract = debitSubtract + minDebigSubtract;
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
+        '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -204,13 +203,14 @@ class _LoanPageState extends State<LoanPage> {
     };
   }
 
-  Future<bool?> _confirmPaybackParams() async {
+  Future<bool?> _confirmPaybackParams(double minimumDebitValue) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final bool? res = await showCupertinoDialog(
         context: context,
         builder: (_) {
           return CupertinoAlertDialog(
-            content: Text(dic!['loan.warn.KSM']!),
+            content: Text(
+                '${dic!['loan.warn.KSM1']}$minimumDebitValue${dic['loan.warn.KSM2']}$minimumDebitValue${dic['loan.warn.KSM3']}'),
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text(dic['loan.warn.back']!),
@@ -571,12 +571,18 @@ class _LoanPageState extends State<LoanPage> {
                                                 maxNumber: maxToBorrow < debits
                                                     ? debits
                                                     : maxToBorrow,
-                                                minNumber: balanceStableCoin >
+                                                minNumber: balanceStableCoin -
+                                                            Fmt.balanceInt(
+                                                                balancePair[1]!
+                                                                    .minBalance) >
                                                         originalDebitsValue
                                                     ? 0
                                                     : Fmt.bigIntToDouble(
                                                         originalDebitsValue -
-                                                            balanceStableCoin,
+                                                            balanceStableCoin +
+                                                            Fmt.balanceInt(
+                                                                balancePair[1]!
+                                                                    .minBalance),
                                                         balancePair[1]!
                                                             .decimals!),
                                                 subtitleLeft:
@@ -597,8 +603,22 @@ class _LoanPageState extends State<LoanPage> {
                                                 balanceString:
                                                     "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)}",
                                                 onChanged: (value) {
-                                                  setState(() {
-                                                    loan!.debits = Fmt.tokenInt(
+                                                  final requiredCollateral =
+                                                      Fmt.tokenInt(
+                                                          "${value * double.parse(
+                                                                Fmt.token(
+                                                                    loan!.type
+                                                                        .requiredCollateralRatio,
+                                                                    acala_price_decimals),
+                                                              ) / availablePrice}",
+                                                          balancePair[0]!
+                                                              .decimals!);
+                                                  if (Fmt.bigIntToDouble(
+                                                          requiredCollateral,
+                                                          balancePair[0]!
+                                                              .decimals!) <=
+                                                      available) {
+                                                    loan.debits = Fmt.tokenInt(
                                                         "$value",
                                                         balancePair[1]!
                                                             .decimals!);
@@ -614,20 +634,13 @@ class _LoanPageState extends State<LoanPage> {
                                                             availablePrice /
                                                             value;
                                                     loan.requiredCollateral =
-                                                        Fmt.tokenInt(
-                                                            "${value * double.parse(
-                                                                  Fmt.token(
-                                                                      loan.type
-                                                                          .requiredCollateralRatio,
-                                                                      acala_price_decimals),
-                                                                ) / availablePrice}",
-                                                            balancePair[0]!
-                                                                .decimals!);
+                                                        requiredCollateral;
                                                     loan.liquidationPrice =
                                                         Fmt.tokenInt(
                                                             '${value * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / Fmt.bigIntToDouble(loan.collaterals, balancePair[0]!.decimals!)}',
                                                             acala_price_decimals);
-                                                  });
+                                                  }
+                                                  setState(() {});
                                                 },
                                               ))
                                         ],
@@ -1055,17 +1068,13 @@ class _LoanCollateralState extends State<LoanCollateral> {
                                     TextEditingController(text: "$_value");
                                 return CupertinoAlertDialog(
                                   content: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                              "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.min']}:${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
-                                          Text(
-                                              "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.max']}:${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
-                                        ],
-                                      ),
+                                      Text(
+                                          "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.min']}: ${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
+                                      Text(
+                                          "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.max']}: ${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
                                       CupertinoTextField(
                                         controller: _controller,
                                         keyboardType:
