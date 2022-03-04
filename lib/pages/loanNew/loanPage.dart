@@ -506,7 +506,13 @@ class _LoanPageState extends State<LoanPage> {
                                                         balancePair[0]!
                                                             .decimals!) >=
                                                     available &&
-                                                balance == 0,
+                                                balance == 0 &&
+                                                available >=
+                                                    Fmt.bigIntToDouble(
+                                                        originalLoan
+                                                            .collaterals,
+                                                        balancePair[0]!
+                                                            .decimals!),
                                             value: available,
                                             price: availablePrice,
                                             balanceString:
@@ -517,6 +523,26 @@ class _LoanPageState extends State<LoanPage> {
                                               final collaterals = Fmt.tokenInt(
                                                   "$value",
                                                   balancePair[0]!.decimals!);
+                                              if ((collaterals -
+                                                          originalLoan
+                                                              .collaterals)
+                                                      .abs() <
+                                                  Fmt.balanceInt(balancePair[0]!
+                                                      .minBalance)) {
+                                                setState(() {
+                                                  loan!.collaterals =
+                                                      originalLoan.collaterals;
+                                                  loan.collateralInUSD =
+                                                      originalLoan
+                                                          .collateralInUSD;
+                                                  loan.maxToBorrow =
+                                                      originalLoan.maxToBorrow;
+                                                  loan.liquidationPrice =
+                                                      originalLoan
+                                                          .liquidationPrice;
+                                                });
+                                                return;
+                                              }
                                               final maxToBorrow =
                                                   Fmt.bigIntToDouble(
                                                           collaterals,
@@ -603,6 +629,36 @@ class _LoanPageState extends State<LoanPage> {
                                                 balanceString:
                                                     "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)}",
                                                 onChanged: (value) {
+                                                  final debits = Fmt.tokenInt(
+                                                      "$value",
+                                                      balancePair[1]!
+                                                          .decimals!);
+                                                  if ((debits -
+                                                              originalLoan
+                                                                  .debits)
+                                                          .abs() <
+                                                      Fmt.balanceInt(
+                                                          balancePair[1]!
+                                                              .minBalance)) {
+                                                    setState(() {
+                                                      loan!.debits =
+                                                          originalLoan.debits;
+                                                      loan.debitShares =
+                                                          originalLoan
+                                                              .debitShares;
+                                                      loan.collateralRatio =
+                                                          originalLoan
+                                                              .collateralRatio;
+                                                      loan.requiredCollateral =
+                                                          originalLoan
+                                                              .requiredCollateral;
+
+                                                      loan.liquidationPrice =
+                                                          originalLoan
+                                                              .liquidationPrice;
+                                                    });
+                                                    return;
+                                                  }
                                                   final requiredCollateral =
                                                       Fmt.tokenInt(
                                                           "${value * double.parse(
@@ -618,10 +674,7 @@ class _LoanPageState extends State<LoanPage> {
                                                           balancePair[0]!
                                                               .decimals!) <=
                                                       available) {
-                                                    loan.debits = Fmt.tokenInt(
-                                                        "$value",
-                                                        balancePair[1]!
-                                                            .decimals!);
+                                                    loan.debits = debits;
                                                     loan.debitShares = loan.type
                                                         .debitToDebitShare(
                                                             loan.debits);

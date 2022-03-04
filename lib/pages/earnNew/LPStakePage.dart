@@ -544,8 +544,8 @@ class _LPStakePage extends State<LPStakePage> {
                       : Row(children: [
                           Text(
                             _errorLeft == null
-                                ? _errorRight ?? ""
-                                : _errorLeft ?? "",
+                                ? "${PluginFmt.tokenView(tokenPair[1]!.symbol)} $_errorRight"
+                                : "${PluginFmt.tokenView(tokenPair[0]!.symbol)} $_errorLeft",
                             style: TextStyle(fontSize: 12, color: Colors.red),
                           )
                         ]),
