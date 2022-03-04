@@ -334,12 +334,10 @@ class EarnDetailPage extends StatelessWidget {
                                       child: PluginOutlinedButtonSmall(
                                         content: dic['earn.stake']!,
                                         margin: EdgeInsets.zero,
-                                        active: balance > BigInt.zero,
+                                        active: true,
                                         color: Color(0xFFFF7849),
-                                        onPressed: balance > BigInt.zero
-                                            ? () => _onStake(context,
-                                                LPStakePage.actionStake, pool)
-                                            : null,
+                                        onPressed: () => _onStake(context,
+                                            LPStakePage.actionStake, pool),
                                       ),
                                     ),
                                     Container(width: 20),
@@ -532,8 +530,7 @@ class _UserCard extends StatelessWidget {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     bool canClaim = false;
 
-    var rewardSaving =
-        (poolInfo?.reward?.saving ?? 0) * (1 - (savingLoyaltyBonus ?? 0));
+    var rewardSaving = poolInfo?.reward?.saving ?? 0;
     if (rewardSaving < 0) {
       rewardSaving = 0;
     }
@@ -559,11 +556,9 @@ class _UserCard extends StatelessWidget {
       if (amount > 0.001) {
         canClaim = true;
       }
-      rewardPrice += plugin!.store!.assets.marketPrices[e['tokenNameId']]! *
-          amount *
-          (1 - (loyaltyBonus ?? 0));
-      return Fmt.priceFloor(amount * (1 - (loyaltyBonus ?? 0)), lengthMax: 4) +
-          ' ${e['tokenNameId']}';
+      rewardPrice +=
+          plugin!.store!.assets.marketPrices[e['tokenNameId']]! * amount;
+      return Fmt.priceFloor(amount, lengthMax: 4) + ' ${e['tokenNameId']}';
     }).join(' + ');
 
     var blockNumber;

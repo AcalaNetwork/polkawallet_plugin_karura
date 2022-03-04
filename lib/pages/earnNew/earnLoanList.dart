@@ -260,11 +260,6 @@ class CollateralIncentiveList extends StatelessWidget {
           }
 
           bool canClaim = false;
-          double? loyaltyBonus = 0;
-          if (incentives![token.tokenNameId] != null) {
-            loyaltyBonus = incentives![token.tokenNameId]![0].deduction;
-          }
-
           final reward = rewards![token.tokenNameId];
           final rewardView = reward != null && reward.reward!.length > 0
               ? reward.reward!.map((e) {
@@ -275,23 +270,12 @@ class CollateralIncentiveList extends StatelessWidget {
                   if (amount > 0.0001) {
                     canClaim = true;
                   }
-                  return '${Fmt.priceFloor(amount * (1 - loyaltyBonus!))}';
+                  return '${Fmt.priceFloor(amount)}';
                 }).join(' + ')
               : '0.00';
 
           final deposit =
               Fmt.priceFloorBigInt(reward?.shares, token.decimals ?? 12);
-
-          final bestNumber = plugin!.store!.gov.bestNumber;
-          var blockNumber;
-          dexIncentiveLoyaltyEndBlock!.forEach((e) {
-            if (token.tokenNameId == PluginFmt.getPool(plugin, e['pool'])) {
-              blockNumber = e['blockNumber'];
-              return;
-            }
-          });
-          final blocksToEnd =
-              blockNumber != null ? blockNumber - bestNumber.toInt() : null;
 
           return RoundedPluginCard(
             borderRadius: const BorderRadius.all(const Radius.circular(14)),

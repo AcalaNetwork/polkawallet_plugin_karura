@@ -681,8 +681,9 @@ class _LPStakePage extends State<LPStakePage> {
                         },
                         titleTag: assetDic!['amount'],
                         inputCtrl: _amountCtrl,
-                        onSetMax: (max) =>
-                            _onSetMax(max, tokenPair[0]!.decimals),
+                        onSetMax: (balance ?? BigInt.zero) > BigInt.zero
+                            ? (max) => _onSetMax(max, tokenPair[0]!.decimals)
+                            : null,
                         onInputChange: (v) {
                           var error = _validateAmount(
                               v, balance, tokenPair[0]!.decimals);
