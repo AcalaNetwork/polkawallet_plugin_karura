@@ -31,6 +31,8 @@ class EarnLoanList extends StatefulWidget {
 }
 
 class _EarnLoanListState extends State<EarnLoanList> {
+  bool _loading = true;
+
   Future<void> _fetchData() async {
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
@@ -42,6 +44,9 @@ class _EarnLoanListState extends State<EarnLoanList> {
     widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
     if (mounted) {
+      setState(() {
+        _loading = false;
+      });
       widget.plugin.service!.loan
           .subscribeAccountLoans(widget.keyring.current.address);
     }
@@ -71,13 +76,21 @@ class _EarnLoanListState extends State<EarnLoanList> {
         loans.retainWhere((loan) =>
             loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
 
-        final isDataLoading =
-            widget.plugin.store!.loan.loansLoading && loans.length == 0;
-
-        return isDataLoading
-            ? Container(
-                height: MediaQuery.of(context).size.width / 2,
-                child: CupertinoActivityIndicator(),
+        return loans.length == 0
+            ? ListView(
+                padding: EdgeInsets.all(16),
+                children: [
+                  Center(
+                    child: Container(
+                      height: MediaQuery.of(context).size.width,
+                      child: ListTail(
+                        isEmpty: true,
+                        isLoading: _loading,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                ],
               )
             : CollateralIncentiveList(
                 plugin: widget.plugin,
