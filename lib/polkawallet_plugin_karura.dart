@@ -47,6 +47,7 @@ import 'package:polkawallet_plugin_karura/pages/nft/nftDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nft/nfts.dart';
+import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swap/swapHistoryPage.dart';
@@ -146,6 +147,7 @@ class PluginKarura extends PolkawalletPlugin {
         // isAdapter: true,
         // content: NFTWidget(this),
         content: NFTs(this, keyring),
+        onTap: () => Navigator.of(context).pushNamed(NftPage.route),
       ),
       HomeNavItem(
         text: dic['governance']!,

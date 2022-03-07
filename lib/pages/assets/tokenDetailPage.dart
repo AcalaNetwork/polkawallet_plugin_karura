@@ -477,7 +477,7 @@ class TransferListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final address = isOut! ? data!.to : data!.from;
-    final title = Fmt.address(address) ?? Fmt.address(data!.hash);
+    final title = Fmt.address(address);
     return ListTile(
       dense: true,
       leading: data!.isSuccess!

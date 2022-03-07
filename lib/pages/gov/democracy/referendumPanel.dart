@@ -98,8 +98,8 @@ class ReferendumPanel extends StatelessWidget {
           ))
     ];
     if (data!.detail!['params'] != null && data!.detail!['params'].length > 0) {
-      list.add(
-          ReferendumArgsList(data!.detail!['params'], data!.image!['proposal']));
+      list.add(ReferendumArgsList(
+          data!.detail!['params'], data!.image!['proposal']));
     }
     list.addAll([
       Padding(
@@ -107,7 +107,7 @@ class ReferendumPanel extends StatelessWidget {
         child: ProposalArgsItem(
           label: Text('Hash'),
           content: Text(
-            Fmt.address(data!.imageHash, pad: 10)!,
+            Fmt.address(data!.imageHash, pad: 10),
             style: Theme.of(context).textTheme.headline4,
           ),
           margin: EdgeInsets.all(0),
@@ -211,7 +211,9 @@ class ReferendumPanel extends StatelessWidget {
             children: <Widget>[
               TapTooltip(
                 child: Icon(
-                  data!.isPassing! ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  data!.isPassing!
+                      ? Icons.arrow_drop_up
+                      : Icons.arrow_drop_down,
                   color: Theme.of(context).unselectedWidgetColor,
                 ),
                 message: data!.isPassing!
@@ -231,7 +233,9 @@ class ReferendumPanel extends StatelessWidget {
             children: <Widget>[
               TapTooltip(
                 child: Icon(
-                  !data!.isPassing! ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  !data!.isPassing!
+                      ? Icons.arrow_drop_up
+                      : Icons.arrow_drop_down,
                   color: Theme.of(context).unselectedWidgetColor,
                 ),
                 message: !data!.isPassing!
@@ -337,7 +341,8 @@ class _ReferendumArgsList extends State<ReferendumArgsList> {
                   ? Icons.keyboard_arrow_down
                   : Icons.keyboard_arrow_right,
             ),
-            Text(I18n.of(context)!.getDic(i18n_full_dic_karura, 'gov')!['detail']!)
+            Text(I18n.of(context)!
+                .getDic(i18n_full_dic_karura, 'gov')!['detail']!)
           ],
         ),
         onTap: () {
@@ -364,7 +369,7 @@ class _ReferendumArgsList extends State<ReferendumArgsList> {
                   children: <Widget>[
                     Text('${v['name']}: ${v['type']['type']}'),
                     Text(
-                      value.length > 300 ? Fmt.address(value, pad: 24)! : value,
+                      value.length > 300 ? Fmt.address(value, pad: 24) : value,
                       style: Theme.of(context).textTheme.headline4,
                     )
                   ],

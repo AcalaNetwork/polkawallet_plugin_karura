@@ -15,6 +15,8 @@ import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
+import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
+import 'package:polkawallet_plugin_karura/pages/nftNew/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
@@ -79,6 +81,10 @@ Map<String, WidgetBuilder> getNewUiRoutes(
               ),
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
           InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
+
+          //nft
+          NftPage.route: (_) => NftPage(plugin, keyring),
+          NFTTransferPage.route: (_) => NFTTransferPage(plugin, keyring),
         }
       : {};
 }

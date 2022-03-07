@@ -401,7 +401,7 @@ class AccountCard extends StatelessWidget {
         dense: true,
         leading: AddressIcon(account.address, svg: account.icon, size: 36),
         title: Text(account.name!.toUpperCase()),
-        subtitle: Text(Fmt.address(account.address)!),
+        subtitle: Text(Fmt.address(account.address)),
       ),
     );
   }

@@ -21,7 +21,8 @@ class TransferDetailPage extends StatelessWidget {
     final Map<String, String> dic =
         I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
 
-    final TransferData tx = ModalRoute.of(context)!.settings.arguments as TransferData;
+    final TransferData tx =
+        ModalRoute.of(context)!.settings.arguments as TransferData;
 
     final String? txType =
         tx.from == keyring.current.address ? dic['transfer'] : dic['receive'];
@@ -48,12 +49,12 @@ class TransferDetailPage extends StatelessWidget {
         ),
         TxDetailInfoItem(
           label: 'From',
-          content: Text(Fmt.address(tx.from)!),
+          content: Text(Fmt.address(tx.from)),
           copyText: tx.from,
         ),
         TxDetailInfoItem(
           label: 'To',
-          content: Text(Fmt.address(tx.to)!),
+          content: Text(Fmt.address(tx.to)),
           copyText: tx.to,
         )
       ],
