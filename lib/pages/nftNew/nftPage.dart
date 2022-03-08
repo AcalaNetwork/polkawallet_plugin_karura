@@ -16,6 +16,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/i18n.dart';
 
 const nft_filter_name_all = 'All';
 
@@ -215,6 +216,17 @@ class _NftPageState extends State<NftPage> {
                 final symbol = widget.plugin.networkState.tokenSymbol![0];
                 final decimal = widget.plugin.networkState.tokenDecimals![0];
                 final list = widget.plugin.store!.assets.nft.toList();
+                if (list.length == 0) {
+                  return Center(
+                      child: Text(
+                    I18n.of(context)!
+                        .getDic(i18n_full_dic_ui, 'common')!['list.empty']!,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline4
+                        ?.copyWith(color: Colors.white),
+                  ));
+                }
                 if (!_filters.contains(nft_filter_name_all)) {
                   list.retainWhere((e) => e.properties!.contains(_filters));
                 }
