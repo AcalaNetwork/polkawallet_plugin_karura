@@ -74,6 +74,7 @@ class _NftPageState extends State<NftPage> {
             height: itemCardSize,
             child: Swiper(
               outer: true,
+              loop: false,
               physics: BouncingScrollPhysics(),
               controller: _swiperController,
               itemBuilder: (context, index) {
