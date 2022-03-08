@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';

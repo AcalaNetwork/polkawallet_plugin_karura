@@ -9,7 +9,6 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 

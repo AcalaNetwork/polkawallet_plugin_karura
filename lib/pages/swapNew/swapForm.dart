@@ -8,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/bootstrapPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';

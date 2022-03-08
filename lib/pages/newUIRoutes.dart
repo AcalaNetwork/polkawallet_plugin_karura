@@ -5,19 +5,23 @@ import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/inviteFriendsPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
+import 'package:polkawallet_plugin_karura/pages/homaNew/homaTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -40,6 +44,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
                 ),
                 uri: GraphQLConfig['httpUri']!,
               ),
+          HomaTxDetailPage.route: (_) => HomaTxDetailPage(plugin, keyring),
 
           //loan
           LoanPage.route: (_) => LoanPage(plugin, keyring),
@@ -51,6 +56,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
                 uri: GraphQLConfig['httpUri']!,
               ),
           LoanDepositPage.route: (_) => LoanDepositPage(plugin, keyring),
+          LoanTxDetailPage.route: (_) => LoanTxDetailPage(plugin, keyring),
 
           //swap
           SwapPage.route: (_) => SwapPage(plugin, keyring),
@@ -61,6 +67,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
                 uri: GraphQLConfig['httpUri']!,
               ),
           BootstrapPage.route: (_) => BootstrapPage(plugin, keyring),
+          SwapDetailPage.route: (_) => SwapDetailPage(plugin, keyring),
 
           //earn
           EarnPage.route: (_) => EarnPage(plugin, keyring),
@@ -81,6 +88,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
               ),
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
           InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
+          EarnTxDetailPage.route: (_) => EarnTxDetailPage(plugin, keyring),
 
           //nft
           NftPage.route: (_) => NftPage(plugin, keyring),

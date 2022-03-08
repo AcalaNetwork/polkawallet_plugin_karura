@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txLoanData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
-import 'package:polkawallet_plugin_karura/pages/loan/loanTxDetailPage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';

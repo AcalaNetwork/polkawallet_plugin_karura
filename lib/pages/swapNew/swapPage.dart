@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapList.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/dexPoolList.dart';
-import 'package:polkawallet_plugin_karura/pages/swap/swapHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapForm.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
