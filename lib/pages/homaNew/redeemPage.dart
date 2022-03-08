@@ -224,14 +224,14 @@ class _RedeemPageState extends State<RedeemPage> {
     if (_selectIndex == 0 && _fastReceiveAmount > 0) {
       //fast redeem
       module = 'utility';
-      call = 'batch';
+      call = 'batchAll';
       params = [
         (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
         true,
       ];
       paramsRaw = '[['
           'api.tx.homa.requestRedeem(...${jsonEncode(params)}),'
-          'api.tx.homa.fastMatchRedeems(["${widget.keyring.current.address}"])'
+          'api.tx.homa.fastMatchRedeemsCompletely(["${widget.keyring.current.address}"])'
           ']]';
       params = [];
     } else if (_selectIndex == 1) {
