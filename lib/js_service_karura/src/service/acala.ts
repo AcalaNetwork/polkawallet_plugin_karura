@@ -87,9 +87,10 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
  * getAllTokens, with ForeignAssets
  */
 async function getAllTokens(api: ApiPromise) {
-  const [{ tokenSymbol, tokenDecimals }, foreign] = await Promise.all([
+  const [{ tokenSymbol, tokenDecimals }, foreign, locations] = await Promise.all([
     api.rpc.system.properties(),
     api.query.assetRegistry.assetMetadatas.entries(),
+    api.query.assetRegistry.foreignAssetLocations.entries(),
   ]);
   const tokens = [...api.registry.chainTokens];
   tokens.shift();
@@ -108,11 +109,28 @@ async function getAllTokens(api: ApiPromise) {
   const res2 = foreign.map(([args, data]) => {
     const json = data.toJSON();
     const currencyId = _getCurrencyIdFromCurrencyIdKey(args.toHuman()[0]);
+    const type = Object.keys(currencyId)[0];
+    const id = Object.values(currencyId)[0];
+    const location = locations.find(([k, _]) => type === "ForeignAsset" && k.toHuman()[0] === id);
+    const src = {};
+    if (!!location) {
+      const interior = location[1].toHuman()["interior"];
+      Object.values(interior).forEach((e) => {
+        if (e instanceof Array) {
+          e.forEach((i) => {
+            src[Object.keys(i)[0]] = Object.values(i)[0];
+          });
+        } else {
+          src[Object.keys(e)[0]] = Object.values(e)[0];
+        }
+      });
+    }
     return {
-      type: Object.keys(currencyId)[0],
-      id: Object.values(currencyId)[0],
+      type,
+      id,
       tokenNameId: forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currencyId)),
       currencyId: currencyId,
+      src,
       ...(data.toHuman() as Object),
       decimals: json["decimals"],
       minBalance: json["minimalBalance"].toString(),

@@ -61,6 +61,7 @@ class ServiceAssets {
         fullName: token.fullName,
         symbol: token.symbol,
         tokenNameId: token.tokenNameId,
+        src: token.src,
         currencyId: token.currencyId,
         type: token.type,
         decimals: token.decimals,

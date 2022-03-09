@@ -24,6 +24,7 @@ class AcalaApiAssets {
             symbol: e['symbol'],
             tokenNameId: e['tokenNameId'],
             currencyId: e['currencyId'],
+            src: e['src'],
             decimals: e['decimals'],
             minBalance: e['minBalance']))
         .toList();
@@ -74,6 +75,7 @@ class AcalaApiAssets {
           type: e['type'],
           tokenNameId: e['tokenNameId'],
           currencyId: e['currencyId'],
+          src: e['src'],
           minBalance: e['minBalance'],
           name: PluginFmt.tokenView(e['symbol']),
           fullName: tokensConfig['tokenName'] != null

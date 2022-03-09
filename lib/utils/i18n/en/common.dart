@@ -62,4 +62,5 @@ const Map<String, String> enCommon = {
   'upgrading.context':
       'The function of this module is temporarily unavailable for it is leveling up.',
   'upgrading.btn': 'Got it',
+  'xcm.foreign.fee': 'balance insufficient for XCM fee',
 };

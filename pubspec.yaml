@@ -53,5 +53,6 @@ flutter:
     - lib/js_service_karura/dist/main.js
     - assets/images/
     - assets/images/tokens/
+    - assets/images/paras/
     - assets/images/2.0X/
     - assets/images/3.0X/

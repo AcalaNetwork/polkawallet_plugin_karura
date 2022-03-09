@@ -56,4 +56,5 @@ const Map<String, String> zhCommon = {
   'upgrading': '功能升级',
   'upgrading.context': '该模块功能正在升级中，暂时无法使用，为您带来的不便还请谅解。',
   'upgrading.btn': '我知道了',
+  'xcm.foreign.fee': '余额不足跨链手续费',
 };

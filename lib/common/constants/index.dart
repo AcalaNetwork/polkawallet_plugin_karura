@@ -11,13 +11,20 @@ const acala_token_ren_btc = 'RENBTC';
 const acala_token_ren_btc_view = 'renBTC';
 const acala_token_polka_btc = 'POLKABTC';
 const acala_token_polka_btc_view = 'polkaBTC';
+const foreign_token_RMRK = 'fa://0';
+const foreign_token_ARIS = 'fa://1';
+const foreign_token_QTZ = 'fa://2';
 
 const relay_chain_name = 'kusama';
+const para_chain_name_statemine = 'statemine';
 const para_chain_name_bifrost = 'bifrost';
 const para_chain_name_khala = 'khala';
+const para_chain_name_quart = 'QUARTZ';
 const para_chain_ids = {
+  para_chain_name_statemine: 1000,
   para_chain_name_bifrost: 2001,
   para_chain_name_khala: 2004,
+  para_chain_name_quart: 2095,
 };
 
 const network_ss58_format = {
@@ -59,10 +66,25 @@ const cross_chain_xcm_fees = {
       'fee': '800000000',
       'existentialDeposit': '10000000000',
     }
+  },
+  para_chain_name_statemine: {
+    foreign_token_RMRK: {
+      'fee': '16000000000',
+      'existentialDeposit': '100000000',
+    },
+    foreign_token_ARIS: {
+      'fee': '16000000000',
+      'existentialDeposit': '10000000',
+    }
+  },
+  para_chain_name_quart: {
+    foreign_token_QTZ: {
+      'fee': '0',
+      'existentialDeposit': '1000000000000000000',
+    }
   }
 };
-const xcm_dest_weight_kusama = '3000000000';
-const xcm_dest_weight_karura = '600000000';
+const foreign_asset_xcm_dest_fee = '16000000000';
 const xcm_dest_weight_v2 = '5000000000';
 
 const acala_token_ids = [
@@ -78,6 +100,9 @@ const acala_token_ids = [
   'KBTC',
   'KINT',
   'TAI',
+  'TAIKSM',
+  'ARIS',
+  'QTZ',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
@@ -108,12 +133,22 @@ const config_modules = {
   },
   module_name_homa: {
     'visible': true,
-    'enabled': false,
+    'enabled': true,
   },
   module_name_nft: {
     'visible': true,
     'enabled': true,
   },
+};
+const config_xcm = {
+  relay_chain_token_symbol: [relay_chain_name],
+  para_chain_token_symbol_bifrost: [para_chain_name_bifrost],
+  "VSKSM": [para_chain_name_bifrost],
+  foreign_token_RMRK: [para_chain_name_statemine],
+  foreign_token_ARIS: [para_chain_name_statemine],
+  foreign_token_QTZ: [para_chain_name_quart],
+  "KUSD": [],
+  "PHA": []
 };
 
 const image_assets_uri = 'packages/polkawallet_plugin_karura/assets/images';
@@ -123,4 +158,6 @@ const cross_chain_icons = {
   relay_chain_name: '$image_assets_uri/tokens/KSM.png',
   para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
   para_chain_name_khala: '$image_assets_uri/tokens/PHA.png',
+  para_chain_name_statemine: '$image_assets_uri/paras/statemine.png',
+  para_chain_name_quart: '$image_assets_uri/tokens/QTZ.png',
 };

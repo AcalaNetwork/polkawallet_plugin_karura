@@ -55,6 +55,7 @@ class AcalaServiceAssets {
             'symbol': e.symbol,
             'tokenNameId': e.tokenNameId,
             'currencyId': e.currencyId,
+            'src': e.src,
             'type': e.type,
             'minBalance': e.minBalance,
             'decimals': e.decimals,

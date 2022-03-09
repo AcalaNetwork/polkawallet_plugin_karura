@@ -8,8 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txInfoData.dart';
@@ -105,19 +105,21 @@ class _TransferPageState extends State<TransferPage> {
             ? [
                 _token!.currencyId,
                 '1000000000',
-                [
-                  1,
-                  {
-                    'X1': {
-                      'AccountId32': {
-                        'id': _accountTo!.address,
-                        'network': 'Any'
+                {
+                  'V1': [
+                    1,
+                    {
+                      'X1': {
+                        'AccountId32': {
+                          'id': _accountTo!.address,
+                          'network': 'Any'
+                        }
                       }
                     }
-                  }
-                ],
+                  ]
+                },
                 // params.weight
-                xcm_dest_weight_kusama
+                xcm_dest_weight_v2
               ]
             : [
                 widget.keyring.current.address,
@@ -154,14 +156,10 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   /// XCM only support KSM transfer back to Kusama.
-  void _onSelectChain(Map<String, Widget> crossChainIcons) {
+  void _onSelectChain(
+      Map<String, Widget> crossChainIcons, List tokenXcmConfig) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
-    final tokensConfig =
-        widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-    final List tokenXcmConfig = tokensConfig['xcm'] != null
-        ? tokensConfig['xcm'][_token!.symbol!.toUpperCase()] ?? []
-        : [];
     final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
     showCupertinoModalPopup(
@@ -288,9 +286,6 @@ class _TransferPageState extends State<TransferPage> {
           destPubKey = pk.keys.toList()[0];
         }
 
-        final isV2XCM = await widget.plugin.sdk.webView!.evalJavascript(
-            'api.createType(api.tx.xTokens.transfer.meta.args[2].toJSON()["type"]).defKeys.includes("V1")',
-            wrapPromise: false);
         final dest = {
           'parents': 1,
           'interior': isToParent
@@ -308,11 +303,15 @@ class _TransferPageState extends State<TransferPage> {
                   ]
                 }
         };
+
+        final isFromStateMine =
+            _token?.src != null && _token!.src!['Parachain'] == '1,000';
         return TxConfirmParams(
           txTitle:
               '${dicAcala!['transfer']} $tokenView (${dicAcala['cross.xcm']})',
           module: 'xTokens',
-          call: 'transfer',
+          call:
+              isFromStateMine == true ? 'transferMulticurrencies' : 'transfer',
           txDisplay: {
             dicAcala['cross.chain']: chainTo.toUpperCase(),
           },
@@ -338,22 +337,42 @@ class _TransferPageState extends State<TransferPage> {
               ],
             ),
           },
-          params: [
-            // params.currencyId
-            _token!.currencyId,
-            // params.amount
-            (_amountMax ??
-                    Fmt.tokenInt(_amountCtrl.text.trim(), _token!.decimals!))
-                .toString(),
-            // params.dest
-            isV2XCM ? {'V1': dest} : dest,
-            // params.weight
-            isV2XCM
-                ? xcm_dest_weight_v2
-                : isToParent
-                    ? xcm_dest_weight_kusama
-                    : xcm_dest_weight_karura
-          ],
+          params: isFromStateMine == true
+              ? [
+                  // params.currencies
+                  [
+                    [
+                      _token!.currencyId,
+                      (_amountMax ??
+                              Fmt.tokenInt(
+                                  _amountCtrl.text.trim(), _token!.decimals!))
+                          .toString()
+                    ],
+                    [
+                      {'Token': relay_chain_token_symbol},
+                      foreign_asset_xcm_dest_fee
+                    ]
+                  ],
+                  // params.feeItem
+                  1,
+                  // params.dest
+                  {'V1': dest},
+                  // params.weight
+                  xcm_dest_weight_v2
+                ]
+              : [
+                  // params.currencyId
+                  _token!.currencyId,
+                  // params.amount
+                  (_amountMax ??
+                          Fmt.tokenInt(
+                              _amountCtrl.text.trim(), _token!.decimals!))
+                      .toString(),
+                  // params.dest
+                  {'V1': dest},
+                  // params.weight
+                  xcm_dest_weight_v2
+                ],
         );
       }
 
@@ -401,6 +420,18 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
 
+  String _getWarnInfo(String token) {
+    return I18n.of(context)!.locale.toString().contains('zh')
+        ? '交易所当前不支持 Karura 网络跨链转账充提 $token，请先使用跨链转账将 $token 转回 $_chainTo，再从 $_chainTo 网络转账至交易所地址。'
+        : 'Exchanges do not currently support direct transfers of $token to/from Karura. In order to successfully send $token to an exchange address, it is required that you first complete an Cross-Chain-Transfer of the token(s) from Karura to $_chainTo.';
+  }
+
+  String _getForeignAssetEDWarn() {
+    return I18n.of(context)!.locale.toString().contains('zh')
+        ? '收款地址需在 $_chainTo 网络上持有 $relay_chain_token_symbol，否则会转账失败。'
+        : 'The receiver address should have available $relay_chain_token_symbol balance on $_chainTo, or the transfer will fail.';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -439,8 +470,10 @@ class _TransferPageState extends State<TransferPage> {
 
         final tokensConfig =
             widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-        final List? tokenXcmConfig =
-            tokensConfig['xcm'] != null ? tokensConfig['xcm'][tokenSymbol] : [];
+        final List? tokenXcmConfig = tokensConfig['xcm'] != null
+            ? tokensConfig['xcm'][token.tokenNameId]
+            : config_xcm[token.tokenNameId];
+        // final tokenXcmConfig = config_xcm[token.tokenNameId];
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
@@ -467,14 +500,25 @@ class _TransferPageState extends State<TransferPage> {
 
         final chainTo = _chainTo ?? widget.plugin.basic.name!;
         final isCrossChain = widget.plugin.basic.name != chainTo;
+        final isFromStateMine =
+            token.src != null && token.src!['Parachain'] == '1,000';
         final destExistDeposit = isCrossChain
-            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo]![tokenSymbol]![
+            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo]![token.tokenNameId]![
                 'existentialDeposit'])
             : BigInt.zero;
         final destFee = isCrossChain
-            ? Fmt.balanceInt(
-                cross_chain_xcm_fees[chainTo]![tokenSymbol]!['fee'])
+            ? isFromStateMine
+                ? BigInt.zero
+                : Fmt.balanceInt(
+                    cross_chain_xcm_fees[chainTo]![token.tokenNameId]!['fee'])
             : BigInt.zero;
+
+        final relayChainTokenBalance = AssetsUtils.getBalanceFromTokenNameId(
+            widget.plugin, relay_chain_token_symbol);
+        final isToStateMineFeeError = isCrossChain &&
+            isFromStateMine &&
+            (Fmt.balanceInt(relayChainTokenBalance?.amount) <
+                Fmt.balanceInt(foreign_asset_xcm_dest_fee));
 
         final colorGrey = Theme.of(context).unselectedWidgetColor;
         final crossChainIcons = cross_chain_icons
@@ -503,401 +547,356 @@ class _TransferPageState extends State<TransferPage> {
             ],
           ),
           body: SafeArea(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(dic['address.from'] ?? '', style: labelStyle),
-                        AddressFormItem(widget.keyring.current),
-                        Container(height: 8.h),
-                        Visibility(
-                            visible: !(!isCrossChain || _accountToEditable),
-                            child:
-                                Text(dic['address'] ?? '', style: labelStyle)),
-                        Visibility(
-                            visible: !(!isCrossChain || _accountToEditable),
-                            child: AddressFormItem(widget.keyring.current)),
-                        Visibility(
-                          visible: !isCrossChain || _accountToEditable,
-                          child: AddressTextFormField(
-                            widget.plugin.sdk.api,
-                            _accountOptions,
-                            labelText: dic['address'],
-                            labelStyle: labelStyle,
-                            hintText: dic['address'],
-                            initialValue: _accountTo,
-                            onChanged: (KeyPairData? acc) async {
-                              final error = await _checkAccountTo(acc);
-                              setState(() {
-                                _accountTo = acc;
-                                _accountToError = error;
-                              });
-                            },
-                            key: ValueKey<KeyPairData?>(_accountTo),
-                          ),
-                        ),
-                        Visibility(
-                            visible: _accountToError != null,
-                            child: Container(
-                              margin: EdgeInsets.only(top: 4),
-                              child: Text(_accountToError ?? "",
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.red)),
-                            )),
-                        Visibility(
-                          visible: isCrossChain,
-                          child: GestureDetector(
-                            child: Container(
-                              child: Row(
-                                children: [
-                                  v3.Checkbox(
-                                    padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
-                                    value: _accountToEditable,
-                                    onChanged: _onSwitchEditable,
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      dicAcala['cross.edit']!,
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                ],
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(dic['address.from'] ?? '', style: labelStyle),
+                  AddressFormItem(widget.keyring.current),
+                  Container(height: 8.h),
+                  Visibility(
+                      visible: !(!isCrossChain || _accountToEditable),
+                      child: Text(dic['address'] ?? '', style: labelStyle)),
+                  Visibility(
+                      visible: !(!isCrossChain || _accountToEditable),
+                      child: AddressFormItem(widget.keyring.current)),
+                  Visibility(
+                    visible: !isCrossChain || _accountToEditable,
+                    child: AddressTextFormField(
+                      widget.plugin.sdk.api,
+                      _accountOptions,
+                      labelText: dic['address'],
+                      labelStyle: labelStyle,
+                      hintText: dic['address'],
+                      initialValue: _accountTo,
+                      onChanged: (KeyPairData? acc) async {
+                        final error = await _checkAccountTo(acc);
+                        setState(() {
+                          _accountTo = acc;
+                          _accountToError = error;
+                        });
+                      },
+                      key: ValueKey<KeyPairData?>(_accountTo),
+                    ),
+                  ),
+                  Visibility(
+                      visible: _accountToError != null,
+                      child: Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Text(_accountToError ?? "",
+                            style: TextStyle(fontSize: 12, color: Colors.red)),
+                      )),
+                  Visibility(
+                    visible: isCrossChain,
+                    child: GestureDetector(
+                      child: Container(
+                        child: Row(
+                          children: [
+                            v3.Checkbox(
+                              padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
+                              value: _accountToEditable,
+                              onChanged: _onSwitchEditable,
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Text(
+                                dicAcala['cross.edit']!,
+                                style: TextStyle(fontSize: 14),
                               ),
                             ),
-                            onTap: () => _onSwitchEditable(!_accountToEditable),
+                          ],
+                        ),
+                      ),
+                      onTap: () => _onSwitchEditable(!_accountToEditable),
+                    ),
+                  ),
+                  Container(height: 10.h),
+                  Form(
+                      key: _formKey,
+                      child: v3.TextInputWidget(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: v3.InputDecorationV3(
+                          hintText: dic['amount.hint'],
+                          labelText:
+                              '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
+                            available,
+                            token.decimals!,
+                            lengthMax: 6,
+                          )})',
+                          labelStyle: labelStyle,
+                          suffix: GestureDetector(
+                            child: Text(dic['amount.max']!,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context)
+                                        .toggleableActiveColor)),
+                            onTap: () {
+                              setState(() {
+                                _amountMax = available;
+                                _amountCtrl.text = Fmt.bigIntToDouble(
+                                        available, token.decimals!)
+                                    .toStringAsFixed(8);
+                              });
+                            },
                           ),
                         ),
-                        Container(height: 10.h),
-                        Form(
-                            key: _formKey,
-                            child: v3.TextInputWidget(
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              decoration: v3.InputDecorationV3(
-                                hintText: dic['amount.hint'],
-                                labelText:
-                                    '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
-                                  available,
-                                  token.decimals!,
-                                  lengthMax: 6,
-                                )})',
-                                labelStyle: labelStyle,
-                                suffix: GestureDetector(
-                                  child: Text(dic['amount.max']!,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context)
-                                              .toggleableActiveColor)),
-                                  onTap: () {
-                                    setState(() {
-                                      _amountMax = available;
-                                      _amountCtrl.text = Fmt.bigIntToDouble(
-                                              available, token.decimals!)
-                                          .toStringAsFixed(8);
-                                    });
-                                  },
+                        inputFormatters: [
+                          UI.decimalInputFormatter(token.decimals!)!
+                        ],
+                        controller: _amountCtrl,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        onChanged: (_) {
+                          setState(() {
+                            _amountMax = null;
+                          });
+                        },
+                        validator: (v) {
+                          final error = Fmt.validatePrice(v!, context);
+                          if (error != null) {
+                            return error;
+                          }
+
+                          final input = Fmt.tokenInt(v.trim(), token.decimals!);
+                          if (_amountMax == null &&
+                              Fmt.bigIntToDouble(input, token.decimals!) >
+                                  available /
+                                      BigInt.from(pow(10, token.decimals!))) {
+                            return dic['amount.low'];
+                          }
+                          return null;
+                        },
+                      )),
+                  Container(
+                    margin: EdgeInsets.only(top: 8, bottom: 8),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.only(bottom: 4),
+                              child: Text(dic['currency']!, style: labelStyle),
+                            ),
+                            RoundedCard(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              child: CurrencyWithIcon(
+                                tokenView,
+                                TokenIcon(
+                                    tokenSymbol, widget.plugin.tokenIcons),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                      visible: canCrossChain,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 4),
+                                child: Text(
+                                  dicAcala['cross.chain']!,
+                                  style: labelStyle,
                                 ),
                               ),
-                              inputFormatters: [
-                                UI.decimalInputFormatter(token.decimals!)!
-                              ],
-                              controller: _amountCtrl,
-                              keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true),
-                              onChanged: (_) {
-                                setState(() {
-                                  _amountMax = null;
-                                });
-                              },
-                              validator: (v) {
-                                final error = Fmt.validatePrice(v!, context);
-                                if (error != null) {
-                                  return error;
-                                }
-
-                                final input =
-                                    Fmt.tokenInt(v.trim(), token.decimals!);
-                                if (_amountMax == null &&
-                                    Fmt.bigIntToDouble(input, token.decimals!) >
-                                        available /
-                                            BigInt.from(
-                                                pow(10, token.decimals!))) {
-                                  return dic['amount.low'];
-                                }
-                                return null;
-                              },
-                            )),
-                        Container(
-                          margin: EdgeInsets.only(top: 8, bottom: 8),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    margin: EdgeInsets.only(bottom: 4),
-                                    child: Text(dic['currency']!,
-                                        style: labelStyle),
-                                  ),
-                                  RoundedCard(
-                                    padding: EdgeInsets.all(8),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        CurrencyWithIcon(
-                                          tokenView,
-                                          TokenIcon(tokenSymbol,
-                                              widget.plugin.tokenIcons),
+                              RoundedCard(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        Container(
+                                          margin: EdgeInsets.only(right: 8),
+                                          width: 32,
+                                          height: 32,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(32),
+                                            child: isCrossChain
+                                                ? TokenIcon(
+                                                    _chainTo!, crossChainIcons)
+                                                : widget.plugin.basic.icon,
+                                          ),
                                         ),
+                                        Text(chainTo.toUpperCase())
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Visibility(
+                                            visible: isCrossChain,
+                                            child: TextTag(
+                                                dicAcala['cross.xcm'],
+                                                margin:
+                                                    EdgeInsets.only(right: 8),
+                                                color: Theme.of(context)
+                                                    .errorColor)),
                                         Icon(
                                           Icons.arrow_forward_ios,
                                           size: 18,
                                           color: colorGrey,
                                         )
                                       ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onTap: () async {
-                              final tokens = widget
-                                  .plugin.store!.assets.tokenBalanceMap.values
-                                  .toList();
-                              if (tokensConfig['invisible'] != null &&
-                                  tokensConfig['disabled'] != null) {
-                                tokens.removeWhere((e) =>
-                                    List.of(tokensConfig['invisible'])
-                                        .contains(e.symbol) ||
-                                    List.of(tokensConfig['disabled'])
-                                        .contains(e.symbol));
-                              }
-                              final res = (await Navigator.of(context)
-                                  .pushNamed(CurrencySelectPage.route,
-                                      arguments: tokens) as TokenBalanceData?);
-                              if (res != null && res.symbol != _token!.symbol) {
-                                // reload tx fee if user switch to normal transfer from XCM
-                                if (isCrossChain) {
-                                  _getTxFee(isXCM: false, reload: true);
-                                }
-
-                                setState(() {
-                                  _token = res;
-                                  _chainTo = widget.plugin.basic.name;
-                                  _amountMax = null;
-                                });
-
-                                _validateAccountTo(_accountTo);
-                              }
-                            },
-                          ),
-                        ),
-                        Visibility(
-                            visible: canCrossChain,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              child: Container(
-                                margin: EdgeInsets.only(bottom: 4),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: EdgeInsets.only(bottom: 4),
-                                      child: Text(
-                                        dicAcala['cross.chain']!,
-                                        style: labelStyle,
-                                      ),
-                                    ),
-                                    RoundedCard(
-                                      padding: EdgeInsets.all(8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Container(
-                                                margin:
-                                                    EdgeInsets.only(right: 8),
-                                                width: 32,
-                                                height: 32,
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                  child: isCrossChain
-                                                      ? TokenIcon(_chainTo!,
-                                                          crossChainIcons)
-                                                      : widget
-                                                          .plugin.basic.icon,
-                                                ),
-                                              ),
-                                              Text(chainTo.toUpperCase())
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Visibility(
-                                                  visible: isCrossChain,
-                                                  child: TextTag(
-                                                      dicAcala['cross.xcm'],
-                                                      margin: EdgeInsets.only(
-                                                          right: 8),
-                                                      color: Theme.of(context)
-                                                          .errorColor)),
-                                              Icon(
-                                                Icons.arrow_forward_ios,
-                                                size: 18,
-                                                color: colorGrey,
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
+                                    )
                                   ],
                                 ),
                               ),
-                              onTap: () => _onSelectChain(crossChainIcons),
-                            )),
-                        Visibility(
-                          visible: isNativeTokenLow,
-                          child: InsufficientKARWarn(),
-                        ),
-                        Visibility(
-                            visible: isCrossChain,
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: TapTooltip(
-                                      message: dicAcala['cross.exist.msg']!,
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.only(right: 4),
-                                            child:
-                                                Text(dicAcala['cross.exist']!),
-                                          ),
-                                          Icon(
-                                            Icons.info,
-                                            size: 16,
-                                            color: Theme.of(context)
-                                                .unselectedWidgetColor,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 0,
-                                    child: Text(
-                                        '${Fmt.priceCeilBigInt(destExistDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
-                                  )
-                                ],
-                              ),
-                            )),
-                        Visibility(
-                            visible: isCrossChain,
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Text(dicAcala['cross.fee']!),
-                                    ),
-                                  ),
-                                  Text(
-                                      '${Fmt.priceCeilBigInt(destFee, token.decimals!, lengthMax: 6)} $tokenView'),
-                                ],
-                              ),
-                            )),
-                        Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: TapTooltip(
-                                  message: dicAcala['cross.exist.msg']!,
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child:
-                                            Text(dicAcala['transfer.exist']!),
-                                      ),
-                                      Icon(
-                                        Icons.info,
-                                        size: 16,
-                                        color: Theme.of(context)
-                                            .unselectedWidgetColor,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                  '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
                             ],
                           ),
                         ),
-                        Visibility(
-                          visible: _fee?.partialFee != null,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 4),
-                                    child: Text(dicAcala['transfer.fee']!),
-                                  ),
+                        onTap: () => _onSelectChain(
+                            crossChainIcons, tokenXcmConfig ?? []),
+                      )),
+                  Visibility(
+                    visible: isNativeTokenLow,
+                    child: InsufficientKARWarn(),
+                  ),
+                  Visibility(
+                      visible: isCrossChain,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: TapTooltip(
+                                message: dicAcala['cross.exist.msg']!,
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(right: 4),
+                                      child: Text(dicAcala['cross.exist']!),
+                                    ),
+                                    Icon(
+                                      Icons.info,
+                                      size: 16,
+                                      color: Theme.of(context)
+                                          .unselectedWidgetColor,
+                                    )
+                                  ],
                                 ),
-                                Text(
-                                    '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken'),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 0,
+                              child: Text(
+                                  '${Fmt.priceCeilBigInt(destExistDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
+                            )
+                          ],
+                        ),
+                      )),
+                  Visibility(
+                      visible: isCrossChain && destFee > BigInt.zero,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Text(dicAcala['cross.fee']!),
+                              ),
+                            ),
+                            Text(
+                                '${Fmt.priceCeilBigInt(destFee, token.decimals!, lengthMax: 6)} $tokenView'),
+                          ],
+                        ),
+                      )),
+                  Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: TapTooltip(
+                            message: dicAcala['cross.exist.msg']!,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 4),
+                                  child: Text(dicAcala['transfer.exist']!),
+                                ),
+                                Icon(
+                                  Icons.info,
+                                  size: 16,
+                                  color:
+                                      Theme.of(context).unselectedWidgetColor,
+                                )
                               ],
                             ),
                           ),
                         ),
-                        Visibility(
-                            visible: isCrossChain,
-                            child: _CrossChainTransferWarning(
-                              token: tokenSymbol,
-                              chain:
-                                  (tokensConfig['warning'] ?? {})[tokenSymbol],
-                            )),
+                        Text(
+                            '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
                       ],
                     ),
                   ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(16.w, 4.h, 14.w, 16.h),
-                  child: TxButton(
-                    text: dic['make'],
-                    getTxParams: (() async =>
-                        _getTxParams(chainTo) as Future<TxConfirmParams>),
-                    onFinish: (res) {
-                      if (res != null) {
-                        Navigator.of(context).pop(res);
-                      }
-                    },
+                  Visibility(
+                    visible: _fee?.partialFee != null,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 4),
+                              child: Text(dicAcala['transfer.fee']!),
+                            ),
+                          ),
+                          Text(
+                              '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken'),
+                        ],
+                      ),
+                    ),
                   ),
-                )
-              ],
+                  Visibility(
+                      visible: isCrossChain,
+                      child: _CrossChainTransferWarning(
+                          message: _getWarnInfo(tokenSymbol))),
+                  Visibility(
+                      visible: isCrossChain && isFromStateMine,
+                      child: _CrossChainTransferWarning(
+                          message: _getForeignAssetEDWarn())),
+                  isToStateMineFeeError
+                      ? Container(
+                          margin: EdgeInsets.only(top: 8),
+                          child: Text(
+                            '$relay_chain_token_symbol ${dic['xcm.foreign.fee']!} (${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance!.decimals!)} $relay_chain_token_symbol)',
+                            style: TextStyle(color: Colors.red, fontSize: 10),
+                          ),
+                        )
+                      : Container(),
+                  Container(
+                    padding: EdgeInsets.only(top: 16),
+                    child: TxButton(
+                      text: dic['make'],
+                      getTxParams: () async =>
+                          isToStateMineFeeError ? null : _getTxParams(chainTo),
+                      onFinish: (res) {
+                        if (res != null) {
+                          Navigator.of(context).pop(res);
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         );
@@ -907,23 +906,16 @@ class _TransferPageState extends State<TransferPage> {
 }
 
 class _CrossChainTransferWarning extends StatelessWidget {
-  _CrossChainTransferWarning({this.token, this.chain});
-  final String? token;
-  final String? chain;
-
-  String getWarnInfo(BuildContext context) {
-    return I18n.of(context)!.locale.toString().contains('zh')
-        ? '交易所当前不支持 Karura 网络跨链转账充提 $token，请先使用跨链转账将 $token 转回 $chain，再从 $chain 网络转账至交易所地址。'
-        : 'Exchanges do not currently support direct transfers of $token to/from Karura. In order to successfully send $token to an exchange address, it is required that you first complete an Cross-Chain-Transfer of the token(s) from Karura to $chain.';
-  }
+  _CrossChainTransferWarning({required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {
-    if (chain == null || chain!.isEmpty) return Container();
+    if (message.isEmpty) return Container();
 
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     return Container(
-      margin: EdgeInsets.only(top: 16, bottom: 24),
+      margin: EdgeInsets.only(top: 16),
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
           color: Colors.black12,
@@ -938,7 +930,7 @@ class _CrossChainTransferWarning extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).errorColor),
           ),
-          Text(getWarnInfo(context), style: TextStyle(fontSize: 12))
+          Text(message, style: TextStyle(fontSize: 12))
         ],
       ),
     );
