@@ -69,8 +69,8 @@ class AssetsUtils {
       return getBalanceFromTokenNameId(
           plugin!, currencyId['token'] ?? currencyId['Token']);
     }
-    final currencyIdKey = currencyId.keys.toList()[0] as String;
-    if (currencyId[currencyIdKey] != null) {
+    if (currencyId.length > 0 && currencyId[currencyId.keys.first] != null) {
+      final currencyIdKey = currencyId.keys.first as String;
       final list = (plugin!.store!.assets.tokenBalanceMap.values.length >=
                   plugin.store!.assets.allTokens.length
               ? plugin.store!.assets.tokenBalanceMap.values

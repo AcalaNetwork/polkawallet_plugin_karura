@@ -117,13 +117,6 @@ const config_modules = {
 };
 
 const image_assets_uri = 'packages/polkawallet_plugin_karura/assets/images';
-const module_icons_uri = {
-  module_name_loan: '$image_assets_uri/loan.svg',
-  module_name_swap: '$image_assets_uri/swap.svg',
-  module_name_earn: '$image_assets_uri/earn.svg',
-  module_name_homa: '$image_assets_uri/homa.svg',
-  module_name_nft: '$image_assets_uri/nft.svg',
-};
 
 const cross_chain_icons = {
   plugin_name_karura: '$image_assets_uri/tokens/KAR.png',
