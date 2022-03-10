@@ -21,8 +21,8 @@ const para_chain_name_statemine = 'statemine';
 const para_chain_name_bifrost = 'bifrost';
 const para_chain_name_khala = 'khala';
 const para_chain_name_kint = 'kintsugi';
-const para_chain_name_quart = 'QUARTZ';
-const para_chain_name_moon = 'Moonriver';
+const para_chain_name_quart = 'quartz';
+const para_chain_name_moon = 'moonriver';
 const para_chain_ids = {
   para_chain_name_statemine: 1000,
   para_chain_name_bifrost: 2001,
@@ -95,7 +95,7 @@ const cross_chain_xcm_fees = {
   para_chain_name_kint: {
     para_chain_token_symbol_kint: {
       'fee': '170666666',
-      'existentialDeposit': '133333333',
+      'existentialDeposit': '0',
     }
   }
 };

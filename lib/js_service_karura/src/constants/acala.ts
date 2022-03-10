@@ -15,4 +15,5 @@ export const existential_deposit = {
   VSKSM: "100000000",
   PHA: "40000000000",
   TAI: "1000000000000",
+  KINT: "133333333",
 };
