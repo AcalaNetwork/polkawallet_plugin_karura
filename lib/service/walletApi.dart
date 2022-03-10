@@ -24,8 +24,9 @@ class WalletApi {
   }
 
   static Future<Map?> getRemoteConfig() async {
+    //TODO:
     // final url = '$_configEndpoint/config/karuraConfig.json';
-    final url = '$_endpoint/config/karuraConfig.json';
+    final url = '$_endpoint/config/karuraConfig.json'; //dev
     try {
       Response res = await get(Uri.parse(url));
       if (res == null) {
