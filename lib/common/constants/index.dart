@@ -19,12 +19,14 @@ const relay_chain_name = 'kusama';
 const para_chain_name_statemine = 'statemine';
 const para_chain_name_bifrost = 'bifrost';
 const para_chain_name_khala = 'khala';
+const para_chain_name_kint = 'kintsugi';
 const para_chain_name_quart = 'QUARTZ';
 const para_chain_ids = {
   para_chain_name_statemine: 1000,
   para_chain_name_bifrost: 2001,
   para_chain_name_khala: 2004,
   para_chain_name_quart: 2095,
+  para_chain_name_kint: 2092,
 };
 
 const network_ss58_format = {
@@ -32,10 +34,13 @@ const network_ss58_format = {
   relay_chain_name: 2,
   para_chain_name_bifrost: 6,
   para_chain_name_khala: 30,
+  para_chain_name_quart: 255,
+  para_chain_name_kint: 2092,
 };
 const relay_chain_token_symbol = 'KSM';
 const para_chain_token_symbol_bifrost = 'BNC';
 const para_chain_token_symbol_khala = 'PHA';
+const para_chain_token_symbol_kint = 'KINT';
 const cross_chain_xcm_fees = {
   relay_chain_name: {
     relay_chain_token_symbol: {
@@ -81,6 +86,12 @@ const cross_chain_xcm_fees = {
     foreign_token_QTZ: {
       'fee': '0',
       'existentialDeposit': '1000000000000000000',
+    }
+  },
+  para_chain_name_kint: {
+    para_chain_token_symbol_kint: {
+      'fee': '170666666',
+      'existentialDeposit': '133333333',
     }
   }
 };
@@ -147,6 +158,7 @@ const config_xcm = {
   foreign_token_RMRK: [para_chain_name_statemine],
   foreign_token_ARIS: [para_chain_name_statemine],
   foreign_token_QTZ: [para_chain_name_quart],
+  para_chain_token_symbol_kint: [para_chain_name_kint],
   "KUSD": [],
   "PHA": []
 };
@@ -160,4 +172,5 @@ const cross_chain_icons = {
   para_chain_name_khala: '$image_assets_uri/tokens/PHA.png',
   para_chain_name_statemine: '$image_assets_uri/paras/statemine.png',
   para_chain_name_quart: '$image_assets_uri/tokens/QTZ.png',
+  para_chain_name_kint: '$image_assets_uri/tokens/KINT.png',
 };
