@@ -150,11 +150,17 @@ class _LoanPageState extends State<LoanPage> {
     BigInt debitSubtract = debitShares;
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
-      debitSubtract = originalLoan.debits == BigInt.zero &&
-              debits <= loan.type.minimumDebitValue
-          ? loan.type.debitToDebitShare(
-              (loan.type.minimumDebitValue + BigInt.from(10000)))
-          : debitShares;
+      if (originalLoan.debits == BigInt.zero &&
+          debits <= loan.type.minimumDebitValue) {
+        final minimumDebitValue = Fmt.bigIntToDouble(
+            loan.type.minimumDebitValue, balancePair[1]!.decimals!);
+        final bool canContinue = await (_confirmPaybackParams(
+                '${dic!['loan.warn.KSM4']}$minimumDebitValue${dic['loan.warn.KSM5']}')
+            as Future<bool>);
+        if (!canContinue) return null;
+        debitSubtract = loan.type.debitToDebitShare(
+            (loan.type.minimumDebitValue + BigInt.from(10000)));
+      }
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
 
@@ -171,9 +177,10 @@ class _LoanPageState extends State<LoanPage> {
         // make sure tx success by leaving more than 1 debit(aUSD).
         if (originalLoan.debits - debits.abs() > BigInt.zero &&
             originalLoan.debits - debits.abs() < loan.type.minimumDebitValue) {
+          final minimumDebitValue = Fmt.bigIntToDouble(
+              loan.type.minimumDebitValue, balancePair[1]!.decimals!);
           final bool canContinue = await (_confirmPaybackParams(
-                  Fmt.bigIntToDouble(
-                      loan.type.minimumDebitValue, balancePair[1]!.decimals!))
+                  '${dic!['loan.warn.KSM1']}$minimumDebitValue${dic['loan.warn.KSM2']}$minimumDebitValue${dic['loan.warn.KSM3']}')
               as Future<bool>);
           if (!canContinue) return null;
           minDebigSubtract = minDebigSubtract >
@@ -203,14 +210,13 @@ class _LoanPageState extends State<LoanPage> {
     };
   }
 
-  Future<bool?> _confirmPaybackParams(double minimumDebitValue) async {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+  Future<bool?> _confirmPaybackParams(String message) async {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final bool? res = await showCupertinoDialog(
         context: context,
         builder: (_) {
           return CupertinoAlertDialog(
-            content: Text(
-                '${dic!['loan.warn.KSM1']}$minimumDebitValue${dic['loan.warn.KSM2']}$minimumDebitValue${dic['loan.warn.KSM3']}'),
+            content: Text(message),
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text(dic['loan.warn.back']!),

@@ -76,6 +76,8 @@ const Map<String, String> zhDex = {
   'loan.warn.KSM1': '债仓未清零时，余额不能小于 ',
   'loan.warn.KSM2': 'kUSD，本次操作后将剩余 ',
   'loan.warn.KSM3': 'kUSD 的债务。确认继续吗？',
+  'loan.warn.KSM4': '为了使你的债仓保持活跃，您本次必须最少铸造 ',
+  'loan.warn.KSM5': 'kUSD',
   'loan.warn.back': '返回修改',
   'loan.my': '我的债仓',
   'loan.incentive': '盈利',

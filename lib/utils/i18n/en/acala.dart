@@ -79,6 +79,8 @@ const Map<String, String> enDex = {
   'loan.warn.KSM1': 'Debt should be greater than ',
   'loan.warn.KSM2': 'kUSD or payback all, this action will have ',
   'loan.warn.KSM3': 'kUSD debt left. Are you sure to continue?',
+  'loan.warn.KSM4': 'To keep your vault alive, you have to mint at least ',
+  'loan.warn.KSM5': 'kUSD for this time',
   'loan.warn.back': 'Back to modify',
   'loan.my': 'My Vaults',
   'loan.incentive': 'Earn',
