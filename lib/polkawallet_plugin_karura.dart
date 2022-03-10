@@ -96,6 +96,13 @@ class PluginKarura extends PolkawalletPlugin {
   Map<String, Widget> get tokenIcons => _getTokenIcons();
 
   @override
+  List<String> get defaultTokens {
+    return List<String>.from(
+        (store?.setting.remoteConfig['tokens'] ?? {})['default'] ??
+            default_tokens);
+  }
+
+  @override
   List<TokenBalanceData> get noneNativeTokensAll {
     return store?.assets.tokenBalanceMap.values.toList() ?? [];
   }

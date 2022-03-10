@@ -14,6 +14,7 @@ const acala_token_polka_btc_view = 'polkaBTC';
 const foreign_token_RMRK = 'fa://0';
 const foreign_token_ARIS = 'fa://1';
 const foreign_token_QTZ = 'fa://2';
+const foreign_token_MOVR = 'fa://3';
 
 const relay_chain_name = 'kusama';
 const para_chain_name_statemine = 'statemine';
@@ -21,12 +22,14 @@ const para_chain_name_bifrost = 'bifrost';
 const para_chain_name_khala = 'khala';
 const para_chain_name_kint = 'kintsugi';
 const para_chain_name_quart = 'QUARTZ';
+const para_chain_name_moon = 'Moonriver';
 const para_chain_ids = {
   para_chain_name_statemine: 1000,
   para_chain_name_bifrost: 2001,
   para_chain_name_khala: 2004,
   para_chain_name_quart: 2095,
   para_chain_name_kint: 2092,
+  para_chain_name_moon: 2023,
 };
 
 const network_ss58_format = {
@@ -36,6 +39,7 @@ const network_ss58_format = {
   para_chain_name_khala: 30,
   para_chain_name_quart: 255,
   para_chain_name_kint: 2092,
+  para_chain_name_moon: 1285,
 };
 const relay_chain_token_symbol = 'KSM';
 const para_chain_token_symbol_bifrost = 'BNC';
@@ -106,17 +110,25 @@ const acala_token_ids = [
   'BNC',
   'VSKSM',
   'PHA',
-  'RMRK',
   'USDT',
   'KBTC',
   'KINT',
   'TAI',
   'TAIKSM',
+  'RMRK',
   'ARIS',
   'QTZ',
+  'MOVR',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
+];
+const default_tokens = [
+  karura_stable_coin,
+  relay_chain_token_symbol,
+  'L$relay_chain_token_symbol',
+  para_chain_token_symbol_bifrost,
+  foreign_token_RMRK
 ];
 
 const module_name_assets = 'assets';
@@ -173,4 +185,5 @@ const cross_chain_icons = {
   para_chain_name_statemine: '$image_assets_uri/paras/statemine.png',
   para_chain_name_quart: '$image_assets_uri/tokens/QTZ.png',
   para_chain_name_kint: '$image_assets_uri/tokens/KINT.png',
+  para_chain_name_moon: '$image_assets_uri/tokens/MOVR.png',
 };
