@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/govExternalLinks.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/proposalPanel.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/referendumPanel.dart';
@@ -270,10 +271,7 @@ class _GovernancePageState extends State<GovernancePage> {
                       loop: locks.length == 1 ? false : true,
                       itemBuilder: (BuildContext context, int index) {
                         var unlockAt = locks[index]['unlockAt'];
-                        final int blockDuration = BigInt.parse(widget.plugin
-                                .networkConst['babe']['expectedBlockTime']
-                                .toString())
-                            .toInt();
+                        final int blockDuration = BLOCK_TIME_DEFAULT;
                         if (unlockAt == "0") {
                           widget.plugin.store!.gov.referendums!
                               .forEach((element) {
