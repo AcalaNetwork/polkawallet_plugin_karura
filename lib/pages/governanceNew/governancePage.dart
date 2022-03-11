@@ -468,7 +468,7 @@ class _GovernancePageState extends State<GovernancePage> {
                   return buildHeaderView(_locks);
                 }
                 return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.only(left: 16, right: 16, top: 20),
                     child: StickyHeader(
                         header: Container(
                             color: Color.fromARGB(255, 37, 39, 44),
