@@ -107,6 +107,10 @@ class ServiceLoan {
 
   Future<void> queryCollateralRewards(String address) async {
     final res = await api!.loan.queryCollateralRewards(address);
+
+    // query with timer may cause account mismatch here
+    if (address != keyring.current.address) return;
+
     store!.loan.setCollateralRewards(res);
   }
 
