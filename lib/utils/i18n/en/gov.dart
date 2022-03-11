@@ -81,4 +81,16 @@ const Map<String, String> enGov = {
   'democracy.referendum.balance': 'Voting balance',
   'democracy.referendum.period': 'Lockup period',
   'democracy.referendum.clear': 'clear',
+  'v3.passing.true': 'PASSING',
+  'v3.passing.false': 'NOTPASSING',
+  'v3.continueVote': 'Continue Vote',
+  'v3.cancelMyVote': 'Cancel Vote',
+  'v3.voteMessage.aye': 'You voted Aye last time.',
+  'v3.voteMessage.nay': 'You voted Nay last time.',
+  'v3.myStats': 'My Stats',
+  'v3.referendaState': 'Referenda State',
+  'v3.canClear': 'Can Clear',
+  'v3.locked': 'Locked',
+  'v3.externals': 'Externals',
+  'v3.end': 'End'
 };

@@ -54,6 +54,37 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
+  final _$referendumStatusAtom =
+      Atom(name: '_GovernanceStore.referendumStatus');
+
+  @override
+  Map<dynamic, dynamic> get referendumStatus {
+    _$referendumStatusAtom.reportRead();
+    return super.referendumStatus;
+  }
+
+  @override
+  set referendumStatus(Map<dynamic, dynamic> value) {
+    _$referendumStatusAtom.reportWrite(value, super.referendumStatus, () {
+      super.referendumStatus = value;
+    });
+  }
+
+  final _$externalAtom = Atom(name: '_GovernanceStore.external');
+
+  @override
+  ProposalInfoData? get external {
+    _$externalAtom.reportRead();
+    return super.external;
+  }
+
+  @override
+  set external(ProposalInfoData? value) {
+    _$externalAtom.reportWrite(value, super.external, () {
+      super.external = value;
+    });
+  }
+
   final _$proposalsAtom = Atom(name: '_GovernanceStore.proposals');
 
   @override
@@ -128,12 +159,36 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
+  void setReferendumStatus(Map<dynamic, dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setReferendumStatus');
+    try {
+      return super.setReferendumStatus(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setExternal(ProposalInfoData? data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setExternal');
+    try {
+      return super.setExternal(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 bestNumber: ${bestNumber},
 referendums: ${referendums},
 voteConvictions: ${voteConvictions},
-proposals: ${proposals}
+proposals: ${proposals},
+referendumStatus: ${referendumStatus},
+external: ${external}
     ''';
   }
 }

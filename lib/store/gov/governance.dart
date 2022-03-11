@@ -32,6 +32,22 @@ abstract class _GovernanceStore with Store {
 
   late List<TreasuryTipData> treasuryTips;
 
+  @observable
+  Map referendumStatus = {};
+
+  @observable
+  ProposalInfoData? external;
+
+  @action
+  void setExternal(ProposalInfoData? data) {
+    external = data;
+  }
+
+  @action
+  void setReferendumStatus(Map data) {
+    referendumStatus = data;
+  }
+
   @action
   void setBestNumber(BigInt number) {
     bestNumber = number;
@@ -63,6 +79,7 @@ abstract class _GovernanceStore with Store {
   @action
   void clearState() {
     referendums = [];
+    referendumStatus = {};
     proposals = [];
     treasuryOverview = TreasuryOverviewData();
     treasuryTips = [];

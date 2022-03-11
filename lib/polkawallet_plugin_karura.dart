@@ -21,6 +21,7 @@ import 'package:polkawallet_plugin_karura/pages/gov/democracy/proposalDetailPage
 import 'package:polkawallet_plugin_karura/pages/gov/democracy/referendumVotePage.dart';
 import 'package:polkawallet_plugin_karura/pages/gov/democracyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/gov/governance.dart';
+import 'package:polkawallet_plugin_karura/pages/governanceNew/governancePage.dart';
 import 'package:polkawallet_plugin_karura/pages/newUIRoutes.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
 import 'package:polkawallet_plugin_karura/service/graphql.dart';
@@ -133,7 +134,8 @@ class PluginKarura extends PolkawalletPlugin {
         iconActive: Container(),
         // isAdapter: true,
         // content: GovernanceWidget(this),
-        content: Gov(this, keyring),
+        content: Container(),
+        onTap: () => Navigator.of(context).pushNamed(GovernancePage.route),
       )
     ];
   }

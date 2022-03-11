@@ -39,4 +39,24 @@ class WalletApi {
       return null;
     }
   }
+
+  static Future<Map?> getDemocracyReferendumInfo(int id,
+      {String network = 'karura'}) async {
+    try {
+      final res = await post(
+          Uri.parse(
+              'https://$network.api.subscan.io/api/scan/democracy/referendum'),
+          headers: {"Content-Type": "application/json", "Accept": "*/*"},
+          body: jsonEncode({'referendum_index': id}));
+      // ignore: unnecessary_null_comparison
+      if (res == null) {
+        return null;
+      } else {
+        return jsonDecode(res.body) as Map;
+      }
+    } catch (err) {
+      print(err);
+      return null;
+    }
+  }
 }

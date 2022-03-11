@@ -78,4 +78,16 @@ const Map<String, String> zhGov = {
   'democracy.referendum.balance': '锁定数量',
   'democracy.referendum.period': '锁定周期',
   'democracy.referendum.clear': '取回',
+  'v3.passing.true': '通过',
+  'v3.passing.false': '不通过',
+  'v3.continueVote': '继续投票',
+  'v3.cancelMyVote': '取消上次投票',
+  'v3.voteMessage.aye': '你上次投了赞成票。',
+  'v3.voteMessage.nay': '你上次投了反对票。',
+  'v3.myStats': '我的数据',
+  'v3.referendaState': '公投状态',
+  'v3.canClear': '可取回',
+  'v3.locked': '锁定',
+  'v3.externals': '外部提案',
+  'v3.end': '结束'
 };

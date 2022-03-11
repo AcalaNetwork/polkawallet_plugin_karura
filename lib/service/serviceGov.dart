@@ -1,6 +1,8 @@
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/service/walletApi.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
 import 'package:polkawallet_sdk/api/api.dart';
+import 'package:polkawallet_sdk/api/types/gov/proposalInfoData.dart';
 import 'package:polkawallet_sdk/api/types/gov/treasuryOverviewData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 
@@ -65,6 +67,30 @@ class ServiceGov {
     });
     updateIconsAndIndices(addresses);
 
+    return data;
+  }
+
+  Future<void> queryReferendumStatus(List<int> ids) async {
+    final data = await Future.wait(
+        ids.map((e) => WalletApi.getDemocracyReferendumInfo(e)).toList());
+    final res = {};
+    data.forEach((e) {
+      if ((e ?? {})['data'] != null) {
+        final id = (e ?? {})['data']['info']['referendum_index'];
+        res[id] = (e ?? {})['data']['info']['status'];
+      }
+    });
+    store!.gov.setReferendumStatus(res);
+  }
+
+  Future<ProposalInfoData?> queryExternal() async {
+    final data = await api.gov.queryNextExternal();
+
+    if (data != null) {
+      store!.gov.setExternal(data);
+
+      updateIconsAndIndices([data.image!.proposer!]);
+    }
     return data;
   }
 
