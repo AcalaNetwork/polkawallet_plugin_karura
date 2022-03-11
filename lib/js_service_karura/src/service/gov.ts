@@ -135,6 +135,17 @@ async function fetchProposals(api: ApiPromise) {
 }
 
 /**
+ * Query next external proposal.
+ */
+async function fetchExternal(api: ApiPromise) {
+  const external = await api.derive.democracy.nextExternal();
+  if (!external) return null;
+
+  external.image.proposal = _transfromProposalMeta(external.image.proposal) as any;
+  return { ...external, balance: external.image.balance, proposer: external.image.proposer };
+}
+
+/**
  * Query votes of council members and candidates.
  */
 async function fetchCouncilVotes(api: ApiPromise) {
@@ -255,6 +266,7 @@ export default {
   fetchReferendums,
   getReferendumVoteConvictions,
   fetchProposals,
+  fetchExternal,
   fetchCouncilVotes,
   getCouncilMotions,
   getTreasuryOverview,
