@@ -311,6 +311,8 @@ class _LPStakePage extends State<LPStakePage> {
     if (errorLeft != null) {
       setState(() {
         _errorLeft = errorLeft;
+        _maxInputLeft = null;
+        _maxInputRight = null;
         _errorRight = null;
       });
       return false;
@@ -319,6 +321,8 @@ class _LPStakePage extends State<LPStakePage> {
     if (errorRight != null) {
       setState(() {
         _errorLeft = null;
+        _maxInputLeft = null;
+        _maxInputRight = null;
         _errorRight = errorRight;
       });
       return false;
@@ -693,7 +697,7 @@ class _LPStakePage extends State<LPStakePage> {
                           });
                         },
                         balance: TokenBalanceData(
-                            symbol: poolTokenSymbol,
+                            symbol: tokenPair.map((e) => e?.symbol).join('-'),
                             decimals: tokenPair[0]?.decimals ?? 12,
                             amount: balance.toString()),
                         tokenIconsMap: widget.plugin.tokenIcons,

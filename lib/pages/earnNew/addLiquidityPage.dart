@@ -186,6 +186,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (errorLeft != null) {
       setState(() {
         _errorLeft = errorLeft;
+        _maxInputLeft = null;
+        _maxInputRight = null;
         _errorRight = null;
       });
       return false;
@@ -194,6 +196,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (errorRight != null) {
       setState(() {
         _errorLeft = null;
+        _maxInputLeft = null;
+        _maxInputRight = null;
         _errorRight = errorRight;
       });
       return false;
