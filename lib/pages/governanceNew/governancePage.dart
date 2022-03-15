@@ -536,12 +536,7 @@ class _GovernancePageState extends State<GovernancePage> {
                                           widget.plugin.store!.gov.bestNumber,
                                       symbol: symbol,
                                       decimals: decimals,
-                                      blockDuration: BigInt.parse(widget
-                                              .plugin
-                                              .networkConst['babe']
-                                                  ['expectedBlockTime']
-                                              .toString())
-                                          .toInt(),
+                                      blockDuration: 18,
                                       onCancelVote: _submitCancelVote,
                                       links: Visibility(
                                         visible: _links[
