@@ -17,9 +17,6 @@ import 'package:polkawallet_plugin_karura/pages/assets/tokenDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
-import 'package:polkawallet_plugin_karura/pages/gov/democracy/proposalDetailPage.dart';
-import 'package:polkawallet_plugin_karura/pages/gov/democracy/referendumVotePage.dart';
-import 'package:polkawallet_plugin_karura/pages/gov/democracyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/governancePage.dart';
 import 'package:polkawallet_plugin_karura/pages/newUIRoutes.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
@@ -267,11 +264,6 @@ class PluginKarura extends PolkawalletPlugin {
           ),
       TransferPage.route: (_) => TransferPage(this, keyring),
       TransferDetailPage.route: (_) => TransferDetailPage(this, keyring),
-
-      // Gov pages
-      DemocracyPage.route: (_) => DemocracyPage(this, keyring),
-      ReferendumVotePage.route: (_) => ReferendumVotePage(this, keyring),
-      ProposalDetailPage.route: (_) => ProposalDetailPage(this, keyring),
 
       //new ui
       ...getNewUiRoutes(this, keyring)
