@@ -1,5 +1,3 @@
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
-
 const plugin_cache_key = 'plugin_karura';
 
 const plugin_genesis_hash =
@@ -23,82 +21,12 @@ const para_chain_name_khala = 'khala';
 const para_chain_name_kint = 'kintsugi';
 const para_chain_name_quart = 'quartz';
 const para_chain_name_moon = 'moonriver';
-const para_chain_ids = {
-  para_chain_name_statemine: 1000,
-  para_chain_name_bifrost: 2001,
-  para_chain_name_khala: 2004,
-  para_chain_name_quart: 2095,
-  para_chain_name_kint: 2092,
-  para_chain_name_moon: 2023,
-};
 
-const network_ss58_format = {
-  plugin_name_karura: 8,
-  relay_chain_name: 2,
-  para_chain_name_bifrost: 6,
-  para_chain_name_khala: 30,
-  para_chain_name_quart: 255,
-  para_chain_name_kint: 2092,
-  para_chain_name_moon: 1285,
-};
 const relay_chain_token_symbol = 'KSM';
 const para_chain_token_symbol_bifrost = 'BNC';
 const para_chain_token_symbol_khala = 'PHA';
 const para_chain_token_symbol_kint = 'KINT';
-const cross_chain_xcm_fees = {
-  relay_chain_name: {
-    relay_chain_token_symbol: {
-      'fee': '79999999',
-      'existentialDeposit': '33333333',
-    },
-  },
-  para_chain_name_bifrost: {
-    relay_chain_token_symbol: {
-      'fee': '64000000',
-      'existentialDeposit': '100000000',
-    },
-    karura_stable_coin: {
-      'fee': '25600000000',
-      'existentialDeposit': '100000000',
-    },
-    para_chain_token_symbol_bifrost: {
-      'fee': '5120000000',
-      'existentialDeposit': '10000000000',
-    },
-    'VSKSM': {
-      'fee': '64000000',
-      'existentialDeposit': '100000000',
-    }
-  },
-  para_chain_name_khala: {
-    para_chain_token_symbol_khala: {
-      'fee': '800000000',
-      'existentialDeposit': '10000000000',
-    }
-  },
-  para_chain_name_statemine: {
-    foreign_token_RMRK: {
-      'fee': '16000000000',
-      'existentialDeposit': '100000000',
-    },
-    foreign_token_ARIS: {
-      'fee': '16000000000',
-      'existentialDeposit': '10000000',
-    }
-  },
-  para_chain_name_quart: {
-    foreign_token_QTZ: {
-      'fee': '0',
-      'existentialDeposit': '1000000000000000000',
-    }
-  },
-  para_chain_name_kint: {
-    para_chain_token_symbol_kint: {
-      'fee': '170666666',
-      'existentialDeposit': '0',
-    }
-  }
-};
+
 const foreign_asset_xcm_dest_fee = '16000000000';
 const xcm_dest_weight_v2 = '5000000000';
 
@@ -163,27 +91,110 @@ const config_modules = {
     'enabled': true,
   },
 };
-const config_xcm = {
-  relay_chain_token_symbol: [relay_chain_name],
-  para_chain_token_symbol_bifrost: [para_chain_name_bifrost],
-  "VSKSM": [para_chain_name_bifrost],
-  foreign_token_RMRK: [para_chain_name_statemine],
-  foreign_token_ARIS: [para_chain_name_statemine],
-  foreign_token_QTZ: [para_chain_name_quart],
-  para_chain_token_symbol_kint: [para_chain_name_kint],
-  "KUSD": [],
-  "PHA": []
-};
 
 const image_assets_uri = 'packages/polkawallet_plugin_karura/assets/images';
 
-const cross_chain_icons = {
-  plugin_name_karura: '$image_assets_uri/tokens/KAR.png',
-  relay_chain_name: '$image_assets_uri/tokens/KSM.png',
-  para_chain_name_bifrost: '$image_assets_uri/tokens/BNC.png',
-  para_chain_name_khala: '$image_assets_uri/tokens/PHA.png',
-  para_chain_name_statemine: '$image_assets_uri/paras/statemine.png',
-  para_chain_name_quart: '$image_assets_uri/tokens/QTZ.png',
-  para_chain_name_kint: '$image_assets_uri/tokens/KINT.png',
-  para_chain_name_moon: '$image_assets_uri/tokens/MOVR.png',
+const config_xcm = {
+  'xcm': {
+    relay_chain_token_symbol: [relay_chain_name],
+    para_chain_token_symbol_bifrost: [para_chain_name_bifrost],
+    "VSKSM": [para_chain_name_bifrost],
+    foreign_token_RMRK: [para_chain_name_statemine],
+    foreign_token_ARIS: [para_chain_name_statemine],
+    foreign_token_QTZ: [para_chain_name_quart],
+    para_chain_token_symbol_kint: [para_chain_name_kint],
+    "KUSD": [],
+    "PHA": []
+  },
+  'xcmInfo': {
+    relay_chain_name: {
+      relay_chain_token_symbol: {
+        'fee': '79999999',
+        'existentialDeposit': '33333333',
+      },
+    },
+    para_chain_name_bifrost: {
+      relay_chain_token_symbol: {
+        'fee': '64000000',
+        'existentialDeposit': '100000000',
+      },
+      karura_stable_coin: {
+        'fee': '25600000000',
+        'existentialDeposit': '100000000',
+      },
+      para_chain_token_symbol_bifrost: {
+        'fee': '5120000000',
+        'existentialDeposit': '10000000000',
+      },
+      'VSKSM': {
+        'fee': '64000000',
+        'existentialDeposit': '100000000',
+      }
+    },
+    para_chain_name_khala: {
+      para_chain_token_symbol_khala: {
+        'fee': '800000000',
+        'existentialDeposit': '10000000000',
+      }
+    },
+    para_chain_name_statemine: {
+      foreign_token_RMRK: {
+        'fee': '16000000000',
+        'existentialDeposit': '100000000',
+      },
+      foreign_token_ARIS: {
+        'fee': '16000000000',
+        'existentialDeposit': '10000000',
+      }
+    },
+    para_chain_name_quart: {
+      foreign_token_QTZ: {
+        'fee': '0',
+        'existentialDeposit': '1000000000000000000',
+      }
+    },
+    para_chain_name_kint: {
+      para_chain_token_symbol_kint: {
+        'fee': '170666666',
+        'existentialDeposit': '0',
+      }
+    }
+  },
+  'xcmChains': {
+    relay_chain_name: {
+      'id': '0',
+      'ss58': 2,
+      'icon': '$image_assets_uri/tokens/KSM.png',
+    },
+    para_chain_name_statemine: {
+      'id': '1000',
+      'ss58': 2,
+      'icon': '$image_assets_uri/paras/statemine.png',
+    },
+    para_chain_name_bifrost: {
+      'id': '2001',
+      'ss58': 6,
+      'icon': '$image_assets_uri/tokens/BNC.png',
+    },
+    para_chain_name_khala: {
+      'id': '2004',
+      'ss58': 30,
+      'icon': '$image_assets_uri/tokens/PHA.png',
+    },
+    para_chain_name_quart: {
+      'id': '2095',
+      'ss58': 255,
+      'icon': '$image_assets_uri/tokens/QTZ.png',
+    },
+    para_chain_name_kint: {
+      'id': '2092',
+      'ss58': 2092,
+      'icon': '$image_assets_uri/tokens/KINT.png',
+    },
+    para_chain_name_moon: {
+      'id': '2023',
+      'ss58': 1285,
+      'icon': '$image_assets_uri/tokens/MOVR.png',
+    },
+  }
 };

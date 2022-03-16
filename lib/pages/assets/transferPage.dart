@@ -62,7 +62,7 @@ class _TransferPageState extends State<TransferPage> {
 
   bool _submitting = false;
 
-  Future<String?> _checkAccountTo(KeyPairData? acc) async {
+  Future<String?> _checkAccountTo(KeyPairData? acc, int chainToSS58) async {
     if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc!.pubKey) >=
         0) {
       return null;
@@ -72,9 +72,8 @@ class _TransferPageState extends State<TransferPage> {
         '(account.checkAddressFormat != undefined ? {}:null)',
         wrapPromise: false);
     if (addressCheckValid != null) {
-      final res = await widget.plugin.sdk.api.account.checkAddressFormat(
-          acc!.address!,
-          network_ss58_format[_chainTo ?? widget.plugin.basic.name!]!);
+      final res = await widget.plugin.sdk.api.account
+          .checkAddressFormat(acc!.address!, chainToSS58);
       if (res != null && !res) {
         return I18n.of(context)!
             .getDic(i18n_full_dic_ui, 'account')!['ss58.mismatch'];
@@ -83,8 +82,8 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
 
-  Future<void> _validateAccountTo(KeyPairData? acc) async {
-    final error = await _checkAccountTo(acc);
+  Future<void> _validateAccountTo(KeyPairData? acc, int chainToSS58) async {
+    final error = await _checkAccountTo(acc, chainToSS58);
     setState(() {
       _accountToError = error;
     });
@@ -134,7 +133,7 @@ class _TransferPageState extends State<TransferPage> {
     return fee.partialFee.toString();
   }
 
-  Future<void> _onScan() async {
+  Future<void> _onScan(int chainToSS58) async {
     final to = await Navigator.of(context).pushNamed(ScanPage.route);
     if (to == null) return;
     final acc = KeyPairData();
@@ -142,7 +141,7 @@ class _TransferPageState extends State<TransferPage> {
     acc.name = to.address!.name;
     final res = await Future.wait([
       widget.plugin.sdk.api.account.getAddressIcons([acc.address]),
-      _checkAccountTo(acc),
+      _checkAccountTo(acc, chainToSS58),
     ]);
     if (res[0] != null) {
       final List icon = res[0] as List<dynamic>;
@@ -156,9 +155,14 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   /// XCM only support KSM transfer back to Kusama.
-  void _onSelectChain(
-      Map<String, Widget> crossChainIcons, List tokenXcmConfig) {
+  void _onSelectChain(Map<String, Widget> crossChainIcons) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+
+    final tokensConfig =
+        widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+    final List tokenXcmConfig =
+        (tokensConfig['xcm'] ?? config_xcm['xcm'] ?? {})[_token?.tokenNameId] ??
+            [];
 
     final options = [widget.plugin.basic.name, ...tokenXcmConfig];
 
@@ -189,7 +193,11 @@ class _TransferPageState extends State<TransferPage> {
               if (e != _chainTo) {
                 // set ss58 of _chainTo so we can get according address
                 // from AddressInputField
-                widget.keyring.setSS58(network_ss58_format[e]);
+                final chainToSS58 = e != widget.plugin.basic.name
+                    ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[e]
+                        ['ss58']
+                    : widget.plugin.basic.ss58;
+                widget.keyring.setSS58(chainToSS58);
                 final options = widget.keyring.allWithContacts.toList();
                 widget.keyring.setSS58(widget.plugin.basic.ss58);
                 setState(() {
@@ -201,7 +209,7 @@ class _TransferPageState extends State<TransferPage> {
                   }
                 });
 
-                _validateAccountTo(_accountTo);
+                _validateAccountTo(_accountTo, chainToSS58);
 
                 // update estimated tx fee if switch ToChain
                 _getTxFee(isXCM: e != widget.plugin.basic.name, reload: true);
@@ -258,7 +266,8 @@ class _TransferPageState extends State<TransferPage> {
     });
   }
 
-  Future<TxConfirmParams?> _getTxParams(String chainTo) async {
+  Future<TxConfirmParams?> _getTxParams(
+      String chainTo, String chainToId) async {
     if (_accountToError == null &&
         _formKey.currentState!.validate() &&
         !_submitting) {
@@ -297,7 +306,7 @@ class _TransferPageState extends State<TransferPage> {
                 }
               : {
                   'X2': [
-                    {'Parachain': para_chain_ids[_chainTo!]},
+                    {'Parachain': chainToId},
                     {
                       'AccountId32': {'id': destPubKey, 'network': 'Any'}
                     }
@@ -471,10 +480,10 @@ class _TransferPageState extends State<TransferPage> {
 
         final tokensConfig =
             widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-        final List? tokenXcmConfig = tokensConfig['xcm'] != null
-            ? tokensConfig['xcm'][token.tokenNameId]
-            : config_xcm[token.tokenNameId];
-        // final tokenXcmConfig = config_xcm[token.tokenNameId];
+        final List tokenXcmConfig = (tokensConfig['xcm'] ??
+                config_xcm['xcm'] ??
+                {})[token.tokenNameId] ??
+            [];
         final canCrossChain =
             tokenXcmConfig != null && tokenXcmConfig.length > 0;
 
@@ -503,15 +512,17 @@ class _TransferPageState extends State<TransferPage> {
         final isCrossChain = widget.plugin.basic.name != chainTo;
         final isFromStateMine =
             token.src != null && token.src!['Parachain'] == '1,000';
+        final tokenXcmInfo =
+            (tokensConfig['xcmInfo'] ?? config_xcm['xcmInfo'] ?? {})[chainTo] ??
+                {};
         final destExistDeposit = isCrossChain
-            ? Fmt.balanceInt(cross_chain_xcm_fees[chainTo]![token.tokenNameId]![
-                'existentialDeposit'])
+            ? Fmt.balanceInt(
+                tokenXcmInfo[token.tokenNameId]!['existentialDeposit'])
             : BigInt.zero;
         final destFee = isCrossChain
             ? isFromStateMine
                 ? BigInt.zero
-                : Fmt.balanceInt(
-                    cross_chain_xcm_fees[chainTo]![token.tokenNameId]!['fee'])
+                : Fmt.balanceInt(tokenXcmInfo[token.tokenNameId]!['fee'])
             : BigInt.zero;
 
         final relayChainTokenBalance = AssetsUtils.getBalanceFromTokenNameId(
@@ -521,9 +532,23 @@ class _TransferPageState extends State<TransferPage> {
             (Fmt.balanceInt(relayChainTokenBalance?.amount) <
                 Fmt.balanceInt(foreign_asset_xcm_dest_fee));
 
-        final colorGrey = Theme.of(context).unselectedWidgetColor;
-        final crossChainIcons = cross_chain_icons
-            .map((k, v) => MapEntry(k.toUpperCase(), Image.asset(v)));
+        final crossChainIcons = Map<String, Widget>.from(
+            tokensConfig['xcmChains'] != null
+                ? tokensConfig['xcmChains'].map((k, v) => MapEntry(
+                    k.toUpperCase(),
+                    (v['icon'] as String).contains('.svg')
+                        ? SvgPicture.network(v['icon'])
+                        : Image.network(v['icon'])))
+                : config_xcm['xcmChains']!.map((k, dynamic v) =>
+                    MapEntry(k.toUpperCase(), Image.asset(v['icon']))));
+        final chainToId = isCrossChain
+            ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[chainTo]
+                ['id']
+            : widget.plugin.basic.parachainId;
+        final chainToSS58 = isCrossChain
+            ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[chainTo]
+                ['ss58']
+            : widget.plugin.basic.ss58;
 
         final labelStyle = Theme.of(context).textTheme.headline4;
 
@@ -542,7 +567,7 @@ class _TransferPageState extends State<TransferPage> {
                       color: Theme.of(context).cardColor,
                       width: 18,
                     ),
-                    onPressed: _onScan,
+                    onPressed: () => _onScan(chainToSS58),
                     isBlueBg: true),
               )
             ],
@@ -573,7 +598,7 @@ class _TransferPageState extends State<TransferPage> {
                       hintText: dic['address'],
                       initialValue: _accountTo,
                       onChanged: (KeyPairData? acc) async {
-                        final error = await _checkAccountTo(acc);
+                        final error = await _checkAccountTo(acc, chainToSS58);
                         setState(() {
                           _accountTo = acc;
                           _accountToError = error;
@@ -672,28 +697,22 @@ class _TransferPageState extends State<TransferPage> {
                       )),
                   Container(
                     margin: EdgeInsets.only(top: 8, bottom: 8),
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                              margin: EdgeInsets.only(bottom: 4),
-                              child: Text(dic['currency']!, style: labelStyle),
-                            ),
-                            RoundedCard(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              child: CurrencyWithIcon(
-                                tokenView,
-                                TokenIcon(
-                                    tokenSymbol, widget.plugin.tokenIcons),
-                              ),
-                            ),
-                          ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(bottom: 4),
+                          child: Text(dic['currency']!, style: labelStyle),
                         ),
-                      ),
+                        RoundedCard(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: CurrencyWithIcon(
+                            tokenView,
+                            TokenIcon(tokenSymbol, widget.plugin.tokenIcons),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Visibility(
@@ -749,7 +768,8 @@ class _TransferPageState extends State<TransferPage> {
                                         Icon(
                                           Icons.arrow_forward_ios,
                                           size: 18,
-                                          color: colorGrey,
+                                          color: Theme.of(context)
+                                              .unselectedWidgetColor,
                                         )
                                       ],
                                     )
@@ -759,8 +779,7 @@ class _TransferPageState extends State<TransferPage> {
                             ],
                           ),
                         ),
-                        onTap: () => _onSelectChain(
-                            crossChainIcons, tokenXcmConfig ?? []),
+                        onTap: () => _onSelectChain(crossChainIcons),
                       )),
                   Visibility(
                     visible: isNativeTokenLow,
@@ -848,6 +867,25 @@ class _TransferPageState extends State<TransferPage> {
                     ),
                   ),
                   Visibility(
+                    visible: isFromStateMine,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 4),
+                              child: Text('XCM fee'),
+                            ),
+                          ),
+                          Text(
+                              '${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance!.decimals!)} $relay_chain_token_symbol'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Visibility(
                     visible: _fee?.partialFee != null,
                     child: Padding(
                       padding: EdgeInsets.only(top: 8),
@@ -887,8 +925,9 @@ class _TransferPageState extends State<TransferPage> {
                     padding: EdgeInsets.only(top: 16),
                     child: TxButton(
                       text: dic['make'],
-                      getTxParams: () async =>
-                          isToStateMineFeeError ? null : _getTxParams(chainTo),
+                      getTxParams: () async => isToStateMineFeeError
+                          ? null
+                          : _getTxParams(chainTo, chainToId),
                       onFinish: (res) {
                         if (res != null) {
                           Navigator.of(context).pop(res);
