@@ -517,12 +517,12 @@ class _TransferPageState extends State<TransferPage> {
                 {};
         final destExistDeposit = isCrossChain
             ? Fmt.balanceInt(
-                tokenXcmInfo[token.tokenNameId]!['existentialDeposit'])
+                (tokenXcmInfo[token.tokenNameId] ?? {})['existentialDeposit'])
             : BigInt.zero;
         final destFee = isCrossChain
             ? isFromStateMine
                 ? BigInt.zero
-                : Fmt.balanceInt(tokenXcmInfo[token.tokenNameId]!['fee'])
+                : Fmt.balanceInt((tokenXcmInfo[token.tokenNameId] ?? {})['fee'])
             : BigInt.zero;
 
         final relayChainTokenBalance = AssetsUtils.getBalanceFromTokenNameId(
@@ -916,7 +916,7 @@ class _TransferPageState extends State<TransferPage> {
                       ? Container(
                           margin: EdgeInsets.only(top: 8),
                           child: Text(
-                            '$relay_chain_token_symbol ${dic['xcm.foreign.fee']!} (${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance!.decimals!)} $relay_chain_token_symbol)',
+                            '$relay_chain_token_symbol ${dic['xcm.foreign.fee']!} (${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance.decimals!)} $relay_chain_token_symbol)',
                             style: TextStyle(color: Colors.red, fontSize: 10),
                           ),
                         )
