@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -82,24 +84,43 @@ class ServiceAssets {
     queryMarketPrices([plugin.networkState.tokenSymbol![0]]);
     final data = await plugin.api!.assets
         .queryAggregatedAssets(keyring.current.address!);
-    plugin.store!.assets.setAggregatedAssets(data, keyring.current.pubKey);
+    store!.assets.setAggregatedAssets(data, keyring.current.pubKey);
   }
 
   void calcLPTokenPrices() {
     final Map<String, double> prices = {};
-    plugin.store!.earn.dexPoolInfoMap.values.forEach((e) {
-      final pool = plugin.store!.earn.dexPools
+    store!.earn.dexPoolInfoMap.values.forEach((e) {
+      final pool = store!.earn.dexPools
           .firstWhere((i) => i.tokenNameId == e.tokenNameId);
       final tokenPair = pool.tokens!
           .map((id) => AssetsUtils.tokenDataFromCurrencyId(plugin, id))
           .toList();
-      prices[tokenPair.map((e) => e!.symbol).join('-')] = (Fmt.bigIntToDouble(
-                      e.amountLeft, tokenPair[0]!.decimals!) *
-                  plugin.store!.assets.marketPrices[tokenPair[0]!.symbol]! +
-              Fmt.bigIntToDouble(e.amountRight, tokenPair[1]!.decimals!) *
-                  plugin.store!.assets.marketPrices[tokenPair[1]!.symbol]!) /
-          Fmt.bigIntToDouble(e.issuance, tokenPair[0]!.decimals!);
+      prices[tokenPair.map((e) => e!.symbol).join('-')] =
+          (Fmt.bigIntToDouble(e.amountLeft, tokenPair[0]!.decimals!) *
+                      store!.assets.marketPrices[tokenPair[0]!.symbol]! +
+                  Fmt.bigIntToDouble(e.amountRight, tokenPair[1]!.decimals!) *
+                      store!.assets.marketPrices[tokenPair[1]!.symbol]!) /
+              Fmt.bigIntToDouble(e.issuance, tokenPair[0]!.decimals!);
     });
-    plugin.store!.assets.setMarketPrices(prices);
+    store!.assets.setMarketPrices(prices);
+  }
+
+  Future<void> queryIconsSrc() async {
+    final data = await Future.wait(
+        [WalletApi.getTokenIcons(), WalletApi.getCrossChainIcons()]);
+    if (data[0] != null && data[1] != null) {
+      final icons = Map.of(data[0]!);
+      icons.removeWhere(
+          (key, value) => plugin.tokenIcons.keys.toList().indexOf(key) > -1);
+      plugin.tokenIcons.addAll(icons.map((k, v) {
+        return MapEntry(
+            k,
+            (v as String).contains('.svg')
+                ? SvgPicture.network(v)
+                : Image.network(v));
+      }));
+
+      store!.assets.crossChainIcons = data[1]!;
+    }
   }
 }

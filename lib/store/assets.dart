@@ -36,6 +36,8 @@ abstract class _AssetsStore with Store {
     allTokens = tokens;
   }
 
+  Map crossChainIcons = {};
+
   @action
   void setTokenBalanceMap(List<TokenBalanceData> list, String? pubKey,
       {bool shouldCache = true}) {

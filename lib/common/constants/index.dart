@@ -46,7 +46,7 @@ const acala_token_ids = [
   'RMRK',
   'ARIS',
   'QTZ',
-  'MOVR',
+  // 'MOVR',
   // 'RENBTC',
   // 'XBTC',
   // 'POLKABTC',
@@ -161,40 +161,12 @@ const config_xcm = {
     }
   },
   'xcmChains': {
-    relay_chain_name: {
-      'id': '0',
-      'ss58': 2,
-      'icon': '$image_assets_uri/tokens/KSM.png',
-    },
-    para_chain_name_statemine: {
-      'id': '1000',
-      'ss58': 2,
-      'icon': '$image_assets_uri/paras/statemine.png',
-    },
-    para_chain_name_bifrost: {
-      'id': '2001',
-      'ss58': 6,
-      'icon': '$image_assets_uri/tokens/BNC.png',
-    },
-    para_chain_name_khala: {
-      'id': '2004',
-      'ss58': 30,
-      'icon': '$image_assets_uri/tokens/PHA.png',
-    },
-    para_chain_name_quart: {
-      'id': '2095',
-      'ss58': 255,
-      'icon': '$image_assets_uri/tokens/QTZ.png',
-    },
-    para_chain_name_kint: {
-      'id': '2092',
-      'ss58': 2092,
-      'icon': '$image_assets_uri/tokens/KINT.png',
-    },
-    para_chain_name_moon: {
-      'id': '2023',
-      'ss58': 1285,
-      'icon': '$image_assets_uri/tokens/MOVR.png',
-    },
+    relay_chain_name: {'id': '0', 'ss58': 2},
+    para_chain_name_statemine: {'id': '1000', 'ss58': 2},
+    para_chain_name_bifrost: {'id': '2001', 'ss58': 6},
+    para_chain_name_khala: {'id': '2004', 'ss58': 30},
+    para_chain_name_quart: {'id': '2095', 'ss58': 255},
+    para_chain_name_kint: {'id': '2092', 'ss58': 2092},
+    // para_chain_name_moon: {'id': '2023', 'ss58': 1285},
   }
 };

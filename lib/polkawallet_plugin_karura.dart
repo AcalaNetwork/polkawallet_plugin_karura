@@ -346,6 +346,7 @@ class PluginKarura extends PolkawalletPlugin {
 
     // fetch tokens config here for subscribe all tokens balances
     _service!.fetchRemoteConfig();
+    _service!.assets.queryIconsSrc();
   }
 
   @override

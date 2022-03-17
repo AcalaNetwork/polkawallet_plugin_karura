@@ -484,8 +484,10 @@ class _TransferPageState extends State<TransferPage> {
                 config_xcm['xcm'] ??
                 {})[token.tokenNameId] ??
             [];
+
+        // todo: moon-river(fa://3) xcm is not support now
         final canCrossChain =
-            tokenXcmConfig != null && tokenXcmConfig.length > 0;
+            token.tokenNameId != 'fa://3' && tokenXcmConfig.length > 0;
 
         final nativeTokenBalance =
             Fmt.balanceInt(widget.plugin.balances.native!.freeBalance) -
@@ -494,8 +496,8 @@ class _TransferPageState extends State<TransferPage> {
         final isNativeTokenLow = nativeTokenBalance - accountED <
             Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
 
-        final balanceData = widget.plugin.store!.assets
-            .tokenBalanceMap[token.tokenNameId ?? tokenSymbol];
+        final balanceData = AssetsUtils.getBalanceFromTokenNameId(
+            widget.plugin, token.tokenNameId);
         final available = Fmt.balanceInt(balanceData?.amount) -
             Fmt.balanceInt(balanceData?.locked);
         final nativeToken = widget.plugin.networkState.tokenSymbol![0];
@@ -533,14 +535,11 @@ class _TransferPageState extends State<TransferPage> {
                 Fmt.balanceInt(foreign_asset_xcm_dest_fee));
 
         final crossChainIcons = Map<String, Widget>.from(
-            tokensConfig['xcmChains'] != null
-                ? tokensConfig['xcmChains'].map((k, v) => MapEntry(
-                    k.toUpperCase(),
-                    (v['icon'] as String).contains('.svg')
-                        ? SvgPicture.network(v['icon'])
-                        : Image.network(v['icon'])))
-                : config_xcm['xcmChains']!.map((k, dynamic v) =>
-                    MapEntry(k.toUpperCase(), Image.asset(v['icon']))));
+            widget.plugin.store!.assets.crossChainIcons.map((k, v) => MapEntry(
+                k.toUpperCase(),
+                (v as String).contains('.svg')
+                    ? SvgPicture.network(v)
+                    : Image.network(v))));
         final chainToId = isCrossChain
             ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[chainTo]
                 ['id']
@@ -588,113 +587,122 @@ class _TransferPageState extends State<TransferPage> {
                   Visibility(
                       visible: !(!isCrossChain || _accountToEditable),
                       child: AddressFormItem(widget.keyring.current)),
-                  Visibility(
-                    visible: !isCrossChain || _accountToEditable,
-                    child: AddressTextFormField(
-                      widget.plugin.sdk.api,
-                      _accountOptions,
-                      labelText: dic['address'],
-                      labelStyle: labelStyle,
-                      hintText: dic['address'],
-                      initialValue: _accountTo,
-                      onChanged: (KeyPairData? acc) async {
-                        final error = await _checkAccountTo(acc, chainToSS58);
-                        setState(() {
-                          _accountTo = acc;
-                          _accountToError = error;
-                        });
-                      },
-                      key: ValueKey<KeyPairData?>(_accountTo),
-                    ),
-                  ),
-                  Visibility(
-                      visible: _accountToError != null,
-                      child: Container(
-                        margin: EdgeInsets.only(top: 4),
-                        child: Text(_accountToError ?? "",
-                            style: TextStyle(fontSize: 12, color: Colors.red)),
-                      )),
-                  Visibility(
-                    visible: isCrossChain,
-                    child: GestureDetector(
-                      child: Container(
-                        child: Row(
-                          children: [
-                            v3.Checkbox(
-                              padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
-                              value: _accountToEditable,
-                              onChanged: _onSwitchEditable,
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Text(
-                                dicAcala['cross.edit']!,
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      onTap: () => _onSwitchEditable(!_accountToEditable),
-                    ),
-                  ),
-                  Container(height: 10.h),
                   Form(
-                      key: _formKey,
-                      child: v3.TextInputWidget(
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: v3.InputDecorationV3(
-                          hintText: dic['amount.hint'],
-                          labelText:
-                              '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
-                            available,
-                            token.decimals!,
-                            lengthMax: 6,
-                          )})',
-                          labelStyle: labelStyle,
-                          suffix: GestureDetector(
-                            child: Text(dic['amount.max']!,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .toggleableActiveColor)),
-                            onTap: () {
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Visibility(
+                          visible: !isCrossChain || _accountToEditable,
+                          child: AddressTextFormField(
+                            widget.plugin.sdk.api,
+                            _accountOptions,
+                            labelText: dic['address'],
+                            labelStyle: labelStyle,
+                            hintText: dic['address'],
+                            initialValue: _accountTo,
+                            onChanged: (KeyPairData? acc) async {
+                              final error =
+                                  await _checkAccountTo(acc, chainToSS58);
                               setState(() {
-                                _amountMax = available;
-                                _amountCtrl.text = Fmt.bigIntToDouble(
-                                        available, token.decimals!)
-                                    .toStringAsFixed(8);
+                                _accountTo = acc;
+                                _accountToError = error;
                               });
                             },
+                            key: ValueKey<KeyPairData?>(_accountTo),
                           ),
                         ),
-                        inputFormatters: [
-                          UI.decimalInputFormatter(token.decimals!)!
-                        ],
-                        controller: _amountCtrl,
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        onChanged: (_) {
-                          setState(() {
-                            _amountMax = null;
-                          });
-                        },
-                        validator: (v) {
-                          final error = Fmt.validatePrice(v!, context);
-                          if (error != null) {
-                            return error;
-                          }
+                        Visibility(
+                            visible: _accountToError != null,
+                            child: Container(
+                              margin: EdgeInsets.only(top: 4),
+                              child: Text(_accountToError ?? "",
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.red)),
+                            )),
+                        Visibility(
+                          visible: isCrossChain,
+                          child: GestureDetector(
+                            child: Container(
+                              child: Row(
+                                children: [
+                                  v3.Checkbox(
+                                    padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
+                                    value: _accountToEditable,
+                                    onChanged: _onSwitchEditable,
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      dicAcala['cross.edit']!,
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onTap: () => _onSwitchEditable(!_accountToEditable),
+                          ),
+                        ),
+                        Container(height: 10.h),
+                        v3.TextInputWidget(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          decoration: v3.InputDecorationV3(
+                            hintText: dic['amount.hint'],
+                            labelText:
+                                '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
+                              available,
+                              token.decimals!,
+                              lengthMax: 6,
+                            )})',
+                            labelStyle: labelStyle,
+                            suffix: GestureDetector(
+                              child: Text(dic['amount.max']!,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .toggleableActiveColor)),
+                              onTap: () {
+                                setState(() {
+                                  _amountMax = available;
+                                  _amountCtrl.text = Fmt.bigIntToDouble(
+                                          available, token.decimals!)
+                                      .toStringAsFixed(8);
+                                });
+                              },
+                            ),
+                          ),
+                          inputFormatters: [
+                            UI.decimalInputFormatter(token.decimals!)!
+                          ],
+                          controller: _amountCtrl,
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) {
+                            setState(() {
+                              _amountMax = null;
+                            });
+                          },
+                          validator: (v) {
+                            final error = Fmt.validatePrice(v!, context);
+                            if (error != null) {
+                              return error;
+                            }
 
-                          final input = Fmt.tokenInt(v.trim(), token.decimals!);
-                          if (_amountMax == null &&
-                              Fmt.bigIntToDouble(input, token.decimals!) >
-                                  available /
-                                      BigInt.from(pow(10, token.decimals!))) {
-                            return dic['amount.low'];
-                          }
-                          return null;
-                        },
-                      )),
+                            final input =
+                                Fmt.tokenInt(v.trim(), token.decimals!);
+                            if (_amountMax == null &&
+                                Fmt.bigIntToDouble(input, token.decimals!) >
+                                    available /
+                                        BigInt.from(pow(10, token.decimals!))) {
+                              return dic['amount.low'];
+                            }
+                            return null;
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                   Container(
                     margin: EdgeInsets.only(top: 8, bottom: 8),
                     child: Column(

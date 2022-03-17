@@ -40,6 +40,36 @@ class WalletApi {
     }
   }
 
+  static Future<Map?> getTokenIcons() async {
+    try {
+      Response res =
+          await get(Uri.parse('https://resources.acala.network/tokens.json'));
+      if (res == null) {
+        return null;
+      } else {
+        return jsonDecode(utf8.decode(res.bodyBytes));
+      }
+    } catch (err) {
+      print(err);
+      return null;
+    }
+  }
+
+  static Future<Map?> getCrossChainIcons() async {
+    try {
+      Response res =
+          await get(Uri.parse('https://resources.acala.network/chains.json'));
+      if (res == null) {
+        return null;
+      } else {
+        return jsonDecode(utf8.decode(res.bodyBytes));
+      }
+    } catch (err) {
+      print(err);
+      return null;
+    }
+  }
+
   static Future<Map?> getDemocracyReferendumInfo(int id,
       {String network = 'karura'}) async {
     try {
