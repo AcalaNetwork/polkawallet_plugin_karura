@@ -20,10 +20,10 @@ class TxLoanData extends _TxLoanData {
     data.hash = json['extrinsic']['id'];
 
     final jsonData = json['data'] as List;
-    data.token = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(jsonData[1]['value']))!
-        .symbol;
-    final token = AssetsUtils.getBalanceFromTokenNameId(plugin, data.token)!;
+
+    final token = AssetsUtils.tokenDataFromCurrencyId(
+        plugin, jsonDecode(jsonData[1]['value']));
+    data.token = token?.symbol;
 
     data.collateral = Fmt.balanceInt(jsonData[2]['value'].toString());
     data.debit = jsonData.length > 4
@@ -32,8 +32,8 @@ class TxLoanData extends _TxLoanData {
                 (jsonData[4]['value'] ?? '1000000000000').toString()) ~/
             BigInt.from(pow(10, acala_price_decimals))
         : BigInt.zero;
-    data.amountCollateral =
-        Fmt.priceFloorBigInt(BigInt.zero - data.collateral!, token.decimals!);
+    data.amountCollateral = Fmt.priceFloorBigInt(
+        BigInt.zero - data.collateral!, token?.decimals ?? 12);
     data.amountDebit = Fmt.priceCeilBigInt(data.debit,
         plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!);
     if (data.event == 'ConfiscateCollateralAndDebit') {
