@@ -256,75 +256,101 @@ class _LoanPageState extends State<LoanPage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_ui, 'common');
     SwapOutputData? output;
-    final confirmed = await showCupertinoDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return CupertinoAlertDialog(
-          title: Text(dic!['loan.close']!),
-          content: Column(
-            children: [
-              Text(dic['loan.close.dex.info']!),
-              Divider(),
-              FutureBuilder<SwapOutputData>(
-                future: _queryReceiveAmount(ctx, loan.token!, debit),
-                builder: (_, AsyncSnapshot<SwapOutputData> snapshot) {
-                  if (snapshot.hasData) {
-                    output = snapshot.data;
-                    final left = Fmt.bigIntToDouble(
-                            loan.collaterals, collateralDecimal!) -
-                        snapshot.data!.amount!;
-                    return InfoItemRow(dic['loan.close.receive']!,
-                        Fmt.priceFloor(left) + loan.token!.symbol!);
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            CupertinoButton(
-              child: Text(dicCommon!['cancel']!),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            CupertinoButton(
-              child: Text(dicCommon['ok']!),
-              onPressed: () => Navigator.of(context).pop(true),
-            ),
-          ],
-        );
-      },
-    );
+    final confirmed = debit > 0
+        ? await showCupertinoDialog(
+            context: context,
+            builder: (BuildContext ctx) {
+              return CupertinoAlertDialog(
+                title: Text(dic!['loan.close']!),
+                content: Column(
+                  children: [
+                    Text(dic['loan.close.dex.info']!),
+                    Divider(),
+                    FutureBuilder<SwapOutputData>(
+                      future: _queryReceiveAmount(ctx, loan.token!, debit),
+                      builder: (_, AsyncSnapshot<SwapOutputData> snapshot) {
+                        if (snapshot.hasData) {
+                          output = snapshot.data;
+                          final left = Fmt.bigIntToDouble(
+                                  loan.collaterals, collateralDecimal!) -
+                              snapshot.data!.amount!;
+                          return InfoItemRow(dic['loan.close.receive']!,
+                              Fmt.priceFloor(left) + loan.token!.symbol!);
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                actions: <Widget>[
+                  CupertinoButton(
+                    child: Text(dicCommon!['cancel']!),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                  CupertinoButton(
+                    child: Text(dicCommon['ok']!),
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ],
+              );
+            },
+          )
+        : await _confirmPaybackParams(dic!['v3.loan.closeVault']!);
     if (confirmed) {
-      final params = [
-        loan.token!.currencyId,
-        loan.collaterals.toString(),
-        output != null
-            ? output!.path!
-                .map((e) => AssetsUtils.getBalanceFromTokenNameId(
-                        widget.plugin, e['name'])!
-                    .currencyId)
-                .toList()
-            : null
-      ];
+      var res;
+      if (debit > 0) {
+        final params = [
+          loan.token!.currencyId,
+          loan.collaterals.toString(),
+          output != null
+              ? output!.path!
+                  .map((e) => AssetsUtils.getBalanceFromTokenNameId(
+                          widget.plugin, e['name'])!
+                      .currencyId)
+                  .toList()
+              : null
+        ];
 
-      final isRuntimeOld = await widget.plugin.sdk.webView!.evalJavascript(
-          '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
-          wrapPromise: false);
-      final res = await Navigator.of(context).pushNamed(
-        TxConfirmPage.route,
-        arguments: TxConfirmParams(
-          module: 'honzon',
-          call: 'closeLoanHasDebitByDex',
-          txTitle: dic!['loan.close'],
-          txDisplay: {
-            'collateral': loan.token!.symbol,
-            'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
-          },
-          params: isRuntimeOld ? params : params.sublist(0, 2),
-          isPlugin: true,
-        ),
-      );
+        final isRuntimeOld = await widget.plugin.sdk.webView!.evalJavascript(
+            '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
+            wrapPromise: false);
+        res = await Navigator.of(context).pushNamed(
+          TxConfirmPage.route,
+          arguments: TxConfirmParams(
+            module: 'honzon',
+            call: 'closeLoanHasDebitByDex',
+            txTitle: dic!['loan.close'],
+            txDisplay: {
+              'collateral': loan.token!.symbol,
+              'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
+            },
+            params: isRuntimeOld ? params : params.sublist(0, 2),
+            isPlugin: true,
+          ),
+        );
+      } else {
+        final params = [
+          loan.token!.currencyId,
+          (loan.collaterals * BigInt.from(-1)).toString(),
+          loan.debits.toString()
+        ];
+
+        res = await Navigator.of(context).pushNamed(
+          TxConfirmPage.route,
+          arguments: TxConfirmParams(
+            module: 'honzon',
+            call: "adjustLoan",
+            txTitle: "adjust Vault",
+            txDisplay: {
+              dic!['loan.withdraw']:
+                  "${Fmt.priceFloorBigInt(loan.collaterals, collateralDecimal!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}",
+            },
+            params: params,
+            isPlugin: true,
+          ),
+        );
+      }
       if (res != null) {
         Navigator.of(context).pop(res);
       }

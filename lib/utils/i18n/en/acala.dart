@@ -88,7 +88,7 @@ const Map<String, String> enDex = {
   'loan.activate.1': 'Click Here',
   'loan.activate.2': 'to activate your rewards.',
   'loan.close': 'Close Vault',
-  'loan.close.dex': 'Close Vault by Swapping Collateral',
+  'loan.close.dex': 'Close Vault',
   'loan.close.dex.info':
       'Part of your collateral will be sold on Swap to pay back all the minted kUSD. The remaining collateral will be returned to your account. Are you sure to continue?',
   'loan.close.receive': 'Estimated Receive',
@@ -273,5 +273,7 @@ const Map<String, String> enDex = {
   'v3.loan.max': 'max',
   'v3.earn.staked': 'My Staked',
   'v3.earn.stakedValue': 'Staked Value',
-  'v3.fastRedeemError': 'The fast redeem is not available at the present.'
+  'v3.fastRedeemError': 'The fast redeem is not available at the present.',
+  'v3.loan.closeVault':
+      'There is no minted kUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?'
 };

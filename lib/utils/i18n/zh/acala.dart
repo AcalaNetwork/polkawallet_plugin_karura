@@ -85,7 +85,7 @@ const Map<String, String> zhDex = {
   'loan.activate.1': '点击这里',
   'loan.activate.2': '激活你的奖励',
   'loan.close': '关闭债仓',
-  'loan.close.dex': '通过兑换质押物关闭债仓',
+  'loan.close.dex': '关闭债仓',
   'loan.close.dex.info':
       '你的一部分质押物会通过 Swap 卖掉，以归还全部 kUSD 债务，剩余的质押物将退回你的账户。确认继续吗？',
   'loan.close.receive': '预估退回质押物',
@@ -256,5 +256,6 @@ const Map<String, String> zhDex = {
   'v3.loan.max': '最大值',
   'v3.earn.staked': '我的质押',
   'v3.earn.stakedValue': '质押值',
-  'v3.fastRedeemError': '快速赎回当前不可用。'
+  'v3.fastRedeemError': '快速赎回当前不可用。',
+  'v3.loan.closeVault': '你当前的债仓中没有kUSD债务，您确定要提取所有质押物并关闭债仓吗？'
 };
