@@ -362,62 +362,60 @@ class _BootStrapCard extends StatelessWidget {
                         _Checkbox(blocksEnd < 0)
                       ],
                     ),
-                    Row(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
+                        Text.rich(
+                          TextSpan(children: [
+                            TextSpan(
+                                text:
                                     '${dic['boot.provision.condition.1']!} ${Fmt.priceCeilBigInt(targetLeft, balancePair[0]!.decimals!)} ${tokenPairView[0]}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(color: Colors.white)),
-                                Text(
-                                  ' (${Fmt.ratio(progressLeft)} ${dic['boot.provision.met']})',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline5
-                                      ?.copyWith(color: primaryColor),
-                                ),
-                                _Checkbox(
-                                    progressLeft >= 1 || progressRight >= 1),
-                              ],
-                            ),
-                            PluginLinearProgressbar(
-                              margin: EdgeInsets.only(top: 6, bottom: 12),
-                              width: MediaQuery.of(context).size.width - 56,
-                              progress: progressLeft,
-                              color: primaryColor,
-                              backgroundColor: Colors.transparent,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                    '${dic['boot.provision.or']!} ${Fmt.priceCeilBigInt(targetRight, balancePair[1]!.decimals!)} ${tokenPairView[1]}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(color: Colors.white)),
-                                Text(
-                                    ' (${Fmt.ratio(progressRight)} ${dic['boot.provision.met']})',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline5
-                                        ?.copyWith(color: primaryColor)),
-                              ],
-                            ),
-                            PluginLinearProgressbar(
-                              margin: EdgeInsets.only(top: 6, bottom: 12),
-                              width: MediaQuery.of(context).size.width - 56,
-                              progress: progressRight,
-                              color: primaryColor,
-                              backgroundColor: Colors.transparent,
-                            )
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: Colors.white)),
+                            TextSpan(
+                                text:
+                                    ' (${Fmt.ratio(progressLeft)} ${dic['boot.provision.met']})',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: primaryColor)),
+                            WidgetSpan(
+                                child: _Checkbox(
+                                    progressLeft >= 1 || progressRight >= 1)),
+                          ]),
+                          textAlign: TextAlign.left,
+                        ),
+                        PluginLinearProgressbar(
+                          margin: EdgeInsets.only(top: 6, bottom: 12),
+                          width: MediaQuery.of(context).size.width - 56,
+                          progress: progressLeft,
+                          color: primaryColor,
+                          backgroundColor: Colors.transparent,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                                '${dic['boot.provision.or']!} ${Fmt.priceCeilBigInt(targetRight, balancePair[1]!.decimals!)} ${tokenPairView[1]}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: Colors.white)),
+                            Text(
+                                ' (${Fmt.ratio(progressRight)} ${dic['boot.provision.met']})',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: primaryColor)),
                           ],
+                        ),
+                        PluginLinearProgressbar(
+                          margin: EdgeInsets.only(top: 6, bottom: 12),
+                          width: MediaQuery.of(context).size.width - 56,
+                          progress: progressRight,
+                          color: primaryColor,
+                          backgroundColor: Colors.transparent,
                         )
                       ],
                     )
