@@ -138,17 +138,17 @@ const config_xcm = {
       }
     },
     para_chain_name_statemine: {
-      foreign_token_RMRK: {
+      'RMRK': {
         'fee': '16000000000',
         'existentialDeposit': '100000000',
       },
-      foreign_token_ARIS: {
+      'ARIS': {
         'fee': '16000000000',
         'existentialDeposit': '10000000',
       }
     },
     para_chain_name_quart: {
-      foreign_token_QTZ: {
+      'QTZ': {
         'fee': '0',
         'existentialDeposit': '1000000000000000000',
       }

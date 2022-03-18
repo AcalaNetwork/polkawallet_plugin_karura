@@ -519,12 +519,12 @@ class _TransferPageState extends State<TransferPage> {
                 {};
         final destExistDeposit = isCrossChain
             ? Fmt.balanceInt(
-                (tokenXcmInfo[token.tokenNameId] ?? {})['existentialDeposit'])
+                (tokenXcmInfo[tokenSymbol] ?? {})['existentialDeposit'])
             : BigInt.zero;
         final destFee = isCrossChain
             ? isFromStateMine
                 ? BigInt.zero
-                : Fmt.balanceInt((tokenXcmInfo[token.tokenNameId] ?? {})['fee'])
+                : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['fee'])
             : BigInt.zero;
 
         final relayChainTokenBalance = AssetsUtils.getBalanceFromTokenNameId(
@@ -740,7 +740,8 @@ class _TransferPageState extends State<TransferPage> {
                                 ),
                               ),
                               RoundedCard(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -913,7 +914,7 @@ class _TransferPageState extends State<TransferPage> {
                     ),
                   ),
                   Visibility(
-                      visible: isCrossChain,
+                      visible: isCrossChain && tokenSymbol != nativeToken,
                       child: _CrossChainTransferWarning(
                           message: _getWarnInfo(tokenSymbol))),
                   Visibility(

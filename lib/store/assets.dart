@@ -32,11 +32,11 @@ abstract class _AssetsStore with Store {
   @observable
   Map? aggregatedAssets = {};
 
+  Map crossChainIcons = {};
+
   void setAllTokens(List<TokenBalanceData> tokens) {
     allTokens = tokens;
   }
-
-  Map crossChainIcons = {};
 
   @action
   void setTokenBalanceMap(List<TokenBalanceData> list, String? pubKey,
