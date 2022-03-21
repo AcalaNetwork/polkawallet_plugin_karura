@@ -85,11 +85,13 @@ class EarnDetailPage extends StatelessWidget {
 
             leftPrice = Fmt.bigIntToDouble(
                     poolInfo.amountLeft, balancePair[0]!.decimals!) *
-                plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!;
+                (plugin.store!.assets.marketPrices[balancePair[0]!.symbol] ??
+                    0);
 
             rightPrice = Fmt.bigIntToDouble(
                     poolInfo.amountRight, balancePair[1]!.decimals!) *
-                plugin.store!.assets.marketPrices[balancePair[1]!.symbol]!;
+                (plugin.store!.assets.marketPrices[balancePair[1]!.symbol] ??
+                    0);
 
             lpAmountString =
                 '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0]!.symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1]!.symbol)}';
@@ -170,7 +172,7 @@ class EarnDetailPage extends StatelessWidget {
                                         Padding(
                                           padding: EdgeInsets.only(left: 50),
                                           child: Text(
-                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!)}",
+                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * (plugin.store!.assets.marketPrices[balancePair[0]!.symbol] ?? 0))}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
@@ -198,7 +200,7 @@ class EarnDetailPage extends StatelessWidget {
                                     padding:
                                         EdgeInsets.only(left: 16, bottom: 10),
                                     child: Text(
-                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * plugin.store!.assets.marketPrices[balancePair[0]!.symbol]!)}",
+                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * (plugin.store!.assets.marketPrices[balancePair[0]!.symbol] ?? 0))}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5
@@ -557,7 +559,7 @@ class _UserCard extends StatelessWidget {
         canClaim = true;
       }
       rewardPrice +=
-          plugin!.store!.assets.marketPrices[e['tokenNameId']]! * amount;
+          (plugin!.store!.assets.marketPrices[e['tokenNameId']] ?? 0) * amount;
       return Fmt.priceFloor(amount, lengthMax: 4) + ' ${e['tokenNameId']}';
     }).join(' + ');
 

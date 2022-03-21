@@ -25,6 +25,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class BootstrapList extends StatefulWidget {
@@ -133,7 +134,10 @@ class _BootstrapListState extends State<BootstrapList> {
         txDisplayBold: {
           dic['loan.amount']!: Text(
             '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
-            style: Theme.of(context).textTheme.headline1,
+            style: Theme.of(context)
+                .textTheme
+                .headline1
+                ?.copyWith(color: PluginColorsDark.headline1),
           ),
         },
         params: [],
@@ -369,7 +373,7 @@ class _BootStrapCard extends StatelessWidget {
                           TextSpan(children: [
                             TextSpan(
                                 text:
-                                    '${dic['boot.provision.condition.1']!} ${Fmt.priceCeilBigInt(targetLeft, balancePair[0]!.decimals!)} ${tokenPairView[0]}',
+                                    '${dic['boot.provision.condition.1']!} ${Fmt.priceCeilBigInt(targetLeft, balancePair[0]?.decimals ?? 12)} ${tokenPairView[0]}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline5
@@ -424,8 +428,8 @@ class _BootStrapCard extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 4, top: 12, left: 12, right: 12),
             child: InfoItemRow(
               dic['boot.total']!,
-              '${Fmt.priceCeilBigInt(nowLeft, balancePair[0]!.decimals!)} ${tokenPairView[0]}\n'
-              '+ ${Fmt.priceCeilBigInt(nowRight, balancePair[1]!.decimals!)} ${tokenPairView[1]}',
+              '${Fmt.priceCeilBigInt(nowLeft, balancePair[0]?.decimals ?? 12)} ${tokenPairView[0]}\n'
+              '+ ${Fmt.priceCeilBigInt(nowRight, balancePair[1]?.decimals ?? 12)} ${tokenPairView[1]}',
               crossAxisAlignment: CrossAxisAlignment.start,
               labelStyle: Theme.of(context)
                   .textTheme
