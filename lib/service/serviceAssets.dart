@@ -97,9 +97,9 @@ class ServiceAssets {
           .toList();
       prices[tokenPair.map((e) => e!.symbol).join('-')] =
           (Fmt.bigIntToDouble(e.amountLeft, tokenPair[0]!.decimals!) *
-                      store!.assets.marketPrices[tokenPair[0]!.symbol]! +
+                      (store!.assets.marketPrices[tokenPair[0]!.symbol] ?? 0) +
                   Fmt.bigIntToDouble(e.amountRight, tokenPair[1]!.decimals!) *
-                      store!.assets.marketPrices[tokenPair[1]!.symbol]!) /
+                      (store!.assets.marketPrices[tokenPair[1]!.symbol] ?? 0)) /
               Fmt.bigIntToDouble(e.issuance, tokenPair[0]!.decimals!);
     });
     store!.assets.setMarketPrices(prices);
