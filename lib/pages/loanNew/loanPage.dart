@@ -154,6 +154,25 @@ class _LoanPageState extends State<LoanPage> {
           debits <= loan.type.minimumDebitValue) {
         final minimumDebitValue = Fmt.bigIntToDouble(
             loan.type.minimumDebitValue, balancePair[1]!.decimals!);
+        if (loan.maxToBorrow < loan.type.minimumDebitValue) {
+          final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+          showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return CupertinoAlertDialog(
+                  content: Text(
+                      "${dic!['v3.loan.errorMessage5']}$minimumDebitValue${dic['v3.loan.errorMessage6']}"),
+                  actions: <Widget>[
+                    CupertinoDialogAction(
+                      child: Text(I18n.of(context)!.getDic(
+                          i18n_full_dic_karura, 'common')!['upgrading.btn']!),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    )
+                  ],
+                );
+              });
+          return null;
+        }
         final bool canContinue = await (_confirmPaybackParams(
                 '${dic!['loan.warn4']}$minimumDebitValue${dic['loan.warn5']}')
             as Future<bool>);

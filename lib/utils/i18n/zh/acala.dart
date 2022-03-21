@@ -252,5 +252,7 @@ const Map<String, String> zhDex = {
   'v3.earn.staked': '我的质押',
   'v3.earn.stakedValue': '质押值',
   'v3.fastRedeemError': '快速赎回当前不可用。',
-  'v3.loan.closeVault': '你当前的债仓中没有aUSD债务，您确定要提取所有质押物并关闭债仓吗？'
+  'v3.loan.closeVault': '你当前的债仓中没有kUSD债务，您确定要提取所有质押物并关闭债仓吗？',
+  'v3.loan.errorMessage5': '债仓中生成债务的最低要求是 ',
+  'v3.loan.errorMessage6': 'kUSD, 你必须存入更多的抵押品才能生成足够的kUSD'
 };
