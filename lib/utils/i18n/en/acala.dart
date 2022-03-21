@@ -268,8 +268,8 @@ const Map<String, String> enDex = {
   'v3.earn.stakedValue': 'Staked Value',
   'v3.fastRedeemError': 'The fast redeem is not available at the present.',
   'v3.loan.closeVault':
-      'There is no minted kUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?',
+      'There is no minted aUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?',
   'v3.loan.errorMessage5': 'The minimum requirement for the Vault is ',
   'v3.loan.errorMessage6':
-      'kUSD, you have to deposit more collateral to mint enough kUSD'
+      'aUSD, you have to deposit more collateral to mint enough aUSD'
 };
