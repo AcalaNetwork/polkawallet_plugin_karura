@@ -376,6 +376,7 @@ class EarnDetailPage extends StatelessWidget {
                           fee: plugin.service!.earn.getSwapFee(),
                           incentiveCoinSymbol: symbols![0],
                           stableCoinSymbol: karura_stable_coin,
+                          stableCoinSymbolView: karura_stable_coin_view,
                           stableCoinDecimal: plugin.networkState.tokenDecimals![
                               symbols.indexOf(karura_stable_coin)],
                           bestNumber: plugin.store!.gov.bestNumber,
@@ -411,6 +412,7 @@ class _UserCard extends StatelessWidget {
     this.fee,
     this.incentiveCoinSymbol,
     this.stableCoinSymbol,
+    this.stableCoinSymbolView,
     this.stableCoinDecimal,
     this.bestNumber,
     this.dexIncentiveLoyaltyEndBlock,
@@ -426,6 +428,7 @@ class _UserCard extends StatelessWidget {
   final double? fee;
   final String? incentiveCoinSymbol;
   final String? stableCoinSymbol;
+  final String? stableCoinSymbolView;
   final int? stableCoinDecimal;
   final BigInt? bestNumber;
   final List<dynamic>? dexIncentiveLoyaltyEndBlock;
@@ -538,12 +541,12 @@ class _UserCard extends StatelessWidget {
     }
 
     final Color primary = Theme.of(context).primaryColor;
-    final TextStyle primaryText = TextStyle(
-      fontSize: 20,
-      fontWeight: FontWeight.bold,
-      color: primary,
-      letterSpacing: -0.8,
-    );
+    // final TextStyle primaryText = TextStyle(
+    //   fontSize: 20,
+    //   fontWeight: FontWeight.bold,
+    //   color: primary,
+    //   letterSpacing: -0.8,
+    // );
 
     final savingRewardTokenMin = Fmt.balanceDouble(
         plugin!.store!.assets.tokenBalanceMap[stableCoinSymbol]!.minBalance!,
@@ -576,37 +579,37 @@ class _UserCard extends StatelessWidget {
 
     var reward = rewardV2.isEmpty ? '0' : rewardV2;
 
-    final rewardsRow = <Widget>[
-      Column(
-        children: <Widget>[
-          Text(
-            dic['earn.incentive']!,
-            style: TextStyle(fontSize: 12),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 8, bottom: 8),
-            child: Text(rewardV2.isEmpty ? '0' : rewardV2, style: primaryText),
-          ),
-        ],
-      )
-    ];
+    // final rewardsRow = <Widget>[
+    //   Column(
+    //     children: <Widget>[
+    //       Text(
+    //         dic['earn.incentive']!,
+    //         style: TextStyle(fontSize: 12),
+    //       ),
+    //       Padding(
+    //         padding: EdgeInsets.only(top: 8, bottom: 8),
+    //         child: Text(rewardV2.isEmpty ? '0' : rewardV2, style: primaryText),
+    //       ),
+    //     ],
+    //   )
+    // ];
     if (rewardSaving > 0) {
       reward =
-          "$reward + ${Fmt.priceFloor(rewardSaving, lengthMax: 2)} $stableCoinSymbol";
+          "$reward + ${Fmt.priceFloor(rewardSaving, lengthMax: 2)} $stableCoinSymbolView";
       rewardPrice += rewardSaving;
-      rewardsRow.add(Column(
-        children: <Widget>[
-          Text(
-            '${dic['earn.saving']} ($stableCoinSymbol)',
-            style: TextStyle(fontSize: 12),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 8, bottom: 8),
-            child: Text(Fmt.priceFloor(rewardSaving, lengthMax: 2),
-                style: primaryText),
-          ),
-        ],
-      ));
+      // rewardsRow.add(Column(
+      //   children: <Widget>[
+      //     Text(
+      //       '${dic['earn.saving']} ($stableCoinSymbol)',
+      //       style: TextStyle(fontSize: 12),
+      //     ),
+      //     Padding(
+      //       padding: EdgeInsets.only(top: 8, bottom: 8),
+      //       child: Text(Fmt.priceFloor(rewardSaving, lengthMax: 2),
+      //           style: primaryText),
+      //     ),
+      //   ],
+      // ));
     }
 
     return Visibility(

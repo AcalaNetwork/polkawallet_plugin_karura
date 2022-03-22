@@ -167,14 +167,14 @@ class _LPStakePage extends State<LPStakePage> {
                     ?.copyWith(color: Colors.white),
               ),
               "Token 1": Text(
-                '${_amountLeftCtrl.text.trim()} ${tokenPair[0]!.symbol}',
+                '${_amountLeftCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
                     ?.copyWith(color: Colors.white),
               ),
               "Token 2": Text(
-                '${_amountRightCtrl.text.trim()} ${tokenPair[1]!.symbol}',
+                '${_amountRightCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
