@@ -5,15 +5,14 @@ import 'package:polkawallet_ui/utils/format.dart';
 
 class RewardsChart extends StatelessWidget {
   final List<FlSpot> seriesList;
-  final bool? animate;
   final double maxY, minY;
   final DateTime? maxX, minX;
+  final bool? isNull;
   static int xBase = 10, yBase = 1000000;
   RewardsChart(this.seriesList, this.maxX, this.maxY, this.minX, this.minY,
-      {this.animate});
+      {this.isNull});
 
-  factory RewardsChart.withData(List<TimeSeriesAmount> data,
-      {bool animate = true}) {
+  factory RewardsChart.withData(List<TimeSeriesAmount> data) {
     double maxY = 0, minY = 0;
     DateTime? maxX, minX;
     Map<DateTime, double> datas = Map();
@@ -48,6 +47,15 @@ class RewardsChart extends StatelessWidget {
       maxX = datas.keys.toList()[0].add(Duration(days: 7));
     }
 
+    bool isNull = false;
+    if (minY == maxY) {
+      minY = 0;
+      if (maxY == 0) {
+        maxY = 10;
+        isNull = true;
+      }
+    }
+
     List<FlSpot> flSpotDatas = [];
     datas.forEach((key, value) {
       flSpotDatas.add(FlSpot(
@@ -56,13 +64,13 @@ class RewardsChart extends StatelessWidget {
               xBase,
           value));
     });
-    return new RewardsChart(
+    return RewardsChart(
       flSpotDatas,
       maxX,
       maxY,
       minX,
       minY,
-      animate: animate,
+      isNull: isNull,
     );
   }
 
@@ -79,12 +87,12 @@ class RewardsChart extends StatelessWidget {
     return Container(
       padding: EdgeInsets.only(right: 10, top: 10),
       child: LineChart(
-        mainData(context),
+        mainData(context, isNull!),
       ),
     );
   }
 
-  LineChartData mainData(BuildContext context) {
+  LineChartData mainData(BuildContext context, bool isNull) {
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -188,7 +196,8 @@ class RewardsChart extends StatelessWidget {
                   fontSize: 10,
                   fontWeight: FontWeight.w600),
           getTitles: (value) {
-            return Fmt.priceFloorFormatter(value / yBase, lengthFixed: 1);
+            return Fmt.priceFloorFormatter(isNull ? value : value / yBase,
+                lengthFixed: 1);
           },
           reservedSize: 30,
           margin: 10,
