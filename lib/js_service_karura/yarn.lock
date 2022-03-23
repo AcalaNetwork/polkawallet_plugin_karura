@@ -2,32 +2,32 @@
 # yarn lockfile v1
 
 
-"@acala-network/api-derive@4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/api-derive/-/api-derive-4.0.2-18.tgz#7ce833c22c05f5093a1ff51543f28d2f58c88b4a"
-  integrity sha512-C/CZiK8VwWmMcb2iRPYYl8I+UzZBCJVN6/Z5e27UGmhahsPOf+gOmytKvbjrfRtnD1PzwTC1+1cfZH3R0uK+7A==
+"@acala-network/api-derive@4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/api-derive/-/api-derive-4.0.4-1.tgz#abce33ae2945afc5cf4db3d9311c0fbaeb4039c7"
+  integrity sha512-MNjkEoAKTxewvuu0J7dGBL23YEzRBgWyx0IGNTgjjphvv4cqxs2htwDZeqdImCK3AVlR/1slx+fxb42qpO9dRw==
   dependencies:
-    "@acala-network/types" "4.0.2-18"
+    "@acala-network/types" "4.0.4-1"
     "@babel/runtime" "^7.10.2"
-    "@open-web3/orml-types" "^1.0.2-3"
+    "@open-web3/orml-types" "^1.0.2-4"
     "@polkadot/api-derive" "^7.1.1"
 
-"@acala-network/api@4.0.2-18", "@acala-network/api@^4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/api/-/api-4.0.2-18.tgz#65125c9e781476b0980b5b1ab617d0c24a6b5938"
-  integrity sha512-KrdvAj0L/kxAXB00R/AUc9PBUdKiwRDcVHzcxDIeV91ctFfUQQpZiljAzoKlTnggsUx4nZjLRBjhmJJnW3vXVg==
+"@acala-network/api@4.0.4-1", "@acala-network/api@^4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/api/-/api-4.0.4-1.tgz#fb8c9601338a5757854dffd0fb055c33b5430eea"
+  integrity sha512-ADzQ5vhtJ08g9ldorJd+oGVunelk6omydEVpQEsT30IXZcmxLNm22AP5W/uYXetoop8MZS9SamT0GO1zfLXBqg==
   dependencies:
-    "@acala-network/api-derive" "4.0.2-18"
-    "@acala-network/types" "4.0.2-18"
+    "@acala-network/api-derive" "4.0.4-1"
+    "@acala-network/types" "4.0.4-1"
     "@babel/runtime" "^7.10.2"
-    "@open-web3/orml-api-derive" "^1.0.2-3"
+    "@open-web3/orml-api-derive" "^1.0.2-4"
     "@polkadot/api" "^7.1.1"
     "@polkadot/rpc-core" "^7.1.1"
 
-"@acala-network/sdk-core@^4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk-core/-/sdk-core-4.0.2-18.tgz#e9ce075076ffd8db5934a6c7f9180089e5c49907"
-  integrity sha512-rvxYMLyI72iMyp+gZqNMb76/6/v9ORGhvYdsCt89HxJ7NSJ7eI97dwKOf6uKW/TNVBWvag6fPItuYdUI9+VB1w==
+"@acala-network/sdk-core@^4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk-core/-/sdk-core-4.0.4-1.tgz#99a7d926fcc5b933a1ffaf0d48a10f0b6d88563e"
+  integrity sha512-tcb2wCxd1CiD/bf8a6PqQ6l3GaQr4d+5hxUZ80Fru6w3mPoGrZ2yBHf1drw+GSL+upKXUfD3f/dSE0HC5+lE6g==
   dependencies:
     "@polkadot/api" "^7.1.1"
     "@polkadot/types" "^7.1.1"
@@ -36,33 +36,33 @@
     events "^3.2.0"
     lodash "^4.17.20"
 
-"@acala-network/sdk-swap@^4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk-swap/-/sdk-swap-4.0.2-18.tgz#1dc0d8dd6858dd99cae34bb308595453268a76ad"
-  integrity sha512-LgwmX9MRmo6tCWiXlDwt7lD9Vfzi6XRiZy6zePSZUFWQvd2yT8zRHmJa2tdHUiSft65jxmDPcSm5tl3+V8wSjw==
+"@acala-network/sdk-swap@^4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk-swap/-/sdk-swap-4.0.4-1.tgz#e8c83236ff3746a06863c57a7b81295079c2b8af"
+  integrity sha512-DtRapPNC+Cq6KsqGrUkh1fXRzTd+gySel2Sv+m+t3EBYVNbIkIKd86P3YBeAoXBN+8qnKGNbccsowoZIq8xqpA==
   dependencies:
     "@polkadot/api" "^7.1.1"
     "@polkadot/types" "^7.1.1"
     lodash "^4.17.20"
     rxjs "^7.4.0"
 
-"@acala-network/sdk-wallet@^4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk-wallet/-/sdk-wallet-4.0.2-18.tgz#b757cf7576e9c6e524d042cc401a90252d932a97"
-  integrity sha512-VozEAkfu3EFfld7shXYLqx7CHFLGLcuGfR9rd70JIJie3S8IP7EOhrbqn2vWUXBqpIWzh0/Mg/VYzSk+unytjQ==
+"@acala-network/sdk-wallet@^4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk-wallet/-/sdk-wallet-4.0.4-1.tgz#86a81f4e28f8529e973447a8dba1bcbbf7d74f8d"
+  integrity sha512-nk3ASvmz5YyzbIQ9SRszBMjlQjgtWy9r8yF6JfmcPrWkOnyyTFM7H9dopbJt5Afha5UgYmNxRMB5WGMLpAXQ+g==
   dependencies:
     "@polkadot/api" "^7.1.1"
     "@polkadot/types" "^7.1.1"
     lodash "^4.17.20"
     rxjs "^7.4.0"
 
-"@acala-network/sdk@^4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/sdk/-/sdk-4.0.2-18.tgz#260027a8e48ce203e675a4382bb418a952d69eb3"
-  integrity sha512-9R6k4z+q9rFCT6v9TTA2P9sTqckstbs3YFP7wnvu+HTxYfy0iJgifLNwKLS2LMQmB+FpLiFT03Gr+1wSB7IFdw==
+"@acala-network/sdk@^4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/sdk/-/sdk-4.0.4-1.tgz#66db91b28f6c15d05e6864a21e70b6400743c949"
+  integrity sha512-2BNSvG2Zg09AyFDKQ4lxuclSqI/EvzcXzNlNWz2ldtFeMF9xqVyu2gpK90J9+HYIxzVuhnLosPPEytPokKo0aw==
   dependencies:
-    "@acala-network/api" "4.0.2-18"
-    "@acala-network/type-definitions" "4.0.2-18"
+    "@acala-network/api" "4.0.4-1"
+    "@acala-network/type-definitions" "4.0.4-1"
     "@polkadot/api" "^7.1.1"
     "@polkadot/types" "^7.1.1"
     "@types/events" "^3.0.0"
@@ -70,25 +70,27 @@
     bignumber.js "^9.0.0"
     cross-fetch "^3.1.4"
     events "^3.2.0"
+    graphql "^16.3.0"
+    graphql-request "^4.1.0"
     lodash "^4.17.20"
     rxjs "^7.4.0"
 
-"@acala-network/type-definitions@4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/type-definitions/-/type-definitions-4.0.2-18.tgz#85e0ed5389cd1d1adf0eaa5ec2b02b81009ebf00"
-  integrity sha512-TT01rDV4b2NPqf1Uue1Ddth5nU/D45OKymzsjExK3/6bJzlHL8fD3jPxsns5/LYMuksM4gXy2Xi0zL0S2orfWg==
+"@acala-network/type-definitions@4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/type-definitions/-/type-definitions-4.0.4-1.tgz#7887b9de9421abf95c729c98ee2180ecef462a42"
+  integrity sha512-b2XwYO3IYlPx+47bz6CwHPvloIWxwzbTok7yQgCbKK+Ws9CkHFHH1/5IXbK6O+sfilUxQ27FaNJxsNL7RcTa/A==
   dependencies:
-    "@open-web3/orml-type-definitions" "^1.0.2-3"
+    "@open-web3/orml-type-definitions" "^1.0.2-4"
 
-"@acala-network/types@4.0.2-18":
-  version "4.0.2-18"
-  resolved "https://registry.yarnpkg.com/@acala-network/types/-/types-4.0.2-18.tgz#7879b0df525a2783288b2ad46dde2a5711269978"
-  integrity sha512-GzvJNd6GlyLFgyts8MwyAuRTSeOOCDcIrwDSGx6ZlzdOlsrfKquKyVs9z2aMRMUKxH0bLooWoIcy8zmjCDnCtA==
+"@acala-network/types@4.0.4-1":
+  version "4.0.4-1"
+  resolved "https://registry.yarnpkg.com/@acala-network/types/-/types-4.0.4-1.tgz#4f1f551e48a0c6266c6a193da032ed2455a581d0"
+  integrity sha512-t+CbZjnsCEBseMtfbuArKAHmUsKC4vy+Vj6iciiDygSjH3jSk+IFSMfKYPsEkyb0bqEd+HYcyGh/Rbd2kUEn6g==
   dependencies:
-    "@acala-network/type-definitions" "4.0.2-18"
+    "@acala-network/type-definitions" "4.0.4-1"
     "@babel/runtime" "^7.10.2"
-    "@open-web3/api-mobx" "^1.0.2-3"
-    "@open-web3/orml-types" "^1.0.2-3"
+    "@open-web3/api-mobx" "^1.0.2-4"
+    "@open-web3/orml-types" "^1.0.2-4"
     "@polkadot/api" "^7.1.1"
     "@polkadot/typegen" "^7.1.1"
     "@polkadot/types" "^7.1.1"
@@ -1112,35 +1114,35 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@open-web3/api-mobx@^1.0.2-3":
-  version "1.0.2-3"
-  resolved "https://registry.yarnpkg.com/@open-web3/api-mobx/-/api-mobx-1.0.2-3.tgz#16ebbe795dd9ea4f4ffcba33357a6170495ea5e0"
-  integrity sha512-Ka+DTcDcCcraZuPPiN1Q8as9EykbQAHY8R+f3PIRNSHBP4r0Q+CP2sO37IsPFGmG0KOXnCi5MwMukBePV3Qq1Q==
+"@open-web3/api-mobx@^1.0.2-4":
+  version "1.0.2-4"
+  resolved "https://registry.yarnpkg.com/@open-web3/api-mobx/-/api-mobx-1.0.2-4.tgz#998a315bf18c51c5ed022b581d3960dd7bd1fe10"
+  integrity sha512-IThjcGzXZpR3J2wI6f49+Xdu91dnuzFApaRX8Mg45stG/q1jGDrQWw/VaVu3drwJF27AGtuZcnxwkzF92vJtNQ==
   dependencies:
     mobx "^5.15.7"
     mobx-utils "^5.6.2"
 
-"@open-web3/orml-api-derive@^1.0.2-3":
-  version "1.0.2-3"
-  resolved "https://registry.yarnpkg.com/@open-web3/orml-api-derive/-/orml-api-derive-1.0.2-3.tgz#06e00bb1c7744f691959a3909ed7a8d38ef13a6c"
-  integrity sha512-KGD0EFtPvtMhBVfksX3x8Qa7VSAUwxlT6UlYjf1es56x67q1ngg/jyhVcuiAh9+Nedfu8Nh9l2xIXbiQb3EK+g==
+"@open-web3/orml-api-derive@^1.0.2-4":
+  version "1.0.2-4"
+  resolved "https://registry.yarnpkg.com/@open-web3/orml-api-derive/-/orml-api-derive-1.0.2-4.tgz#c57be9866be9420764e581c6a8804f0b295d60a2"
+  integrity sha512-LtPdcblOkoL4y7XrMO3a6ebiYwhnGQRHpqUhr8+dokVazP19qgs63yuxTGhWOvCk7LxfAYVFg4vIyA6UOy0NRg==
   dependencies:
     memoizee "^0.4.15"
     rxjs "^7.2.0"
 
-"@open-web3/orml-type-definitions@1.0.2-3", "@open-web3/orml-type-definitions@^1.0.2-3":
-  version "1.0.2-3"
-  resolved "https://registry.yarnpkg.com/@open-web3/orml-type-definitions/-/orml-type-definitions-1.0.2-3.tgz#14de7906ace3bee5764168e01d59162292a65a61"
-  integrity sha512-1O6TFaDP0s/Bm3XI47+eBEx+wHQepIu9uS+rkAorbwLMhfEbYf082Y+JskvOR3cSljNIfP3Zo8bWm+v8Kta+zA==
+"@open-web3/orml-type-definitions@1.0.2-4", "@open-web3/orml-type-definitions@^1.0.2-4":
+  version "1.0.2-4"
+  resolved "https://registry.yarnpkg.com/@open-web3/orml-type-definitions/-/orml-type-definitions-1.0.2-4.tgz#edb1cdb977b20d42cac7628ce42ef8734c09a96a"
+  integrity sha512-8IuTzm9habzW9emGNR62BkhV6QnAhDjxdaaI6E+5bc+q8c++fC6YOzK5/q6vpv7/aM5Vp3sePUeBDGZw9M6AFQ==
   dependencies:
     lodash.merge "^4.6.2"
 
-"@open-web3/orml-types@^1.0.2-3":
-  version "1.0.2-3"
-  resolved "https://registry.yarnpkg.com/@open-web3/orml-types/-/orml-types-1.0.2-3.tgz#0ca7e9991f7d191035f8877c684fe3d267ba7878"
-  integrity sha512-OvcWjmi9eT7QslzMEVgAW6uDvKnOKnpWK8xj4OcHZ5o2gWYFbvo8LNAc8paCXPf3R+WhbRi1Mhd2GA1FsiZbYg==
+"@open-web3/orml-types@^1.0.2-4":
+  version "1.0.2-4"
+  resolved "https://registry.yarnpkg.com/@open-web3/orml-types/-/orml-types-1.0.2-4.tgz#d94fd1e4a7d6f8bcfeaa3c19230e1cfeffcf8f01"
+  integrity sha512-cpSGHfZNre0Qd5QbMn1Tnx2I0n54x5ADon9ZSbEBKe/6s4DKvzb1EbHHMUoZOUCqWD0nytKCwcwyDTEbkXRhBg==
   dependencies:
-    "@open-web3/orml-type-definitions" "1.0.2-3"
+    "@open-web3/orml-type-definitions" "1.0.2-4"
 
 "@polkadot/api-augment@7.10.1":
   version "7.10.1"
@@ -2664,7 +2666,7 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-cross-fetch@^3.1.4:
+cross-fetch@^3.0.6, cross-fetch@^3.1.4:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.5.tgz#e1389f44d9e7ba767907f7af8454787952ab534f"
   integrity sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==
@@ -3286,6 +3288,11 @@ extglob@^2.0.4:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
+extract-files@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/extract-files/-/extract-files-9.0.0.tgz#8a7744f2437f81f5ed3250ed9f1550de902fe54a"
+  integrity sha512-CvdFfHkC95B4bBBk36hcEmvdR2awOdhhVUYH6S/zrVj3477zven/fJMYg7121h4T1xHZC+tetUpubpAhxwI7hQ==
+
 fast-deep-equal@^3.1.1:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
@@ -3682,6 +3689,20 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.2.4, graceful-fs@^4.2.9:
   version "4.2.9"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.9.tgz#041b05df45755e587a24942279b9d113146e1c96"
   integrity sha512-NtNxqUcXgpW2iMrfqSfR73Glt39K+BLwWsPs94yR63v45T0Wbej7eRmL5cWfwEgqXnmjQp3zaJTshdRW/qC2ZQ==
+
+graphql-request@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-4.1.0.tgz#98d0d8d4458fd81674d8566d0b5781bd2823c26e"
+  integrity sha512-CBFcO6LP7cg+aBMc+x9C1dZEQsKTBZKR2J+HzuB0cR/6aaU4K4/tRXTQu8CDMp5195ZU+DTNKZZOSK1WRbTeAg==
+  dependencies:
+    cross-fetch "^3.0.6"
+    extract-files "^9.0.0"
+    form-data "^3.0.0"
+
+graphql@^16.3.0:
+  version "16.3.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.3.0.tgz#a91e24d10babf9e60c706919bb182b53ccdffc05"
+  integrity sha512-xm+ANmA16BzCT5pLjuXySbQVFwH3oJctUVdy81w1sV0vBU0KgDdBGtxQOUd5zqOBk/JayAFeG8Dlmeq74rjm/A==
 
 grouped-queue@^1.1.0:
   version "1.1.0"
