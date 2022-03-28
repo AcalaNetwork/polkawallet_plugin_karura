@@ -69,7 +69,8 @@ class ServiceLoan {
     queryTotalCDPs();
   }
 
-  Future<void> subscribeAccountLoans(String? address) async {
+  Future<void> subscribeAccountLoans(String? address,
+      {Function? callback}) async {
     if (address == null) return;
 
     store!.loan.setLoansLoading(true);
@@ -95,6 +96,9 @@ class ServiceLoan {
           keyring.current.address == address) {
         store!.loan.setAccountLoans(
             _calcLoanData(loans, store!.loan.loanTypes, prices));
+      }
+      if (callback != null) {
+        callback();
       }
     });
   }

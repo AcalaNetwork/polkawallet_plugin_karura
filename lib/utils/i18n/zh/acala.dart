@@ -71,13 +71,13 @@ const Map<String, String> zhDex = {
   'loan.amount.collateral': '您要存入多少质押物？',
   'loan.max': '最大值',
   'loan.txs': '交易记录',
-  'loan.warn': '债仓未清零时，余额不能小于 1aUSD，本次操作后将剩余 1aUSD 的债务。确认继续吗？',
-  'loan.warn.KSM': '债仓未清零时，余额不能小于 1kUSD，本次操作后将剩余 1kUSD 的债务。确认继续吗？',
+  'loan.warn': '债仓未清零时，余额不能小于 1 aUSD，本次操作后将剩余 1 aUSD 的债务。确认继续吗？',
+  'loan.warn.KSM': '债仓未清零时，余额不能小于 1 kUSD，本次操作后将剩余 1 kUSD 的债务。确认继续吗？',
   'loan.warn.KSM1': '债仓未清零时，余额不能小于 ',
-  'loan.warn.KSM2': 'kUSD，本次操作后将剩余 ',
-  'loan.warn.KSM3': 'kUSD 的债务。确认继续吗？',
+  'loan.warn.KSM2': ' kUSD，本次操作后将剩余 ',
+  'loan.warn.KSM3': ' kUSD 的债务。确认继续吗？',
   'loan.warn.KSM4': '为了使你的债仓保持活跃，您本次必须最少铸造 ',
-  'loan.warn.KSM5': 'kUSD',
+  'loan.warn.KSM5': ' kUSD',
   'loan.warn.back': '返回修改',
   'loan.my': '我的债仓',
   'loan.incentive': '盈利',
@@ -259,5 +259,5 @@ const Map<String, String> zhDex = {
   'v3.fastRedeemError': '快速赎回当前不可用。',
   'v3.loan.closeVault': '你当前的债仓中没有kUSD债务，您确定要提取所有质押物并关闭债仓吗？',
   'v3.loan.errorMessage5': '债仓中生成债务的最低要求是 ',
-  'v3.loan.errorMessage6': 'kUSD, 你必须存入更多的抵押品才能生成足够的kUSD'
+  'v3.loan.errorMessage6': ' kUSD, 你必须存入更多的抵押品才能生成足够的kUSD'
 };

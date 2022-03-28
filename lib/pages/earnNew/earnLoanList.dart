@@ -75,8 +75,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
         final loans = widget.plugin.store!.loan.loans.values.toList();
         loans.retainWhere((loan) =>
             loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-
-        return loans.length == 0
+        return _loading
             ? ListView(
                 padding: EdgeInsets.all(16),
                 children: [
@@ -85,7 +84,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
                       height: MediaQuery.of(context).size.width,
                       child: ListTail(
                         isEmpty: true,
-                        isLoading: _loading,
+                        isLoading: true,
                         color: Colors.white,
                       ),
                     ),
@@ -94,9 +93,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
               )
             : CollateralIncentiveList(
                 plugin: widget.plugin,
-                loans: widget.plugin.store!.loan.loans,
                 tokenIcons: widget.plugin.tokenIcons,
-                totalCDPs: widget.plugin.store!.loan.totalCDPs,
                 incentives: widget.plugin.store!.earn.incentives.loans,
                 rewards: widget.plugin.store!.loan.collateralRewards,
                 marketPrices: widget.plugin.store!.assets.marketPrices,
@@ -112,10 +109,8 @@ class _EarnLoanListState extends State<EarnLoanList> {
 class CollateralIncentiveList extends StatelessWidget {
   CollateralIncentiveList({
     this.plugin,
-    this.loans,
     this.incentives,
     this.rewards,
-    this.totalCDPs,
     this.tokenIcons,
     this.marketPrices,
     this.incentiveTokenSymbol,
@@ -123,10 +118,8 @@ class CollateralIncentiveList extends StatelessWidget {
   });
 
   final PluginKarura? plugin;
-  final Map<String?, LoanData>? loans;
   final Map<String?, List<IncentiveItemData>>? incentives;
   final Map<String?, CollateralRewardData>? rewards;
-  final Map<String?, TotalCDPData>? totalCDPs;
   final Map<String, Widget>? tokenIcons;
   final Map<String?, double>? marketPrices;
   final String? incentiveTokenSymbol;

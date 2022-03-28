@@ -64,13 +64,11 @@ class _LoanPageState extends State<LoanPage> {
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
     await widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
 
-    if (mounted) {
-      await widget.plugin.service!.loan
-          .subscribeAccountLoans(widget.keyring.current.address);
-    }
-
-    setState(() {
-      _editorLoans = Map<String, LoanData?>();
+    await widget.plugin.service!.loan
+        .subscribeAccountLoans(widget.keyring.current.address, callback: () {
+      setState(() {
+        _editorLoans = Map<String, LoanData?>();
+      });
     });
   }
 
@@ -183,15 +181,6 @@ class _LoanPageState extends State<LoanPage> {
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
 
-        final BigInt balanceStableCoin =
-            Fmt.balanceInt(balancePair[1]!.amount) -
-                Fmt.balanceInt(balancePair[1]!.minBalance);
-        BigInt minDebigSubtract = BigInt.zero;
-        if (balanceStableCoin <= debits.abs()) {
-          minDebigSubtract =
-              loan.type.debitToDebitShare(debits.abs() ~/ BigInt.from(1000000));
-        }
-
         // pay less if less than 1 debit(aUSD) will be left,
         // make sure tx success by leaving more than 1 debit(aUSD).
         if (originalLoan.debits - debits.abs() > BigInt.zero &&
@@ -202,13 +191,19 @@ class _LoanPageState extends State<LoanPage> {
                   '${dic!['loan.warn.KSM1']}$minimumDebitValue${dic['loan.warn.KSM2']}$minimumDebitValue${dic['loan.warn.KSM3']}')
               as Future<bool>);
           if (!canContinue) return null;
-          minDebigSubtract = minDebigSubtract >
-                  loan.type.debitToDebitShare(loan.type.minimumDebitValue)
-              ? minDebigSubtract
-              : loan.type.debitToDebitShare(loan.type.minimumDebitValue);
+          debitSubtract = loan.type.debitToDebitShare(
+              loan.type.minimumDebitValue - originalLoan.debits);
         }
 
-        debitSubtract = debitSubtract + minDebigSubtract;
+        final BigInt balanceStableCoin =
+            Fmt.balanceInt(balancePair[1]!.amount) -
+                Fmt.balanceInt(balancePair[1]!.minBalance);
+        if (balanceStableCoin <=
+            loan.type.debitShareToDebit(debitSubtract).abs()) {
+          debitSubtract = balanceStableCoin -
+              loan.type
+                  .debitToDebitShare(balanceStableCoin ~/ BigInt.from(1000000));
+        }
       }
       detail[dic![dicValue]!] = Text(
         '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
@@ -294,7 +289,7 @@ class _LoanPageState extends State<LoanPage> {
                                   loan.collaterals, collateralDecimal!) -
                               snapshot.data!.amount!;
                           return InfoItemRow(dic['loan.close.receive']!,
-                              Fmt.priceFloor(left) + loan.token!.symbol!);
+                              "${Fmt.priceFloor(left)} ${loan.token!.symbol}");
                         } else {
                           return Container();
                         }
@@ -342,7 +337,7 @@ class _LoanPageState extends State<LoanPage> {
             txTitle: dic!['loan.close'],
             txDisplay: {
               'collateral': loan.token!.symbol,
-              'payback': Fmt.priceCeil(debit) + karura_stable_coin_view,
+              'payback': "${Fmt.priceCeil(debit)} $karura_stable_coin_view",
             },
             params: isRuntimeOld ? params : params.sublist(0, 2),
             isPlugin: true,
@@ -533,6 +528,8 @@ class _LoanPageState extends State<LoanPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           LoanCollateral(
+                                            key: Key(originalLoan.collaterals
+                                                .toString()),
                                             title:
                                                 '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
                                             maxNumber: Fmt.bigIntToDouble(
@@ -643,6 +640,8 @@ class _LoanPageState extends State<LoanPage> {
                                           Container(
                                               margin: EdgeInsets.only(top: 12),
                                               child: LoanCollateral(
+                                                key: Key(originalLoan.debits
+                                                    .toString()),
                                                 title:
                                                     '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
                                                 maxNumber: maxToBorrow < debits
