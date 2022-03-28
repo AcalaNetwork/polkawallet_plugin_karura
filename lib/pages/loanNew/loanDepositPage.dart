@@ -84,7 +84,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     return null;
   }
 
-  Future<Map> _getTxParams(int? stableCoinDecimals) async {
+  Future<Map?> _getTxParams(int? stableCoinDecimals) async {
+    if (_amountCtrl.text.trim().length == 0) {
+      return null;
+    }
     final LoanDepositPageParams params =
         ModalRoute.of(context)!.settings.arguments as LoanDepositPageParams;
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
@@ -129,9 +132,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
   }
 
   Future<void> _onSubmit(String title, int? stableCoinDecimals) async {
-    print("_onSubmit");
     final params = await _getTxParams(stableCoinDecimals);
-    print(params);
     if (params == null) return null;
 
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
