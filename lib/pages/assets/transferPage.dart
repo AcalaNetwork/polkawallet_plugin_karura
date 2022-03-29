@@ -62,8 +62,24 @@ class _TransferPageState extends State<TransferPage> {
 
   bool _submitting = false;
 
-  Future<String?> _checkAccountTo(KeyPairData? acc, int chainToSS58) async {
-    if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc!.pubKey) >=
+  Future<String?> _checkBlackList(KeyPairData acc) async {
+    final addresses =
+        await widget.plugin.sdk.api.account.decodeAddress([acc.address!]);
+    if (addresses != null) {
+      final pubKey = addresses.keys.toList()[0];
+      if (widget.plugin.sdk.blackList.indexOf(pubKey) > -1) {
+        return I18n.of(context)!
+            .getDic(i18n_full_dic_karura, 'common')!['transfer.scam'];
+      }
+    }
+    return null;
+  }
+
+  Future<String?> _checkAccountTo(KeyPairData acc, int chainToSS58) async {
+    final blackListCheck = await _checkBlackList(acc);
+    if (blackListCheck != null) return blackListCheck;
+
+    if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc.pubKey) >=
         0) {
       return null;
     }
@@ -82,7 +98,7 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
 
-  Future<void> _validateAccountTo(KeyPairData? acc, int chainToSS58) async {
+  Future<void> _validateAccountTo(KeyPairData acc, int chainToSS58) async {
     final error = await _checkAccountTo(acc, chainToSS58);
     setState(() {
       _accountToError = error;
@@ -209,7 +225,7 @@ class _TransferPageState extends State<TransferPage> {
                   }
                 });
 
-                _validateAccountTo(_accountTo, chainToSS58);
+                _validateAccountTo(_accountTo!, chainToSS58);
 
                 // update estimated tx fee if switch ToChain
                 _getTxFee(isXCM: e != widget.plugin.basic.name, reload: true);
@@ -601,7 +617,7 @@ class _TransferPageState extends State<TransferPage> {
                             labelStyle: labelStyle,
                             hintText: dic['address'],
                             initialValue: _accountTo,
-                            onChanged: (KeyPairData? acc) async {
+                            onChanged: (KeyPairData acc) async {
                               final error =
                                   await _checkAccountTo(acc, chainToSS58);
                               setState(() {

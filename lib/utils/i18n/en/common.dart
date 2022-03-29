@@ -2,6 +2,7 @@ const Map<String, String> enCommon = {
   'acala': 'Polkadot DeFi Hub',
   'karura': 'Kusama DeFi Hub',
   'transfer': 'Transfer',
+  'transfer.scam': 'Scam address',
   'send': 'Send',
   'receive': 'Receive',
   'all': 'All',
