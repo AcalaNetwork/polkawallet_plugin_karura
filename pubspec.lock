@@ -106,6 +106,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.1.2"
+  card_swiper:
+    dependency: transitive
+    description:
+      name: card_swiper
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   characters:
     dependency: transitive
     description:
@@ -281,6 +288,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+  ethereum_addresses:
+    dependency: "direct main"
+    description:
+      name: ethereum_addresses
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -335,13 +349,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.2"
-  flutter_page_indicator:
-    dependency: transitive
-    description:
-      name: flutter_page_indicator
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.3"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -370,13 +377,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.23.0+1"
-  flutter_swiper:
-    dependency: transitive
-    description:
-      name: flutter_swiper
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -772,20 +772,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.2"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.5.2"
   polkawallet_sdk:
     dependency: "direct main"
     description:
       path: "../sdk"
       relative: true
     source: path
-    version: "0.4.3"
+    version: "0.4.4"
   polkawallet_ui:
     dependency: "direct main"
     description:
       path: "../ui"
       relative: true
     source: path
-    version: "0.4.1"
+    version: "0.4.4"
   pool:
     dependency: transitive
     description:
@@ -1001,13 +1008,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.5"
-  transformer_page_view:
-    dependency: transitive
-    description:
-      name: transformer_page_view
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.6"
   typed_data:
     dependency: transitive
     description:

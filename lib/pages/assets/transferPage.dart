@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ethereum_addresses/ethereum_addresses.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +49,7 @@ class _TransferPageState extends State<TransferPage> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _amountCtrl = new TextEditingController();
+  final TextEditingController _address20Ctrl = new TextEditingController();
 
   KeyPairData? _accountTo;
   List<KeyPairData> _accountOptions = [];
@@ -61,6 +63,21 @@ class _TransferPageState extends State<TransferPage> {
   BigInt? _amountMax;
 
   bool _submitting = false;
+
+  String? _validateAddress20(String? v) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final input = v?.trim();
+    if (input == null || input.isEmpty) {
+      return dic!['input.empty'];
+    }
+    try {
+      final output = checksumEthereumAddress(input);
+      print(output);
+    } catch (err) {
+      return dic!['address.error.eth'];
+    }
+    return null;
+  }
 
   Future<String?> _checkBlackList(KeyPairData acc) async {
     final addresses =
@@ -446,6 +463,71 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
 
+  Future<TxConfirmParams?> _getMoonTxParams(
+      String chainTo, String chainToId) async {
+    if (!_formKey.currentState!.validate() || _submitting) return null;
+
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
+    final dicAcala = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final tokenView = PluginFmt.tokenView(_token!.symbol);
+
+    final address = checksumEthereumAddress(_address20Ctrl.text.trim());
+
+    return TxConfirmParams(
+      txTitle: '${dicAcala!['transfer']} $tokenView (${dicAcala['cross.xcm']})',
+      module: 'xTokens',
+      call: 'transfer',
+      txDisplay: {
+        dicAcala['cross.chain']: chainTo.toUpperCase(),
+      },
+      txDisplayBold: {
+        dic['amount']!: Text(
+          Fmt.priceFloor(double.tryParse(_amountCtrl.text.trim()),
+                  lengthMax: 8) +
+              ' $tokenView',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+        dic['address']!: Row(
+          children: [
+            CircleAvatar(child: Text('0x'), radius: 16),
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.fromLTRB(8, 16, 0, 16),
+                child: Text(
+                  Fmt.address(address, pad: 8),
+                  style: Theme.of(context).textTheme.headline4,
+                ),
+              ),
+            ),
+          ],
+        ),
+      },
+      params: [
+        // params.currencyId
+        _token!.currencyId,
+        // params.amount
+        (_amountMax ?? Fmt.tokenInt(_amountCtrl.text.trim(), _token!.decimals!))
+            .toString(),
+        // params.dest
+        {
+          'V1': {
+            'parents': 1,
+            'interior': {
+              'X2': [
+                {'Parachain': chainToId},
+                {
+                  'AccountKey20': {'key': address, 'network': 'Any'}
+                }
+              ]
+            }
+          }
+        },
+        // params.weight
+        xcm_dest_weight_v2
+      ],
+    );
+  }
+
   String _getWarnInfo(String token) {
     return I18n.of(context)!.locale.toString().contains('zh')
         ? '交易所当前不支持 Karura 网络跨链转账充提 $token，请先使用跨链转账将 $token 转回 $_chainTo，再从 $_chainTo 网络转账至交易所地址。'
@@ -502,12 +584,11 @@ class _TransferPageState extends State<TransferPage> {
             [];
 
         // todo: moon-river(fa://3) xcm is not support now
-        final canCrossChain =
-            token.tokenNameId != 'fa://3' && tokenXcmConfig.length > 0;
+        final canCrossChain = tokenXcmConfig.length > 0;
 
         final nativeTokenBalance =
-            Fmt.balanceInt(widget.plugin.balances.native!.freeBalance) -
-                Fmt.balanceInt(widget.plugin.balances.native!.frozenFee);
+            Fmt.balanceInt(widget.plugin.balances.native?.freeBalance) -
+                Fmt.balanceInt(widget.plugin.balances.native?.frozenFee);
         final accountED = PluginFmt.getAccountED(widget.plugin);
         final isNativeTokenLow = nativeTokenBalance - accountED <
             Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
@@ -530,6 +611,7 @@ class _TransferPageState extends State<TransferPage> {
         final isCrossChain = widget.plugin.basic.name != chainTo;
         final isFromStateMine =
             token.src != null && token.src!['Parachain'] == '1,000';
+        final isToMoonRiver = chainTo == para_chain_name_moon;
         final tokenXcmInfo =
             (tokensConfig['xcmInfo'] ?? config_xcm['xcmInfo'] ?? {})[chainTo] ??
                 {};
@@ -598,10 +680,12 @@ class _TransferPageState extends State<TransferPage> {
                   AddressFormItem(widget.keyring.current),
                   Container(height: 8.h),
                   Visibility(
-                      visible: !(!isCrossChain || _accountToEditable),
+                      visible: !(!isCrossChain || _accountToEditable) &&
+                          !isToMoonRiver,
                       child: Text(dic['address'] ?? '', style: labelStyle)),
                   Visibility(
-                      visible: !(!isCrossChain || _accountToEditable),
+                      visible: !(!isCrossChain || _accountToEditable) &&
+                          !isToMoonRiver,
                       child: AddressFormItem(widget.keyring.current)),
                   Form(
                     key: _formKey,
@@ -638,27 +722,54 @@ class _TransferPageState extends State<TransferPage> {
                             )),
                         Visibility(
                           visible: isCrossChain,
-                          child: GestureDetector(
-                            child: Container(
-                              child: Row(
-                                children: [
-                                  v3.Checkbox(
-                                    padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
-                                    value: _accountToEditable,
-                                    onChanged: _onSwitchEditable,
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      dicAcala['cross.edit']!,
-                                      style: TextStyle(fontSize: 14),
+                          child: isToMoonRiver
+                              ? v3.TextInputWidget(
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  decoration: v3.InputDecorationV3(
+                                    hintText: dic['address'],
+                                    labelText: dic['address'],
+                                    labelStyle: labelStyle,
+                                    suffix: GestureDetector(
+                                      child: Icon(
+                                        Icons.cancel,
+                                        size: 18,
+                                        color: Theme.of(context)
+                                            .unselectedWidgetColor,
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          _address20Ctrl.text = '';
+                                        });
+                                      },
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                            onTap: () => _onSwitchEditable(!_accountToEditable),
-                          ),
+                                  controller: _address20Ctrl,
+                                  validator: _validateAddress20,
+                                )
+                              : GestureDetector(
+                                  child: Container(
+                                    child: Row(
+                                      children: [
+                                        v3.Checkbox(
+                                          padding:
+                                              EdgeInsets.fromLTRB(0, 8, 8, 0),
+                                          value: _accountToEditable,
+                                          onChanged: _onSwitchEditable,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            dicAcala['cross.edit']!,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  onTap: () =>
+                                      _onSwitchEditable(!_accountToEditable),
+                                ),
                         ),
                         Container(height: 10.h),
                         v3.TextInputWidget(
@@ -952,7 +1063,9 @@ class _TransferPageState extends State<TransferPage> {
                       text: dic['make'],
                       getTxParams: () async => isToStateMineFeeError
                           ? null
-                          : _getTxParams(chainTo, chainToId),
+                          : isToMoonRiver
+                              ? _getMoonTxParams(chainTo, chainToId)
+                              : _getTxParams(chainTo, chainToId),
                       onFinish: (res) {
                         if (res != null) {
                           Navigator.of(context).pop(res);

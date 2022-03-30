@@ -9,8 +9,8 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
+import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAddressFormItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAddressTextFormField.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
@@ -174,7 +174,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                                   decimal: true),
                               validator: (v) {
                                 if (v!.isEmpty) {
-                                  return dicCommon['input.invalid'];
+                                  return dicCommon['input.empty'];
                                 }
                                 final count = int.parse(v.trim());
                                 if (count < 1) {
