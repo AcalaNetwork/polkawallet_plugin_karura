@@ -106,7 +106,7 @@ class _TransferPageState extends State<TransferPage> {
         wrapPromise: false);
     if (addressCheckValid != null) {
       final res = await widget.plugin.sdk.api.account
-          .checkAddressFormat(acc!.address!, chainToSS58);
+          .checkAddressFormat(acc.address!, chainToSS58);
       if (res != null && !res) {
         return I18n.of(context)!
             .getDic(i18n_full_dic_ui, 'account')!['ss58.mismatch'];

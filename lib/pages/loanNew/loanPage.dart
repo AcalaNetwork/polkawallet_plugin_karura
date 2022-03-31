@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,17 +18,20 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/circularProgressBar.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderThumbShape.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginSliderTrackShape.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:toast/toast.dart';
@@ -501,6 +505,31 @@ class _LoanPageState extends State<LoanPage> {
                                         Fmt.bigIntToDouble(
                                             loan.type.liquidationRatio, 18);
 
+                            final canMint =
+                                loan.maxToBorrow - loan.debits > BigInt.zero
+                                    ? loan.maxToBorrow - loan.debits
+                                    : BigInt.zero;
+                            final canPayback = balanceStableCoin -
+                                        Fmt.balanceInt(
+                                            balancePair[1]!.minBalance) >
+                                    originalDebitsValue
+                                ? originalDebitsValue
+                                : balanceStableCoin -
+                                            Fmt.balanceInt(
+                                                balancePair[1]!.minBalance) >
+                                        BigInt.zero
+                                    ? balanceStableCoin -
+                                        Fmt.balanceInt(
+                                            balancePair[1]!.minBalance)
+                                    : BigInt.zero;
+
+                            final itemStype = Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(
+                                    color: PluginColorsDark.headline1,
+                                    fontSize: 12);
+
                             child = SingleChildScrollView(
                                 physics: BouncingScrollPhysics(),
                                 child: Column(
@@ -514,241 +543,318 @@ class _LoanPageState extends State<LoanPage> {
                                         double.parse(Fmt.token(
                                             loan.type.requiredCollateralRatio,
                                             18))),
-                                    Container(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 9),
-                                      margin: EdgeInsets.only(bottom: 2),
-                                      decoration: BoxDecoration(
-                                        color: Color(0x1AFFFFFF),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(14)),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                    LoanItemView(
+                                      progress:
+                                          available / (available + balance),
+                                      progressText:
+                                          "${Fmt.priceFloorBigIntFormatter(originalLoan.collaterals, balancePair[0]!.decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.inCollateral']}",
+                                      btnText:
+                                          "${dic['loan.withdraw']}/${dic['loan.deposit']}",
+                                      detailWidget: Column(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          LoanCollateral(
-                                            key: Key(originalLoan.collaterals
-                                                .toString()),
-                                            title:
-                                                '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
-                                            maxNumber: Fmt.bigIntToDouble(
-                                                    originalLoan.collaterals,
-                                                    balancePair[0]!.decimals!) +
-                                                balance,
-                                            minNumber: Fmt.bigIntToDouble(
-                                                        loan.requiredCollateral,
-                                                        balancePair[0]!
-                                                            .decimals!) >
-                                                    available
-                                                ? available
-                                                : Fmt.bigIntToDouble(
-                                                    loan.requiredCollateral,
-                                                    balancePair[0]!.decimals!),
-                                            subtitleLeft: dic['loan.withdraw']!,
-                                            subtitleRight: dic['loan.deposit']!,
-                                            error:
-                                                "${dic['v3.loan.errorMessage1']} ${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.errorMessage2']}",
-                                            isShowError: Fmt.bigIntToDouble(
-                                                        loan.requiredCollateral,
-                                                        balancePair[0]!
-                                                            .decimals!) >=
-                                                    available &&
-                                                balance == 0 &&
-                                                available >=
-                                                    Fmt.bigIntToDouble(
-                                                        originalLoan
-                                                            .collaterals,
-                                                        balancePair[0]!
-                                                            .decimals!),
-                                            value: available,
-                                            price: availablePrice,
-                                            balanceString:
-                                                "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceBigInt, balancePair[0]!.decimals!)}",
-                                            valueString:
-                                                "\$${Fmt.priceFloorFormatter(available * availablePrice)}",
-                                            onChanged: (value) {
-                                              final collaterals = Fmt.tokenInt(
-                                                  "$value",
-                                                  balancePair[0]!.decimals!);
-                                              if ((collaterals -
-                                                          originalLoan
-                                                              .collaterals)
-                                                      .abs() <
-                                                  Fmt.balanceInt(balancePair[0]!
-                                                      .minBalance)) {
-                                                setState(() {
-                                                  loan!.collaterals =
-                                                      originalLoan.collaterals;
-                                                  loan.collateralInUSD =
-                                                      originalLoan
-                                                          .collateralInUSD;
-                                                  loan.maxToBorrow =
-                                                      originalLoan.maxToBorrow;
-                                                  loan.liquidationPrice =
-                                                      originalLoan
-                                                          .liquidationPrice;
-                                                });
-                                                return;
-                                              }
-                                              final maxToBorrow =
-                                                  Fmt.bigIntToDouble(
-                                                          collaterals,
-                                                          balancePair[0]!
-                                                              .decimals!) *
-                                                      availablePrice /
-                                                      double.parse(
-                                                        Fmt.token(
-                                                            loan!.type
-                                                                .requiredCollateralRatio,
-                                                            acala_price_decimals),
-                                                      );
-                                              if (maxToBorrow >= debits) {
-                                                loan.collaterals = collaterals;
-                                                loan.collateralInUSD = loan.type
-                                                    .tokenToUSD(
-                                                        collaterals, loan.price,
-                                                        stableCoinDecimals: widget
-                                                            .plugin
-                                                            .store!
-                                                            .assets
-                                                            .tokenBalanceMap[
-                                                                karura_stable_coin]!
-                                                            .decimals!,
-                                                        collateralDecimals: loan
-                                                            .token!.decimals!);
-                                                loan.maxToBorrow = Fmt.tokenInt(
-                                                    "$maxToBorrow",
-                                                    balancePair[1]!.decimals!);
-                                                loan.collateralRatio =
-                                                    Fmt.bigIntToDouble(
-                                                            collaterals,
-                                                            balancePair[0]!
-                                                                .decimals!) *
-                                                        availablePrice /
-                                                        debits;
-                                                loan.liquidationPrice = value ==
-                                                        0
-                                                    ? BigInt.zero
-                                                    : Fmt.tokenInt(
-                                                        '${debits * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / value}',
-                                                        acala_price_decimals);
-                                              }
-                                              setState(() {});
-                                            },
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                dic['v3.totalBalance']!,
+                                                style: itemStype,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    "${Fmt.priceFloorFormatter(balance)} ${PluginFmt.tokenView(loan.token!.symbol)}",
+                                                    style: itemStype,
+                                                  ),
+                                                  Text(
+                                                    "≈ \$${Fmt.priceFloorFormatter(balance * availablePrice)}",
+                                                    style: itemStype,
+                                                  ),
+                                                ],
+                                              )
+                                            ],
                                           ),
-                                          Container(
-                                              margin: EdgeInsets.only(top: 12),
-                                              child: LoanCollateral(
-                                                key: Key(originalLoan.debits
-                                                    .toString()),
-                                                title:
-                                                    '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
-                                                maxNumber: maxToBorrow < debits
-                                                    ? debits
-                                                    : maxToBorrow,
-                                                minNumber: balanceStableCoin -
-                                                            Fmt.balanceInt(
-                                                                balancePair[1]!
-                                                                    .minBalance) >
-                                                        originalDebitsValue
-                                                    ? 0
-                                                    : Fmt.bigIntToDouble(
-                                                        originalDebitsValue -
-                                                            balanceStableCoin +
-                                                            Fmt.balanceInt(
-                                                                balancePair[1]!
-                                                                    .minBalance),
-                                                        balancePair[1]!
-                                                            .decimals!),
-                                                subtitleLeft:
-                                                    dic['loan.payback']!,
-                                                subtitleRight:
-                                                    dic['loan.mint']!,
-                                                error:
-                                                    "${dic['v3.loan.errorMessage3']}  ${PluginFmt.tokenView(karura_stable_coin)} ${dic['v3.loan.errorMessage4']} ",
-                                                isShowError: maxToBorrow <=
-                                                        debits &&
-                                                    Fmt.bigIntToDouble(
-                                                            balanceStableCoin,
-                                                            balancePair[1]!
-                                                                .decimals!) ==
-                                                        0,
-                                                price: 1.0,
-                                                value: debits,
-                                                balanceString:
-                                                    "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)}",
-                                                onChanged: (value) {
-                                                  final debits = Fmt.tokenInt(
-                                                      "$value",
-                                                      balancePair[1]!
-                                                          .decimals!);
-                                                  if ((debits -
-                                                              originalLoan
-                                                                  .debits)
-                                                          .abs() <
-                                                      Fmt.balanceInt(
-                                                          balancePair[1]!
-                                                              .minBalance)) {
-                                                    setState(() {
-                                                      loan!.debits =
-                                                          originalLoan.debits;
-                                                      loan.debitShares =
-                                                          originalLoan
-                                                              .debitShares;
-                                                      loan.collateralRatio =
-                                                          originalLoan
-                                                              .collateralRatio;
-                                                      loan.requiredCollateral =
-                                                          originalLoan
-                                                              .requiredCollateral;
-
-                                                      loan.liquidationPrice =
-                                                          originalLoan
-                                                              .liquidationPrice;
-                                                    });
-                                                    return;
-                                                  }
-                                                  final requiredCollateral =
-                                                      Fmt.tokenInt(
-                                                          "${value * double.parse(
-                                                                Fmt.token(
-                                                                    loan!.type
-                                                                        .requiredCollateralRatio,
-                                                                    acala_price_decimals),
-                                                              ) / availablePrice}",
-                                                          balancePair[0]!
-                                                              .decimals!);
-                                                  if (Fmt.bigIntToDouble(
-                                                          requiredCollateral,
-                                                          balancePair[0]!
-                                                              .decimals!) <=
-                                                      available) {
-                                                    loan.debits = debits;
-                                                    loan.debitShares = loan.type
-                                                        .debitToDebitShare(
-                                                            loan.debits);
-                                                    loan.collateralRatio =
-                                                        Fmt.bigIntToDouble(
-                                                                loan
-                                                                    .collaterals,
-                                                                balancePair[0]!
-                                                                    .decimals!) *
-                                                            availablePrice /
-                                                            value;
-                                                    loan.requiredCollateral =
-                                                        requiredCollateral;
-                                                    loan.liquidationPrice =
-                                                        Fmt.tokenInt(
-                                                            '${value * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / Fmt.bigIntToDouble(loan.collaterals, balancePair[0]!.decimals!)}',
-                                                            acala_price_decimals);
-                                                  }
-                                                  setState(() {});
-                                                },
-                                              ))
+                                          InfoItemRow(
+                                              dic['collateral.price.current']!,
+                                              '≈ \$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId]!, acala_price_decimals)}',
+                                              labelStyle: itemStype,
+                                              contentStyle: itemStype),
+                                          InfoItemRow(dic['liquid.price']!,
+                                              '≈ \$${Fmt.priceFloorBigInt(loan.liquidationPrice, acala_price_decimals)}',
+                                              labelStyle: itemStype,
+                                              contentStyle: itemStype)
                                         ],
                                       ),
+                                      onTap: () {},
                                     ),
+                                    LoanItemView(
+                                      progress: debits / maxToBorrow > 1
+                                          ? 1
+                                          : debits / maxToBorrow,
+                                      progressText:
+                                          "${Fmt.priceFloorFormatter(debits)} ${PluginFmt.tokenView(karura_stable_coin)} ${dic['v3.loan.minted']}",
+                                      btnText:
+                                          "${dic['loan.payback']}/${dic['loan.mint']}",
+                                      detailWidget: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          InfoItemRow(dic['v3.totalBalance']!,
+                                              "${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}",
+                                              labelStyle: itemStype,
+                                              contentStyle: itemStype),
+                                          InfoItemRow(dic['v3.loan.canMint']!,
+                                              '${Fmt.priceFloorBigInt(canMint, balancePair[1]!.decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}',
+                                              labelStyle: itemStype,
+                                              contentStyle: itemStype),
+                                          InfoItemRow(
+                                              dic['v3.loan.canPayback']!,
+                                              '${Fmt.priceFloorBigIntFormatter(canPayback, balancePair[1]!.decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}',
+                                              labelStyle: itemStype,
+                                              contentStyle: itemStype)
+                                        ],
+                                      ),
+                                      onTap: () {},
+                                    ),
+                                    // Container(
+                                    //   padding:
+                                    //       EdgeInsets.symmetric(vertical: 9),
+                                    //   margin: EdgeInsets.only(bottom: 2),
+                                    //   decoration: BoxDecoration(
+                                    //     color: Color(0x1AFFFFFF),
+                                    //     borderRadius: const BorderRadius.all(
+                                    //         Radius.circular(14)),
+                                    //   ),
+                                    //   child: Column(
+                                    //     crossAxisAlignment:
+                                    //         CrossAxisAlignment.start,
+                                    //     children: [
+                                    //       LoanCollateral(
+                                    //         key: Key(originalLoan.collaterals
+                                    //             .toString()),
+                                    //         title:
+                                    //             '${dic['loan.collateral']} (${PluginFmt.tokenView(loan.token!.symbol)})',
+                                    //         maxNumber: Fmt.bigIntToDouble(
+                                    //                 originalLoan.collaterals,
+                                    //                 balancePair[0]!.decimals!) +
+                                    //             balance,
+                                    //         minNumber: Fmt.bigIntToDouble(
+                                    //                     loan.requiredCollateral,
+                                    //                     balancePair[0]!
+                                    //                         .decimals!) >
+                                    //                 available
+                                    //             ? available
+                                    //             : Fmt.bigIntToDouble(
+                                    //                 loan.requiredCollateral,
+                                    //                 balancePair[0]!.decimals!),
+                                    //         subtitleLeft: dic['loan.withdraw']!,
+                                    //         subtitleRight: dic['loan.deposit']!,
+                                    //         error:
+                                    //             "${dic['v3.loan.errorMessage1']} ${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.errorMessage2']}",
+                                    //         isShowError: Fmt.bigIntToDouble(
+                                    //                     loan.requiredCollateral,
+                                    //                     balancePair[0]!
+                                    //                         .decimals!) >=
+                                    //                 available &&
+                                    //             balance == 0 &&
+                                    //             available >=
+                                    //                 Fmt.bigIntToDouble(
+                                    //                     originalLoan
+                                    //                         .collaterals,
+                                    //                     balancePair[0]!
+                                    //                         .decimals!),
+                                    //         value: available,
+                                    //         price: availablePrice,
+                                    //         balanceString:
+                                    //             "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceBigInt, balancePair[0]!.decimals!)}",
+                                    //         valueString:
+                                    //             "\$${Fmt.priceFloorFormatter(available * availablePrice)}",
+                                    //         onChanged: (value) {
+                                    //           final collaterals = Fmt.tokenInt(
+                                    //               "$value",
+                                    //               balancePair[0]!.decimals!);
+                                    //           if ((collaterals -
+                                    //                       originalLoan
+                                    //                           .collaterals)
+                                    //                   .abs() <
+                                    //               Fmt.balanceInt(balancePair[0]!
+                                    //                   .minBalance)) {
+                                    //             setState(() {
+                                    //               loan!.collaterals =
+                                    //                   originalLoan.collaterals;
+                                    //               loan.collateralInUSD =
+                                    //                   originalLoan
+                                    //                       .collateralInUSD;
+                                    //               loan.maxToBorrow =
+                                    //                   originalLoan.maxToBorrow;
+                                    //               loan.liquidationPrice =
+                                    //                   originalLoan
+                                    //                       .liquidationPrice;
+                                    //             });
+                                    //             return;
+                                    //           }
+                                    //           final maxToBorrow =
+                                    //               Fmt.bigIntToDouble(
+                                    //                       collaterals,
+                                    //                       balancePair[0]!
+                                    //                           .decimals!) *
+                                    //                   availablePrice /
+                                    //                   double.parse(
+                                    //                     Fmt.token(
+                                    //                         loan!.type
+                                    //                             .requiredCollateralRatio,
+                                    //                         acala_price_decimals),
+                                    //                   );
+                                    //           if (maxToBorrow >= debits) {
+                                    //             loan.collaterals = collaterals;
+                                    //             loan.collateralInUSD = loan.type
+                                    //                 .tokenToUSD(
+                                    //                     collaterals, loan.price,
+                                    //                     stableCoinDecimals: widget
+                                    //                         .plugin
+                                    //                         .store!
+                                    //                         .assets
+                                    //                         .tokenBalanceMap[
+                                    //                             karura_stable_coin]!
+                                    //                         .decimals!,
+                                    //                     collateralDecimals: loan
+                                    //                         .token!.decimals!);
+                                    //             loan.maxToBorrow = Fmt.tokenInt(
+                                    //                 "$maxToBorrow",
+                                    //                 balancePair[1]!.decimals!);
+                                    //             loan.collateralRatio =
+                                    //                 Fmt.bigIntToDouble(
+                                    //                         collaterals,
+                                    //                         balancePair[0]!
+                                    //                             .decimals!) *
+                                    //                     availablePrice /
+                                    //                     debits;
+                                    //             loan.liquidationPrice = value ==
+                                    //                     0
+                                    //                 ? BigInt.zero
+                                    //                 : Fmt.tokenInt(
+                                    //                     '${debits * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / value}',
+                                    //                     acala_price_decimals);
+                                    //           }
+                                    //           setState(() {});
+                                    //         },
+                                    //       ),
+                                    //       Container(
+                                    //           margin: EdgeInsets.only(top: 12),
+                                    //           child: LoanCollateral(
+                                    //             key: Key(originalLoan.debits
+                                    //                 .toString()),
+                                    //             title:
+                                    //                 '${dic['loan.borrowed']} (${PluginFmt.tokenView(karura_stable_coin)})',
+                                    //             maxNumber: maxToBorrow < debits
+                                    //                 ? debits
+                                    //                 : maxToBorrow,
+                                    //             minNumber: balanceStableCoin -
+                                    //                         Fmt.balanceInt(
+                                    //                             balancePair[1]!
+                                    //                                 .minBalance) >
+                                    //                     originalDebitsValue
+                                    //                 ? 0
+                                    //                 : Fmt.bigIntToDouble(
+                                    //                     originalDebitsValue -
+                                    //                         balanceStableCoin +
+                                    //                         Fmt.balanceInt(
+                                    //                             balancePair[1]!
+                                    //                                 .minBalance),
+                                    //                     balancePair[1]!
+                                    //                         .decimals!),
+                                    //             subtitleLeft:
+                                    //                 dic['loan.payback']!,
+                                    //             subtitleRight:
+                                    //                 dic['loan.mint']!,
+                                    //             error:
+                                    //                 "${dic['v3.loan.errorMessage3']}  ${PluginFmt.tokenView(karura_stable_coin)} ${dic['v3.loan.errorMessage4']} ",
+                                    //             isShowError: maxToBorrow <=
+                                    //                     debits &&
+                                    //                 Fmt.bigIntToDouble(
+                                    //                         balanceStableCoin,
+                                    //                         balancePair[1]!
+                                    //                             .decimals!) ==
+                                    //                     0,
+                                    //             price: 1.0,
+                                    //             value: debits,
+                                    //             balanceString:
+                                    //                 "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['balance']}: ${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)}",
+                                    //             onChanged: (value) {
+                                    //               final debits = Fmt.tokenInt(
+                                    //                   "$value",
+                                    //                   balancePair[1]!
+                                    //                       .decimals!);
+                                    //               if ((debits -
+                                    //                           originalLoan
+                                    //                               .debits)
+                                    //                       .abs() <
+                                    //                   Fmt.balanceInt(
+                                    //                       balancePair[1]!
+                                    //                           .minBalance)) {
+                                    //                 setState(() {
+                                    //                   loan!.debits =
+                                    //                       originalLoan.debits;
+                                    //                   loan.debitShares =
+                                    //                       originalLoan
+                                    //                           .debitShares;
+                                    //                   loan.collateralRatio =
+                                    //                       originalLoan
+                                    //                           .collateralRatio;
+                                    //                   loan.requiredCollateral =
+                                    //                       originalLoan
+                                    //                           .requiredCollateral;
+
+                                    //                   loan.liquidationPrice =
+                                    //                       originalLoan
+                                    //                           .liquidationPrice;
+                                    //                 });
+                                    //                 return;
+                                    //               }
+                                    //               final requiredCollateral =
+                                    //                   Fmt.tokenInt(
+                                    //                       "${value * double.parse(
+                                    //                             Fmt.token(
+                                    //                                 loan!.type
+                                    //                                     .requiredCollateralRatio,
+                                    //                                 acala_price_decimals),
+                                    //                           ) / availablePrice}",
+                                    //                       balancePair[0]!
+                                    //                           .decimals!);
+                                    //               if (Fmt.bigIntToDouble(
+                                    //                       requiredCollateral,
+                                    //                       balancePair[0]!
+                                    //                           .decimals!) <=
+                                    //                   available) {
+                                    //                 loan.debits = debits;
+                                    //                 loan.debitShares = loan.type
+                                    //                     .debitToDebitShare(
+                                    //                         loan.debits);
+                                    //                 loan.collateralRatio =
+                                    //                     Fmt.bigIntToDouble(
+                                    //                             loan
+                                    //                                 .collaterals,
+                                    //                             balancePair[0]!
+                                    //                                 .decimals!) *
+                                    //                         availablePrice /
+                                    //                         value;
+                                    //                 loan.requiredCollateral =
+                                    //                     requiredCollateral;
+                                    //                 loan.liquidationPrice =
+                                    //                     Fmt.tokenInt(
+                                    //                         '${value * Fmt.bigIntToDouble(e.liquidationRatio, acala_price_decimals) / Fmt.bigIntToDouble(loan.collaterals, balancePair[0]!.decimals!)}',
+                                    //                         acala_price_decimals);
+                                    //               }
+                                    //               setState(() {});
+                                    //             },
+                                    //           ))
+                                    //     ],
+                                    //   ),
+                                    // ),
                                     GestureDetector(
                                       child: Padding(
                                           padding: EdgeInsets.only(bottom: 5),
@@ -766,89 +872,89 @@ class _LoanPageState extends State<LoanPage> {
                                               originalLoan.debits,
                                               balancePair[1]!.decimals!)),
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                            "${debitsSharesValue < BigInt.zero ? dic['loan.payback']! : dic['loan.mint']!}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    height: 2.0,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                        Text(
-                                            "${Fmt.priceCeilBigInt(debitsValue.abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                  height: 1.5,
-                                                ))
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                            "${collateralsValue > BigInt.zero ? dic['loan.deposit']! : dic['loan.withdraw']!}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    height: 2.0,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                        Text(
-                                            "${Fmt.priceCeilBigInt(collateralsValue.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                  height: 1.5,
-                                                ))
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(dic['v3.loan.loanRatio']!,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    height: 2.0,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                        Text('${Fmt.ratio(debitRatio)}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                  height: 1.5,
-                                                ))
-                                      ],
-                                    ),
-                                    Padding(
-                                        padding: EdgeInsets.only(
-                                            top: 37, bottom: 38),
-                                        child: PluginButton(
-                                          title: '${dic['v3.loan.submit']}',
-                                          onPressed: () {
-                                            _onSubmit(loan!, originalLoan,
-                                                stableCoinDecimals);
-                                          },
-                                        )),
+                                    // Row(
+                                    //   mainAxisAlignment:
+                                    //       MainAxisAlignment.spaceBetween,
+                                    //   children: [
+                                    //     Text(
+                                    //         "${debitsSharesValue < BigInt.zero ? dic['loan.payback']! : dic['loan.mint']!}",
+                                    //         style: Theme.of(context)
+                                    //             .textTheme
+                                    //             .headline4
+                                    //             ?.copyWith(
+                                    //                 color: Colors.white,
+                                    //                 height: 2.0,
+                                    //                 fontWeight:
+                                    //                     FontWeight.w600)),
+                                    //     Text(
+                                    //         "${Fmt.priceCeilBigInt(debitsValue.abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}",
+                                    //         style: Theme.of(context)
+                                    //             .textTheme
+                                    //             .headline4
+                                    //             ?.copyWith(
+                                    //               color: Colors.white,
+                                    //               height: 1.5,
+                                    //             ))
+                                    //   ],
+                                    // ),
+                                    // Row(
+                                    //   mainAxisAlignment:
+                                    //       MainAxisAlignment.spaceBetween,
+                                    //   children: [
+                                    //     Text(
+                                    //         "${collateralsValue > BigInt.zero ? dic['loan.deposit']! : dic['loan.withdraw']!}",
+                                    //         style: Theme.of(context)
+                                    //             .textTheme
+                                    //             .headline4
+                                    //             ?.copyWith(
+                                    //                 color: Colors.white,
+                                    //                 height: 2.0,
+                                    //                 fontWeight:
+                                    //                     FontWeight.w600)),
+                                    //     Text(
+                                    //         "${Fmt.priceCeilBigInt(collateralsValue.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}",
+                                    //         style: Theme.of(context)
+                                    //             .textTheme
+                                    //             .headline4
+                                    //             ?.copyWith(
+                                    //               color: Colors.white,
+                                    //               height: 1.5,
+                                    //             ))
+                                    //   ],
+                                    // ),
+                                    // Row(
+                                    //   mainAxisAlignment:
+                                    //       MainAxisAlignment.spaceBetween,
+                                    //   children: [
+                                    //     Text(dic['v3.loan.loanRatio']!,
+                                    //         style: Theme.of(context)
+                                    //             .textTheme
+                                    //             .headline4
+                                    //             ?.copyWith(
+                                    //                 color: Colors.white,
+                                    //                 height: 2.0,
+                                    //                 fontWeight:
+                                    //                     FontWeight.w600)),
+                                    //     Text('${Fmt.ratio(debitRatio)}',
+                                    //         style: Theme.of(context)
+                                    //             .textTheme
+                                    //             .headline4
+                                    //             ?.copyWith(
+                                    //               color: Colors.white,
+                                    //               height: 1.5,
+                                    //             ))
+                                    //   ],
+                                    // ),
+                                    // Padding(
+                                    //     padding: EdgeInsets.only(
+                                    //         top: 37, bottom: 38),
+                                    //     child: PluginButton(
+                                    //       title: '${dic['v3.loan.submit']}',
+                                    //       onPressed: () {
+                                    //         _onSubmit(loan!, originalLoan,
+                                    //             stableCoinDecimals);
+                                    //       },
+                                    //     )),
                                   ],
                                 ));
                           }
@@ -983,13 +1089,12 @@ class _LoanPageState extends State<LoanPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${dic['liquid.price']!} (${loan.token!.symbol})',
+                  Text('${dic['v3.loan.annualStabilityFee']!}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
                           )),
-                  Text(
-                      '≈ \$${Fmt.priceFloorBigInt(loan.liquidationPrice, acala_price_decimals)}',
+                  Text('≈ ${Fmt.ratio(loan.stableFeeYear)}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Color(0xFFFC8156),
                             height: 1.1,
@@ -1007,8 +1112,7 @@ class _LoanPageState extends State<LoanPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                      '${dic['collateral.price.current']!} (${loan.token!.symbol})',
+                  Text('${dic['liquid.ratio']!}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
@@ -1082,16 +1186,6 @@ class _LoanPageState extends State<LoanPage> {
                         fontSize: 12,
                       )),
             ),
-            Container(
-              padding: EdgeInsets.only(left: 3, bottom: 5),
-              alignment: Alignment.bottomCenter,
-              child: Text(
-                  '${dic['collateral.interest']}: ${Fmt.ratio(loan.stableFeeYear)}',
-                  style: Theme.of(context).textTheme.headline3?.copyWith(
-                        color: Color(0xFFFF7849),
-                        fontSize: 11,
-                      )),
-            ),
           ],
         ),
       ),
@@ -1099,245 +1193,317 @@ class _LoanPageState extends State<LoanPage> {
   }
 }
 
-class LoanCollateral extends StatefulWidget {
-  LoanCollateral(
-      {required this.title,
-      required this.maxNumber,
-      required this.value,
-      required this.subtitleLeft,
-      required this.subtitleRight,
-      required this.price,
-      this.minNumber = 0,
-      this.onChanged,
-      this.error = '',
-      this.isShowError = false,
-      this.balanceString = "",
-      this.valueString,
-      Key? key})
+class LoanItemView extends StatelessWidget {
+  const LoanItemView(
+      {Key? key,
+      required this.progress,
+      required this.progressText,
+      required this.btnText,
+      required this.detailWidget,
+      required this.onTap})
       : super(key: key);
-  final Function(double)? onChanged;
-  String title;
-  double maxNumber;
-  double minNumber;
-  double value;
-  String balanceString;
-  String? valueString;
-  double price;
-  String subtitleLeft;
-  String subtitleRight;
-  String error;
-  bool isShowError;
-
-  @override
-  _LoanCollateralState createState() => _LoanCollateralState();
-}
-
-class _LoanCollateralState extends State<LoanCollateral> {
-  double _value = 0;
-
-  @override
-  void initState() {
-    _value = widget.value;
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    _value = widget.value;
-    super.didChangeDependencies();
-  }
+  final double progress;
+  final String progressText;
+  final String btnText;
+  final Widget detailWidget;
+  final Function onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 9),
-            child: Row(
+    return Container(
+        height: 170,
+        padding: EdgeInsets.symmetric(vertical: 15),
+        child: Row(
+          children: [
+            Expanded(
+                child: Padding(
+                    padding: EdgeInsets.only(left: 23),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: AnimationCircularProgressBar(
+                                progress: progress,
+                                width: 8,
+                                lineColor: [
+                                  Color(0x4DFFFFFF),
+                                  Color(0xFF81FEB9)
+                                ],
+                                size: 96,
+                                startAngle: pi * 3 / 2,
+                                bgColor: Colors.white.withAlpha(38))),
+                        Text(
+                          progressText,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white),
+                        ),
+                      ],
+                    ))),
+            Expanded(
+                child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(widget.title,
-                    style: Theme.of(context).textTheme.headline5?.copyWith(
-                        fontWeight: FontWeight.w600, color: Colors.white)),
-                Row(
-                  children: [
-                    GestureDetector(
-                        onTap: () {
-                          showCupertinoDialog(
-                              context: context,
-                              builder: (context) {
-                                final _controller =
-                                    TextEditingController(text: "$_value");
-                                return CupertinoAlertDialog(
-                                  content: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.min']}: ${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
-                                      Text(
-                                          "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.max']}: ${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
-                                      CupertinoTextField(
-                                        controller: _controller,
-                                        keyboardType:
-                                            TextInputType.numberWithOptions(
-                                                decimal: true),
-                                        clearButtonMode:
-                                            OverlayVisibilityMode.editing,
-                                      )
-                                    ],
-                                  ),
-                                  actions: <Widget>[
-                                    CupertinoDialogAction(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text(I18n.of(context)!.getDic(
-                                          i18n_full_dic_karura,
-                                          'common')!['cancel']!),
-                                    ),
-                                    CupertinoDialogAction(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        if (double.parse(_controller.text) >=
-                                                widget.minNumber &&
-                                            double.parse(_controller.text) <=
-                                                widget.maxNumber) {
-                                          setState(() {
-                                            _value =
-                                                double.parse(_controller.text);
-                                          });
-                                          if (widget.onChanged != null) {
-                                            widget.onChanged!(_value);
-                                          }
-                                        } else {
-                                          Toast.show(
-                                              I18n.of(context)!.getDic(
-                                                  i18n_full_dic_ui,
-                                                  'common')!['amount.error']!,
-                                              context,
-                                              duration: Toast.LENGTH_SHORT,
-                                              gravity: Toast.CENTER);
-                                        }
-                                      },
-                                      child: Text(I18n.of(context)!.getDic(
-                                          i18n_full_dic_karura,
-                                          'common')!['ok']!),
-                                    ),
-                                  ],
-                                );
-                              });
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(right: 2),
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: BoxDecoration(
-                            color: Color(0x24FFFFFF),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
-                          ),
-                          child: Text(
-                            Fmt.priceFloorFormatter(_value, lengthMax: 4),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText1
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                          ),
-                        )),
-                    Text(
-                      "/${Fmt.priceFloorFormatter(widget.maxNumber, lengthMax: 4)}",
-                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
-                    )
-                  ],
+                detailWidget,
+                PluginOutlinedButtonSmall(
+                  padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  content: btnText,
+                  color: PluginColorsDark.primary,
+                  active: true,
+                  fontSize: 14,
+                  onPressed: () => onTap,
                 )
               ],
-            )),
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 9),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(widget.balanceString,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12)),
-                Visibility(
-                    visible: widget.valueString != null,
-                    child: Text(
-                      widget.valueString ?? "",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline5
-                          ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12),
-                    ))
-              ],
-            )),
-        !widget.isShowError
-            ? Padding(
-                padding: EdgeInsets.symmetric(horizontal: 9),
-                child: ClipRect(
-                    child: Align(
-                        heightFactor: 0.6,
-                        alignment: Alignment.center,
-                        child: SliderTheme(
-                            data: SliderThemeData(
-                                trackHeight: 11,
-                                activeTrackColor: Color(0xFFFC8156),
-                                inactiveTrackColor: Color(0xFF60FFA7),
-                                overlayColor: Colors.transparent,
-                                trackShape: const PluginSliderTrackShape(),
-                                thumbShape: const PluginSliderThumbShape()),
-                            child: Slider(
-                              min: widget.minNumber,
-                              max: widget.maxNumber,
-                              value: _value,
-                              onChanged: (value) {
-                                setState(() {
-                                  _value = value;
-                                });
-                                if (widget.onChanged != null) {
-                                  widget.onChanged!(_value);
-                                }
-                              },
-                            )))))
-            : Container(
-                color: Color(0xFF292A2C),
-                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 9),
-                margin: EdgeInsets.symmetric(vertical: 5),
-                width: double.infinity,
-                child: Text(
-                  widget.error,
-                  style: Theme.of(context).textTheme.headline5?.copyWith(
-                      color: Color(0xFFFF7849),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12),
-                ),
-              ),
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 9),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.subtitleLeft,
-                    style: Theme.of(context).textTheme.headline5?.copyWith(
-                        color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
-                  ),
-                  Text(
-                    widget.subtitleRight,
-                    style: Theme.of(context).textTheme.headline5?.copyWith(
-                        color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
-                  )
-                ]))
-      ],
-    );
+            ))
+          ],
+        ));
   }
 }
+
+// class LoanCollateral extends StatefulWidget {
+//   LoanCollateral(
+//       {required this.title,
+//       required this.maxNumber,
+//       required this.value,
+//       required this.subtitleLeft,
+//       required this.subtitleRight,
+//       required this.price,
+//       this.minNumber = 0,
+//       this.onChanged,
+//       this.error = '',
+//       this.isShowError = false,
+//       this.balanceString = "",
+//       this.valueString,
+//       Key? key})
+//       : super(key: key);
+//   final Function(double)? onChanged;
+//   String title;
+//   double maxNumber;
+//   double minNumber;
+//   double value;
+//   String balanceString;
+//   String? valueString;
+//   double price;
+//   String subtitleLeft;
+//   String subtitleRight;
+//   String error;
+//   bool isShowError;
+
+//   @override
+//   _LoanCollateralState createState() => _LoanCollateralState();
+// }
+
+// class _LoanCollateralState extends State<LoanCollateral> {
+//   double _value = 0;
+
+//   @override
+//   void initState() {
+//     _value = widget.value;
+//     super.initState();
+//   }
+
+//   @override
+//   void didChangeDependencies() {
+//     _value = widget.value;
+//     super.didChangeDependencies();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Padding(
+//             padding: EdgeInsets.symmetric(horizontal: 9),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text(widget.title,
+//                     style: Theme.of(context).textTheme.headline5?.copyWith(
+//                         fontWeight: FontWeight.w600, color: Colors.white)),
+//                 Row(
+//                   children: [
+//                     GestureDetector(
+//                         onTap: () {
+//                           showCupertinoDialog(
+//                               context: context,
+//                               builder: (context) {
+//                                 final _controller =
+//                                     TextEditingController(text: "$_value");
+//                                 return CupertinoAlertDialog(
+//                                   content: Column(
+//                                     crossAxisAlignment:
+//                                         CrossAxisAlignment.start,
+//                                     children: [
+//                                       Text(
+//                                           "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.min']}: ${Fmt.priceCeil(widget.minNumber, lengthMax: 4)}"),
+//                                       Text(
+//                                           "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['v3.loan.max']}: ${Fmt.priceCeil(widget.maxNumber, lengthMax: 4)}"),
+//                                       CupertinoTextField(
+//                                         controller: _controller,
+//                                         keyboardType:
+//                                             TextInputType.numberWithOptions(
+//                                                 decimal: true),
+//                                         clearButtonMode:
+//                                             OverlayVisibilityMode.editing,
+//                                       )
+//                                     ],
+//                                   ),
+//                                   actions: <Widget>[
+//                                     CupertinoDialogAction(
+//                                       onPressed: () {
+//                                         Navigator.pop(context);
+//                                       },
+//                                       child: Text(I18n.of(context)!.getDic(
+//                                           i18n_full_dic_karura,
+//                                           'common')!['cancel']!),
+//                                     ),
+//                                     CupertinoDialogAction(
+//                                       onPressed: () {
+//                                         Navigator.pop(context);
+//                                         if (double.parse(_controller.text) >=
+//                                                 widget.minNumber &&
+//                                             double.parse(_controller.text) <=
+//                                                 widget.maxNumber) {
+//                                           setState(() {
+//                                             _value =
+//                                                 double.parse(_controller.text);
+//                                           });
+//                                           if (widget.onChanged != null) {
+//                                             widget.onChanged!(_value);
+//                                           }
+//                                         } else {
+//                                           Toast.show(
+//                                               I18n.of(context)!.getDic(
+//                                                   i18n_full_dic_ui,
+//                                                   'common')!['amount.error']!,
+//                                               context,
+//                                               duration: Toast.LENGTH_SHORT,
+//                                               gravity: Toast.CENTER);
+//                                         }
+//                                       },
+//                                       child: Text(I18n.of(context)!.getDic(
+//                                           i18n_full_dic_karura,
+//                                           'common')!['ok']!),
+//                                     ),
+//                                   ],
+//                                 );
+//                               });
+//                         },
+//                         child: Container(
+//                           margin: EdgeInsets.only(right: 2),
+//                           padding: EdgeInsets.symmetric(horizontal: 5),
+//                           decoration: BoxDecoration(
+//                             color: Color(0x24FFFFFF),
+//                             borderRadius:
+//                                 const BorderRadius.all(Radius.circular(4)),
+//                           ),
+//                           child: Text(
+//                             Fmt.priceFloorFormatter(_value, lengthMax: 4),
+//                             style: Theme.of(context)
+//                                 .textTheme
+//                                 .bodyText1
+//                                 ?.copyWith(
+//                                     color: Colors.white,
+//                                     fontWeight: FontWeight.w600),
+//                           ),
+//                         )),
+//                     Text(
+//                       "/${Fmt.priceFloorFormatter(widget.maxNumber, lengthMax: 4)}",
+//                       style: Theme.of(context).textTheme.bodyText1?.copyWith(
+//                           color: Colors.white, fontWeight: FontWeight.w600),
+//                     )
+//                   ],
+//                 )
+//               ],
+//             )),
+//         Padding(
+//             padding: EdgeInsets.symmetric(horizontal: 9),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text(widget.balanceString,
+//                     style: Theme.of(context)
+//                         .textTheme
+//                         .headline5
+//                         ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12)),
+//                 Visibility(
+//                     visible: widget.valueString != null,
+//                     child: Text(
+//                       widget.valueString ?? "",
+//                       style: Theme.of(context)
+//                           .textTheme
+//                           .headline5
+//                           ?.copyWith(color: Color(0xFFFFFBF9), fontSize: 12),
+//                     ))
+//               ],
+//             )),
+//         !widget.isShowError
+//             ? Padding(
+//                 padding: EdgeInsets.symmetric(horizontal: 9),
+//                 child: ClipRect(
+//                     child: Align(
+//                         heightFactor: 0.6,
+//                         alignment: Alignment.center,
+//                         child: SliderTheme(
+//                             data: SliderThemeData(
+//                                 trackHeight: 11,
+//                                 activeTrackColor: Color(0xFFFC8156),
+//                                 inactiveTrackColor: Color(0xFF60FFA7),
+//                                 overlayColor: Colors.transparent,
+//                                 trackShape: const PluginSliderTrackShape(),
+//                                 thumbShape: const PluginSliderThumbShape()),
+//                             child: Slider(
+//                               min: widget.minNumber,
+//                               max: widget.maxNumber,
+//                               value: _value,
+//                               onChanged: (value) {
+//                                 setState(() {
+//                                   _value = value;
+//                                 });
+//                                 if (widget.onChanged != null) {
+//                                   widget.onChanged!(_value);
+//                                 }
+//                               },
+//                             )))))
+//             : Container(
+//                 color: Color(0xFF292A2C),
+//                 padding: EdgeInsets.symmetric(vertical: 2, horizontal: 9),
+//                 margin: EdgeInsets.symmetric(vertical: 5),
+//                 width: double.infinity,
+//                 child: Text(
+//                   widget.error,
+//                   style: Theme.of(context).textTheme.headline5?.copyWith(
+//                       color: Color(0xFFFF7849),
+//                       fontWeight: FontWeight.w600,
+//                       fontSize: 12),
+//                 ),
+//               ),
+//         Padding(
+//             padding: EdgeInsets.symmetric(horizontal: 9),
+//             child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     widget.subtitleLeft,
+//                     style: Theme.of(context).textTheme.headline5?.copyWith(
+//                         color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
+//                   ),
+//                   Text(
+//                     widget.subtitleRight,
+//                     style: Theme.of(context).textTheme.headline5?.copyWith(
+//                         color: Color(0xFFFFFBF9), height: 0.9, fontSize: 12),
+//                   )
+//                 ]))
+//       ],
+//     );
+//   }
+// }
 
 class CreateVaultWidget extends StatelessWidget {
   const CreateVaultWidget({this.onPressed, Key? key}) : super(key: key);

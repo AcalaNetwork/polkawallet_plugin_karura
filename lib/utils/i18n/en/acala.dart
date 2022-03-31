@@ -278,5 +278,9 @@ const Map<String, String> enDex = {
       'There is no minted kUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?',
   'v3.loan.errorMessage5': 'The minimum requirement for the Vault is ',
   'v3.loan.errorMessage6':
-      ' kUSD, you have to deposit more collateral to mint enough kUSD'
+      ' kUSD, you have to deposit more collateral to mint enough kUSD',
+  'v3.loan.inCollateral': 'in collateral',
+  'v3.loan.minted': 'minted',
+  'v3.loan.canPayback': 'Can Payback',
+  'v3.loan.annualStabilityFee': 'Annual Stability Fee',
 };
