@@ -15,6 +15,7 @@ import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanAdjustPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
@@ -59,6 +60,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
               ),
           LoanDepositPage.route: (_) => LoanDepositPage(plugin, keyring),
           LoanTxDetailPage.route: (_) => LoanTxDetailPage(plugin, keyring),
+          LoanAdjustPage.route: (_) => LoanAdjustPage(plugin, keyring),
 
           //swap
           SwapPage.route: (_) => SwapPage(plugin, keyring),
