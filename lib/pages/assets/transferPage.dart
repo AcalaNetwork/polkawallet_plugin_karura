@@ -19,7 +19,6 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/currencyWithIcon.dart';
-import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/textTag.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
@@ -56,6 +55,9 @@ class _TransferPageState extends State<TransferPage> {
   TokenBalanceData? _token;
   String? _chainTo;
   bool _accountToEditable = false;
+  bool _keepAlive = true;
+
+  Map _accountSysInfo = {};
 
   String? _accountToError;
 
@@ -120,6 +122,16 @@ class _TransferPageState extends State<TransferPage> {
     setState(() {
       _accountToError = error;
     });
+  }
+
+  Future<void> _getAccountSysInfo() async {
+    final info = await widget.plugin.sdk.webView?.evalJavascript(
+        'api.query.system.account("${widget.keyring.current.address}")');
+    if (info != null) {
+      setState(() {
+        _accountSysInfo = info;
+      });
+    }
   }
 
   Future<String> _getTxFee({bool isXCM = false, bool reload = false}) async {
@@ -297,6 +309,63 @@ class _TransferPageState extends State<TransferPage> {
         _accountToError = null;
       }
     });
+  }
+
+  void _onSwitchCheckAlive(bool res, bool isNoDeath) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
+
+    if (!res) {
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: Text(dic['note']!),
+            content: Text(dic['transfer.note.msg1']!),
+            actions: <Widget>[
+              CupertinoButton(
+                child: Text(I18n.of(context)!
+                    .getDic(i18n_full_dic_ui, 'common')!['cancel']!),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              CupertinoButton(
+                child: Text(I18n.of(context)!
+                    .getDic(i18n_full_dic_ui, 'common')!['ok']!),
+                onPressed: () {
+                  Navigator.of(context).pop();
+
+                  if (isNoDeath) {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                          title: Text(dic['note']!),
+                          content: Text(dic['transfer.note.msg2']!),
+                          actions: <Widget>[
+                            CupertinoButton(
+                              child: Text(I18n.of(context)!
+                                  .getDic(i18n_full_dic_ui, 'common')!['ok']!),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    setState(() {
+                      _keepAlive = res;
+                    });
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      setState(() {
+        _keepAlive = res;
+      });
+    }
   }
 
   Future<TxConfirmParams?> _getTxParams(
@@ -554,6 +623,7 @@ class _TransferPageState extends State<TransferPage> {
       });
 
       _getTxFee();
+      _getAccountSysInfo();
     });
   }
 
@@ -583,15 +653,22 @@ class _TransferPageState extends State<TransferPage> {
                 {})[token.tokenNameId] ??
             [];
 
-        // todo: moon-river(fa://3) xcm is not support now
         final canCrossChain = tokenXcmConfig.length > 0;
 
         final nativeTokenBalance =
             Fmt.balanceInt(widget.plugin.balances.native?.freeBalance) -
                 Fmt.balanceInt(widget.plugin.balances.native?.frozenFee);
-        final accountED = PluginFmt.getAccountED(widget.plugin);
+        final notTransferable = Fmt.balanceInt(
+                (widget.plugin.balances.native?.reservedBalance ?? 0)
+                    .toString()) +
+            Fmt.balanceInt(
+                (widget.plugin.balances.native?.lockedBalance ?? 0).toString());
+        final accountED =
+            _keepAlive ? PluginFmt.getAccountED(widget.plugin) : BigInt.zero;
         final isNativeTokenLow = nativeTokenBalance - accountED <
             Fmt.balanceInt((_fee?.partialFee ?? 0).toString()) * BigInt.two;
+        final isAccountNormal = (_accountSysInfo['consumers'] as int?) == 0 ||
+            ((_accountSysInfo['providers'] as int?) ?? 0) > 0;
 
         final balanceData = AssetsUtils.getBalanceFromTokenNameId(
             widget.plugin, token.tokenNameId);
@@ -606,6 +683,18 @@ class _TransferPageState extends State<TransferPage> {
                 .toString())
             : Fmt.balanceInt(widget.plugin.store!.assets
                 .tokenBalanceMap[token.tokenNameId]!.minBalance);
+        final fee = Fmt.balanceInt((_fee?.partialFee ?? 0).toString());
+        BigInt max = available;
+        if (tokenSymbol == nativeToken) {
+          max = notTransferable > BigInt.zero
+              ? notTransferable > accountED
+                  ? available - fee
+                  : available - (accountED - notTransferable) - fee
+              : available - accountED - fee;
+        }
+        if (max < BigInt.zero) {
+          max = BigInt.zero;
+        }
 
         final chainTo = _chainTo ?? widget.plugin.basic.name!;
         final isCrossChain = widget.plugin.basic.name != chainTo;
@@ -648,6 +737,11 @@ class _TransferPageState extends State<TransferPage> {
             : widget.plugin.basic.ss58;
 
         final labelStyle = Theme.of(context).textTheme.headline4;
+        final subTitleStyle = TextStyle(fontSize: 12, height: 1);
+        final infoValueStyle = Theme.of(context)
+            .textTheme
+            .headline5!
+            .copyWith(fontWeight: FontWeight.w600);
 
         return Scaffold(
           appBar: AppBar(
@@ -783,21 +877,23 @@ class _TransferPageState extends State<TransferPage> {
                               lengthMax: 6,
                             )})',
                             labelStyle: labelStyle,
-                            suffix: GestureDetector(
-                              child: Text(dic['amount.max']!,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .toggleableActiveColor)),
-                              onTap: () {
-                                setState(() {
-                                  _amountMax = available;
-                                  _amountCtrl.text = Fmt.bigIntToDouble(
-                                          available, token.decimals!)
-                                      .toStringAsFixed(8);
-                                });
-                              },
-                            ),
+                            suffix: fee > BigInt.zero
+                                ? GestureDetector(
+                                    child: Text(dic['amount.max']!,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .toggleableActiveColor)),
+                                    onTap: () {
+                                      setState(() {
+                                        _amountMax = max;
+                                        _amountCtrl.text = Fmt.bigIntToDouble(
+                                                max, token.decimals!)
+                                            .toStringAsFixed(8);
+                                      });
+                                    },
+                                  )
+                                : null,
                           ),
                           inputFormatters: [
                             UI.decimalInputFormatter(token.decimals!)!
@@ -820,7 +916,7 @@ class _TransferPageState extends State<TransferPage> {
                                 Fmt.tokenInt(v.trim(), token.decimals!);
                             if (_amountMax == null &&
                                 Fmt.bigIntToDouble(input, token.decimals!) >
-                                    available /
+                                    max /
                                         BigInt.from(pow(10, token.decimals!))) {
                               return dic['amount.low'];
                             }
@@ -921,123 +1017,157 @@ class _TransferPageState extends State<TransferPage> {
                     visible: isNativeTokenLow,
                     child: InsufficientKARWarn(),
                   ),
-                  Visibility(
-                      visible: isCrossChain,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: TapTooltip(
-                                message: dicAcala['cross.exist.msg']!,
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Text(dicAcala['cross.exist']!),
-                                    ),
-                                    Icon(
-                                      Icons.info,
-                                      size: 16,
-                                      color: Theme.of(context)
-                                          .unselectedWidgetColor,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 0,
-                              child: Text(
-                                  '${Fmt.priceCeilBigInt(destExistDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
-                            )
-                          ],
-                        ),
-                      )),
-                  Visibility(
-                      visible: isCrossChain && destFee > BigInt.zero,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 4),
-                                child: Text(dicAcala['cross.fee']!),
-                              ),
-                            ),
-                            Text(
-                                '${Fmt.priceCeilBigInt(destFee, token.decimals!, lengthMax: 6)} $tokenView'),
-                          ],
-                        ),
-                      )),
-                  Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                  RoundedCard(
+                    margin: EdgeInsets.only(top: 16.h),
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: TapTooltip(
-                            message: dicAcala['cross.exist.msg']!,
+                        Visibility(
+                            visible: isCrossChain,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                        padding: EdgeInsets.only(right: 40),
+                                        child: Text(dicAcala['cross.exist']!,
+                                            style: labelStyle)),
+                                  ),
+                                  Expanded(
+                                      flex: 0,
+                                      child: Text(
+                                          '${Fmt.priceCeilBigInt(destExistDeposit, token.decimals!, lengthMax: 6)} $tokenView',
+                                          style: infoValueStyle)),
+                                ],
+                              ),
+                            )),
+                        Visibility(
+                            visible: isCrossChain,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 4),
+                                      child: Text(dicAcala['cross.fee']!,
+                                          style: labelStyle),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${Fmt.priceCeilBigInt(destFee, token.decimals!, lengthMax: 6)} $tokenView',
+                                    style: infoValueStyle,
+                                  )
+                                ],
+                              ),
+                            )),
+                        Visibility(
+                          visible: isCrossChain && isFromStateMine,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 8),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 4),
-                                  child: Text(dicAcala['transfer.exist']!),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Text('XCM fee', style: labelStyle),
+                                  ),
                                 ),
-                                Icon(
-                                  Icons.info,
-                                  size: 16,
-                                  color:
-                                      Theme.of(context).unselectedWidgetColor,
-                                )
+                                Text(
+                                    '${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance!.decimals!)} $relay_chain_token_symbol',
+                                    style: infoValueStyle),
                               ],
                             ),
                           ),
                         ),
-                        Text(
-                            '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView'),
+                        Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    padding: EdgeInsets.only(right: 60),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(dicAcala['transfer.exist']!,
+                                            style: labelStyle),
+                                        Text(dicAcala['cross.exist.msg']!,
+                                            style: subTitleStyle),
+                                      ],
+                                    )),
+                              ),
+                              Text(
+                                  '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView',
+                                  style: infoValueStyle),
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                            visible: _fee?.partialFee != null,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 4),
+                                      child: Text(dicAcala['transfer.fee']!,
+                                          style: labelStyle),
+                                    ),
+                                  ),
+                                  Text(
+                                      '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken',
+                                      style: infoValueStyle),
+                                ],
+                              ),
+                            )),
+                        Visibility(
+                            visible: tokenSymbol == nativeToken &&
+                                available > BigInt.zero,
+                            child: Container(
+                              margin: EdgeInsets.only(top: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                        padding: EdgeInsets.only(right: 60),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              dic['transfer.alive']!,
+                                              style: labelStyle,
+                                            ),
+                                            Text(
+                                              dic['transfer.alive.msg']!,
+                                              style: subTitleStyle,
+                                            ),
+                                          ],
+                                        )),
+                                  ),
+                                  v3.CupertinoSwitch(
+                                    value: _keepAlive,
+                                    // account is not allow_death if it has
+                                    // locked/reserved balances
+                                    onChanged: (v) => _onSwitchCheckAlive(
+                                        v,
+                                        !isAccountNormal ||
+                                            notTransferable > BigInt.zero),
+                                  )
+                                ],
+                              ),
+                            ))
                       ],
-                    ),
-                  ),
-                  Visibility(
-                    visible: isFromStateMine,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Text('XCM fee'),
-                            ),
-                          ),
-                          Text(
-                              '${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance!.decimals!)} $relay_chain_token_symbol'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _fee?.partialFee != null,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Text(dicAcala['transfer.fee']!),
-                            ),
-                          ),
-                          Text(
-                              '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken'),
-                        ],
-                      ),
                     ),
                   ),
                   Visibility(

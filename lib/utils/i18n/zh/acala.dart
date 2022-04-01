@@ -202,7 +202,7 @@ const Map<String, String> zhDex = {
   'cross.xcm': '跨链转账',
   'cross.chain.select': '选择网络',
   'cross.exist': '收款链存活余额',
-  'cross.exist.msg': '\n账户在网络上存活所需要的最小余额。\n',
+  'cross.exist.msg': '账户在网络上存活所需要的最小余额。',
   'cross.fee': '收款链手续费',
   'cross.warn': '警告',
   'cross.edit': '修改收款地址',

@@ -3,6 +3,14 @@ const Map<String, String> enCommon = {
   'karura': 'Kusama DeFi Hub',
   'transfer': 'Transfer',
   'transfer.scam': 'Scam address',
+  'transfer.alive': 'keep-alive',
+  'transfer.alive.msg':
+      'With the keep-alive option set, the account is protected against removal due to low balances.',
+  'note': 'Note',
+  'transfer.note.msg1':
+      'Unset the keep-alive option, the account will be removed due to low balance.',
+  'transfer.note.msg2':
+      'There are other locked assets in this account that cannot be removed.',
   'send': 'Send',
   'receive': 'Receive',
   'all': 'All',
