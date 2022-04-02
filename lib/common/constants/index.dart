@@ -42,7 +42,6 @@ const acala_token_ids = [
   'KBTC',
   'KINT',
   'TAI',
-  'TAIKSM',
   'RMRK',
   'ARIS',
   'QTZ',

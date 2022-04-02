@@ -114,7 +114,7 @@ class ServiceAssets {
           (key, value) => plugin.tokenIcons.keys.toList().indexOf(key) > -1);
       plugin.tokenIcons.addAll(icons.map((k, v) {
         return MapEntry(
-            k,
+            (k as String).toUpperCase(),
             (v as String).contains('.svg')
                 ? SvgPicture.network(v)
                 : Image.network(v));
