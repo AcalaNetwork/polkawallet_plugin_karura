@@ -250,6 +250,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   .map((i) =>
                                       TransferData.fromJson(i as Map, token))
                                   .toList();
+                          txs.removeWhere((e) =>
+                              e.to == widget.keyring.current.address &&
+                              e.isSuccess == false);
 
                           if (_txFilterIndex > 0) {
                             txs.retainWhere((e) =>
