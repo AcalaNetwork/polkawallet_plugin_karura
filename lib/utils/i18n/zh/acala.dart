@@ -37,14 +37,11 @@ const Map<String, String> zhDex = {
   'boot.my.share': '份额',
   'boot.add': '添加',
   'loan.title': '生成 aUSD',
-  'loan.title.KSM': '生成 kUSD',
   'loan.borrowed': '当前债务',
   'loan.collateral': '质押',
   'loan.ratio': '质押率',
   'loan.ratio.info':
       '\n你的债仓中质押物的市场价值（USD计价）与你生成的 aUSD 的价值之间的比例。（即：质押物价值 / aUSD 价值）\n',
-  'loan.ratio.info.KSM':
-      '\n你的债仓中质押物的市场价值（USD计价）与你生成的 kUSD 的价值之间的比例。（即：质押物价值 / kUSD 价值）\n',
   'loan.mint': '生成',
   'loan.payback': '销毁',
   'loan.deposit': '存入',
@@ -71,13 +68,11 @@ const Map<String, String> zhDex = {
   'loan.amount.collateral': '您要存入多少质押物？',
   'loan.max': '最大值',
   'loan.txs': '交易记录',
-  'loan.warn': '债仓未清零时，余额不能小于 1 aUSD，本次操作后将剩余 1 aUSD 的债务。确认继续吗？',
-  'loan.warn.KSM': '债仓未清零时，余额不能小于 1 kUSD，本次操作后将剩余 1 kUSD 的债务。确认继续吗？',
-  'loan.warn.KSM1': '债仓未清零时，余额不能小于 ',
-  'loan.warn.KSM2': ' kUSD，本次操作后将剩余 ',
-  'loan.warn.KSM3': ' kUSD 的债务。确认继续吗？',
-  'loan.warn.KSM4': '为了使你的债仓保持活跃，您本次必须最少铸造 ',
-  'loan.warn.KSM5': ' kUSD',
+  'loan.warn1': '债仓未清零时，余额不能小于 ',
+  'loan.warn2': 'aUSD，本次操作后将剩余 ',
+  'loan.warn3': 'aUSD 的债务。确认继续吗？',
+  'loan.warn4': '为了使你的债仓保持活跃，您本次必须最少铸造 ',
+  'loan.warn5': 'aUSD',
   'loan.warn.back': '返回修改',
   'loan.my': '我的债仓',
   'loan.incentive': '盈利',
@@ -87,7 +82,7 @@ const Map<String, String> zhDex = {
   'loan.close': '关闭债仓',
   'loan.close.dex': '关闭债仓',
   'loan.close.dex.info':
-      '你的一部分质押物会通过 Swap 卖掉，以归还全部 kUSD 债务，剩余的质押物将退回你的账户。确认继续吗？',
+      '你的一部分质押物会通过 Swap 卖掉，以归还全部 aUSD 债务，剩余的质押物将退回你的账户。确认继续吗？',
   'loan.close.receive': '预估退回质押物',
   'txs.action': '操作类型',
   'payback.small': '剩余债务过小',
@@ -234,7 +229,7 @@ const Map<String, String> zhDex = {
   'v3.minimumGenerate': '最少生成',
   'v3.loan.iUnderstand': '我明白了',
   'v3.loan.paybackMessage':
-      '您已经销毁了所有已铸造的 kUSD，但是你仍然有已抵押的 KSM。如果您想关闭债仓，您可以同时提取所有抵押的 KSM。',
+      '您已经销毁了所有已铸造的 aUSD，但是你仍然有已抵押的 KSM。如果您想关闭债仓，您可以同时提取所有抵押的 KSM。',
   'v3.earn.lpTokenReceived': '收到的LP Token',
   'v3.earn.amout': '数量',
   'v3.earn.tokenReceived': '收到的Token',
@@ -257,7 +252,7 @@ const Map<String, String> zhDex = {
   'v3.earn.staked': '我的质押',
   'v3.earn.stakedValue': '质押值',
   'v3.fastRedeemError': '快速赎回当前不可用。',
-  'v3.loan.closeVault': '你当前的债仓中没有kUSD债务，您确定要提取所有质押物并关闭债仓吗？',
+  'v3.loan.closeVault': '你当前的债仓中没有aUSD债务，您确定要提取所有质押物并关闭债仓吗？',
   'v3.loan.errorMessage5': '债仓中生成债务的最低要求是 ',
-  'v3.loan.errorMessage6': ' kUSD, 你必须存入更多的抵押品才能生成足够的kUSD'
+  'v3.loan.errorMessage6': 'aUSD, 你必须存入更多的抵押品才能生成足够的aUSD'
 };

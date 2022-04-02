@@ -49,9 +49,9 @@ const Map<String, String> enCommon = {
   'node.connecting': 'Connecting remote node...',
   'node.failed': 'Remote node connection failed',
   'unlock': 'Unlock Account with Password',
-  'loan.title': 'Mint kUSD',
+  'loan.title': 'Mint aUSD',
   'loan.brief':
-      'Leverage your digital assets by depositing them as collateral to mint kUSD.',
+      'Leverage your digital assets by depositing them as collateral to mint aUSD.',
   'swap.title': 'Swap',
   'swap.brief':
       'Swap tokens or provide liquidity in Karura Decentralized Exchange.',

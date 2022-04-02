@@ -172,7 +172,7 @@ class _LoanPageState extends State<LoanPage> {
           return null;
         }
         final bool canContinue = await (_confirmPaybackParams(
-                '${dic!['loan.warn.KSM4']}$minimumDebitValue${dic['loan.warn.KSM5']}')
+                '${dic!['loan.warn4']}$minimumDebitValue${dic['loan.warn5']}')
             as Future<bool>);
         if (!canContinue) return null;
         debitSubtract = loan.type.debitToDebitShare(
@@ -188,7 +188,7 @@ class _LoanPageState extends State<LoanPage> {
           final minimumDebitValue = Fmt.bigIntToDouble(
               loan.type.minimumDebitValue, balancePair[1]!.decimals!);
           final bool canContinue = await (_confirmPaybackParams(
-                  '${dic!['loan.warn.KSM1']}$minimumDebitValue${dic['loan.warn.KSM2']}$minimumDebitValue${dic['loan.warn.KSM3']}')
+                  '${dic!['loan.warn1']}$minimumDebitValue${dic['loan.warn2']}$minimumDebitValue${dic['loan.warn3']}')
               as Future<bool>);
           if (!canContinue) return null;
           debitSubtract = loan.type.debitToDebitShare(
@@ -389,7 +389,7 @@ class _LoanPageState extends State<LoanPage> {
       final headCardHeight = headCardWidth / 694 * 420;
       return PluginScaffold(
           appBar: PluginAppBar(
-            title: Text(dic!['loan.title.KSM']!),
+            title: Text(dic!['loan.title']!),
             actions: [
               Container(
                 margin: EdgeInsets.only(right: 16),
@@ -642,10 +642,20 @@ class _LoanPageState extends State<LoanPage> {
                                                     ? 0
                                                     : Fmt.bigIntToDouble(
                                                         originalDebitsValue -
-                                                            balanceStableCoin +
-                                                            Fmt.balanceInt(
-                                                                balancePair[1]!
-                                                                    .minBalance),
+                                                                    balanceStableCoin +
+                                                                    Fmt.balanceInt(
+                                                                        balancePair[1]!
+                                                                            .minBalance) >
+                                                                originalLoan
+                                                                    .debits
+                                                            ? originalLoan
+                                                                .debits
+                                                            : originalDebitsValue -
+                                                                balanceStableCoin +
+                                                                Fmt.balanceInt(
+                                                                    balancePair[
+                                                                            1]!
+                                                                        .minBalance),
                                                         balancePair[1]!
                                                             .decimals!),
                                                 subtitleLeft:

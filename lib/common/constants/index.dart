@@ -4,7 +4,7 @@ const plugin_genesis_hash =
     '0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b';
 const acala_price_decimals = 18;
 const karura_stable_coin = 'KUSD';
-const karura_stable_coin_view = 'kUSD';
+const karura_stable_coin_view = 'aUSD';
 const acala_token_ren_btc = 'RENBTC';
 const acala_token_ren_btc_view = 'renBTC';
 const acala_token_polka_btc = 'POLKABTC';
