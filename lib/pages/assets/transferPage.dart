@@ -1171,7 +1171,10 @@ class _TransferPageState extends State<TransferPage> {
                     ),
                   ),
                   Visibility(
-                      visible: isCrossChain && tokenSymbol != nativeToken,
+                      visible: isCrossChain &&
+                          tokenSymbol != nativeToken &&
+                          tokenSymbol != karura_stable_coin &&
+                          tokenSymbol != 'L$relay_chain_token_symbol',
                       child: _CrossChainTransferWarning(
                           message: _getWarnInfo(tokenSymbol))),
                   Visibility(
