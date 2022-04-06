@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -69,7 +70,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(token.symbol!),
+          title: Text(PluginFmt.tokenView(token.symbol)),
           centerTitle: true,
           elevation: 0.0,
           leading: BackBtn()),
@@ -249,6 +250,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   .map((i) =>
                                       TransferData.fromJson(i as Map, token))
                                   .toList();
+                          txs.removeWhere((e) =>
+                              e.to == widget.keyring.current.address &&
+                              e.isSuccess == false);
 
                           if (_txFilterIndex > 0) {
                             txs.retainWhere((e) =>

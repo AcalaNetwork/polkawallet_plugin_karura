@@ -164,21 +164,8 @@ class _LoanPageState extends State<LoanPage> {
     if (confirmed) {
       var res;
       if (debit > 0) {
-        final params = [
-          loan.token!.currencyId,
-          loan.collaterals.toString(),
-          output != null
-              ? output!.path!
-                  .map((e) => AssetsUtils.getBalanceFromTokenNameId(
-                          widget.plugin, e['name'])!
-                      .currencyId)
-                  .toList()
-              : null
-        ];
+        final params = [loan.token!.currencyId, loan.collaterals.toString()];
 
-        final isRuntimeOld = await widget.plugin.sdk.webView!.evalJavascript(
-            '(api.tx.honzon.closeLoanHasDebitByDex.meta.args.length > 2);',
-            wrapPromise: false);
         res = await Navigator.of(context).pushNamed(
           TxConfirmPage.route,
           arguments: TxConfirmParams(
@@ -189,7 +176,7 @@ class _LoanPageState extends State<LoanPage> {
               'collateral': loan.token!.symbol,
               'payback': "${Fmt.priceCeil(debit)} $karura_stable_coin_view",
             },
-            params: isRuntimeOld ? params : params.sublist(0, 2),
+            params: params,
             isPlugin: true,
           ),
         );
@@ -249,7 +236,7 @@ class _LoanPageState extends State<LoanPage> {
       final headCardHeight = headCardWidth / 694 * 420;
       return PluginScaffold(
           appBar: PluginAppBar(
-            title: Text(dic!['loan.title.KSM']!),
+            title: Text(dic!['loan.title']!),
             actions: [
               Container(
                 margin: EdgeInsets.only(right: 16),
@@ -467,21 +454,26 @@ class _LoanPageState extends State<LoanPage> {
                                         }
                                       },
                                     ),
-                                    GestureDetector(
-                                      child: Padding(
-                                          padding: EdgeInsets.only(bottom: 5),
-                                          child: Text(dic['loan.close.dex']!,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline6
-                                                  ?.copyWith(
-                                                      color: Colors.white,
-                                                      fontSize: 10))),
-                                      onTap: () => _closeVault(
-                                          loan,
-                                          balancePair[0]!.decimals,
-                                          Fmt.bigIntToDouble(loan.debits,
-                                              balancePair[1]!.decimals!)),
+                                    // todo: remove this visibility if 'sa://0' can do 'closeLoanHasDebitByDex'
+                                    Visibility(
+                                      visible: !(loan.debits > BigInt.zero &&
+                                          loan.token?.tokenNameId == 'sa://0'),
+                                      child: GestureDetector(
+                                        child: Padding(
+                                            padding: EdgeInsets.only(bottom: 5),
+                                            child: Text(dic['loan.close.dex']!,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headline6
+                                                    ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontSize: 10))),
+                                        onTap: () => _closeVault(
+                                            loan,
+                                            balancePair[0]!.decimals,
+                                            Fmt.bigIntToDouble(loan.debits,
+                                                balancePair[1]!.decimals!)),
+                                      ),
                                     ),
                                   ],
                                 ));

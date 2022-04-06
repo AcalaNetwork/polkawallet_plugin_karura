@@ -3,6 +3,14 @@ const Map<String, String> enCommon = {
   'karura': 'Kusama DeFi Hub',
   'transfer': 'Transfer',
   'transfer.scam': 'Scam address',
+  'transfer.alive': 'keep-alive',
+  'transfer.alive.msg':
+      'With the keep-alive option set, the account is protected against removal due to low balances.',
+  'note': 'Note',
+  'transfer.note.msg1':
+      'Unset the keep-alive option, the account will be removed due to low balance.',
+  'transfer.note.msg2':
+      'There are other locked assets in this account that cannot be removed.',
   'send': 'Send',
   'receive': 'Receive',
   'all': 'All',
@@ -41,9 +49,9 @@ const Map<String, String> enCommon = {
   'node.connecting': 'Connecting remote node...',
   'node.failed': 'Remote node connection failed',
   'unlock': 'Unlock Account with Password',
-  'loan.title': 'Mint kUSD',
+  'loan.title': 'Mint aUSD',
   'loan.brief':
-      'Leverage your digital assets by depositing them as collateral to mint kUSD.',
+      'Leverage your digital assets by depositing them as collateral to mint aUSD.',
   'swap.title': 'Swap',
   'swap.brief':
       'Swap tokens or provide liquidity in Karura Decentralized Exchange.',

@@ -55,6 +55,7 @@ class NativeTokenTransfers extends StatelessWidget {
               final txs = List.of(result.data!['transfers']['nodes'])
                   .map((i) => TransferData.fromJson(i as Map, nativeToken))
                   .toList();
+              txs.removeWhere((e) => e.to == account && e.isSuccess == false);
 
               if (transferType > 0) {
                 txs.retainWhere(

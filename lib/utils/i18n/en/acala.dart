@@ -38,14 +38,11 @@ const Map<String, String> enDex = {
   'boot.my.share': 'Share',
   'boot.add': 'Add',
   'loan.title': 'Mint aUSD',
-  'loan.title.KSM': 'Mint kUSD',
   'loan.borrowed': 'Owed',
   'loan.collateral': 'Collateral',
   'loan.ratio': 'Collateral Ratio',
   'loan.ratio.info':
       '\nThe ratio between the USD value of your vault collateral and the amount of aUSD minted (collateral value in USD / aUSD minted).\n',
-  'loan.ratio.info.KSM':
-      '\nThe ratio between the USD value of your vault collateral and the amount of kUSD minted (collateral value in USD / kUSD minted).\n',
   'loan.mint': 'Mint',
   'loan.payback': 'Payback',
   'loan.deposit': 'Deposit',
@@ -72,15 +69,11 @@ const Map<String, String> enDex = {
   'loan.amount.collateral': 'How much would you deposit as collateral?',
   'loan.max': 'Max',
   'loan.txs': 'History',
-  'loan.warn':
-      'Debt should be greater than 1 aUSD or payback all, this action will have 1 aUSD debt left. Are you sure to continue?',
-  'loan.warn.KSM':
-      'Debt should be greater than 1 kUSD or payback all, this action will have 1 kUSD debt left. Are you sure to continue?',
-  'loan.warn.KSM1': 'Debt should be greater than ',
-  'loan.warn.KSM2': ' kUSD or payback all, this action will have ',
-  'loan.warn.KSM3': ' kUSD debt left. Are you sure to continue?',
-  'loan.warn.KSM4': 'To keep your vault alive, you have to mint at least ',
-  'loan.warn.KSM5': ' kUSD for this time',
+  'loan.warn1': 'Debt should be greater than ',
+  'loan.warn2': 'aUSD or payback all, this action will have ',
+  'loan.warn3': 'aUSD debt left. Are you sure to continue?',
+  'loan.warn4': 'To keep your vault alive, you have to mint at least ',
+  'loan.warn5': 'aUSD for this time',
   'loan.warn.back': 'Back to modify',
   'loan.my': 'My Vaults',
   'loan.incentive': 'Earn',
@@ -90,7 +83,7 @@ const Map<String, String> enDex = {
   'loan.close': 'Close Vault',
   'loan.close.dex': 'Close Vault',
   'loan.close.dex.info':
-      'Part of your collateral will be sold on Swap to pay back all the minted kUSD. The remaining collateral will be returned to your account. Are you sure to continue?',
+      'Part of your collateral will be sold on Swap to pay back all the minted aUSD. The remaining collateral will be returned to your account. Are you sure to continue?',
   'loan.close.receive': 'Estimated Receive',
   'txs.action': 'Action',
   'payback.small': 'The remaining debt is too small',
@@ -216,7 +209,7 @@ const Map<String, String> enDex = {
   'cross.chain.select': 'Select Network',
   'cross.exist': 'dest chain ED',
   'cross.exist.msg':
-      '\nED (existential deposit): The minimum amount that an account should have to be deemed active.\n',
+      'ED (existential deposit): The minimum amount that an account should have to be deemed active.',
   'cross.fee': 'dest chain transfer fee',
   'cross.warn': 'Warning',
   'cross.edit': 'Edit To Address',
@@ -251,7 +244,7 @@ const Map<String, String> enDex = {
   'v3.minimumGenerate': 'Minimum generate',
   'v3.loan.iUnderstand': 'I understand',
   'v3.loan.paybackMessage':
-      'You have paid back all the minted kUSD while you still have collateral KSM.If you want to close the vault, you can withdraw all the collateral KSM at the same time.',
+      'You have paid back all the minted aUSD while you still have collateral KSM.If you want to close the vault, you can withdraw all the collateral KSM at the same time.',
   'v3.earn.lpTokenReceived': 'LP Token received',
   'v3.earn.amout': 'Amout',
   'v3.earn.tokenReceived': 'Token received',
@@ -275,10 +268,10 @@ const Map<String, String> enDex = {
   'v3.earn.stakedValue': 'Staked Value',
   'v3.fastRedeemError': 'The fast redeem is not available at the present.',
   'v3.loan.closeVault':
-      'There is no minted kUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?',
+      'There is no minted aUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?',
   'v3.loan.errorMessage5': 'The minimum requirement for the Vault is ',
   'v3.loan.errorMessage6':
-      ' kUSD, you have to deposit more collateral to mint enough kUSD',
+      ' aUSD, you have to deposit more collateral to mint enough aUSD',
   'v3.loan.inCollateral': 'in collateral',
   'v3.loan.minted': 'minted',
   'v3.loan.canPayback': 'Can Payback',
