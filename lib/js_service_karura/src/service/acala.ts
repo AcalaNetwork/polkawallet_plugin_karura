@@ -106,36 +106,41 @@ async function getAllTokens(api: ApiPromise) {
     decimals: tokenDecimals.toJSON()[tokenSymbol.toJSON().indexOf(e)],
     minBalance: existential_deposit[e],
   }));
-  const res2 = foreign.map(([args, data]) => {
-    const json = data.toJSON();
-    const currencyId = _getCurrencyIdFromCurrencyIdKey(args.toHuman()[0]);
-    const type = Object.keys(currencyId)[0];
-    const id = Object.values(currencyId)[0];
-    const location = locations.find(([k, _]) => type === "ForeignAsset" && k.toHuman()[0] === id);
-    const src = {};
-    if (!!location) {
-      const interior = location[1].toHuman()["interior"];
-      Object.values(interior).forEach((e) => {
-        if (e instanceof Array) {
-          e.forEach((i) => {
-            src[Object.keys(i)[0]] = Object.values(i)[0];
-          });
-        } else {
-          src[Object.keys(e)[0]] = Object.values(e)[0];
-        }
-      });
-    }
-    return {
-      type,
-      id,
-      tokenNameId: forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currencyId)),
-      currencyId: currencyId,
-      src,
-      ...(data.toHuman() as Object),
-      decimals: json["decimals"],
-      minBalance: json["minimalBalance"].toString(),
-    };
-  });
+  const res2 = foreign
+    .map(([args, data]) => {
+      const key = args.toHuman()[0];
+      if (Object.keys(key)[0] === "NativeAssetId") return null;
+
+      const json = data.toJSON();
+      const currencyId = _getCurrencyIdFromCurrencyIdKey(key);
+      const type = Object.keys(currencyId)[0];
+      const id = Object.values(currencyId)[0];
+      const location = locations.find(([k, _]) => type === "ForeignAsset" && k.toHuman()[0] === id);
+      const src = {};
+      if (!!location) {
+        const interior = location[1].toHuman()["interior"];
+        Object.values(interior).forEach((e) => {
+          if (e instanceof Array) {
+            e.forEach((i) => {
+              src[Object.keys(i)[0]] = Object.values(i)[0];
+            });
+          } else {
+            src[Object.keys(e)[0]] = Object.values(e)[0];
+          }
+        });
+      }
+      return {
+        type,
+        id,
+        tokenNameId: forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currencyId)),
+        currencyId: currencyId,
+        src,
+        ...(data.toHuman() as Object),
+        decimals: json["decimals"],
+        minBalance: json["minimalBalance"].toString(),
+      };
+    })
+    .filter((e) => !!e);
   return [...res, ...res2];
 }
 
