@@ -231,7 +231,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                         Padding(
                             padding: EdgeInsets.only(left: 5),
                             child: Text(
-                              "$seleteRadioTest (${banlance.symbol})",
+                              "$seleteRadioTest (${PluginFmt.tokenView(banlance.symbol)})",
                               style: textStyle,
                             )),
                       ],
