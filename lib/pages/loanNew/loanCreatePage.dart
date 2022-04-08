@@ -18,6 +18,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class LoanCreatePage extends StatefulWidget {
@@ -204,11 +205,17 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       'detail': {
         dic['loan.collateral']: Text(
           '${Fmt.token(_amountCollateral, collateralDecimals)} ${PluginFmt.tokenView(_token!.symbol)}',
-          style: Theme.of(context).textTheme.headline1,
+          style: Theme.of(context)
+              .textTheme
+              .headline1
+              ?.copyWith(color: PluginColorsDark.headline1),
         ),
         dic['loan.mint']: Text(
           '${Fmt.token(_amountDebit, stableCoinDecimals)} $karura_stable_coin_view',
-          style: Theme.of(context).textTheme.headline1,
+          style: Theme.of(context)
+              .textTheme
+              .headline1
+              ?.copyWith(color: PluginColorsDark.headline1),
         ),
       },
       'params': [
