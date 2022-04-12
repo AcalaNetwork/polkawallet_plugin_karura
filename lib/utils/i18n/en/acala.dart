@@ -205,6 +205,7 @@ const Map<String, String> enDex = {
   'candy.amount': 'Candies to claim',
   'candy.claimed': 'Claimed',
   'cross.chain': 'To Chain',
+  'cross.chain.from': 'Origin Chain',
   'cross.xcm': 'Cross Chain',
   'cross.chain.select': 'Select Network',
   'cross.exist': 'dest chain ED',

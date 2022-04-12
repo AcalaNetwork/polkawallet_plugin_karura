@@ -6,6 +6,8 @@ const Map<String, String> enCommon = {
   'transfer.alive': 'keep-alive',
   'transfer.alive.msg':
       'With the keep-alive option set, the account is protected against removal due to low balances.',
+  'transfer.inner': 'Inner-Chain',
+  'transfer.cross': 'Cross-Chain',
   'note': 'Note',
   'transfer.note.msg1':
       'Unset the keep-alive option, the account will be removed due to low balance.',
@@ -74,4 +76,5 @@ const Map<String, String> enCommon = {
       'The function of this module is temporarily unavailable for it is leveling up.',
   'upgrading.btn': 'Got it',
   'xcm.foreign.fee': 'balance insufficient for XCM fee',
+  'xcm.connecting': 'Connecting',
 };

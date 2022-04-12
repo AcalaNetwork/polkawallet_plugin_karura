@@ -38,6 +38,7 @@ import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/pages/v3/xcmTxConfirmPage.dart';
 
 class PluginKarura extends PolkawalletPlugin {
   PluginKarura({String name = plugin_name_karura})
@@ -248,11 +249,10 @@ class PluginKarura extends PolkawalletPlugin {
   @override
   Map<String, WidgetBuilder> getRoutes(Keyring keyring) {
     return {
-      TxConfirmPage.route: (_) => TxConfirmPage(
-          this,
-          keyring,
-          _service!.getPassword as Future<String> Function(
-              BuildContext, KeyPairData)),
+      TxConfirmPage.route: (_) =>
+          TxConfirmPage(this, keyring, _service!.getPassword),
+      XcmTxConfirmPage.route: (_) =>
+          XcmTxConfirmPage(this, keyring, _service!.getPassword),
       CurrencySelectPage.route: (_) => CurrencySelectPage(this),
       AccountQrCodePage.route: (_) => AccountQrCodePage(this, keyring),
 

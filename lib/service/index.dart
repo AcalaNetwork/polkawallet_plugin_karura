@@ -30,8 +30,8 @@ class PluginService {
 
   bool connected = false;
 
-  Future<String?> getPassword(BuildContext context, KeyPairData acc) async {
-    final password = await showCupertinoDialog(
+  Future<String> getPassword(BuildContext context, KeyPairData acc) async {
+    final String password = await showCupertinoDialog(
       context: context,
       builder: (_) {
         return PasswordInputDialog(
