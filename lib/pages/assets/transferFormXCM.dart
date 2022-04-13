@@ -319,10 +319,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   Future<Map?> _getXcmParams(String amount, {bool feeEstimate = false}) async {
     final tokensConfig =
         widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-    final chainFromInfo =
-        (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[_chainFrom];
-    final chainToInfo =
-        (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[_chainTo];
+    final chainFromInfo = (tokensConfig['xcmChains'] ?? {})[_chainFrom] ?? {};
+    final chainToInfo = (tokensConfig['xcmChains'] ?? {})[_chainTo] ?? {};
     final sendFee = List.of((tokensConfig['xcmSendFee'] ?? {})[_chainTo] ?? []);
 
     final address = _chainTo == para_chain_name_moon
@@ -415,10 +413,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
           ModalRoute.of(context)!.settings.arguments as TokenBalanceData?;
       final tokensConfig =
           widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-      final tokenXcmConfig = List<String>.from((tokensConfig['xcm'] ??
-              config_xcm['xcm'] ??
-              {})[token?.tokenNameId] ??
-          []);
+      final tokenXcmConfig = List<String>.from(
+          (tokensConfig['xcm'] ?? {})[token?.tokenNameId] ?? []);
       setState(() {
         _token = token;
         _accountOptions = widget.keyring.allWithContacts.toList();
@@ -463,10 +459,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
 
         final tokensConfig =
             widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-        final tokenXcmConfig = List<String>.from((tokensConfig['xcm'] ??
-                config_xcm['xcm'] ??
-                {})[token.tokenNameId] ??
-            []);
+        final tokenXcmConfig = List<String>.from(
+            (tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
         final tokenXcmFromConfig = List<String>.from(
             (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
         final isFromKar = _chainFrom == plugin_name_karura;
@@ -521,10 +515,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final isTokenFromStateMine =
             token.src != null && token.src!['Parachain'] == '1,000';
         final isToMoonRiver = chainTo == para_chain_name_moon;
-        final tokenXcmInfo = (tokensConfig['xcmInfo'] ??
-                config_xcm['xcmInfo'] ??
-                {})[isFromKar ? chainTo : _chainFrom] ??
-            {};
+        final tokenXcmInfo =
+            (tokensConfig['xcmInfo'] ?? {})[isFromKar ? chainTo : _chainFrom] ??
+                {};
         final destExistDeposit = isFromKar
             ? Fmt.balanceInt(
                 (tokenXcmInfo[tokenSymbol] ?? {})['existentialDeposit'])
@@ -556,11 +549,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     ? SvgPicture.network(v)
                     : Image.network(v))));
         final chainToSS58 = isFromKar
-            ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[chainTo]
-                ['ss58']
+            ? ((tokensConfig['xcmChains'] ?? {})[chainTo] ?? {})['ss58']
             : widget.plugin.basic.ss58;
-        final feeToken = (tokensConfig['xcmChains'] ??
-            config_xcm['xcmChains'])[_chainFrom]['nativeToken'];
+        final feeToken = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
+            {})['nativeToken'];
 
         final labelStyle = Theme.of(context).textTheme.headline4;
         final subTitleStyle = TextStyle(fontSize: 12, height: 1);
