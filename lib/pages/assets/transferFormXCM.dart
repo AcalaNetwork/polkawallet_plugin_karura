@@ -143,7 +143,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
 
     final sender = TxSenderData(
         widget.keyring.current.address, widget.keyring.current.pubKey);
-    final xcmParams = await _getXcmParams('100000000');
+    final xcmParams = await _getXcmParams('100000000', feeEstimate: true);
     if (xcmParams == null) return '0';
 
     final txInfo = TxInfoData(xcmParams['module'], xcmParams['call'], sender);
@@ -316,20 +316,22 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     }
   }
 
-  Future<Map?> _getXcmParams(String amount) async {
+  Future<Map?> _getXcmParams(String amount, {bool feeEstimate = false}) async {
     final tokensConfig =
         widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
     final chainFromInfo =
         (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[_chainFrom];
     final chainToInfo =
         (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[_chainTo];
-    final sendFee =
-        (((tokensConfig['xcmInfo'] ?? {})[_chainTo] ?? {})[_token?.symbol] ??
-            {})['sendFee'];
+    final sendFee = List.of((tokensConfig['xcmSendFee'] ?? {})[_chainTo] ?? []);
 
     final address = _chainTo == para_chain_name_moon
-        ? checksumEthereumAddress(_address20Ctrl.text.trim())
-        : _accountTo?.address;
+        ? feeEstimate
+            ? '0x0000000000000000000000000000000000000000'
+            : checksumEthereumAddress(_address20Ctrl.text.trim())
+        : feeEstimate
+            ? widget.keyring.current.address
+            : _accountTo?.address;
 
     final Map? xcmParams = await widget.plugin.sdk.webView?.evalJavascript(
         'xcm.getTransferParams('
@@ -533,7 +535,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['fee'])
             : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['receiveFee']);
         final sendFee =
-            List.of((tokenXcmInfo[tokenSymbol] ?? {})['sendFee'] ?? []);
+            List.of((tokensConfig['xcmSendFee'] ?? {})[chainTo] ?? []);
         final sendFeeAmount =
             sendFee.length > 0 ? Fmt.balanceInt(sendFee[1]) : BigInt.zero;
         final sendFeeToken = sendFee.length > 0
