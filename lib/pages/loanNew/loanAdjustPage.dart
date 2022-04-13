@@ -251,13 +251,27 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                           inputCtrl: _lastController,
                           onSetMax: BigInt.parse(banlance.amount!) > BigInt.zero
                               ? (max) {
+                                  var value = Fmt.bigIntToDouble(
+                                          max, banlance.decimals!)
+                                      .toString();
+                                  if (value.contains(".") &&
+                                      value.split(".").toList()[1].length >
+                                          10) {
+                                    value = value.substring(
+                                        0, value.lastIndexOf(".") + 10);
+                                  }
+                                  var error = _validateAmount(
+                                      value,
+                                      banlance.amount!,
+                                      banlance.decimals!,
+                                      titleTag);
                                   setState(() {
-                                    _lastController.text = Fmt.bigIntToDouble(
-                                            max, banlance.decimals!)
-                                        .toStringAsFixed(6);
+                                    _lastController.text = value;
                                     _error2 = null;
                                   });
-                                  _inputChage(titleTag, _lastController.text);
+                                  if (error == null) {
+                                    _inputChage(titleTag, _lastController.text);
+                                  }
                                 }
                               : null,
                           onClear: () {
@@ -266,15 +280,39 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                               _error2 = null;
                             });
                             _inputChage(titleTag, _lastController.text);
+                            if (titleTag == dic['loan.payback']!) {
+                              final withdrawBalance =
+                                  getBalance(dic['loan.withdraw']!);
+                              var error = _validateAmount(
+                                  _firstController.text,
+                                  withdrawBalance.amount!,
+                                  withdrawBalance.decimals!,
+                                  dic['loan.withdraw']!);
+                              setState(() {
+                                _error1 = error;
+                              });
+                            }
                           },
                           onInputChange: (v) {
-                            var error = _validateAmount(
-                                v, banlance.amount!, banlance.decimals!);
+                            var error = _validateAmount(v, banlance.amount!,
+                                banlance.decimals!, titleTag);
                             setState(() {
                               _error2 = error;
                             });
                             if (error == null) {
                               _inputChage(titleTag, _lastController.text);
+                              if (titleTag == dic['loan.payback']!) {
+                                final withdrawBalance =
+                                    getBalance(dic['loan.withdraw']!);
+                                var error = _validateAmount(
+                                    _firstController.text,
+                                    withdrawBalance.amount!,
+                                    withdrawBalance.decimals!,
+                                    dic['loan.withdraw']!);
+                                setState(() {
+                                  _error1 = error;
+                                });
+                              }
                             }
                           },
                           balance: banlance,
@@ -321,13 +359,21 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               inputCtrl: _firstController,
               onSetMax: BigInt.parse(banlance.amount!) > BigInt.zero
                   ? (max) {
+                      var value = Fmt.bigIntToDouble(max, banlance.decimals!)
+                          .toString();
+                      if (value.contains(".") &&
+                          value.split(".").toList()[1].length > 10) {
+                        value = value.substring(0, value.lastIndexOf(".") + 10);
+                      }
+                      var error = _validateAmount(value, banlance.amount!,
+                          banlance.decimals!, titleTag);
                       setState(() {
-                        _firstController.text =
-                            Fmt.bigIntToDouble(max, banlance.decimals!)
-                                .toStringAsFixed(6);
-                        _error1 = null;
+                        _firstController.text = value;
+                        _error1 = error;
                       });
-                      _inputChage(titleTag, _firstController.text);
+                      if (error == null) {
+                        _inputChage(titleTag, _firstController.text);
+                      }
                     }
                   : null,
               onClear: () {
@@ -336,15 +382,37 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                   _error1 = null;
                 });
                 _inputChage(titleTag, _firstController.text);
+                if (titleTag == dic['loan.payback']!) {
+                  final withdrawBalance = getBalance(dic['loan.withdraw']!);
+                  var error = _validateAmount(
+                      _lastController.text,
+                      withdrawBalance.amount!,
+                      withdrawBalance.decimals!,
+                      dic['loan.withdraw']!);
+                  setState(() {
+                    _error2 = error;
+                  });
+                }
               },
               onInputChange: (v) {
-                var error =
-                    _validateAmount(v, banlance.amount!, banlance.decimals!);
+                var error = _validateAmount(
+                    v, banlance.amount!, banlance.decimals!, titleTag);
                 setState(() {
                   _error1 = error;
                 });
                 if (error == null) {
                   _inputChage(titleTag, _firstController.text);
+                  if (titleTag == dic['loan.payback']!) {
+                    final withdrawBalance = getBalance(dic['loan.withdraw']!);
+                    var error = _validateAmount(
+                        _lastController.text,
+                        withdrawBalance.amount!,
+                        withdrawBalance.decimals!,
+                        dic['loan.withdraw']!);
+                    setState(() {
+                      _error2 = error;
+                    });
+                  }
                 }
               },
               balance: banlance,
@@ -399,7 +467,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     return TokenBalanceData(symbol: symbol, decimals: decimals, amount: amount);
   }
 
-  String? _validateAmount(String value, String max, int decimals) {
+  String? _validateAmount(
+      String value, String max, int decimals, String titleTag) {
     // final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
@@ -413,8 +482,19 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     }
 
     BigInt debits = Fmt.tokenInt(v, decimals);
-    if (debits >= BigInt.parse(max)) {
+    if (debits > BigInt.parse(max)) {
       return '${dic!['loan.max']} ${Fmt.priceFloorBigIntFormatter(BigInt.parse(max), decimals)}';
+    }
+
+    if (titleTag == dic!['loan.payback']! || titleTag == dic['loan.deposit']!) {
+      final minimumDebitValue =
+          Fmt.bigIntToDouble(_loan!.type.minimumDebitValue, decimals);
+      final debits = titleTag == dic['loan.payback']!
+          ? _loan!.debits - Fmt.tokenInt(v, decimals)
+          : _loan!.debits + Fmt.tokenInt(v, decimals);
+      if (debits > BigInt.zero && debits < _loan!.type.minimumDebitValue) {
+        return '${dic['loan.warn1']}$minimumDebitValue ${PluginFmt.tokenView(karura_stable_coin)}';
+      }
     }
     return null;
   }
@@ -577,7 +657,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           return null;
         }
         final bool canContinue = await (_confirmPaybackParams(
-                '${dic!['loan.warn.KSM4']}$minimumDebitValue${dic['loan.warn.KSM5']}')
+                '${dic!['loan.warn4']}$minimumDebitValue${dic['loan.warn5']}')
             as Future<bool>);
         if (!canContinue) return null;
         debitSubtract = loan.type.debitToDebitShare(
@@ -586,19 +666,20 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
 
-        // pay less if less than 1 debit(aUSD) will be left,
-        // make sure tx success by leaving more than 1 debit(aUSD).
-        if (originalLoan.debits - debits.abs() > BigInt.zero &&
-            originalLoan.debits - debits.abs() < loan.type.minimumDebitValue) {
-          final minimumDebitValue = Fmt.bigIntToDouble(
-              loan.type.minimumDebitValue, balancePair[1]!.decimals!);
-          final bool canContinue = await (_confirmPaybackParams(
-                  '${dic!['loan.warn.KSM1']}$minimumDebitValue${dic['loan.warn.KSM2']}$minimumDebitValue${dic['loan.warn.KSM3']}')
-              as Future<bool>);
-          if (!canContinue) return null;
-          debitSubtract = loan.type.debitToDebitShare(
-              loan.type.minimumDebitValue - originalLoan.debits);
-        }
+        // // pay less if less than 1 debit(aUSD) will be left,
+        // // make sure tx success by leaving more than 1 debit(aUSD).
+        // print(originalLoan.debits - debits.abs());
+        // if (originalLoan.debits - debits.abs() > BigInt.zero &&
+        //     originalLoan.debits - debits.abs() < loan.type.minimumDebitValue) {
+        //   final minimumDebitValue = Fmt.bigIntToDouble(
+        //       loan.type.minimumDebitValue, balancePair[1]!.decimals!);
+        //   final bool canContinue = await (_confirmPaybackParams(
+        //           '${dic!['loan.warn1']}$minimumDebitValue${dic['loan.warn2']}$minimumDebitValue${dic['loan.warn3']}')
+        //       as Future<bool>);
+        //   if (!canContinue) return null;
+        //   debitSubtract = loan.type.debitToDebitShare(
+        //       loan.type.minimumDebitValue - originalLoan.debits);
+        // }
 
         final BigInt balanceStableCoin =
             Fmt.balanceInt(balancePair[1]!.amount) -

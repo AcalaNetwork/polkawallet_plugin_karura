@@ -58,7 +58,7 @@ class LoanType extends _LoanType {
 
   BigInt calcLiquidationPrice(BigInt debit, BigInt collaterals,
       {int? stableCoinDecimals, int? collateralDecimals}) {
-    return debit > BigInt.zero
+    return debit > BigInt.zero && collaterals > BigInt.zero
         ? BigInt.from(debit *
             this.liquidationRatio /
             collaterals /
