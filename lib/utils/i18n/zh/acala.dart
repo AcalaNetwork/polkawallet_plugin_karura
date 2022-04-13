@@ -213,7 +213,7 @@ const Map<String, String> zhDex = {
   'v3.totalStaked': '总质押',
   'v3.total': '总发行',
   'v3.myStats': '我的数据',
-  'v3.unnonding': '正在解绑',
+  'v3.unbonding': '正在解绑',
   'v3.claim': '可领取',
   'v3.createVaultText': '创建一个债仓开始你的DeFi之旅',
   'v3.loan.canMint': '可铸造',

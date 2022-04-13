@@ -494,7 +494,7 @@ class _HomaPageState extends State<HomaPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              dic['v3.unnonding']!,
+                                              dic['v3.unbonding']!,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline4
