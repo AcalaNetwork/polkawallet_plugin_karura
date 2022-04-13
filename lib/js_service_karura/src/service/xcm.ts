@@ -162,7 +162,14 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
   };
 }
 
-async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenName: string, amount: string, addressTo: string) {
+async function getTransferParams(
+  chainFrom: ChainData,
+  chainTo: ChainData,
+  tokenName: string,
+  amount: string,
+  addressTo: string,
+  sendFee: any
+) {
   if (!wallet) {
     wallet = new Wallet((<any>window).api);
     await wallet.isReady;
@@ -181,28 +188,20 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
       dst = {
         parents: 1,
         interior: {
-          X2: [{ Parachain: token.locations?.paraChainId }, { AccountKey20: { key: addressTo, network: "Any" } }],
+          X2: [{ Parachain: chainTo.paraChainId }, { AccountKey20: { key: addressTo, network: "Any" } }],
         },
       };
       return {
         module: "xTokens",
         call: "transferMulticurrencies",
-        params: [
-          [
-            [token.toChainData(), amount],
-            [{ Token: "KAR" }, 9880000000],
-          ],
-          1,
-          dst,
-          xcm_dest_weight_v2,
-        ],
+        params: [[[token.toChainData(), amount], sendFee], 1, { V1: dst }, xcm_dest_weight_v2],
       };
     } else {
       // to other parachains
       dst = {
         parents: 1,
         interior: {
-          X2: [{ Parachain: token.locations?.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
+          X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
         },
       };
     }
@@ -211,15 +210,7 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
       ? {
           module: "xTokens",
           call: "transferMulticurrencies",
-          params: [
-            [
-              [token.toChainData(), amount],
-              [{ Token: "KSM" }, 16000000000],
-            ],
-            1,
-            dst,
-            xcm_dest_weight_v2,
-          ],
+          params: [[[token.toChainData(), amount], sendFee], 1, { V1: dst }, xcm_dest_weight_v2],
         }
       : {
           module: "xTokens",
@@ -354,4 +345,4 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
   return null;
 }
 
-export default { getApi, connectFromChain, disconnectFromChain, getBalances, getTansferParams };
+export default { getApi, connectFromChain, disconnectFromChain, getBalances, getTransferParams };
