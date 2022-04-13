@@ -5,6 +5,8 @@ const Map<String, String> zhCommon = {
   'transfer.scam': '诈骗地址',
   'transfer.alive': '账户保护',
   'transfer.alive.msg': '保持存活开关打开，可以保护账户不会因为余额过低而被网络移除。',
+  'transfer.inner': '链内',
+  'transfer.cross': '跨链',
   'note': '提示',
   'transfer.note.msg1': '关闭帐户保护后，账户很可能会因为余额过低被网络移除，是否确认关闭',
   'transfer.note.msg2': '该账户中存在其他锁定资产，无法被移除。',
@@ -65,4 +67,5 @@ const Map<String, String> zhCommon = {
   'upgrading.context': '该模块功能正在升级中，暂时无法使用，为您带来的不便还请谅解。',
   'upgrading.btn': '我知道了',
   'xcm.foreign.fee': '余额不足跨链手续费',
+  'xcm.connecting': '连接中',
 };
