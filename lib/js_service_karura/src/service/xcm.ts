@@ -12,10 +12,13 @@ const chain_name_karura = "karura";
 const chain_name_kusama = "kusama";
 const chain_name_statemine = "statemine";
 const chain_name_kint = "kintsugi";
-const chain_name_parallel = "parallel";
+const chain_name_parallel = "parallel heiko";
 const chain_name_khala = "khala";
 const chain_name_quart = "quartz";
 const chain_name_moon = "moonriver";
+const chain_name_kico = "kico";
+const chain_name_crust = "crust shadow";
+
 const chainNodes = {
   [chain_name_kusama]: [
     "wss://pub.elara.patract.io/kusama",
@@ -34,6 +37,8 @@ const chainNodes = {
     "wss://eu-ws-quartz.unique.network",
     "wss://us-ws-quartz.unique.network",
   ],
+  [chain_name_kico]: ["wss://rpc.api.kico.dico.io", "wss://rpc.kico.dico.io"],
+  [chain_name_crust]: ["wss://rpc-shadow.crust.network/"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -153,7 +158,23 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
-  // for kusama/polkadot/khala-pha/heiko-hko
+  if (chain.match(chain_name_kico) && tokenNameId !== "KICO") {
+    const tokenIds: Record<string, number> = {
+      KAR: 102,
+      KUSD: 10,
+    };
+
+    if (!tokenIds[token.name]) return null;
+
+    const res = await api.query.tokens.accounts(address, tokenIds[token.name]);
+    return {
+      amount: (res as any).free.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
+  // for kusama/polkadot/khala-pha/heiko-hko/crust-csm/kico
   const res = await api.derive.balances.all(address);
   return {
     amount: res.availableBalance.toString(),
@@ -329,8 +350,8 @@ async function getTransferParams(
     }
   }
 
-  //quartz
-  if (chainFrom.name === chain_name_quart) {
+  // quartz & crust
+  if (chainFrom.name === chain_name_quart || chainFrom.name === chain_name_crust) {
     const dst = { X2: ["Parent", { ParaChain: chainTo.paraChainId }] };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
@@ -339,6 +360,28 @@ async function getTransferParams(
       module: "polkadotXcm",
       call: "limitedReserveTransferAssets",
       params: [{ V0: dst }, { V0: acc }, { V0: ass }, 0, "Unlimited"],
+    };
+  }
+
+  // kico
+  if (chainFrom.name === chain_name_kico) {
+    const tokenIds: Record<string, number> = {
+      KICO: 0,
+      KUSD: 10,
+      KAR: 102,
+    };
+
+    if (typeof tokenIds[token.symbol] === "undefined") return;
+
+    const dst = {
+      parents: 1,
+      interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
+    };
+
+    return {
+      module: "xTokens",
+      call: "transfer",
+      params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 

@@ -343,7 +343,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       Widget? chainFromIcon, String feeToken) async {
     if (_accountToError == null &&
         _formKey.currentState!.validate() &&
-        !_submitting) {
+        !_submitting &&
+        !_connecting) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
       final dicAcala = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
       final tokenView = PluginFmt.tokenView(_token!.symbol);
@@ -849,8 +850,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                         ),
                       )),
                   Visibility(
-                      visible:
-                          tokenSymbol == nativeToken && available > BigInt.zero,
+                      visible: isFromKar &&
+                          tokenSymbol == nativeToken &&
+                          available > BigInt.zero,
                       child: Container(
                         margin: EdgeInsets.only(top: 8),
                         child: Row(
