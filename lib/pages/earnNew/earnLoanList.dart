@@ -422,9 +422,11 @@ class CollateralIncentiveList extends StatelessWidget {
                                     BigInt.zero
                                 ? () => Navigator.of(context).pushNamed(
                                       LoanDepositPage.route,
-                                      arguments: LoanDepositPageParams(
-                                          LoanDepositPage.actionTypeWithdraw,
-                                          token),
+                                      arguments: {
+                                        "type":
+                                            LoanDepositPage.actionTypeWithdraw,
+                                        "tokenNameId": token.tokenNameId
+                                      },
                                     )
                                 : null,
                           ),
@@ -439,8 +441,10 @@ class CollateralIncentiveList extends StatelessWidget {
                             margin: EdgeInsets.zero,
                             onPressed: () => Navigator.of(context).pushNamed(
                               LoanDepositPage.route,
-                              arguments: LoanDepositPageParams(
-                                  LoanDepositPage.actionTypeDeposit, token),
+                              arguments: {
+                                "type": LoanDepositPage.actionTypeDeposit,
+                                "tokenNameId": token.tokenNameId
+                              },
                             ),
                           ),
                         ),
