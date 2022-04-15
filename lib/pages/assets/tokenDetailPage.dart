@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
@@ -77,8 +78,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
       body: Observer(
         builder: (_) {
           final tokenSymbol = token.symbol;
-          final balance =
-              widget.plugin.store!.assets.tokenBalanceMap[token.tokenNameId];
+          final balance = AssetsUtils.getBalanceFromTokenNameId(
+              widget.plugin, token.tokenNameId);
 
           final tokensConfig =
               widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
@@ -129,7 +130,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                       Navigator.pushNamed(
                                         context,
                                         TransferPage.route,
-                                        arguments: balance,
+                                        arguments: {
+                                          'tokenNameId': token.tokenNameId
+                                        },
                                       );
                                     },
                             ),

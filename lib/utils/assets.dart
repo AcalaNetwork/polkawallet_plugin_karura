@@ -63,7 +63,7 @@ class AssetsUtils {
     return list.sublist(0, 4);
   }
 
-  static TokenBalanceData? tokenDataFromCurrencyId(
+  static TokenBalanceData tokenDataFromCurrencyId(
       PluginKarura? plugin, Map currencyId) {
     if (currencyId['token'] != null || currencyId['Token'] != null) {
       return getBalanceFromTokenNameId(
@@ -84,7 +84,7 @@ class AssetsUtils {
     return TokenBalanceData();
   }
 
-  static TokenBalanceData? getBalanceFromTokenNameId(
+  static TokenBalanceData getBalanceFromTokenNameId(
       PluginKarura plugin, String? tokenNameId) {
     if (tokenNameId == plugin.networkState.tokenSymbol![0]) {
       return TokenBalanceData(
@@ -98,7 +98,7 @@ class AssetsUtils {
           amount: (plugin.balances.native?.availableBalance ?? 0).toString());
     }
     if (plugin.store!.assets.tokenBalanceMap[tokenNameId] != null) {
-      return plugin.store!.assets.tokenBalanceMap[tokenNameId];
+      return plugin.store!.assets.tokenBalanceMap[tokenNameId]!;
     }
     final tokenDataIndex = plugin.store!.assets.allTokens
         .indexWhere((e) => e.tokenNameId == tokenNameId);
@@ -107,7 +107,7 @@ class AssetsUtils {
         : plugin.store!.assets.allTokens[tokenDataIndex];
   }
 
-  static List<TokenBalanceData?> getBalancePairFromTokenNameId(
+  static List<TokenBalanceData> getBalancePairFromTokenNameId(
       PluginKarura plugin, List<String?> tokenNameIdPair) {
     return tokenNameIdPair
         .map((e) => getBalanceFromTokenNameId(plugin, e))

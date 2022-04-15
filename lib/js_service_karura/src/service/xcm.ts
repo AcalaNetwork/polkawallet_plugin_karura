@@ -12,10 +12,13 @@ const chain_name_karura = "karura";
 const chain_name_kusama = "kusama";
 const chain_name_statemine = "statemine";
 const chain_name_kint = "kintsugi";
-const chain_name_parallel = "parallel";
+const chain_name_parallel = "parallel heiko";
 const chain_name_khala = "khala";
 const chain_name_quart = "quartz";
 const chain_name_moon = "moonriver";
+const chain_name_kico = "kico";
+const chain_name_crust = "crust shadow";
+
 const chainNodes = {
   [chain_name_kusama]: [
     "wss://pub.elara.patract.io/kusama",
@@ -34,6 +37,8 @@ const chainNodes = {
     "wss://eu-ws-quartz.unique.network",
     "wss://us-ws-quartz.unique.network",
   ],
+  [chain_name_kico]: ["wss://rpc.api.kico.dico.io", "wss://rpc.kico.dico.io"],
+  [chain_name_crust]: ["wss://rpc-shadow.crust.network/"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -153,7 +158,23 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
-  // for kusama/polkadot/khala-pha/heiko-hko
+  if (chain.match(chain_name_kico) && tokenNameId !== "KICO") {
+    const tokenIds: Record<string, number> = {
+      KAR: 102,
+      KUSD: 10,
+    };
+
+    if (!tokenIds[token.name]) return null;
+
+    const res = await api.query.tokens.accounts(address, tokenIds[token.name]);
+    return {
+      amount: (res as any).free.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
+  // for kusama/polkadot/khala-pha/heiko-hko/crust-csm/kico
   const res = await api.derive.balances.all(address);
   return {
     amount: res.availableBalance.toString(),
@@ -162,7 +183,14 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
   };
 }
 
-async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenName: string, amount: string, addressTo: string) {
+async function getTransferParams(
+  chainFrom: ChainData,
+  chainTo: ChainData,
+  tokenName: string,
+  amount: string,
+  addressTo: string,
+  sendFee: any
+) {
   if (!wallet) {
     wallet = new Wallet((<any>window).api);
     await wallet.isReady;
@@ -181,28 +209,26 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
       dst = {
         parents: 1,
         interior: {
-          X2: [{ Parachain: token.locations?.paraChainId }, { AccountKey20: { key: addressTo, network: "Any" } }],
+          X2: [{ Parachain: chainTo.paraChainId }, { AccountKey20: { key: addressTo, network: "Any" } }],
         },
       };
-      return {
-        module: "xTokens",
-        call: "transferMulticurrencies",
-        params: [
-          [
-            [token.toChainData(), amount],
-            [{ Token: "KAR" }, 9880000000],
-          ],
-          1,
-          dst,
-          xcm_dest_weight_v2,
-        ],
-      };
+      return token.name === "KAR" || token.name === "fa://3"
+        ? {
+            module: "xTokens",
+            call: "transfer",
+            params: [token.toChainData(), amount, { V1: dst }, xcm_dest_weight_v2],
+          }
+        : {
+            module: "xTokens",
+            call: "transferMulticurrencies",
+            params: [[[token.toChainData(), amount], sendFee], 1, { V1: dst }, xcm_dest_weight_v2],
+          };
     } else {
       // to other parachains
       dst = {
         parents: 1,
         interior: {
-          X2: [{ Parachain: token.locations?.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
+          X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
         },
       };
     }
@@ -211,15 +237,7 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
       ? {
           module: "xTokens",
           call: "transferMulticurrencies",
-          params: [
-            [
-              [token.toChainData(), amount],
-              [{ Token: "KSM" }, 16000000000],
-            ],
-            1,
-            dst,
-            xcm_dest_weight_v2,
-          ],
+          params: [[[token.toChainData(), amount], sendFee], 1, { V1: dst }, xcm_dest_weight_v2],
         }
       : {
           module: "xTokens",
@@ -231,7 +249,7 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
   // from other chains to karura
   // kusama
   if (chainFrom.name === chain_name_kusama && tokenName.toLowerCase() === "ksm") {
-    const dst = { X1: { ParaChain: chainTo.paraChainId }, parents: 0 };
+    const dst = { X1: { ParaChain: chainTo.paraChainId } };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
 
@@ -338,8 +356,8 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
     }
   }
 
-  //quartz
-  if (chainFrom.name === chain_name_quart) {
+  // quartz & crust
+  if (chainFrom.name === chain_name_quart || chainFrom.name === chain_name_crust) {
     const dst = { X2: ["Parent", { ParaChain: chainTo.paraChainId }] };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
@@ -351,7 +369,29 @@ async function getTansferParams(chainFrom: ChainData, chainTo: ChainData, tokenN
     };
   }
 
+  // kico
+  if (chainFrom.name === chain_name_kico) {
+    const tokenIds: Record<string, number> = {
+      KICO: 0,
+      KUSD: 10,
+      KAR: 102,
+    };
+
+    if (typeof tokenIds[token.symbol] === "undefined") return;
+
+    const dst = {
+      parents: 1,
+      interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
+    };
+
+    return {
+      module: "xTokens",
+      call: "transfer",
+      params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+    };
+  }
+
   return null;
 }
 
-export default { getApi, connectFromChain, disconnectFromChain, getBalances, getTansferParams };
+export default { getApi, connectFromChain, disconnectFromChain, getBalances, getTransferParams };

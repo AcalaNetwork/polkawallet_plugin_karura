@@ -21,6 +21,7 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/currencyWithIcon.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
@@ -110,7 +111,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         wrapPromise: false);
     if (addressCheckValid != null) {
       final res = await widget.plugin.sdk.api.account
-          .checkAddressFormat(acc!.address!, chainToSS58);
+          .checkAddressFormat(acc.address!, chainToSS58);
       if (res != null && !res) {
         return I18n.of(context)!
             .getDic(i18n_full_dic_ui, 'account')!['ss58.mismatch'];
@@ -143,7 +144,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
 
     final sender = TxSenderData(
         widget.keyring.current.address, widget.keyring.current.pubKey);
-    final xcmParams = await _getXcmParams('100000000');
+    final xcmParams = await _getXcmParams('100000000', feeEstimate: true);
     if (xcmParams == null) return '0';
 
     final txInfo = TxInfoData(xcmParams['module'], xcmParams['call'], sender);
@@ -178,7 +179,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       _chainFrom = chains[0];
       _chainTo = chains[1];
       _fee = null;
-      _connecting = true;
+      if (chains[0] != plugin_name_karura) {
+        _connecting = true;
+      }
     });
 
     if (chains[0] == plugin_name_karura) {
@@ -190,9 +193,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     final connected = await widget.plugin.sdk.webView!
         .evalJavascript('xcm.connectFromChain(["$chainName"])');
     if (connected != null) {
-      final TokenBalanceData? args =
-          ModalRoute.of(context)!.settings.arguments as TokenBalanceData?;
-      final token = _token ?? args!;
+      final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      final token = _token ??
+          AssetsUtils.getBalanceFromTokenNameId(
+              widget.plugin, args['tokenNameId']);
       final balances = await widget.plugin.sdk.webView!.evalJavascript(
           'xcm.getBalances("$chainName", "${widget.keyring.current.address}", ["${token.symbol}"])');
       if (balances != null) {
@@ -314,19 +318,26 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     }
   }
 
-  Future<Map?> _getXcmParams(String amount) async {
+  Future<Map?> _getXcmParams(String amount, {bool feeEstimate = false}) async {
     final tokensConfig =
         widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-    final chainFromInfo =
-        (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[_chainFrom];
-    final chainToInfo =
-        (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[_chainTo];
+    final chainFromInfo = (tokensConfig['xcmChains'] ?? {})[_chainFrom] ?? {};
+    final chainToInfo = (tokensConfig['xcmChains'] ?? {})[_chainTo] ?? {};
+    final sendFee = List.of((tokensConfig['xcmSendFee'] ?? {})[_chainTo] ?? []);
+
+    final address = _chainTo == para_chain_name_moon
+        ? feeEstimate
+            ? '0x0000000000000000000000000000000000000000'
+            : checksumEthereumAddress(_address20Ctrl.text.trim())
+        : feeEstimate
+            ? widget.keyring.current.address
+            : _accountTo?.address;
 
     final Map? xcmParams = await widget.plugin.sdk.webView?.evalJavascript(
-        'xcm.getTansferParams('
+        'xcm.getTransferParams('
         '{name: "$_chainFrom", paraChainId: ${chainFromInfo['id']}},'
         '{name: "$_chainTo", paraChainId: ${chainToInfo['id']}},'
-        '"${_token?.symbol}", "$amount", "${widget.keyring.current.address}")');
+        '"${_token?.symbol}", "$amount", "$address", ${jsonEncode(sendFee)})');
     return xcmParams;
   }
 
@@ -334,7 +345,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       Widget? chainFromIcon, String feeToken) async {
     if (_accountToError == null &&
         _formKey.currentState!.validate() &&
-        !_submitting) {
+        !_submitting &&
+        !_connecting) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
       final dicAcala = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
       final tokenView = PluginFmt.tokenView(_token!.symbol);
@@ -395,28 +407,36 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         : 'The receiver address should have available $relay_chain_token_symbol balance on $_chainTo, or the transfer will fail.';
   }
 
+  void _fetchData() {
+    _getTxFee();
+    _getAccountSysInfo();
+  }
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final TokenBalanceData? token =
-          ModalRoute.of(context)!.settings.arguments as TokenBalanceData?;
+      final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      final token = AssetsUtils.getBalanceFromTokenNameId(
+          widget.plugin, args['tokenNameId']);
       final tokensConfig =
           widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-      final tokenXcmConfig = List<String>.from((tokensConfig['xcm'] ??
-              config_xcm['xcm'] ??
-              {})[token?.tokenNameId] ??
-          []);
+      final tokenXcmConfig = List<String>.from(
+          (tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
+
+      if (args['chainFrom'] != null && args['chainTo'] != null) {
+        _onChainSelected([args['chainFrom'], args['chainTo']]);
+      }
       setState(() {
         _token = token;
         _accountOptions = widget.keyring.allWithContacts.toList();
         _accountTo = widget.keyring.current;
-        _chainTo = tokenXcmConfig[0];
-      });
 
-      _getTxFee();
-      _getAccountSysInfo();
+        if (args['chainTo'] == null) {
+          _chainTo = tokenXcmConfig[0];
+        }
+      });
     });
   }
 
@@ -444,18 +464,17 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
         final dicAcala =
             I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-        final TokenBalanceData? args =
-            ModalRoute.of(context)!.settings.arguments as TokenBalanceData?;
-        final token = _token ?? args!;
+        final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+        final token = _token ??
+            AssetsUtils.getBalanceFromTokenNameId(
+                widget.plugin, args['tokenNameId']);
         final tokenSymbol = token.symbol!.toUpperCase();
         final tokenView = PluginFmt.tokenView(token.symbol);
 
         final tokensConfig =
             widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-        final tokenXcmConfig = List<String>.from((tokensConfig['xcm'] ??
-                config_xcm['xcm'] ??
-                {})[token.tokenNameId] ??
-            []);
+        final tokenXcmConfig = List<String>.from(
+            (tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
         final tokenXcmFromConfig = List<String>.from(
             (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
         final isFromKar = _chainFrom == plugin_name_karura;
@@ -510,10 +529,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final isTokenFromStateMine =
             token.src != null && token.src!['Parachain'] == '1,000';
         final isToMoonRiver = chainTo == para_chain_name_moon;
-        final tokenXcmInfo = (tokensConfig['xcmInfo'] ??
-                config_xcm['xcmInfo'] ??
-                {})[isFromKar ? chainTo : _chainFrom] ??
-            {};
+        final tokenXcmInfo =
+            (tokensConfig['xcmInfo'] ?? {})[isFromKar ? chainTo : _chainFrom] ??
+                {};
         final destExistDeposit = isFromKar
             ? Fmt.balanceInt(
                 (tokenXcmInfo[tokenSymbol] ?? {})['existentialDeposit'])
@@ -522,13 +540,20 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
             ? isTokenFromStateMine
                 ? BigInt.zero
                 : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['fee'])
-            : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['feeTo']);
+            : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['receiveFee']);
+        final sendFee =
+            List.of((tokensConfig['xcmSendFee'] ?? {})[chainTo] ?? []);
+        final sendFeeAmount =
+            sendFee.length > 0 ? Fmt.balanceInt(sendFee[1]) : BigInt.zero;
+        final sendFeeToken = sendFee.length > 0
+            ? AssetsUtils.tokenDataFromCurrencyId(widget.plugin, sendFee[0])
+            : TokenBalanceData();
 
         final relayChainTokenBalance = AssetsUtils.getBalanceFromTokenNameId(
             widget.plugin, relay_chain_token_symbol);
         final isToStateMineFeeError = isFromKar &&
             isTokenFromStateMine &&
-            (Fmt.balanceInt(relayChainTokenBalance?.amount) <
+            (Fmt.balanceInt(relayChainTokenBalance.amount) <
                 Fmt.balanceInt(foreign_asset_xcm_dest_fee));
 
         final crossChainIcons = Map<String, Widget>.from(
@@ -537,16 +562,11 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 (v as String).contains('.svg')
                     ? SvgPicture.network(v)
                     : Image.network(v))));
-        final chainToId = isFromKar
-            ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[chainTo]
-                ['id']
-            : widget.plugin.basic.parachainId;
         final chainToSS58 = isFromKar
-            ? (tokensConfig['xcmChains'] ?? config_xcm['xcmChains'])[chainTo]
-                ['ss58']
+            ? ((tokensConfig['xcmChains'] ?? {})[chainTo] ?? {})['ss58']
             : widget.plugin.basic.ss58;
-        final feeToken = (tokensConfig['xcmChains'] ??
-            config_xcm['xcmChains'])[_chainFrom]['nativeToken'];
+        final feeToken = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
+            {})['nativeToken'];
 
         final labelStyle = Theme.of(context).textTheme.headline4;
         final subTitleStyle = TextStyle(fontSize: 12, height: 1);
@@ -558,9 +578,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            ConnectionChecker(widget.plugin, onConnected: _fetchData),
             canCrossChain
                 ? XcmChainSelector(
                     widget.plugin,
+                    from: _chainFrom,
+                    to: _chainTo ?? relay_chain_name,
+                    fromConnecting: _connecting,
                     fromChains: tokenXcmFromConfig,
                     toChains: tokenXcmConfig,
                     crossChainIcons: crossChainIcons,
@@ -661,9 +685,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                         available,
                         token.decimals!,
                         lengthMax: 6,
-                      )}${isFromKar ? '' : ' in ${_chainFrom?.toUpperCase()}'})',
+                      )}${isFromKar ? '' : ' in ${_chainFrom.toUpperCase()}'})',
                       labelStyle: labelStyle,
-                      suffix: fee > BigInt.zero
+                      suffix: isFromKar && fee > BigInt.zero
                           ? GestureDetector(
                               child: Text(dic['amount.max']!,
                                   style: TextStyle(
@@ -776,7 +800,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     ),
                   ),
                   Visibility(
-                    visible: isFromKar && isTokenFromStateMine,
+                    visible: isFromKar && sendFee.length > 0,
                     child: Padding(
                       padding: EdgeInsets.only(top: 8),
                       child: Row(
@@ -789,26 +813,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                             ),
                           ),
                           Text(
-                              '${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance!.decimals!)} $relay_chain_token_symbol',
+                              '${Fmt.priceFloorBigInt(sendFeeAmount, sendFeeToken.decimals ?? 12, lengthMax: 6)} ${sendFeeToken.symbol}',
                               style: infoValueStyle),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: isFromKar && isToMoonRiver,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Text('XCM fee', style: labelStyle),
-                            ),
-                          ),
-                          Text('0.00988 $nativeToken', style: infoValueStyle),
                         ],
                       ),
                     ),
@@ -861,8 +867,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                         ),
                       )),
                   Visibility(
-                      visible:
-                          tokenSymbol == nativeToken && available > BigInt.zero,
+                      visible: isFromKar &&
+                          tokenSymbol == nativeToken &&
+                          available > BigInt.zero,
                       child: Container(
                         margin: EdgeInsets.only(top: 8),
                         child: Row(
@@ -917,7 +924,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 ? Container(
                     margin: EdgeInsets.only(top: 8),
                     child: Text(
-                      '$relay_chain_token_symbol ${dic['xcm.foreign.fee']!} (${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance.decimals!)} $relay_chain_token_symbol)',
+                      '$relay_chain_token_symbol ${dic['xcm.foreign.fee']!} (${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance.decimals ?? 12)} $relay_chain_token_symbol)',
                       style: TextStyle(color: Colors.red, fontSize: 10),
                     ),
                   )

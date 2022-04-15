@@ -88,15 +88,16 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     if (_amountCtrl.text.trim().length == 0) {
       return null;
     }
-    final LoanDepositPageParams params =
-        ModalRoute.of(context)!.settings.arguments as LoanDepositPageParams;
+    final params = ModalRoute.of(context)!.settings.arguments as Map;
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
-    switch (params.actionType) {
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        widget.plugin, [params["tokenNameId"]]);
+    switch (params["type"]) {
       case LoanDepositPage.actionTypeDeposit:
         return {
           'detail': {
             dic!['loan.deposit']: Text(
-              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(params.token.symbol)}',
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(balancePair[0]!.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
@@ -104,7 +105,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
             ),
           },
           'params': [
-            params.token.currencyId,
+            balancePair[0]!.currencyId,
             _amountCollateral.toString(),
             0,
           ]
@@ -113,7 +114,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
         return {
           'detail': {
             dic!['loan.withdraw']: Text(
-              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(params.token.symbol)}',
+              '${_amountCtrl.text.trim()} ${PluginFmt.tokenView(balancePair[0]!.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
@@ -121,7 +122,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
             ),
           },
           'params': [
-            params.token.currencyId,
+            balancePair[0]!.currencyId,
             (BigInt.zero - _amountCollateral).toString(),
             0,
           ]
@@ -154,13 +155,14 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final LoanDepositPageParams params =
-          ModalRoute.of(context)!.settings.arguments as LoanDepositPageParams;
+      final params = ModalRoute.of(context)!.settings.arguments as Map;
 
-      final loan = widget.plugin.store!.loan.loans[params.token.tokenNameId];
+      final loan = widget.plugin.store!.loan.loans[params["tokenNameId"]];
+      final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+          widget.plugin, [params["tokenNameId"]]);
       setState(() {
         _amountCollateral = loan?.collaterals ?? BigInt.zero;
-        _token = params.token;
+        _token = balancePair[0];
       });
     });
   }
@@ -176,12 +178,10 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     var dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     var assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
-    final LoanDepositPageParams params =
-        ModalRoute.of(context)!.settings.arguments as LoanDepositPageParams;
-    final token = _token ?? params.token;
-
+    final params = ModalRoute.of(context)!.settings.arguments as Map;
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
-        widget.plugin, [token.tokenNameId, karura_stable_coin]);
+        widget.plugin, [params['tokenNameId'], karura_stable_coin]);
+    final token = _token ?? balancePair[0];
 
     final tokenOptions =
         widget.plugin.store!.loan.loanTypes.map((e) => e.token).toList();
@@ -192,20 +192,20 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
           (incentive[e?.tokenNameId]![0].amount ?? 0) > 0;
     });
 
-    final loan = widget.plugin.store!.loan.loans[token.tokenNameId];
-    final price = widget.plugin.store!.assets.prices[token.tokenNameId];
+    final loan = widget.plugin.store!.loan.loans[params['tokenNameId']];
+    final price = widget.plugin.store!.assets.prices[params['tokenNameId']];
 
-    final symbolView = PluginFmt.tokenView(token.symbol);
+    final symbolView = PluginFmt.tokenView(balancePair[0]!.symbol);
     String titleSuffix = ' $symbolView';
 
     final BigInt balance = Fmt.balanceInt(balancePair[0]!.amount);
     BigInt available = balance;
 
-    if (params.actionType == LoanDepositPage.actionTypeWithdraw) {
+    if (params["type"] == LoanDepositPage.actionTypeWithdraw) {
       // max to withdraw
       if (loan == null) {
         available = widget.plugin.store!.loan
-                .collateralRewards[token.tokenNameId]?.shares ??
+                .collateralRewards[params['tokenNameId']]?.shares ??
             BigInt.zero;
       } else {
         available = loan.collaterals - loan.requiredCollateral > BigInt.zero
@@ -218,7 +218,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
         available, balancePair[0]!.decimals!,
         lengthMax: 8);
 
-    final pageTitle = '${dic['loan.${params.actionType}']}$titleSuffix';
+    final pageTitle = '${dic['loan.${params["type"]}']}$titleSuffix';
 
     return PluginScaffold(
       appBar: PluginAppBar(
@@ -237,35 +237,35 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                     tokenViewFunction: (value) {
                       return PluginFmt.tokenView(value);
                     },
-                    titleTag: dic['loan.${params.actionType}'],
+                    titleTag: dic['loan.${params["type"]}'],
                     balance: TokenBalanceData(
                         symbol: balancePair[0]!.symbol,
                         decimals: balancePair[0]!.decimals!,
                         amount: available.toString()),
                     tokenIconsMap: widget.plugin.tokenIcons,
-                    onSetMax: (params.actionType ==
-                                LoanDepositPage.actionTypeDeposit &&
-                            token.symbol ==
-                                widget.plugin.networkState.tokenSymbol![0])
-                        ? null
-                        : (max) {
-                            {
-                              setState(() {
-                                _amountCollateral = max;
-                                _amountCtrl.text = Fmt.bigIntToDouble(
-                                        max, balancePair[0]!.decimals!)
-                                    .toString();
-                              });
-                              _onAmount1Change(
-                                availableView,
-                                price,
-                                balancePair[1]!.decimals,
-                                balancePair[0]!.decimals,
-                                available: available,
-                                max: max,
-                              );
-                            }
-                          },
+                    onSetMax:
+                        (params["type"] == LoanDepositPage.actionTypeDeposit &&
+                                balancePair[0]!.symbol ==
+                                    widget.plugin.networkState.tokenSymbol![0])
+                            ? null
+                            : (max) {
+                                {
+                                  setState(() {
+                                    _amountCollateral = max;
+                                    _amountCtrl.text = Fmt.bigIntToDouble(
+                                            max, balancePair[0]!.decimals!)
+                                        .toString();
+                                  });
+                                  _onAmount1Change(
+                                    availableView,
+                                    price,
+                                    balancePair[1]!.decimals,
+                                    balancePair[0]!.decimals,
+                                    available: available,
+                                    max: max,
+                                  );
+                                }
+                              },
                     onClear: () {
                       setState(() {
                         _amountCollateral = BigInt.zero;
