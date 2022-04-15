@@ -243,7 +243,7 @@ async function getTransferParams(
   // from other chains to karura
   // kusama
   if (chainFrom.name === chain_name_kusama && tokenName.toLowerCase() === "ksm") {
-    const dst = { X1: { ParaChain: chainTo.paraChainId }, parents: 0 };
+    const dst = { X1: { ParaChain: chainTo.paraChainId } };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
 

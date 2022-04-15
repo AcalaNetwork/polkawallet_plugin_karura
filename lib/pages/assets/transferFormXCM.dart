@@ -584,6 +584,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     widget.plugin,
                     from: _chainFrom,
                     to: _chainTo ?? relay_chain_name,
+                    fromConnecting: _connecting,
                     fromChains: tokenXcmFromConfig,
                     toChains: tokenXcmConfig,
                     crossChainIcons: crossChainIcons,
@@ -686,7 +687,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                         lengthMax: 6,
                       )}${isFromKar ? '' : ' in ${_chainFrom.toUpperCase()}'})',
                       labelStyle: labelStyle,
-                      suffix: fee > BigInt.zero
+                      suffix: isFromKar && fee > BigInt.zero
                           ? GestureDetector(
                               child: Text(dic['amount.max']!,
                                   style: TextStyle(

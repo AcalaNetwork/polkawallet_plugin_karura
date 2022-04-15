@@ -18,6 +18,7 @@ class XcmChainSelector extends StatelessWidget {
     required this.crossChainIcons,
     required this.from,
     required this.to,
+    required this.fromConnecting,
     required this.onChanged,
   });
   final PluginKarura plugin;
@@ -25,6 +26,7 @@ class XcmChainSelector extends StatelessWidget {
   final List<String> toChains;
   final String from;
   final String to;
+  final bool fromConnecting;
   final Map<String, Widget> crossChainIcons;
   final Function(List<String>) onChanged;
 
@@ -109,7 +111,23 @@ class XcmChainSelector extends StatelessWidget {
                   child: CurrencyWithIcon(
                     (from.length > 8 ? '${from.substring(0, 8)}...' : from)
                         .toUpperCase(),
-                    TokenIcon(from, crossChainIcons, size: 28),
+                    Stack(
+                      children: [
+                        TokenIcon(from, crossChainIcons, size: 28),
+                        Visibility(
+                            child: fromConnecting
+                                ? Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                        color:
+                                            Color.fromARGB(150, 205, 205, 205),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(16))),
+                                    child: CupertinoActivityIndicator(),
+                                  )
+                                : Container())
+                      ],
+                    ),
                     textStyle: TextStyle(fontSize: 14),
                     trailing: fromChains.length == 0
                         ? null
