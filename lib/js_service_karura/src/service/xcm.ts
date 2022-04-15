@@ -212,11 +212,17 @@ async function getTransferParams(
           X2: [{ Parachain: chainTo.paraChainId }, { AccountKey20: { key: addressTo, network: "Any" } }],
         },
       };
-      return {
-        module: "xTokens",
-        call: "transferMulticurrencies",
-        params: [[[token.toChainData(), amount], sendFee], 1, { V1: dst }, xcm_dest_weight_v2],
-      };
+      return token.name === "KAR" || token.name === "fa://3"
+        ? {
+            module: "xTokens",
+            call: "transfer",
+            params: [token.toChainData(), amount, { V1: dst }, xcm_dest_weight_v2],
+          }
+        : {
+            module: "xTokens",
+            call: "transferMulticurrencies",
+            params: [[[token.toChainData(), amount], sendFee], 1, { V1: dst }, xcm_dest_weight_v2],
+          };
     } else {
       // to other parachains
       dst = {
