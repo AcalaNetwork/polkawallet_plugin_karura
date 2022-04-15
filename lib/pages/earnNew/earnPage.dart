@@ -29,6 +29,15 @@ class _EarnPageState extends State<EarnPage> {
   void initState() {
     widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
     super.initState();
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      if (args['tab'] != null) {
+        setState(() {
+          _tab = int.parse(args['tab']);
+        });
+      }
+    });
   }
 
   @override
@@ -58,7 +67,7 @@ class _EarnPageState extends State<EarnPage> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.fromLTRB(16, 16, 0, 16),
+              margin: EdgeInsets.fromLTRB(16, 8, 0, 8),
               child: PluginPageTitleTaps(
                 names: [dic['earn.dex']!, dic['earn.loan']!],
                 activeTab: _tab,

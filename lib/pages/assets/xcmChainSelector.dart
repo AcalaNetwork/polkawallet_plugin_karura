@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:polkawallet_plugin_karura/common/constants/base.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -11,48 +10,36 @@ import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/bottomSheetContainer.dart';
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 
-class XcmChainSelector extends StatefulWidget {
+class XcmChainSelector extends StatelessWidget {
   XcmChainSelector(
     this.plugin, {
     required this.fromChains,
     required this.toChains,
     required this.crossChainIcons,
+    required this.from,
+    required this.to,
     required this.onChanged,
   });
   final PluginKarura plugin;
   final List<String> fromChains;
   final List<String> toChains;
+  final String from;
+  final String to;
   final Map<String, Widget> crossChainIcons;
   final Function(List<String>) onChanged;
-  @override
-  _XcmChainSelectorState createState() => _XcmChainSelectorState();
-}
-
-class _XcmChainSelectorState extends State<XcmChainSelector> {
-  String _from = plugin_name_karura;
-  String _to = relay_chain_name;
 
   void _switch() {
-    final from = _from;
     if (from != plugin_name_karura) {
-      setState(() {
-        _from = plugin_name_karura;
-        _to = from;
-      });
+      onChanged([plugin_name_karura, from]);
     } else {
-      setState(() {
-        _from = widget.fromChains[0];
-        _to = from;
-      });
+      onChanged([fromChains[0], from]);
     }
-
-    widget.onChanged([_from, _to]);
   }
 
-  Future<void> _selectChain(int index, Map<String, Widget> crossChainIcons,
-      List<String> options) async {
+  Future<void> _selectChain(BuildContext context, int index,
+      Map<String, Widget> crossChainIcons, List<String> options) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final current = index == 0 ? _from : _to;
+    final current = index == 0 ? from : to;
 
     showModalBottomSheet(
       isScrollControlled: true,
@@ -61,26 +48,25 @@ class _XcmChainSelectorState extends State<XcmChainSelector> {
         return BottomSheetContainer(
           title: Text(dic['cross.chain.select']!),
           content: ChainSelector(
-            widget.plugin,
+            plugin,
             selected: current,
             options: options,
             crossChainIcons: crossChainIcons,
             onSelect: (chain) {
               if (chain != current) {
                 if (chain != plugin_name_karura) {
-                  setState(() {
-                    if (current != plugin_name_karura) {
-                      if (index == 0) {
-                        _from = chain;
-                      } else {
-                        _to = chain;
-                      }
-                    } else {
-                      _from = index == 0 ? chain : plugin_name_karura;
-                      _to = index == 1 ? chain : plugin_name_karura;
-                    }
-                  });
-                  widget.onChanged([_from, _to]);
+                  onChanged([
+                    index == 0
+                        ? chain
+                        : current == plugin_name_karura
+                            ? plugin_name_karura
+                            : from,
+                    index == 1
+                        ? chain
+                        : current == plugin_name_karura
+                            ? plugin_name_karura
+                            : to,
+                  ]);
                 } else {
                   _switch();
                 }
@@ -96,28 +82,15 @@ class _XcmChainSelectorState extends State<XcmChainSelector> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      setState(() {
-        _to = widget.toChains[0];
-      });
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     final crossChainIcons = Map<String, Widget>.from(
-        widget.plugin.store!.assets.crossChainIcons.map((k, v) => MapEntry(
+        plugin.store!.assets.crossChainIcons.map((k, v) => MapEntry(
             k.toUpperCase(),
             (v as String).contains('.svg')
                 ? SvgPicture.network(v)
                 : Image.network(v))));
-
-    final isFromKar = _from == 'karura';
 
     final labelStyle = Theme.of(context).textTheme.headline4;
 
@@ -134,20 +107,20 @@ class _XcmChainSelectorState extends State<XcmChainSelector> {
                   padding: EdgeInsets.fromLTRB(8, 10, 0, 8),
                   margin: EdgeInsets.only(bottom: 8),
                   child: CurrencyWithIcon(
-                    (_from.length > 8 ? '${_from.substring(0, 8)}...' : _from)
+                    (from.length > 8 ? '${from.substring(0, 8)}...' : from)
                         .toUpperCase(),
-                    TokenIcon(_from, crossChainIcons, size: 28),
+                    TokenIcon(from, crossChainIcons, size: 28),
                     textStyle: TextStyle(fontSize: 14),
-                    trailing: widget.fromChains.length == 0
+                    trailing: fromChains.length == 0
                         ? null
                         : Icon(Icons.keyboard_arrow_down_rounded,
                             color: Theme.of(context).unselectedWidgetColor),
                   ),
                 ),
-                onTap: widget.fromChains.length == 0
+                onTap: fromChains.length == 0
                     ? null
-                    : () => _selectChain(0, crossChainIcons,
-                        [plugin_name_karura, ...widget.fromChains]),
+                    : () => _selectChain(context, 0, crossChainIcons,
+                        [plugin_name_karura, ...fromChains]),
               )
             ],
           ),
@@ -163,7 +136,7 @@ class _XcmChainSelectorState extends State<XcmChainSelector> {
                 color: Theme.of(context).toggleableActiveColor,
               ),
             ),
-            onTap: widget.fromChains.length > 0 ? _switch : null,
+            onTap: fromChains.length > 0 ? _switch : null,
           ),
         ),
         Expanded(
@@ -176,12 +149,11 @@ class _XcmChainSelectorState extends State<XcmChainSelector> {
                   padding: EdgeInsets.fromLTRB(8, 10, 0, 8),
                   margin: EdgeInsets.only(bottom: 8),
                   child: CurrencyWithIcon(
-                    (_to.length > 8 ? '${_to.substring(0, 8)}...' : _to)
+                    (to.length > 8 ? '${to.substring(0, 8)}...' : to)
                         .toUpperCase(),
-                    TokenIcon(_to, crossChainIcons, size: 28),
+                    TokenIcon(to, crossChainIcons, size: 28),
                     textStyle: TextStyle(fontSize: 14),
-                    trailing: widget.toChains.length == 1 &&
-                            widget.fromChains.length == 0
+                    trailing: toChains.length == 1 && fromChains.length == 0
                         ? null
                         : Icon(
                             Icons.keyboard_arrow_down_rounded,
@@ -189,15 +161,15 @@ class _XcmChainSelectorState extends State<XcmChainSelector> {
                           ),
                   ),
                 ),
-                onTap:
-                    widget.toChains.length == 1 && widget.fromChains.length == 0
-                        ? null
-                        : () => _selectChain(
-                            1,
-                            crossChainIcons,
-                            widget.fromChains.length > 0
-                                ? [plugin_name_karura, ...widget.toChains]
-                                : widget.toChains),
+                onTap: toChains.length == 1 && fromChains.length == 0
+                    ? null
+                    : () => _selectChain(
+                        context,
+                        1,
+                        crossChainIcons,
+                        fromChains.length > 0
+                            ? [plugin_name_karura, ...toChains]
+                            : toChains),
               )
             ],
           ),

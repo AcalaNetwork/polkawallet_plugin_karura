@@ -76,5 +76,5 @@ const Map<String, String> enCommon = {
       'The function of this module is temporarily unavailable for it is leveling up.',
   'upgrading.btn': 'Got it',
   'xcm.foreign.fee': 'balance insufficient for XCM fee',
-  'xcm.connecting': 'Connecting',
+  'xcm.connecting': 'Connecting...',
 };

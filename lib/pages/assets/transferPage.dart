@@ -7,6 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferFormXCM.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -17,6 +18,7 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/currencyWithIcon.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/MainTabBar.dart';
@@ -88,7 +90,7 @@ class _TransferPageState extends State<TransferPage> {
   Future<void> _getAccountSysInfo() async {
     final info = await widget.plugin.sdk.webView?.evalJavascript(
         'api.query.system.account("${widget.keyring.current.address}")');
-    if (info != null) {
+    if (mounted && info != null) {
       setState(() {
         _accountSysInfo = info;
       });
@@ -103,8 +105,11 @@ class _TransferPageState extends State<TransferPage> {
     final sender = TxSenderData(
         widget.keyring.current.address, widget.keyring.current.pubKey);
     final txInfo = TxInfoData('currencies', 'transfer', sender);
-    final fee = await widget.plugin.sdk.api.tx.estimateFees(txInfo,
-        [widget.keyring.current.address, _token!.currencyId, '1000000000']);
+    final fee = await widget.plugin.sdk.api.tx.estimateFees(txInfo, [
+      widget.keyring.current.address,
+      _token?.currencyId ?? {'Token': karura_stable_coin},
+      '1000000000'
+    ]);
     if (mounted) {
       setState(() {
         _fee = fee;
@@ -241,21 +246,27 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
 
+  void _fetchData() {
+    _getTxFee();
+    _getAccountSysInfo();
+  }
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final TokenBalanceData? token =
-          ModalRoute.of(context)!.settings.arguments as TokenBalanceData?;
+      final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
       setState(() {
-        _token = token;
+        _token = AssetsUtils.getBalanceFromTokenNameId(
+            widget.plugin, args['tokenNameId']);
         _accountOptions = widget.keyring.allWithContacts.toList();
         _accountTo = widget.keyring.current;
-      });
 
-      _getTxFee();
-      _getAccountSysInfo();
+        if (args['isXCM'] != null) {
+          _tab = args['isXCM'] == "true" ? 1 : 0;
+        }
+      });
     });
   }
 
@@ -268,9 +279,10 @@ class _TransferPageState extends State<TransferPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
-    final TokenBalanceData? args =
-        ModalRoute.of(context)!.settings.arguments as TokenBalanceData?;
-    final token = _token ?? args!;
+    final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+    final token = _token ??
+        AssetsUtils.getBalanceFromTokenNameId(
+            widget.plugin, args['tokenNameId']);
 
     final tokensConfig =
         widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
@@ -361,8 +373,8 @@ class _TransferPageState extends State<TransferPage> {
                         final balanceData =
                             AssetsUtils.getBalanceFromTokenNameId(
                                 widget.plugin, token.tokenNameId);
-                        final available = Fmt.balanceInt(balanceData?.amount) -
-                            Fmt.balanceInt(balanceData?.locked);
+                        final available = Fmt.balanceInt(balanceData.amount) -
+                            Fmt.balanceInt(balanceData.locked);
                         final nativeToken =
                             widget.plugin.networkState.tokenSymbol![0];
                         final nativeTokenDecimals =
@@ -407,6 +419,8 @@ class _TransferPageState extends State<TransferPage> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
+                            ConnectionChecker(widget.plugin,
+                                onConnected: _fetchData),
                             Text(dic['address.from'] ?? '', style: labelStyle),
                             AddressFormItem(widget.keyring.current),
                             Container(height: 8.h),
@@ -643,7 +657,10 @@ class _TransferPageState extends State<TransferPage> {
                             Container(
                               padding: EdgeInsets.only(top: 16),
                               child: TxButton(
-                                text: dic['make'],
+                                text:
+                                    widget.plugin.sdk.api.connectedNode == null
+                                        ? dic['xcm.connecting']
+                                        : dic['make'],
                                 getTxParams: _getTxParams,
                                 onFinish: (res) {
                                   if (res != null) {

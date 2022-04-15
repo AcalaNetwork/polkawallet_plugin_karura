@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/mintPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
-import 'package:polkawallet_ui/components/connectionChecker.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
@@ -230,7 +230,7 @@ class _HomaPageState extends State<HomaPage> {
         body: Container(
             width: double.infinity,
             height: double.infinity,
-            margin: EdgeInsets.only(top: 20),
+            margin: EdgeInsets.only(top: 8),
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
             child: Column(
               children: [
