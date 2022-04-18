@@ -249,7 +249,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                           },
                           titleTag: titleTag,
                           inputCtrl: _lastController,
-                          onSetMax: BigInt.parse(banlance.amount!) > BigInt.zero
+                          onSetMax: BigInt.parse(banlance.amount!) >
+                                      BigInt.zero &&
+                                  titleTag != dic['loan.mint']
                               ? (max) {
                                   var value = Fmt.bigIntToDouble(
                                           max, banlance.decimals!)
@@ -396,7 +398,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               },
               titleTag: titleTag,
               inputCtrl: _firstController,
-              onSetMax: BigInt.parse(banlance.amount!) > BigInt.zero
+              onSetMax: BigInt.parse(banlance.amount!) > BigInt.zero &&
+                      titleTag != dic['loan.mint']
                   ? (max) {
                       var value = Fmt.bigIntToDouble(max, banlance.decimals!)
                           .toString();
@@ -581,15 +584,31 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         widget.plugin, [_editorLoan!.token!.tokenNameId, karura_stable_coin]);
     if (titleTag == dic['loan.payback']!) {
+      if (v == "0") {
+        _valueChange(debits: _loan!.debits);
+        return;
+      }
       final debits = Fmt.tokenInt(v, balancePair[1]!.decimals!);
       _valueChange(debits: _loan!.debits - debits);
     } else if (titleTag == dic['loan.mint']!) {
+      if (v == "0") {
+        _valueChange(debits: _loan!.debits);
+        return;
+      }
       final debits = Fmt.tokenInt(v, balancePair[1]!.decimals!);
       _valueChange(debits: _loan!.debits + debits);
     } else if (titleTag == dic['loan.deposit']!) {
+      if (v == "0") {
+        _valueChange(collaterals: _loan!.collaterals);
+        return;
+      }
       final collaterals = Fmt.tokenInt(v, balancePair[0]!.decimals!);
       _valueChange(collaterals: _loan!.collaterals + collaterals);
     } else if (titleTag == dic['loan.withdraw']!) {
+      if (v == "0") {
+        _valueChange(collaterals: _loan!.collaterals);
+        return;
+      }
       final collaterals = Fmt.tokenInt(v, balancePair[0]!.decimals!);
       _valueChange(collaterals: _loan!.collaterals - collaterals);
     }
@@ -601,7 +620,19 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final stableCoinDecimals = widget
         .plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!;
     final collateralDecimals = _editorLoan!.token!.decimals!;
-    if (debits != null) {
+    if (debits != null && debits != _editorLoan!.debits) {
+      if (debits == _loan!.debits) {
+        setState(() {
+          _editorLoan!.debits = debits;
+          _editorLoan!.debitShares = _loan!.debitShares;
+          _editorLoan!.debitInUSD = _loan!.debitInUSD;
+          _editorLoan!.collateralInUSD = _loan!.collateralInUSD;
+          _editorLoan!.collateralRatio = _loan!.collateralRatio;
+          _editorLoan!.requiredCollateral = _loan!.requiredCollateral;
+          _editorLoan!.liquidationPrice = _loan!.liquidationPrice;
+        });
+        return;
+      }
       setState(() {
         _editorLoan!.debits = debits;
         _editorLoan!.debitShares = _editorLoan!.type.debitToDebitShare(debits);
@@ -623,7 +654,17 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       });
     }
 
-    if (collaterals != null) {
+    if (collaterals != null && collaterals != _editorLoan!.collaterals) {
+      if (debits == _loan!.collaterals) {
+        setState(() {
+          _editorLoan!.collaterals = collaterals;
+          _editorLoan!.collateralInUSD = _loan!.collateralInUSD;
+          _editorLoan!.maxToBorrow = _loan!.maxToBorrow;
+          _editorLoan!.collateralRatio = _loan!.collateralRatio;
+          _editorLoan!.liquidationPrice = _loan!.liquidationPrice;
+        });
+        return;
+      }
       setState(() {
         _editorLoan!.collaterals = collaterals;
         _editorLoan!.collateralInUSD = _editorLoan!.type.tokenToUSD(
