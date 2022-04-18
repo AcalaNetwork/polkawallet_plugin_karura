@@ -272,5 +272,20 @@ const Map<String, String> enDex = {
       'There is no minted aUSD in your current vault, are you sure you want to withdraw all your collateral and close the vault?',
   'v3.loan.errorMessage5': 'The minimum requirement for the Vault is ',
   'v3.loan.errorMessage6':
-      'aUSD, you have to deposit more collateral to mint enough aUSD'
+      ' aUSD, you have to deposit more collateral to mint enough aUSD',
+  'v3.loan.inCollateral': 'in collateral',
+  'v3.loan.minted': 'minted',
+  'v3.loan.canPayback': 'Can Payback',
+  'v3.loan.annualStabilityFee': 'Annual Stability Fee',
+  'v3.loan.currentMinted': 'Current Minted',
+  'v3.loan.adjustCollateral': 'Adjust Collateral',
+  'v3.loan.adjustMinted': 'Adjust Minted',
+  'v3.loan.mintMeanwhile': 'Mint more meanwhile',
+  'v3.loan.paybackMeanwhile': 'Payback meanwhile',
+  'v3.loan.depositMeanwhile': 'Deposit more meanwhile',
+  'v3.loan.withdrawMeanwhile': 'Withdraw meanwhile',
+  'v3.loan.newloanRatio': 'New Loan Ratio',
+  'v3.loan.currentCollateral': 'Current Collateral',
+  'v3.loan.requiredSafety': 'Required for safety',
+  'v3.loan.newLiquidationPrice': 'New Liquidation Price',
 };
