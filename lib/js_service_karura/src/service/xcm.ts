@@ -212,7 +212,7 @@ async function getTransferParams(
           X2: [{ Parachain: chainTo.paraChainId }, { AccountKey20: { key: addressTo, network: "Any" } }],
         },
       };
-      return token.name === "KAR" || token.name === "fa://3"
+      return token.name === "KAR" || token.name === "KUSD" || token.name === "fa://3"
         ? {
             module: "xTokens",
             call: "transfer",
