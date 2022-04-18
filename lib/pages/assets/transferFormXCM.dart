@@ -542,7 +542,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['fee'])
             : Fmt.balanceInt((tokenXcmInfo[tokenSymbol] ?? {})['receiveFee']);
         final sendFee =
-            List.of((tokensConfig['xcmSendFee'] ?? {})[chainTo] ?? []);
+            List.of((tokenXcmInfo[tokenSymbol] ?? {})['sendFee'] ?? []);
         final sendFeeAmount =
             sendFee.length > 0 ? Fmt.balanceInt(sendFee[1]) : BigInt.zero;
         final sendFeeToken = sendFee.length > 0
