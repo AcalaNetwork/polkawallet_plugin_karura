@@ -254,12 +254,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   var value = Fmt.bigIntToDouble(
                                           max, banlance.decimals!)
                                       .toString();
-                                  if (value.contains(".") &&
-                                      value.split(".").toList()[1].length >
-                                          10) {
-                                    value = value.substring(
-                                        0, value.lastIndexOf(".") + 10);
-                                  }
                                   var error = _validateAmount(
                                       value,
                                       banlance.amount!,
@@ -271,6 +265,29 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   });
                                   if (error == null) {
                                     _inputChage(titleTag, _lastController.text);
+                                  }
+                                  if (titleTag == dic['loan.payback']!) {
+                                    final withdrawBalance =
+                                        getBalance(dic['loan.withdraw']!);
+                                    var error = _validateAmount(
+                                        _firstController.text,
+                                        withdrawBalance.amount!,
+                                        withdrawBalance.decimals!,
+                                        dic['loan.withdraw']!);
+                                    setState(() {
+                                      _error1 = error;
+                                    });
+                                  } else if (titleTag == dic['loan.deposit']!) {
+                                    final withdrawBalance =
+                                        getBalance(dic['loan.mint']!);
+                                    var error = _validateAmount(
+                                        _firstController.text,
+                                        withdrawBalance.amount!,
+                                        withdrawBalance.decimals!,
+                                        dic['loan.mint']!);
+                                    setState(() {
+                                      _error1 = error;
+                                    });
                                   }
                                 }
                               : null,
@@ -288,6 +305,17 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   withdrawBalance.amount!,
                                   withdrawBalance.decimals!,
                                   dic['loan.withdraw']!);
+                              setState(() {
+                                _error1 = error;
+                              });
+                            } else if (titleTag == dic['loan.deposit']!) {
+                              final withdrawBalance =
+                                  getBalance(dic['loan.mint']!);
+                              var error = _validateAmount(
+                                  _firstController.text,
+                                  withdrawBalance.amount!,
+                                  withdrawBalance.decimals!,
+                                  dic['loan.mint']!);
                               setState(() {
                                 _error1 = error;
                               });
@@ -309,6 +337,17 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     withdrawBalance.amount!,
                                     withdrawBalance.decimals!,
                                     dic['loan.withdraw']!);
+                                setState(() {
+                                  _error1 = error;
+                                });
+                              } else if (titleTag == dic['loan.deposit']!) {
+                                final withdrawBalance =
+                                    getBalance(dic['loan.mint']!);
+                                var error = _validateAmount(
+                                    _firstController.text,
+                                    withdrawBalance.amount!,
+                                    withdrawBalance.decimals!,
+                                    dic['loan.mint']!);
                                 setState(() {
                                   _error1 = error;
                                 });
@@ -361,10 +400,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                   ? (max) {
                       var value = Fmt.bigIntToDouble(max, banlance.decimals!)
                           .toString();
-                      if (value.contains(".") &&
-                          value.split(".").toList()[1].length > 10) {
-                        value = value.substring(0, value.lastIndexOf(".") + 10);
-                      }
                       var error = _validateAmount(value, banlance.amount!,
                           banlance.decimals!, titleTag);
                       setState(() {
@@ -373,6 +408,28 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                       });
                       if (error == null) {
                         _inputChage(titleTag, _firstController.text);
+                      }
+                      if (titleTag == dic['loan.payback']!) {
+                        final withdrawBalance =
+                            getBalance(dic['loan.withdraw']!);
+                        var error = _validateAmount(
+                            _lastController.text,
+                            withdrawBalance.amount!,
+                            withdrawBalance.decimals!,
+                            dic['loan.withdraw']!);
+                        setState(() {
+                          _error2 = error;
+                        });
+                      } else if (titleTag == dic['loan.deposit']!) {
+                        final withdrawBalance = getBalance(dic['loan.mint']!);
+                        var error = _validateAmount(
+                            _lastController.text,
+                            withdrawBalance.amount!,
+                            withdrawBalance.decimals!,
+                            dic['loan.mint']!);
+                        setState(() {
+                          _error2 = error;
+                        });
                       }
                     }
                   : null,
@@ -389,6 +446,16 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                       withdrawBalance.amount!,
                       withdrawBalance.decimals!,
                       dic['loan.withdraw']!);
+                  setState(() {
+                    _error2 = error;
+                  });
+                } else if (titleTag == dic['loan.deposit']!) {
+                  final withdrawBalance = getBalance(dic['loan.mint']!);
+                  var error = _validateAmount(
+                      _lastController.text,
+                      withdrawBalance.amount!,
+                      withdrawBalance.decimals!,
+                      dic['loan.mint']!);
                   setState(() {
                     _error2 = error;
                   });
@@ -409,6 +476,16 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                         withdrawBalance.amount!,
                         withdrawBalance.decimals!,
                         dic['loan.withdraw']!);
+                    setState(() {
+                      _error2 = error;
+                    });
+                  } else if (titleTag == dic['loan.deposit']!) {
+                    final withdrawBalance = getBalance(dic['loan.mint']!);
+                    var error = _validateAmount(
+                        _lastController.text,
+                        withdrawBalance.amount!,
+                        withdrawBalance.decimals!,
+                        dic['loan.mint']!);
                     setState(() {
                       _error2 = error;
                     });
