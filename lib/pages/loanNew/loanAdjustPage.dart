@@ -249,13 +249,21 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                           },
                           titleTag: titleTag,
                           inputCtrl: _lastController,
-                          onSetMax: BigInt.parse(banlance.amount!) >
-                                      BigInt.zero &&
-                                  titleTag != dic['loan.mint']
+                          onSetMax: Fmt.bigIntToDouble(
+                                          BigInt.parse(banlance.amount!),
+                                          banlance.decimals!) >
+                                      0.000001 &&
+                                  titleTag != dic!['loan.mint']
                               ? (max) {
                                   var value = Fmt.bigIntToDouble(
                                           max, banlance.decimals!)
                                       .toString();
+                                  if (titleTag != dic['loan.payback'] &&
+                                      value.split(".").length > 1 &&
+                                      value.split(".")[1].length > 6) {
+                                    value = value.substring(
+                                        0, value.split(".")[0].length + 7);
+                                  }
                                   var error = _validateAmount(
                                       value,
                                       banlance.amount!,
@@ -398,11 +406,21 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               },
               titleTag: titleTag,
               inputCtrl: _firstController,
-              onSetMax: BigInt.parse(banlance.amount!) > BigInt.zero &&
-                      titleTag != dic['loan.mint']
+              onSetMax: Fmt.bigIntToDouble(BigInt.parse(banlance.amount!),
+                              banlance.decimals!) >
+                          0.000001 &&
+                      titleTag != dic!['loan.mint']
                   ? (max) {
                       var value = Fmt.bigIntToDouble(max, banlance.decimals!)
                           .toString();
+
+                      if (titleTag != dic!['loan.payback']! &&
+                          value.split(".").length > 1 &&
+                          value.split(".")[1].length > 6) {
+                        value =
+                            value.substring(0, value.split(".")[0].length + 7);
+                      }
+                      print(value);
                       var error = _validateAmount(value, banlance.amount!,
                           banlance.decimals!, titleTag);
                       setState(() {
@@ -566,7 +584,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       return '${dic!['loan.max']} ${Fmt.priceFloorBigIntFormatter(BigInt.parse(max), decimals)}';
     }
 
-    if (titleTag == dic!['loan.payback']! || titleTag == dic['loan.deposit']!) {
+    if (titleTag == dic!['loan.payback']! || titleTag == dic['loan.mint']!) {
       final minimumDebitValue =
           Fmt.bigIntToDouble(_loan!.type.minimumDebitValue, decimals);
       final debits = titleTag == dic['loan.payback']!
@@ -775,7 +793,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           return null;
         }
         final bool canContinue = await (_confirmPaybackParams(
-                '${dic!['loan.warn4']}$minimumDebitValue${dic['loan.warn5']}')
+                '${dic!['loan.warn4']}$minimumDebitValue ${dic['loan.warn5']}')
             as Future<bool>);
         if (!canContinue) return null;
         debitSubtract = loan.type.debitToDebitShare(
