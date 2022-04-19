@@ -107,7 +107,7 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
   if (!api) return null;
 
   const token = await wallet.getToken(tokenNameId);
-  if (chain.match(chain_name_statemine)) {
+  if (chain.match(chain_name_statemine) && tokenNameId !== "KSM") {
     const res = await api.query.assets.account(token.locations?.generalIndex, address);
     return {
       amount: res.toJSON()["balance"].toString(),
