@@ -25,7 +25,7 @@ class LoanAdjustPage extends StatefulWidget {
   LoanAdjustPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
   final PluginKarura plugin;
   final Keyring keyring;
-  static const String route = '/loan/adjust';
+  static const String route = 'karura/loan/adjust';
 
   @override
   State<LoanAdjustPage> createState() => _LoanAdjustPageState();
@@ -724,14 +724,16 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   Future<Map?> _getTxParams(LoanData loan, LoanData originalLoan) async {
     final collaterals = loan.collaterals - originalLoan.collaterals;
     final debitShares = loan.debitShares - originalLoan.debitShares;
-    final debits = loan.type.debitShareToDebit(debitShares);
+    final debits = loan.debits - originalLoan.debits;
+    print(debits);
 
     if (collaterals == BigInt.zero && debits == BigInt.zero) {
       return null;
     }
 
     if (loan.type.debitShareToDebit(loan.debitShares) == BigInt.zero &&
-        loan.collaterals > BigInt.zero) {
+        loan.collaterals > BigInt.zero &&
+        loan.debits != originalLoan.debits) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
       await showCupertinoDialog(
           context: context,
@@ -770,7 +772,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
       if (originalLoan.debits == BigInt.zero &&
-          debits <= loan.type.minimumDebitValue) {
+          debits < loan.type.minimumDebitValue) {
         final minimumDebitValue = Fmt.bigIntToDouble(
             loan.type.minimumDebitValue, balancePair[1]!.decimals!);
         if (loan.maxToBorrow < loan.type.minimumDebitValue) {
