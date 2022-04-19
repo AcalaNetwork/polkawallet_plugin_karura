@@ -116,8 +116,8 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
-  if (chain.match(chain_name_kint) && tokenNameId === "KINT") {
-    const res = await api.query.tokens.accounts(address, { Token: "KINT" });
+  if (chain.match(chain_name_kint)) {
+    const res = await api.query.tokens.accounts(address, { Token: tokenNameId });
     return {
       amount: (res as any)?.free?.toString(),
       tokenNameId,
