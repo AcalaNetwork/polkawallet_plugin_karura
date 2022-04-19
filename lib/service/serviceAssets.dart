@@ -51,7 +51,7 @@ class ServiceAssets {
     store!.assets.setMarketPrices(prices);
   }
 
-  Future<void> updateTokenBalances(TokenBalanceData token) async {
+  Future<TokenBalanceData> updateTokenBalances(TokenBalanceData token) async {
     final res = await plugin.sdk.webView!.evalJavascript(
         'api.query.tokens.accounts("${keyring.current.address}", ${jsonEncode(token.currencyId)})');
 
@@ -78,6 +78,7 @@ class ServiceAssets {
     store!.assets
         .setTokenBalanceMap(balances.values.toList(), keyring.current.pubKey);
     plugin.balances.setTokens([data]);
+    return data;
   }
 
   Future<void> queryAggregatedAssets() async {
