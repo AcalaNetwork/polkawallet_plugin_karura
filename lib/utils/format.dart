@@ -39,8 +39,7 @@ class PluginFmt {
     plugin.store!.earn.dexPools.forEach((e) {
       e.tokens!.forEach((currencyId) {
         final token = AssetsUtils.tokenDataFromCurrencyId(plugin, currencyId);
-        if (tokens.indexWhere((i) => i!.tokenNameId == token!.tokenNameId) <
-            0) {
+        if (tokens.indexWhere((i) => i!.tokenNameId == token.tokenNameId) < 0) {
           tokens.add(token);
         }
       });
@@ -60,10 +59,10 @@ class PluginFmt {
   static String? getPool(PluginKarura? plugin, dynamic pool) {
     if (pool['dex'] != null) {
       return List.from(pool['dex']['dexShare'])
-          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e)!.symbol)
+          .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
           .join('-');
     } else if (pool['loans'] != null) {
-      return AssetsUtils.tokenDataFromCurrencyId(plugin, pool['loans'])!
+      return AssetsUtils.tokenDataFromCurrencyId(plugin, pool['loans'])
           .tokenNameId;
     } else {
       return null;

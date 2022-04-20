@@ -253,7 +253,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                           BigInt.parse(banlance.amount!),
                                           banlance.decimals!) >
                                       0.000001 &&
-                                  titleTag != dic!['loan.mint']
+                                  titleTag != dic['loan.mint']
                               ? (max) {
                                   var value = Fmt.bigIntToDouble(
                                           max, banlance.decimals!)
@@ -409,12 +409,12 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               onSetMax: Fmt.bigIntToDouble(BigInt.parse(banlance.amount!),
                               banlance.decimals!) >
                           0.000001 &&
-                      titleTag != dic!['loan.mint']
+                      titleTag != dic['loan.mint']
                   ? (max) {
                       var value = Fmt.bigIntToDouble(max, banlance.decimals!)
                           .toString();
 
-                      if (titleTag != dic!['loan.payback']! &&
+                      if (titleTag != dic['loan.payback']! &&
                           value.split(".").length > 1 &&
                           value.split(".")[1].length > 6) {
                         value =
@@ -530,21 +530,21 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         widget.plugin, [_editorLoan!.token!.tokenNameId, karura_stable_coin]);
     if (titleTag == dic['loan.payback']!) {
       symbol = karura_stable_coin;
-      decimals = balancePair[1]?.decimals ?? 12;
-      amount = (Fmt.balanceInt(balancePair[1]!.amount) -
-                      Fmt.balanceInt(balancePair[1]!.minBalance) >
+      decimals = balancePair[1].decimals ?? 12;
+      amount = (Fmt.balanceInt(balancePair[1].amount) -
+                      Fmt.balanceInt(balancePair[1].minBalance) >
                   _loan!.debits
               ? _loan!.debits
-              : Fmt.balanceInt(balancePair[1]!.amount) -
-                          Fmt.balanceInt(balancePair[1]!.minBalance) >
+              : Fmt.balanceInt(balancePair[1].amount) -
+                          Fmt.balanceInt(balancePair[1].minBalance) >
                       BigInt.zero
-                  ? Fmt.balanceInt(balancePair[1]!.amount) -
-                      Fmt.balanceInt(balancePair[1]!.minBalance)
+                  ? Fmt.balanceInt(balancePair[1].amount) -
+                      Fmt.balanceInt(balancePair[1].minBalance)
                   : BigInt.zero)
           .toString();
     } else if (titleTag == dic['loan.mint']!) {
       symbol = karura_stable_coin;
-      decimals = balancePair[1]?.decimals ?? 12;
+      decimals = balancePair[1].decimals ?? 12;
       amount = (_editorLoan!.maxToBorrow - _loan!.debits > BigInt.zero
               ? _editorLoan!.maxToBorrow - _loan!.debits
               : BigInt.zero)
@@ -552,7 +552,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     } else if (titleTag == dic['loan.deposit']!) {
       symbol = _editorLoan!.token!.symbol!;
       decimals = _editorLoan!.token?.decimals ?? 12;
-      amount = balancePair[0]!.amount!;
+      amount = balancePair[0].amount!;
     } else if (titleTag == dic['loan.withdraw']!) {
       symbol = _editorLoan!.token!.symbol!;
       decimals = _editorLoan!.token?.decimals ?? 12;
@@ -606,28 +606,28 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         _valueChange(debits: _loan!.debits);
         return;
       }
-      final debits = Fmt.tokenInt(v, balancePair[1]!.decimals!);
+      final debits = Fmt.tokenInt(v, balancePair[1].decimals!);
       _valueChange(debits: _loan!.debits - debits);
     } else if (titleTag == dic['loan.mint']!) {
       if (v == "0") {
         _valueChange(debits: _loan!.debits);
         return;
       }
-      final debits = Fmt.tokenInt(v, balancePair[1]!.decimals!);
+      final debits = Fmt.tokenInt(v, balancePair[1].decimals!);
       _valueChange(debits: _loan!.debits + debits);
     } else if (titleTag == dic['loan.deposit']!) {
       if (v == "0") {
         _valueChange(collaterals: _loan!.collaterals);
         return;
       }
-      final collaterals = Fmt.tokenInt(v, balancePair[0]!.decimals!);
+      final collaterals = Fmt.tokenInt(v, balancePair[0].decimals!);
       _valueChange(collaterals: _loan!.collaterals + collaterals);
     } else if (titleTag == dic['loan.withdraw']!) {
       if (v == "0") {
         _valueChange(collaterals: _loan!.collaterals);
         return;
       }
-      final collaterals = Fmt.tokenInt(v, balancePair[0]!.decimals!);
+      final collaterals = Fmt.tokenInt(v, balancePair[0].decimals!);
       _valueChange(collaterals: _loan!.collaterals - collaterals);
     }
   }
@@ -760,7 +760,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         dicValue = 'loan.withdraw';
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',
+        '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -774,7 +774,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       if (originalLoan.debits == BigInt.zero &&
           debits < loan.type.minimumDebitValue) {
         final minimumDebitValue = Fmt.bigIntToDouble(
-            loan.type.minimumDebitValue, balancePair[1]!.decimals!);
+            loan.type.minimumDebitValue, balancePair[1].decimals!);
         if (loan.maxToBorrow < loan.type.minimumDebitValue) {
           final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
           showCupertinoDialog(
@@ -819,9 +819,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         //       loan.type.minimumDebitValue - originalLoan.debits);
         // }
 
-        final BigInt balanceStableCoin =
-            Fmt.balanceInt(balancePair[1]!.amount) -
-                Fmt.balanceInt(balancePair[1]!.minBalance);
+        final BigInt balanceStableCoin = Fmt.balanceInt(balancePair[1].amount) -
+            Fmt.balanceInt(balancePair[1].minBalance);
         if (balanceStableCoin <=
             loan.type.debitShareToDebit(debitSubtract).abs()) {
           debitSubtract = balanceStableCoin -
@@ -830,7 +829,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         }
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
+        '${Fmt.priceFloorBigInt(loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
         style: Theme.of(context)
             .textTheme
             .headline1

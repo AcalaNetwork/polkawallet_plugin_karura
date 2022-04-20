@@ -13,9 +13,9 @@ class TxSwapData extends _TxSwapData {
     switch (data.action) {
       case "swap":
         final List path = jsonDecode(json['data'][1]['value']);
-        final tokenPay = AssetsUtils.tokenDataFromCurrencyId(plugin, path[0])!;
+        final tokenPay = AssetsUtils.tokenDataFromCurrencyId(plugin, path[0]);
         final tokenReceive =
-            AssetsUtils.tokenDataFromCurrencyId(plugin, path[path.length - 1])!;
+            AssetsUtils.tokenDataFromCurrencyId(plugin, path[path.length - 1]);
         data.tokenPay = tokenPay.symbol;
         data.tokenReceive = tokenReceive.symbol;
         if (json['data'][2]['type'] == 'Balance') {
@@ -45,9 +45,9 @@ class TxSwapData extends _TxSwapData {
       case "addLiquidity":
       case "removeLiquidity":
         final tokenPay = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['data'][1]['value']))!;
+            plugin, jsonDecode(json['data'][1]['value']));
         final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['data'][3]['value']))!;
+            plugin, jsonDecode(json['data'][3]['value']));
         data.tokenPay = tokenPay.symbol;
         data.tokenReceive = tokenReceive.symbol;
         data.amountPay = Fmt.priceFloorBigInt(

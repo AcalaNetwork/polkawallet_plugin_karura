@@ -73,7 +73,7 @@ class InviteFriendsPage extends StatelessWidget {
                     children: [
                       PluginTokenIcon(
                         PluginFmt.tokenView(
-                            balancePair.map((e) => e!.symbol).join('-')),
+                            balancePair.map((e) => e.symbol).join('-')),
                         plugin.tokenIcons,
                         size: 40,
                       ),
@@ -81,7 +81,7 @@ class InviteFriendsPage extends StatelessWidget {
                         margin: EdgeInsets.only(left: 16),
                         child: Text(
                             PluginFmt.tokenView(
-                                balancePair.map((e) => e!.symbol).join('-')),
+                                balancePair.map((e) => e.symbol).join('-')),
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3

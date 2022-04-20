@@ -136,7 +136,7 @@ class _EarnDexListState extends State<EarnDexList> {
                         AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
                     .toList();
 
-                final tokenSymbol = tokenPair.map((e) => e!.symbol).join('-');
+                final tokenSymbol = tokenPair.map((e) => e.symbol).join('-');
 
                 final rewardsEmpty = incentivesV2.dex == null;
 
@@ -287,7 +287,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                           fontSize: 24),
                                 ),
                                 Text(
-                                  '${dic['earn.staked']} \$${Fmt.priceCeil(Fmt.bigIntToDouble(poolInfo!.sharesTotal, tokenPair[0]?.decimals ?? 12) * (widget.plugin.store!.assets.marketPrices[tokenPair[0]!.symbol] ?? 0))}',
+                                  '${dic['earn.staked']} \$${Fmt.priceCeil(Fmt.bigIntToDouble(poolInfo!.sharesTotal, tokenPair[0].decimals ?? 12) * (widget.plugin.store!.assets.marketPrices[tokenPair[0].symbol] ?? 0))}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline5

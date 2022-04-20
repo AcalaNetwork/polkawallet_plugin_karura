@@ -120,16 +120,16 @@ class _DexPoolCard extends StatelessWidget {
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
     final tokenPairView =
-        balancePair.map((e) => PluginFmt.tokenView(e!.symbol)).join('-');
+        balancePair.map((e) => PluginFmt.tokenView(e.symbol)).join('-');
 
     double? amountLeft;
     double? amountRight;
     double ratio = 0;
     if (poolAmount != null) {
       amountLeft = Fmt.balanceDouble(
-          poolAmount![0].toString(), balancePair[0]!.decimals!);
+          poolAmount![0].toString(), balancePair[0].decimals!);
       amountRight = Fmt.balanceDouble(
-          poolAmount![1].toString(), balancePair[1]!.decimals!);
+          poolAmount![1].toString(), balancePair[1].decimals!);
       ratio = amountLeft > 0 ? amountRight / amountLeft : 0;
     }
 
@@ -180,8 +180,7 @@ class _DexPoolCard extends StatelessWidget {
                 children: [
                   Container(
                     child: PluginTokenIcon(
-                        balancePair.map((e) => e!.symbol).join('-'),
-                        tokenIcons!,
+                        balancePair.map((e) => e.symbol).join('-'), tokenIcons!,
                         size: 26),
                     margin: EdgeInsets.only(right: 12),
                   ),
@@ -233,13 +232,13 @@ class _DexPoolCard extends StatelessWidget {
               children: [
                 PluginInfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  title: PluginFmt.tokenView(balancePair[0]!.symbol),
+                  title: PluginFmt.tokenView(balancePair[0].symbol),
                   content:
                       amountLeft == null ? '--' : Fmt.priceFloor(amountLeft),
                 ),
                 PluginInfoItem(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  title: PluginFmt.tokenView(balancePair[1]!.symbol),
+                  title: PluginFmt.tokenView(balancePair[1].symbol),
                   content:
                       amountRight == null ? '--' : Fmt.priceFloor(amountRight),
                 ),

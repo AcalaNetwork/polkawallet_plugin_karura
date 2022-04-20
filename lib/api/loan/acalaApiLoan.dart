@@ -26,7 +26,7 @@ class AcalaApiLoan {
     int index = 0;
     return res.map((e) {
       e['tokenNameId'] =
-          AssetsUtils.tokenDataFromCurrencyId(service.plugin, pools[index]!)!
+          AssetsUtils.tokenDataFromCurrencyId(service.plugin, pools[index]!)
               .tokenNameId;
       index++;
       return TotalCDPData.fromJson(e);

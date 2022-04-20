@@ -43,7 +43,7 @@ class ServiceLoan {
   ) {
     final data = Map<String?, LoanData>();
     loans.forEach((i) {
-      final token = AssetsUtils.tokenDataFromCurrencyId(plugin, i['currency'])!;
+      final token = AssetsUtils.tokenDataFromCurrencyId(plugin, i['currency']);
       final loanTypeIndex = loanTypes
           .indexWhere((t) => t.token!.tokenNameId == token.tokenNameId);
       if (loanTypeIndex > -1) {

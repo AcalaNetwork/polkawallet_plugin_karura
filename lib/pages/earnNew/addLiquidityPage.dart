@@ -76,9 +76,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           final poolInfo =
               widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
           _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[1]?.decimals ?? 12) /
+                  poolInfo.amountRight, balancePair[1].decimals ?? 12) /
               Fmt.bigIntToDouble(
-                  poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
+                  poolInfo.amountLeft, balancePair[0].decimals ?? 12);
         });
         _timer = Timer(Duration(seconds: 30), () {
           _refreshData();
@@ -143,9 +143,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
     if (error == null) {
       if ((index == 0 && _maxInputLeft == null) ||
           (index == 1 && _maxInputRight == null)) {
-        BigInt available = Fmt.balanceInt(balance?.amount ?? '0');
+        BigInt available = Fmt.balanceInt(balance.amount ?? '0');
         // limit user's input for tx fee if token is KAR
-        if (balance!.symbol == acala_token_ids[0]) {
+        if (balance.symbol == acala_token_ids[0]) {
           final accountED = PluginFmt.getAccountED(widget.plugin);
           available -= accountED +
               Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
@@ -168,7 +168,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
       min = Fmt.balanceInt(balanceLP?.minBalance ?? '0') /
           poolInfo.issuance! *
           Fmt.bigIntToDouble(
-              poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
+              poolInfo.amountLeft, balancePair[0].decimals ?? 12);
 
       final inputLeft = _inputIndex == 0
           ? double.parse(_amountLeftCtrl.text.trim())
@@ -271,7 +271,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                   .getDic(i18n_full_dic_karura, 'acala')!['earn.add'],
               txDisplay: {
                 dic!['earn.pool']:
-                    '${tokenPair[0]!.symbol}-${tokenPair[1]!.symbol}',
+                    '${tokenPair[0].symbol}-${tokenPair[1].symbol}',
                 "": dic['earn.withStake.info'],
                 dic['earn.withStake.all']: '+ ' +
                     Fmt.priceFloorBigInt(balanceInt, balance?.decimals ?? 12,
@@ -280,14 +280,14 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               },
               txDisplayBold: {
                 "Token 1": Text(
-                  '$amountLeft ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
+                  '$amountLeft ${PluginFmt.tokenView(tokenPair[0].symbol)}',
                   style: Theme.of(context)
                       .textTheme
                       .headline1
                       ?.copyWith(color: Colors.white),
                 ),
                 "Token 2": Text(
-                  '$amountRight ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
+                  '$amountRight ${PluginFmt.tokenView(tokenPair[1].symbol)}',
                   style: Theme.of(context)
                       .textTheme
                       .headline1
@@ -303,7 +303,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
         }
       } else {
         final txDisplay = {
-          dic!['earn.pool']: '${tokenPair[0]!.symbol}-${tokenPair[1]!.symbol}'
+          dic!['earn.pool']: '${tokenPair[0].symbol}-${tokenPair[1].symbol}'
         };
         if (_withStake) {
           txDisplay[''] = dic['earn.withStake.info']!;
@@ -317,14 +317,14 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
               txDisplay: txDisplay,
               txDisplayBold: {
                 "Token 1": Text(
-                  '$amountLeft ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
+                  '$amountLeft ${PluginFmt.tokenView(tokenPair[0].symbol)}',
                   style: Theme.of(context)
                       .textTheme
                       .headline1
                       ?.copyWith(color: Colors.white),
                 ),
                 "Token 2": Text(
-                  '$amountRight ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
+                  '$amountRight ${PluginFmt.tokenView(tokenPair[1].symbol)}',
                   style: Theme.of(context)
                       .textTheme
                       .headline1
@@ -427,8 +427,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
         final tokenPairView = [
-          PluginFmt.tokenView(tokenPair[0]!.symbol),
-          PluginFmt.tokenView(tokenPair[1]!.symbol)
+          PluginFmt.tokenView(tokenPair[0].symbol),
+          PluginFmt.tokenView(tokenPair[1].symbol)
         ];
 
         final nativeBalance = Fmt.balanceInt(
@@ -445,12 +445,12 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
             widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId];
         if (poolInfo != null) {
           amountLeft = Fmt.bigIntToDouble(
-              poolInfo.amountLeft, tokenPair[0]?.decimals ?? 12);
+              poolInfo.amountLeft, tokenPair[0].decimals ?? 12);
           amountRight = Fmt.bigIntToDouble(
-              poolInfo.amountRight, tokenPair[1]?.decimals ?? 12);
+              poolInfo.amountRight, tokenPair[1].decimals ?? 12);
 
           issuance = Fmt.bigIntToDouble(
-              poolInfo.issuance, tokenPair[0]?.decimals ?? 12);
+              poolInfo.issuance, tokenPair[0].decimals ?? 12);
 
           String input = _amountLeftCtrl.text.trim();
           try {
@@ -485,9 +485,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                 inputCtrl: _amountLeftCtrl,
                 titleTag: 'token 1',
                 onInputChange: (v) => _onSupplyAmountChange(v),
-                onSetMax: tokenPair[0]!.symbol == acala_token_ids[0]
+                onSetMax: tokenPair[0].symbol == acala_token_ids[0]
                     ? null
-                    : (v) => _onSetLeftMax(v, tokenPair[0]?.decimals ?? 12),
+                    : (v) => _onSetLeftMax(v, tokenPair[0].decimals ?? 12),
                 onClear: () {
                   setState(() {
                     _maxInputLeft = null;
@@ -527,9 +527,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                 inputCtrl: _amountRightCtrl,
                 titleTag: 'token 2',
                 onInputChange: (v) => _onTargetAmountChange(v),
-                onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]
+                onSetMax: tokenPair[1].symbol == acala_token_ids[0]
                     ? null
-                    : (v) => _onSetRightMax(v, tokenPair[1]?.decimals ?? 12),
+                    : (v) => _onSetRightMax(v, tokenPair[1].decimals ?? 12),
                 onClear: () {
                   setState(() {
                     _maxInputRight = null;
@@ -675,8 +675,8 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                   padding: EdgeInsets.only(top: 37, bottom: 38),
                   child: PluginButton(
                     title: dic['earn.add']!,
-                    onPressed: () => _onSubmit(
-                        tokenPair[0]!.decimals, tokenPair[1]!.decimals),
+                    onPressed: () =>
+                        _onSubmit(tokenPair[0].decimals, tokenPair[1].decimals),
                   )),
             ],
           )),

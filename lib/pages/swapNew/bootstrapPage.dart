@@ -92,7 +92,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
           ModalRoute.of(context)!.settings.arguments as DexPoolData;
       final min = Fmt.balanceDouble(
           pool.provisioning!.minContribution![index].toString(),
-          balance!.decimals!);
+          balance.decimals!);
       if (input < min) {
         error = '${dic!['min']} ${Fmt.priceCeil(min, lengthMax: 6)}';
       } else if (double.parse(v) >
@@ -154,19 +154,18 @@ class _BootstrapPageState extends State<BootstrapPage> {
         module: 'dex',
         call: 'addProvision',
         txDisplay: {
-          dic['earn.pool']:
-              '${balancePair[0]!.symbol}-${balancePair[1]!.symbol}',
+          dic['earn.pool']: '${balancePair[0].symbol}-${balancePair[1].symbol}',
         },
         txDisplayBold: {
           "Token 1": Text(
-            '$leftAmount ${balancePair[0]!.symbol}',
+            '$leftAmount ${balancePair[0].symbol}',
             style: Theme.of(context)
                 .textTheme
                 .headline1
                 ?.copyWith(color: Colors.white),
           ),
           "Token 2": Text(
-            '$rightAmount ${balancePair[1]!.symbol}',
+            '$rightAmount ${balancePair[1].symbol}',
             style: Theme.of(context)
                 .textTheme
                 .headline1
@@ -176,8 +175,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
         params: [
           pool.tokens![0],
           pool.tokens![1],
-          Fmt.tokenInt(leftAmount, balancePair[0]!.decimals!).toString(),
-          Fmt.tokenInt(rightAmount, balancePair[1]!.decimals!).toString(),
+          Fmt.tokenInt(leftAmount, balancePair[0].decimals!).toString(),
+          Fmt.tokenInt(rightAmount, balancePair[1].decimals!).toString(),
         ],
         isPlugin: true);
   }
@@ -218,20 +217,20 @@ class _BootstrapPageState extends State<BootstrapPage> {
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();
       final pairView =
-          balancePair.map((e) => PluginFmt.tokenView(e!.symbol)).toList();
+          balancePair.map((e) => PluginFmt.tokenView(e.symbol)).toList();
 
       final nowLeft = Fmt.balanceDouble(
           pool.provisioning!.accumulatedProvision![0].toString(),
-          balancePair[0]!.decimals!);
+          balancePair[0].decimals!);
       final nowRight = Fmt.balanceDouble(
           pool.provisioning!.accumulatedProvision![1].toString(),
-          balancePair[1]!.decimals!);
+          balancePair[1].decimals!);
       final myLeft = Fmt.balanceDouble(
           _userProvisioning != null ? _userProvisioning![0].toString() : '0',
-          balancePair[0]!.decimals!);
+          balancePair[0].decimals!);
       final myRight = Fmt.balanceDouble(
           _userProvisioning != null ? _userProvisioning![1].toString() : '0',
-          balancePair[1]!.decimals!);
+          balancePair[1].decimals!);
       final poolInfo =
           PluginFmt.calcLiquidityShare([nowLeft, nowRight], [myLeft, myRight]);
 
@@ -254,7 +253,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
       String ratioView2 = '';
       final nativeToken = widget.plugin.networkState.tokenSymbol![0];
       final relayChainToken = relay_chain_token_symbol;
-      if (balancePair.map((e) => e!.symbol).join('-').toUpperCase() ==
+      if (balancePair.map((e) => e.symbol).join('-').toUpperCase() ==
           '$nativeToken-$relayChainToken') {
         final relayChainTokenPrice =
             widget.plugin.store!.assets.marketPrices[relayChainToken];

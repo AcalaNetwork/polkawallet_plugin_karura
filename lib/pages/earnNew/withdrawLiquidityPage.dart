@@ -90,7 +90,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     final poolInfo = _getPoolInfoData(pool.tokenNameId);
 
     final shareInputInt =
-        _maxShare ?? Fmt.tokenInt(v, balancePair[0]!.decimals!);
+        _maxShare ?? Fmt.tokenInt(v, balancePair[0].decimals!);
     final shareFree = Fmt.balanceInt(
         widget.plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]?.amount);
     final shareBalance = _fromPool ? shareFree + poolInfo!.shares! : shareFree;
@@ -99,20 +99,20 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
     }
 
     final shareInput = _maxShare != null
-        ? Fmt.bigIntToDouble(_maxShare, balancePair[0]!.decimals!)
+        ? Fmt.bigIntToDouble(_maxShare, balancePair[0].decimals!)
         : double.parse(v.trim());
     double min = 0;
-    if (balancePair[0]!.symbol != symbols![0] &&
-        Fmt.balanceInt(balancePair[0]!.amount) == BigInt.zero) {
-      min = Fmt.balanceInt(balancePair[0]!.minBalance) /
+    if (balancePair[0].symbol != symbols![0] &&
+        Fmt.balanceInt(balancePair[0].amount) == BigInt.zero) {
+      min = Fmt.balanceInt(balancePair[0].minBalance) /
           poolInfo!.amountLeft! *
-          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0]!.decimals!);
+          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals!);
     }
-    if (balancePair[0]!.symbol != symbols[0] &&
-        Fmt.balanceInt(balancePair[1]!.amount) == BigInt.zero) {
-      final min2 = Fmt.balanceInt(balancePair[1]!.minBalance) /
+    if (balancePair[0].symbol != symbols[0] &&
+        Fmt.balanceInt(balancePair[1].amount) == BigInt.zero) {
+      final min2 = Fmt.balanceInt(balancePair[1].minBalance) /
           poolInfo!.amountRight! *
-          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0]!.decimals!);
+          Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals!);
       min = min > min2 ? min : min2;
     }
     if (shareInput < min) {
@@ -143,14 +143,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
           .toList();
       final poolTokenSymbol = tokenPair
-          .map((e) => PluginFmt.tokenView(e?.symbol))
+          .map((e) => PluginFmt.tokenView(e.symbol))
           .toList()
           .join('-');
       final amount = _amountCtrl.text.trim();
       final amountInt = _maxShare ?? Fmt.tokenInt(amount, shareDecimals!);
       final poolToken = AssetsUtils.getBalanceFromTokenNameId(
           widget.plugin, pool.tokenNameId);
-      final free = Fmt.balanceInt(poolToken?.amount);
+      final free = Fmt.balanceInt(poolToken.amount);
 
       TxConfirmParams txParams = TxConfirmParams(
         module: 'dex',
@@ -268,14 +268,14 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
         final pairView =
-            balancePair.map((e) => PluginFmt.tokenView(e!.symbol)).toList();
+            balancePair.map((e) => PluginFmt.tokenView(e.symbol)).toList();
 
         double shareInput = 0;
         BigInt shareInputInt = BigInt.zero;
         try {
           shareInput = double.parse(_amountCtrl.text.trim());
           shareInputInt =
-              Fmt.tokenInt(_amountCtrl.text.trim(), balancePair[0]!.decimals!);
+              Fmt.tokenInt(_amountCtrl.text.trim(), balancePair[0].decimals!);
         } catch (_) {}
 
         double shareIssuance = 0;
@@ -294,17 +294,17 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
 
         final poolInfo = _getPoolInfoData(pool.tokenNameId);
         if (poolInfo != null) {
-          shareFreeInt = Fmt.balanceInt(poolToken?.amount);
+          shareFreeInt = Fmt.balanceInt(poolToken.amount);
           shareStakedInt = poolInfo.shares;
           shareFromInt =
               _fromPool ? shareFreeInt + shareStakedInt! : shareFreeInt;
           shareIssuance =
-              Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0]!.decimals!);
+              Fmt.bigIntToDouble(poolInfo.issuance, balancePair[0].decimals!);
 
-          poolLeft = Fmt.bigIntToDouble(
-              poolInfo.amountLeft, balancePair[0]!.decimals!);
+          poolLeft =
+              Fmt.bigIntToDouble(poolInfo.amountLeft, balancePair[0].decimals!);
           poolRight = Fmt.bigIntToDouble(
-              poolInfo.amountRight, balancePair[1]!.decimals!);
+              poolInfo.amountRight, balancePair[1].decimals!);
           exchangeRate = poolLeft / poolRight;
 
           shareInt10 = BigInt.from(shareFromInt / BigInt.from(10));
@@ -330,7 +330,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                   visible: (poolInfo?.shares ?? BigInt.zero) > BigInt.zero,
                   child: PluginTagCard(
                     titleTag:
-                        '${PluginFmt.tokenView(balancePair.map((e) => e!.symbol).join('-'))} ${dicAssets['balance']}',
+                        '${PluginFmt.tokenView(balancePair.map((e) => e.symbol).join('-'))} ${dicAssets['balance']}',
                     padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
                     child: Container(
                       margin: EdgeInsets.only(bottom: 4),
@@ -345,7 +345,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                                 ?.copyWith(color: Colors.white),
                             content: Fmt.priceFloorBigInt(
                                 shareFreeInt + shareStakedInt!,
-                                balancePair[0]!.decimals!),
+                                balancePair[0].decimals!),
                           ),
                           PluginInfoItem(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -355,7 +355,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                                 .headline4
                                 ?.copyWith(color: Colors.white),
                             content: Fmt.priceFloorBigInt(
-                                shareStakedInt, balancePair[0]!.decimals!),
+                                shareStakedInt, balancePair[0].decimals!),
                           ),
                           PluginInfoItem(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -365,7 +365,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                                 .headline4
                                 ?.copyWith(color: Colors.white),
                             content: Fmt.priceFloorBigInt(
-                                shareFreeInt, balancePair[0]!.decimals!),
+                                shareFreeInt, balancePair[0].decimals!),
                           )
                         ],
                       ),
@@ -391,7 +391,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,
                             hintText:
-                                '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0]!.decimals!, lengthMax: 4)}',
+                                '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0].decimals!, lengthMax: 4)}',
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .headline5
@@ -413,7 +413,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             ),
                           ),
                           inputFormatters: [
-                            UI.decimalInputFormatter(balancePair[0]!.decimals!)!
+                            UI.decimalInputFormatter(balancePair[0].decimals!)!
                           ],
                           controller: _amountCtrl,
                           keyboardType:
@@ -442,7 +442,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             onPressed: shareEmpty
                                 ? null
                                 : () => _onAmountSelect(
-                                    shareInt10, balancePair[0]!.decimals),
+                                    shareInt10, balancePair[0].decimals),
                           ),
                           PluginOutlinedButtonSmall(
                             color: Color(0xFFFC8156),
@@ -455,7 +455,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             onPressed: shareEmpty
                                 ? null
                                 : () => _onAmountSelect(
-                                    shareInt25, balancePair[0]!.decimals),
+                                    shareInt25, balancePair[0].decimals),
                           ),
                           PluginOutlinedButtonSmall(
                             color: Color(0xFFFC8156),
@@ -468,7 +468,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             onPressed: shareEmpty
                                 ? null
                                 : () => _onAmountSelect(
-                                    shareInt50, balancePair[0]!.decimals),
+                                    shareInt50, balancePair[0].decimals),
                           ),
                           PluginOutlinedButtonSmall(
                             color: Color(0xFFFC8156),
@@ -482,7 +482,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                             onPressed: shareEmpty
                                 ? null
                                 : () => _onAmountSelect(
-                                    shareFromInt, balancePair[0]!.decimals,
+                                    shareFromInt, balancePair[0].decimals,
                                     isMax: true),
                           )
                         ],
@@ -566,7 +566,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                   padding: EdgeInsets.only(top: 141, bottom: 38),
                   child: PluginButton(
                     title: dic['earn.remove']!,
-                    onPressed: () => _onSubmit(balancePair[0]!.decimals),
+                    onPressed: () => _onSubmit(balancePair[0].decimals),
                   )),
             ],
           )),

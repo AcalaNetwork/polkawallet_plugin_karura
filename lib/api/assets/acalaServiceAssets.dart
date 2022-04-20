@@ -30,7 +30,7 @@ class AcalaServiceAssets {
     final dexPairs = await plugin.api!.swap.getTokenPairs();
     dexPairs.forEach((e) {
       final lpToken =
-          AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId)!
+          AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId)
               .symbol
               ?.split('-');
       plugin.sdk.api
@@ -70,9 +70,9 @@ class AcalaServiceAssets {
       final lpToken = e.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
           .toList();
-      final tokenId = lpToken.map((e) => e!.symbol).join('-');
+      final tokenId = lpToken.map((e) => e.symbol).join('-');
       final channel =
-          '$tokenBalanceChannel${lpToken.map((e) => e!.symbol).join('')}';
+          '$tokenBalanceChannel${lpToken.map((e) => e.symbol).join('')}';
       plugin.sdk.api.subscribeMessage(
         'api.query.tokens.accounts',
         [address, currencyId],
@@ -83,8 +83,8 @@ class AcalaServiceAssets {
             'type': 'DexShare',
             'tokenNameId': e.tokenNameId,
             'currencyId': currencyId,
-            'minBalance': lpToken[0]?.minBalance,
-            'decimals': lpToken[0]!.decimals,
+            'minBalance': lpToken[0].minBalance,
+            'decimals': lpToken[0].decimals,
             'balance': data
           });
         },
@@ -100,7 +100,7 @@ class AcalaServiceAssets {
       final prices = Map<String, BigInt>();
       res.forEach((e) {
         final tokenNameId =
-            AssetsUtils.tokenDataFromCurrencyId(plugin, e[0])!.tokenNameId!;
+            AssetsUtils.tokenDataFromCurrencyId(plugin, e[0]).tokenNameId!;
         prices[tokenNameId] = Fmt.balanceInt(e[1]['value'].toString());
       });
       callback(prices);

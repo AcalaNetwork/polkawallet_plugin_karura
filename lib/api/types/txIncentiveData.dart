@@ -20,11 +20,11 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
       case actionClaimRewards:
         final pair = (jsonDecode(json['data'][1]['value'])['dex']['dexShare']
                 as List)
-            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e)!.symbol)
+            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
             .toList();
         final poolId = pair.join('-');
         final rewardToken = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['data'][2]['value']))!;
+            plugin, jsonDecode(json['data'][2]['value']));
         data.poolId = poolId;
         data.amountShare =
             '${Fmt.balance(json['data'][3]['value'], rewardToken.decimals!)} ${PluginFmt.tokenView(rewardToken.symbol)}';
@@ -32,11 +32,11 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
       case actionPayoutRewards:
         final pair = (jsonDecode(json['data'][1]['value'])['dexIncentive']
                 ['dexShare'] as List)
-            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e)!.symbol)
+            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
             .toList();
         final poolId = pair.join('-');
         final rewardToken = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['data'][2]['value']))!;
+            plugin, jsonDecode(json['data'][2]['value']));
         data.poolId = poolId;
         data.amountShare =
             '${Fmt.balance(json['data'][3]['value'], rewardToken.decimals!)} ${PluginFmt.tokenView(rewardToken.symbol)}';
@@ -46,11 +46,11 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
         final pair = (jsonDecode(json['data'][1]['value'])['dexShare'] as List)
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
             .toList();
-        final poolId = pair.map((e) => e!.symbol).join('-');
+        final poolId = pair.map((e) => e.symbol).join('-');
         final shareTokenView = PluginFmt.tokenView(poolId);
         data.poolId = poolId;
         data.amountShare =
-            '${Fmt.balance(json['data'][2]['value'], pair[0]!.decimals!)} $shareTokenView';
+            '${Fmt.balance(json['data'][2]['value'], pair[0].decimals!)} $shareTokenView';
         break;
     }
     data.time = (json['timestamp'] as String).replaceAll(' ', '');

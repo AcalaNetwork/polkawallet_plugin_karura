@@ -36,11 +36,11 @@ class ServiceEarn {
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
       final stakingPoolValue = (poolInfo?.sharesTotal ?? BigInt.zero) /
           (poolInfo?.issuance ?? BigInt.zero) *
-          (Fmt.bigIntToDouble(poolInfo?.amountLeft, balancePair[0]!.decimals!) *
-                  (prices[balancePair[0]!.symbol] ?? 0) +
+          (Fmt.bigIntToDouble(poolInfo?.amountLeft, balancePair[0].decimals!) *
+                  (prices[balancePair[0].symbol] ?? 0) +
               Fmt.bigIntToDouble(
-                      poolInfo?.amountRight, balancePair[1]!.decimals!) *
-                  (prices[balancePair[1]!.symbol] ?? 0));
+                      poolInfo?.amountRight, balancePair[1].decimals!) *
+                  (prices[balancePair[1].symbol] ?? 0));
 
       v.forEach((e) {
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;

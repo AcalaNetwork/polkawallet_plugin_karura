@@ -111,7 +111,7 @@ class _LPStakePage extends State<LPStakePage> {
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
     final poolTokenSymbol =
-        tokenPair.map((e) => PluginFmt.tokenView(e?.symbol)).toList().join('-');
+        tokenPair.map((e) => PluginFmt.tokenView(e.symbol)).toList().join('-');
 
     String input = _amountCtrl.text.trim();
     BigInt? amount = Fmt.tokenInt(input, decimals!);
@@ -130,12 +130,12 @@ class _LPStakePage extends State<LPStakePage> {
         _maxInputLeft != null
             ? _maxInputLeft.toString()
             : Fmt.tokenInt(
-                    _amountLeftCtrl.text.trim(), tokenPair[0]?.decimals ?? 12)
+                    _amountLeftCtrl.text.trim(), tokenPair[0].decimals ?? 12)
                 .toString(),
         _maxInputRight != null
             ? _maxInputRight.toString()
             : Fmt.tokenInt(
-                    _amountRightCtrl.text.trim(), tokenPair[1]?.decimals ?? 12)
+                    _amountRightCtrl.text.trim(), tokenPair[1].decimals ?? 12)
                 .toString(),
         '0',
         true,
@@ -167,14 +167,14 @@ class _LPStakePage extends State<LPStakePage> {
                     ?.copyWith(color: Colors.white),
               ),
               "Token 1": Text(
-                '${_amountLeftCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[0]!.symbol)}',
+                '${_amountLeftCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[0].symbol)}',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
                     ?.copyWith(color: Colors.white),
               ),
               "Token 2": Text(
-                '${_amountRightCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[1]!.symbol)}',
+                '${_amountRightCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[1].symbol)}',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
@@ -235,9 +235,9 @@ class _LPStakePage extends State<LPStakePage> {
           final poolInfo =
               widget.plugin.store!.earn.dexPoolInfoMap[pool.tokenNameId]!;
           _price = Fmt.bigIntToDouble(
-                  poolInfo.amountRight, balancePair[1]?.decimals ?? 12) /
+                  poolInfo.amountRight, balancePair[1].decimals ?? 12) /
               Fmt.bigIntToDouble(
-                  poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
+                  poolInfo.amountLeft, balancePair[0].decimals ?? 12);
         });
         _timer = Timer(Duration(seconds: 30), () {
           _refreshData();
@@ -354,9 +354,9 @@ class _LPStakePage extends State<LPStakePage> {
     if (error == null) {
       if ((index == 0 && _maxInputLeft == null) ||
           (index == 1 && _maxInputRight == null)) {
-        BigInt available = Fmt.balanceInt(balance?.amount ?? '0');
+        BigInt available = Fmt.balanceInt(balance.amount ?? '0');
         // limit user's input for tx fee if token is KAR
-        if (balance!.symbol == acala_token_ids[0]) {
+        if (balance.symbol == acala_token_ids[0]) {
           final accountED = PluginFmt.getAccountED(widget.plugin);
           available -= accountED +
               Fmt.balanceInt(_fee?.partialFee?.toString()) * BigInt.two;
@@ -379,7 +379,7 @@ class _LPStakePage extends State<LPStakePage> {
       min = Fmt.balanceInt(balanceLP?.minBalance ?? '0') /
           poolInfo.issuance! *
           Fmt.bigIntToDouble(
-              poolInfo.amountLeft, balancePair[0]?.decimals ?? 12);
+              poolInfo.amountLeft, balancePair[0].decimals ?? 12);
 
       final inputLeft = _inputIndex == 0
           ? double.parse(_amountLeftCtrl.text.trim())
@@ -647,7 +647,7 @@ class _LPStakePage extends State<LPStakePage> {
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
         .toList();
     final poolTokenSymbol =
-        PluginFmt.tokenView(tokenPair.map((e) => e?.symbol).join('-'));
+        PluginFmt.tokenView(tokenPair.map((e) => e.symbol).join('-'));
 
     return PluginScaffold(
       appBar: PluginAppBar(
@@ -686,19 +686,19 @@ class _LPStakePage extends State<LPStakePage> {
                         titleTag: assetDic!['amount'],
                         inputCtrl: _amountCtrl,
                         onSetMax: (balance ?? BigInt.zero) > BigInt.zero
-                            ? (max) => _onSetMax(max, tokenPair[0]!.decimals)
+                            ? (max) => _onSetMax(max, tokenPair[0].decimals)
                             : null,
                         onInputChange: (v) {
                           var error = _validateAmount(
-                              v, balance, tokenPair[0]!.decimals);
+                              v, balance, tokenPair[0].decimals);
                           setState(() {
                             _error1 = error;
                             _isMax = false;
                           });
                         },
                         balance: TokenBalanceData(
-                            symbol: tokenPair.map((e) => e?.symbol).join('-'),
-                            decimals: tokenPair[0]?.decimals ?? 12,
+                            symbol: tokenPair.map((e) => e.symbol).join('-'),
+                            decimals: tokenPair[0].decimals ?? 12,
                             amount: balance.toString()),
                         tokenIconsMap: widget.plugin.tokenIcons,
                       ),
@@ -716,7 +716,7 @@ class _LPStakePage extends State<LPStakePage> {
                   padding: EdgeInsets.all(16),
                   child: PluginButton(
                     title: dic['earn.${args.action}']!,
-                    onPressed: () => _onSubmit(balance, tokenPair[0]!.decimals),
+                    onPressed: () => _onSubmit(balance, tokenPair[0].decimals),
                   ),
                 )
               ],

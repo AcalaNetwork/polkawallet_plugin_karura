@@ -54,7 +54,7 @@ class EarnDetailPage extends StatelessWidget {
     return PluginScaffold(
       appBar: PluginAppBar(
           title: Text(
-              PluginFmt.tokenView(balancePair.map((e) => e!.symbol).join('-'))),
+              PluginFmt.tokenView(balancePair.map((e) => e.symbol).join('-'))),
           centerTitle: true),
       body: Observer(
         builder: (_) {
@@ -77,24 +77,22 @@ class EarnDetailPage extends StatelessWidget {
             poolShare = share / issuance!;
 
             final lpAmount = Fmt.bigIntToDouble(
-                    poolInfo.amountLeft, balancePair[0]!.decimals!) *
+                    poolInfo.amountLeft, balancePair[0].decimals!) *
                 poolShare;
             final lpAmount2 = Fmt.bigIntToDouble(
-                    poolInfo.amountRight, balancePair[1]!.decimals!) *
+                    poolInfo.amountRight, balancePair[1].decimals!) *
                 poolShare;
 
             leftPrice = Fmt.bigIntToDouble(
-                    poolInfo.amountLeft, balancePair[0]!.decimals!) *
-                (plugin.store!.assets.marketPrices[balancePair[0]!.symbol] ??
-                    0);
+                    poolInfo.amountLeft, balancePair[0].decimals!) *
+                (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0);
 
             rightPrice = Fmt.bigIntToDouble(
-                    poolInfo.amountRight, balancePair[1]!.decimals!) *
-                (plugin.store!.assets.marketPrices[balancePair[1]!.symbol] ??
-                    0);
+                    poolInfo.amountRight, balancePair[1].decimals!) *
+                (plugin.store!.assets.marketPrices[balancePair[1].symbol] ?? 0);
 
             lpAmountString =
-                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0]!.symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1]!.symbol)}';
+                '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0].symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1].symbol)}';
           }
 
           double rewardAPR = 0;
@@ -172,7 +170,7 @@ class EarnDetailPage extends StatelessWidget {
                                         Padding(
                                           padding: EdgeInsets.only(left: 50),
                                           child: Text(
-                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * (plugin.store!.assets.marketPrices[balancePair[0]!.symbol] ?? 0))}",
+                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0].decimals!) * (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0))}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
@@ -200,7 +198,7 @@ class EarnDetailPage extends StatelessWidget {
                                     padding:
                                         EdgeInsets.only(left: 16, bottom: 10),
                                     child: Text(
-                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0]!.decimals!) * (plugin.store!.assets.marketPrices[balancePair[0]!.symbol] ?? 0))}",
+                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0].decimals!) * (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0))}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5
@@ -270,7 +268,7 @@ class EarnDetailPage extends StatelessWidget {
                                             .headline5
                                             ?.copyWith(color: Colors.white),
                                         content: Fmt.priceFloorBigInt(
-                                            share, balancePair[0]!.decimals!,
+                                            share, balancePair[0].decimals!,
                                             lengthFixed: 4),
                                       ),
                                       PluginInfoItem(
@@ -310,7 +308,7 @@ class EarnDetailPage extends StatelessWidget {
                                           Padding(
                                             padding: EdgeInsets.only(left: 2),
                                             child: Text(
-                                                "${Fmt.priceFloorBigInt(share, balancePair[0]!.decimals!, lengthFixed: 4)} LP ≈ $lpAmountString",
+                                                "${Fmt.priceFloorBigInt(share, balancePair[0].decimals!, lengthFixed: 4)} LP ≈ $lpAmountString",
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .headline5
@@ -365,9 +363,9 @@ class EarnDetailPage extends StatelessWidget {
                           share: stakeShare,
                           poolInfo: poolInfo,
                           poolSymbol: pool.tokens!
-                              .map((e) => AssetsUtils.tokenDataFromCurrencyId(
-                                      plugin, e)!
-                                  .symbol)
+                              .map((e) =>
+                                  AssetsUtils.tokenDataFromCurrencyId(plugin, e)
+                                      .symbol)
                               .join('-'),
                           rewardAPY: rewardAPR,
                           rewardSavingAPY: savingRewardAPR,
@@ -510,7 +508,7 @@ class _UserCard extends StatelessWidget {
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
     final poolTokenSymbol =
-        tokenPair.map((e) => PluginFmt.tokenView(e?.symbol)).toList().join('-');
+        tokenPair.map((e) => PluginFmt.tokenView(e.symbol)).toList().join('-');
 
     Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(

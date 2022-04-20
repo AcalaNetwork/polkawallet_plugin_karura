@@ -180,9 +180,9 @@ class _HomaPageState extends State<HomaPage> {
       final balances = AssetsUtils.getBalancePairFromTokenNameId(
           widget.plugin, [stakeSymbol, 'L$stakeSymbol']);
       final balanceStakeToken =
-          Fmt.balanceDouble(balances[0]!.amount!, balances[0]!.decimals!);
+          Fmt.balanceDouble(balances[0].amount!, balances[0].decimals!);
       final balanceLiquidToken =
-          Fmt.balanceDouble(balances[1]!.amount!, balances[1]!.decimals!);
+          Fmt.balanceDouble(balances[1].amount!, balances[1].decimals!);
       double unbonding = 0;
       (widget.plugin.store?.homa.userInfo?.unbondings ?? []).forEach((e) {
         unbonding += e['amount'];
@@ -207,7 +207,7 @@ class _HomaPageState extends State<HomaPage> {
       final redeemRequest = Fmt.balanceDouble(
           (widget.plugin.store?.homa.userInfo?.redeemRequest ?? {})['amount'] ??
               '0',
-          balances[0]!.decimals!);
+          balances[0].decimals!);
 
       return PluginScaffold(
         appBar: PluginAppBar(

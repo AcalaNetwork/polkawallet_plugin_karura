@@ -107,7 +107,7 @@ class _LoanPageState extends State<LoanPage> {
         {
           'Token': karura_stable_coin,
           'decimals': AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, karura_stable_coin)!
+                  widget.plugin, karura_stable_coin)
               .decimals
         }
       ],
@@ -291,16 +291,16 @@ class _LoanPageState extends State<LoanPage> {
                             ]);
 
                             final available = Fmt.bigIntToDouble(
-                                loan.collaterals, balancePair[0]!.decimals!);
+                                loan.collaterals, balancePair[0].decimals!);
                             final BigInt balanceBigInt =
-                                Fmt.balanceInt(balancePair[0]!.amount);
+                                Fmt.balanceInt(balancePair[0].amount);
                             final balance = Fmt.bigIntToDouble(
-                                balanceBigInt, balancePair[0]!.decimals!);
+                                balanceBigInt, balancePair[0].decimals!);
 
                             final debits = Fmt.bigIntToDouble(
-                                loan.debits, balancePair[1]!.decimals!);
+                                loan.debits, balancePair[1].decimals!);
                             final maxToBorrow = Fmt.bigIntToDouble(
-                                loan.maxToBorrow, balancePair[1]!.decimals!);
+                                loan.maxToBorrow, balancePair[1].decimals!);
 
                             final availablePrice = Fmt.bigIntToDouble(
                                 widget.plugin.store!.assets
@@ -308,7 +308,7 @@ class _LoanPageState extends State<LoanPage> {
                                 acala_price_decimals);
 
                             final BigInt balanceStableCoin =
-                                Fmt.balanceInt(balancePair[1]!.amount);
+                                Fmt.balanceInt(balancePair[1].amount);
 
                             final originalDebitsValue =
                                 loan.type.debitShareToDebit(loan.debitShares);
@@ -319,16 +319,16 @@ class _LoanPageState extends State<LoanPage> {
                                     : BigInt.zero;
                             final canPayback = balanceStableCoin -
                                         Fmt.balanceInt(
-                                            balancePair[1]!.minBalance) >
+                                            balancePair[1].minBalance) >
                                     originalDebitsValue
                                 ? originalDebitsValue
                                 : balanceStableCoin -
                                             Fmt.balanceInt(
-                                                balancePair[1]!.minBalance) >
+                                                balancePair[1].minBalance) >
                                         BigInt.zero
                                     ? balanceStableCoin -
                                         Fmt.balanceInt(
-                                            balancePair[1]!.minBalance)
+                                            balancePair[1].minBalance)
                                     : BigInt.zero;
 
                             final itemStype = Theme.of(context)
@@ -355,7 +355,7 @@ class _LoanPageState extends State<LoanPage> {
                                       progress:
                                           available / (available + balance),
                                       progressText:
-                                          "${Fmt.priceFloorBigIntFormatter(loan.collaterals, balancePair[0]!.decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.inCollateral']}",
+                                          "${Fmt.priceFloorBigIntFormatter(loan.collaterals, balancePair[0].decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.inCollateral']}",
                                       btnText:
                                           "${dic['loan.deposit']}/${dic['loan.withdraw']}",
                                       detailWidget: Column(
@@ -425,16 +425,16 @@ class _LoanPageState extends State<LoanPage> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           InfoItemRow(dic['v3.totalBalance']!,
-                                              "${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1]!.decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}",
+                                              "${Fmt.priceFloorBigIntFormatter(balanceStableCoin, balancePair[1].decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}",
                                               labelStyle: itemStype,
                                               contentStyle: itemStype),
                                           InfoItemRow(dic['v3.loan.canMint']!,
-                                              '${Fmt.priceFloorBigInt(canMint, balancePair[1]!.decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}',
+                                              '${Fmt.priceFloorBigInt(canMint, balancePair[1].decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}',
                                               labelStyle: itemStype,
                                               contentStyle: itemStype),
                                           InfoItemRow(
                                               dic['v3.loan.canPayback']!,
-                                              '${Fmt.priceFloorBigIntFormatter(canPayback, balancePair[1]!.decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}',
+                                              '${Fmt.priceFloorBigIntFormatter(canPayback, balancePair[1].decimals!)} ${PluginFmt.tokenView(karura_stable_coin)}',
                                               labelStyle: itemStype,
                                               contentStyle: itemStype)
                                         ],
@@ -470,9 +470,9 @@ class _LoanPageState extends State<LoanPage> {
                                                         fontSize: 10))),
                                         onTap: () => _closeVault(
                                             loan,
-                                            balancePair[0]!.decimals,
+                                            balancePair[0].decimals,
                                             Fmt.bigIntToDouble(loan.debits,
-                                                balancePair[1]!.decimals!)),
+                                                balancePair[1].decimals!)),
                                       ),
                                     ),
                                   ],
@@ -496,7 +496,7 @@ class _LoanPageState extends State<LoanPage> {
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         widget.plugin, [loan.token!.tokenNameId, karura_stable_coin]);
     final availableView =
-        "${Fmt.priceFloorBigIntFormatter(loan.debits, balancePair[1]!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}";
+        "${Fmt.priceFloorBigIntFormatter(loan.debits, balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}";
     var availableViewRight = 3 / 347 * headCardWidth +
         85 / 347 * headCardWidth -
         PluginFmt.boundingTextSize(
