@@ -62,7 +62,7 @@ class _LoanPageState extends State<LoanPage> {
         .map((e) => e.token!.symbol)
         .toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
-    await widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
+    await widget.plugin.service!.assets.queryMarketPrices();
 
     await widget.plugin.service!.loan
         .subscribeAccountLoans(widget.keyring.current.address);

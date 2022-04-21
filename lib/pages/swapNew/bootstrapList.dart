@@ -16,12 +16,11 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLinearProgressBar.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
-import 'package:polkawallet_ui/components/v3/plugin/PluginTxButton.dart';
-import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/PluginTxButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLinearProgressBar.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
@@ -67,9 +66,8 @@ class _BootstrapListState extends State<BootstrapList> {
       widget.plugin.service!.earn.getDexPools(),
       widget.plugin.service!.earn.getBootstraps(),
       _queryUserProvisions(),
-      widget.plugin.service!.assets
-          .queryMarketPrices([relay_chain_token_symbol]),
     ]);
+    widget.plugin.service!.assets.queryMarketPrices();
 
     if (_userProvisions.keys.length > 0) {
       await widget.plugin.service!.earn.queryIncentives();

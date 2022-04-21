@@ -63,8 +63,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
     final List res = await Future.wait([
       widget.plugin.sdk.webView!.evalJavascript(
           'api.query.dex.provisioningPool(${jsonEncode(args.tokens)}, "${widget.keyring.current.address}")'),
-      widget.plugin.service!.assets
-          .queryMarketPrices([relay_chain_token_symbol]),
+      widget.plugin.service!.assets.queryMarketPrices(),
     ]);
 
     if (mounted) {

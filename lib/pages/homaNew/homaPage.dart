@@ -39,7 +39,7 @@ class _HomaPageState extends State<HomaPage> {
   String? _unlockingKsm;
 
   Future<void> _refreshData() async {
-    widget.plugin.service!.assets.queryMarketPrices([relay_chain_token_symbol]);
+    widget.plugin.service!.assets.queryMarketPrices();
     widget.plugin.service!.gov.updateBestNumber();
 
     await widget.plugin.service!.homa.queryHomaEnv();

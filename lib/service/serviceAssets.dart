@@ -8,6 +8,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/walletApi.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -22,19 +23,24 @@ class ServiceAssets {
   final AcalaApi? api;
   final PluginStore? store;
 
-  Future<void> queryMarketPrices(List<String?> tokens) async {
-    final all = tokens.toList();
+  Future<void> queryMarketPrices() async {
+    if (store!.earn.dexPools.length == 0) {
+      await plugin.service?.earn.getDexPools();
+    }
+    final all =
+        PluginFmt.getAllDexTokens(plugin).map((e) => e!.symbol).toList();
     all.removeWhere((e) =>
-        e == karura_stable_coin ||
-        e == 'L$relay_chain_token_symbol' ||
-        e == 'USDT');
+        e!.contains('USD') ||
+        e.toLowerCase().contains('tai') ||
+        (e != relay_chain_token_symbol &&
+            e.contains(relay_chain_token_symbol)));
     if (all.length == 0) return;
 
-    final Map? res = await WalletApi.getTokenPrice();
+    final Map? res = await WalletApi.getTokenPrice(all);
     final Map<String, double> prices = {
       karura_stable_coin: 1.0,
       'USDT': 1.0,
-      ...((res?['prices'] as Map?) ?? {})
+      ...(res ?? {})
     };
 
     try {
@@ -82,7 +88,7 @@ class ServiceAssets {
   }
 
   Future<void> queryAggregatedAssets() async {
-    queryMarketPrices([plugin.networkState.tokenSymbol![0]]);
+    queryMarketPrices();
     final data = await plugin.api!.assets
         .queryAggregatedAssets(keyring.current.address!);
     store!.assets.setAggregatedAssets(data, keyring.current.pubKey);

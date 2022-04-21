@@ -41,7 +41,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
         .map((e) => e.token!.symbol)
         .toList();
     priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
-    widget.plugin.service!.assets.queryMarketPrices(priceQueryTokens);
+    widget.plugin.service!.assets.queryMarketPrices();
 
     if (mounted) {
       setState(() {
@@ -212,7 +212,7 @@ class CollateralIncentiveList extends StatelessWidget {
         call: 'claimRewards',
         txTitle: dic['earn.claim'],
         txDisplay: {
-          dic['loan.amount']: '≈ $rewardView $incentiveTokenSymbol',
+          dic['loan.amount']: '≈ $rewardView',
           dic['earn.stake.pool']: token.symbol,
         },
         params: [pool],

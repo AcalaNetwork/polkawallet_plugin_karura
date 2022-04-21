@@ -201,7 +201,7 @@ class _SwapFormState extends State<SwapForm>
   Future<void> _calcSwapAmount(String? supply, String? target) async {
     if (_swapPair.length < 2) return;
 
-    widget.plugin.service!.assets.queryMarketPrices(_swapPair);
+    widget.plugin.service!.assets.queryMarketPrices();
 
     try {
       if (supply == null) {

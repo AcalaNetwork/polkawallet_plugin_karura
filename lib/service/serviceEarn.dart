@@ -4,7 +4,6 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
-import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -43,9 +42,12 @@ class ServiceEarn {
                   (prices[balancePair[1].symbol] ?? 0));
 
       v.forEach((e) {
+        final rewardToken =
+            AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId);
+
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
         final rate =
-            e.amount! * (prices[e.tokenNameId] ?? 0) / stakingPoolValue;
+            e.amount! * (prices[rewardToken.symbol] ?? 0) / stakingPoolValue;
         e.apr = rate > 0 ? rate : 0;
       });
     });
@@ -94,11 +96,8 @@ class ServiceEarn {
       await getDexPools();
     }
 
-    await Future.wait([
-      queryDexPoolInfo(),
-      plugin.service!.assets.queryMarketPrices(
-          PluginFmt.getAllDexTokens(plugin).map((e) => e!.symbol).toList())
-    ]);
+    await Future.wait(
+        [queryDexPoolInfo(), plugin.service!.assets.queryMarketPrices()]);
 
     queryIncentives();
   }
