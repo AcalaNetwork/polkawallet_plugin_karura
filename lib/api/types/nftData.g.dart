@@ -14,7 +14,7 @@ NFTData _$NFTDataFromJson(Map<String, dynamic> json) {
     ..dwebMetadata = json['dwebMetadata'] as String?
     ..metadataIpfsUrl = json['metadataIpfsUrl'] as String?
     ..properties =
-        (json['properties'] as List<dynamic>).map((e) => e as String).toList()
+        (json['properties'] as List<dynamic>?)?.map((e) => e as String).toList()
     ..tokenId = json['tokenId'] as String?
     ..deposit = json['deposit'] as String?;
 }

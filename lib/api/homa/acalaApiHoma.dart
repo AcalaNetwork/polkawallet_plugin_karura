@@ -23,6 +23,6 @@ class AcalaApiHoma {
 
   Future<HomaPendingRedeemData> queryHomaPendingRedeem(String? address) async {
     final res = await service.queryHomaPendingRedeem(address);
-    return HomaPendingRedeemData.fromJson(res!);
+    return HomaPendingRedeemData.fromJson(Map<String, dynamic>.from(res!));
   }
 }

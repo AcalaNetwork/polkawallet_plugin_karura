@@ -16,7 +16,7 @@ class HomaPendingRedeemData {
       this.redeemRequest,
       this.currentRelayEra});
 
-  factory HomaPendingRedeemData.fromJson(Map json) =>
+  factory HomaPendingRedeemData.fromJson(Map<String, dynamic> json) =>
       _$HomaPendingRedeemDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$HomaPendingRedeemDataToJson(this);

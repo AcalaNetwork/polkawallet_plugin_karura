@@ -54,6 +54,21 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
+  final _$dexPoolInfoMapAtom = Atom(name: '_EarnStore.dexPoolInfoMap');
+
+  @override
+  ObservableMap<String?, DexPoolInfoData> get dexPoolInfoMap {
+    _$dexPoolInfoMapAtom.reportRead();
+    return super.dexPoolInfoMap;
+  }
+
+  @override
+  set dexPoolInfoMap(ObservableMap<String?, DexPoolInfoData> value) {
+    _$dexPoolInfoMapAtom.reportWrite(value, super.dexPoolInfoMap, () {
+      super.dexPoolInfoMap = value;
+    });
+  }
+
   final _$dexIncentiveLoyaltyEndBlockAtom =
       Atom(name: '_EarnStore.dexIncentiveLoyaltyEndBlock');
 
@@ -71,22 +86,18 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
-  final _$dexPoolInfoMapV2Atom = Atom(name: '_EarnStore.dexPoolInfoMapV2');
-
-  @override
-  ObservableMap<String?, DexPoolInfoData> get dexPoolInfoMap {
-    _$dexPoolInfoMapV2Atom.reportRead();
-    return super.dexPoolInfoMap;
-  }
-
-  @override
-  set dexPoolInfoMap(ObservableMap<String?, DexPoolInfoData> value) {
-    _$dexPoolInfoMapV2Atom.reportWrite(value, super.dexPoolInfoMap, () {
-      super.dexPoolInfoMap = value;
-    });
-  }
-
   final _$_EarnStoreActionController = ActionController(name: '_EarnStore');
+
+  @override
+  void setDexIncentiveLoyaltyEndBlock(List<dynamic>? list) {
+    final _$actionInfo = _$_EarnStoreActionController.startAction(
+        name: '_EarnStore.setDexIncentiveLoyaltyEndBlock');
+    try {
+      return super.setDexIncentiveLoyaltyEndBlock(list);
+    } finally {
+      _$_EarnStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setDexPools(List<DexPoolData> list) {
@@ -111,20 +122,10 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
-  void setDexIncentiveLoyaltyEndBlock(List<dynamic>? list) {
+  void setDexPoolInfo(Map<String?, DexPoolInfoData> data,
+      {bool reset = false}) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
-        name: '_EarnStore.setDexIncentiveLoyaltyEndBlock');
-    try {
-      return super.setDexIncentiveLoyaltyEndBlock(list);
-    } finally {
-      _$_EarnStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setDexPoolInfo(Map<String?, DexPoolInfoData> data, {bool reset = false}) {
-    final _$actionInfo = _$_EarnStoreActionController.startAction(
-        name: '_EarnStore.setDexPoolInfoV2');
+        name: '_EarnStore.setDexPoolInfo');
     try {
       return super.setDexPoolInfo(data, reset: reset);
     } finally {
@@ -149,7 +150,8 @@ mixin _$EarnStore on _EarnStore, Store {
 incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},
-dexPoolInfoMap: ${dexPoolInfoMap}
+dexPoolInfoMap: ${dexPoolInfoMap},
+dexIncentiveLoyaltyEndBlock: ${dexIncentiveLoyaltyEndBlock}
     ''';
   }
 }

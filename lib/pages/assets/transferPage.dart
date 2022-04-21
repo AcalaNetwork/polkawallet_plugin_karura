@@ -139,6 +139,18 @@ class _TransferPageState extends State<TransferPage> {
     print(_accountTo!.address);
   }
 
+  Future<String?> _updateAddressIcon(String address) async {
+    final res = await widget.plugin.sdk.api.account.getAddressIcons([address]);
+    if (res != null && res.length > 0) {
+      final acc = KeyPairData()
+        ..address = _accountTo?.address
+        ..icon = res[0][1];
+      setState(() {
+        _accountTo = acc;
+      });
+    }
+  }
+
   void _onSwitchCheckAlive(bool res, bool isNoDeath) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
 
@@ -200,6 +212,10 @@ class _TransferPageState extends State<TransferPage> {
     if (_accountToError == null &&
         _formKey.currentState!.validate() &&
         !_submitting) {
+      setState(() {
+        _submitting = true;
+      });
+
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
       final tokenView = PluginFmt.tokenView(_token!.symbol);
 
@@ -261,7 +277,13 @@ class _TransferPageState extends State<TransferPage> {
         _token = AssetsUtils.getBalanceFromTokenNameId(
             widget.plugin, args['tokenNameId']);
         _accountOptions = widget.keyring.allWithContacts.toList();
-        _accountTo = widget.keyring.current;
+
+        if (args['address'] != null) {
+          _accountTo = KeyPairData()..address = args['address'];
+          _updateAddressIcon(args['address']);
+        } else {
+          _accountTo = widget.keyring.current;
+        }
 
         if (args['isXCM'] != null) {
           _tab = args['isXCM'] == "true" ? 1 : 0;
@@ -663,6 +685,9 @@ class _TransferPageState extends State<TransferPage> {
                                         : dic['make'],
                                 getTxParams: _getTxParams,
                                 onFinish: (res) {
+                                  setState(() {
+                                    _submitting = false;
+                                  });
                                   if (res != null) {
                                     Navigator.of(context).pop(res);
                                   }

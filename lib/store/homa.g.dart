@@ -24,6 +24,21 @@ mixin _$HomaStore on _HomaStore, Store {
     });
   }
 
+  final _$userInfoAtom = Atom(name: '_HomaStore.userInfo');
+
+  @override
+  HomaPendingRedeemData? get userInfo {
+    _$userInfoAtom.reportRead();
+    return super.userInfo;
+  }
+
+  @override
+  set userInfo(HomaPendingRedeemData? value) {
+    _$userInfoAtom.reportWrite(value, super.userInfo, () {
+      super.userInfo = value;
+    });
+  }
+
   final _$_HomaStoreActionController = ActionController(name: '_HomaStore');
 
   @override
@@ -38,9 +53,21 @@ mixin _$HomaStore on _HomaStore, Store {
   }
 
   @override
+  void setUserInfo(HomaPendingRedeemData? data) {
+    final _$actionInfo = _$_HomaStoreActionController.startAction(
+        name: '_HomaStore.setUserInfo');
+    try {
+      return super.setUserInfo(data);
+    } finally {
+      _$_HomaStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 env: ${env},
+userInfo: ${userInfo}
     ''';
   }
 }

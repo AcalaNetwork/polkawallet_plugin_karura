@@ -54,6 +54,21 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
+  final _$proposalsAtom = Atom(name: '_GovernanceStore.proposals');
+
+  @override
+  List<ProposalInfoData> get proposals {
+    _$proposalsAtom.reportRead();
+    return super.proposals;
+  }
+
+  @override
+  set proposals(List<ProposalInfoData> value) {
+    _$proposalsAtom.reportWrite(value, super.proposals, () {
+      super.proposals = value;
+    });
+  }
+
   final _$referendumStatusAtom =
       Atom(name: '_GovernanceStore.referendumStatus');
 
@@ -85,23 +100,30 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
-  final _$proposalsAtom = Atom(name: '_GovernanceStore.proposals');
-
-  @override
-  List<ProposalInfoData> get proposals {
-    _$proposalsAtom.reportRead();
-    return super.proposals;
-  }
-
-  @override
-  set proposals(List<ProposalInfoData> value) {
-    _$proposalsAtom.reportWrite(value, super.proposals, () {
-      super.proposals = value;
-    });
-  }
-
   final _$_GovernanceStoreActionController =
       ActionController(name: '_GovernanceStore');
+
+  @override
+  void setExternal(ProposalInfoData? data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setExternal');
+    try {
+      return super.setExternal(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setReferendumStatus(Map<dynamic, dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setReferendumStatus');
+    try {
+      return super.setReferendumStatus(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setBestNumber(BigInt number) {
@@ -153,28 +175,6 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
         name: '_GovernanceStore.clearState');
     try {
       return super.clearState();
-    } finally {
-      _$_GovernanceStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setReferendumStatus(Map<dynamic, dynamic> data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
-        name: '_GovernanceStore.setReferendumStatus');
-    try {
-      return super.setReferendumStatus(data);
-    } finally {
-      _$_GovernanceStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setExternal(ProposalInfoData? data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
-        name: '_GovernanceStore.setExternal');
-    try {
-      return super.setExternal(data);
     } finally {
       _$_GovernanceStoreActionController.endAction(_$actionInfo);
     }

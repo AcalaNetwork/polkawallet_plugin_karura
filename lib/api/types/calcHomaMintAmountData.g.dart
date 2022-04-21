@@ -11,7 +11,7 @@ CalcHomaMintAmountData _$CalcHomaMintAmountDataFromJson(
   return CalcHomaMintAmountData(
     json['fee'] as String?,
     json['received'] as String?,
-    json['suggestRedeemRequests'] as List?,
+    json['suggestRedeemRequests'] as List<dynamic>?,
   );
 }
 

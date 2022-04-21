@@ -347,6 +347,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         _formKey.currentState!.validate() &&
         !_submitting &&
         !_connecting) {
+      setState(() {
+        _submitting = true;
+      });
+
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
       final dicAcala = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
       final tokenView = PluginFmt.tokenView(_token!.symbol);
@@ -942,6 +946,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     if (res != null) {
                       Navigator.of(context).pop(res);
                     }
+
+                    setState(() {
+                      _submitting = false;
+                    });
                   }
                 },
               ),

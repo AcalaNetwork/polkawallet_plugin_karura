@@ -13,15 +13,18 @@ DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
     ..provisioning = json['provisioning'] == null
         ? null
         : ProvisioningData.fromJson(
-            json['provisioning'] as Map<String, dynamic>);
+            json['provisioning'] as Map<String, dynamic>)
+    ..rewards = (json['rewards'] as num?)?.toDouble()
+    ..rewardsLoyalty = (json['rewardsLoyalty'] as num?)?.toDouble();
 }
 
 Map<String, dynamic> _$DexPoolDataToJson(DexPoolData instance) =>
     <String, dynamic>{
       'tokenNameId': instance.tokenNameId,
       'tokens': instance.tokens,
-      'provisioning':
-          instance.provisioning == null ? null : instance.provisioning!.toJson(),
+      'provisioning': instance.provisioning,
+      'rewards': instance.rewards,
+      'rewardsLoyalty': instance.rewardsLoyalty,
     };
 
 ProvisioningData _$ProvisioningDataFromJson(Map<String, dynamic> json) {

@@ -6,21 +6,24 @@ part of 'homaPendingRedeemData.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-HomaPendingRedeemData _$HomaPendingRedeemDataFromJson(Map json) {
-  return HomaPendingRedeemData()
-    ..currentRelayEra = json['currentRelayEra'] as int?
-    ..totalUnbonding = (json['totalUnbonding'] as num? ?? 0).toDouble()
-    ..claimable = (json['claimable'] as num? ?? 0).toDouble()
-    ..redeemRequest = json['redeemRequest'] as Map? ?? {}
-    ..unbondings = List<Map>.from(json['unbondings'] as List? ?? []);
+HomaPendingRedeemData _$HomaPendingRedeemDataFromJson(
+    Map<String, dynamic> json) {
+  return HomaPendingRedeemData(
+    totalUnbonding: json['totalUnbonding'] as num?,
+    claimable: json['claimable'] as num?,
+    redeemRequest: json['redeemRequest'] as Map<String, dynamic>?,
+    currentRelayEra: json['currentRelayEra'] as int?,
+  )..unbondings = (json['unbondings'] as List<dynamic>?)
+      ?.map((e) => e as Map<String, dynamic>)
+      .toList();
 }
 
 Map<String, dynamic> _$HomaPendingRedeemDataToJson(
         HomaPendingRedeemData instance) =>
     <String, dynamic>{
-      'currentRelayEra': instance.currentRelayEra,
       'totalUnbonding': instance.totalUnbonding,
       'claimable': instance.claimable,
-      'redeemRequest': instance.redeemRequest,
       'unbondings': instance.unbondings,
+      'redeemRequest': instance.redeemRequest,
+      'currentRelayEra': instance.currentRelayEra,
     };
