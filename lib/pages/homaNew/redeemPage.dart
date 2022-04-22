@@ -454,6 +454,8 @@ class UnStakeTypeItemWidget extends StatelessWidget {
       {required this.title,
       required this.value,
       required this.describe,
+      this.valueColor,
+      this.subtitle,
       this.isSelect = false,
       this.margin,
       this.ontap,
@@ -462,6 +464,8 @@ class UnStakeTypeItemWidget extends StatelessWidget {
   final String title;
   final String value;
   final String describe;
+  final Color? valueColor;
+  final Widget? subtitle;
   final bool isSelect;
   final EdgeInsetsGeometry? margin;
   final Function()? ontap;
@@ -494,10 +498,12 @@ class UnStakeTypeItemWidget extends StatelessWidget {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.headline4?.copyWith(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                        fontWeight: FontWeight.bold,
+                        color: valueColor ?? Colors.white),
                   )
                 ],
               ),
+              Visibility(child: subtitle ?? Container()),
               Container(
                   padding: EdgeInsets.only(top: 8),
                   margin: EdgeInsets.only(right: 60),

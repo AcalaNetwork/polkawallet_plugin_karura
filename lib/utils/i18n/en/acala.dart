@@ -240,6 +240,16 @@ const Map<String, String> enDex = {
   'v3.homa.unbond': 'Unbond',
   'v3.homa.unbond.describe':
       'Redeem through unbond method will go through 28 eras (6 days approximately).',
+  'v3.homa.stake': 'Stake',
+  'v3.homa.stake.describe':
+      'Stake KSM will mint LKSM and enjoy the protocol APY.',
+  'v3.homa.stake.method': 'Stake Method',
+  'v3.homa.stake.more': 'Stake LKSM for rewards',
+  'v3.homa.stake.more.describe':
+      'By staking LKSM for reward, you can mint aUSD in your vault.',
+  'v3.homa.stake.apy.total': 'Total APY',
+  'v3.homa.stake.apy.protocol': 'Protocol APY',
+  'v3.homa.stake.apy.reward': 'Reward APY',
   'v3.selectRedeemMethod': 'Select redeem method',
   'v3.maxCanMint': 'Max can mint',
   'v3.minimumGenerate': 'Minimum generate',
@@ -288,4 +298,5 @@ const Map<String, String> enDex = {
   'v3.loan.currentCollateral': 'Current Collateral',
   'v3.loan.requiredSafety': 'Required for safety',
   'v3.loan.newLiquidationPrice': 'New Liquidation Price',
+  'event.vault.rewards': '🚀 LKSM staking launched! Max. APY up to'
 };

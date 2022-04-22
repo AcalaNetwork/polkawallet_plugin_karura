@@ -254,13 +254,7 @@ class CollateralIncentiveList extends StatelessWidget {
               incentives![token.tokenNameId] != null) {
             incentives![token.tokenNameId]!.forEach((e) {
               if (e.tokenNameId != 'Any') {
-                final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
-                    plugin, e.tokenNameId);
-                apy += (marketPrices![rewardToken.symbol] ?? 0) *
-                    e.amount! /
-                    Fmt.bigIntToDouble(rewards![token.tokenNameId]?.sharesTotal,
-                        token.decimals ?? 12) /
-                    marketPrices![token.symbol]!;
+                apy += e.apr ?? 0;
               }
             });
           }

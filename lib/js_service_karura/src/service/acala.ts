@@ -748,7 +748,7 @@ async function calcHomaNewMintAmount(api: ApiPromise, amount: number) {
 
   return {
     pay: result.pay.toNumber(),
-    receive: result.receive.toNumber(),
+    receive: result.receive.toChainData().toString(),
     env: _formatHomaEnv(result.env),
   };
 }

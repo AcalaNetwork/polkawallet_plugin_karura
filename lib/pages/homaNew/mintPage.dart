@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polkawallet_plugin_karura/api/types/calcHomaMintAmountData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -11,11 +11,12 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 
 class MintPage extends StatefulWidget {
   MintPage(this.plugin, this.keyring);
@@ -34,8 +35,8 @@ class _MintPageState extends State<MintPage> {
   String? _error;
   String _amountReceive = '';
   BigInt? _maxInput;
-  CalcHomaMintAmountData? _data;
   bool isLoading = false;
+  int _selectIndex = 0;
 
   Future<void> _updateReceiveAmount(double input) async {
     if (input == 0) {
@@ -50,7 +51,6 @@ class _MintPageState extends State<MintPage> {
       setState(() {
         isLoading = false;
         _amountReceive = "${data!['receive']}";
-        _data = CalcHomaMintAmountData("", "", null);
       });
     }
   }
@@ -128,24 +128,55 @@ class _MintPageState extends State<MintPage> {
 
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-    final call = _data?.suggestRedeemRequests != null &&
-            _data!.suggestRedeemRequests!.length > 0
-        ? 'mintForRequests'
-        : 'mint';
+    final amount = _maxInput != null
+        ? _maxInput.toString()
+        : Fmt.tokenInt(pay, stakeDecimal).toString();
 
-    final List params = [
-      _maxInput != null
-          ? _maxInput.toString()
-          : Fmt.tokenInt(pay, stakeDecimal).toString()
-    ];
-    if (_data?.suggestRedeemRequests != null &&
-        _data!.suggestRedeemRequests!.length > 0) {
-      params.add(_data!.suggestRedeemRequests);
+    if (_selectIndex == 0) {
+      final receive = Fmt.balanceInt(_amountReceive).toString();
+      final batchTxs = [
+        'api.tx.homa.mint("$amount")',
+        'api.tx.honzon.adjustLoan({Token: "L$relay_chain_token_symbol"}, "$receive", 0)',
+      ];
+
+      final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
+          arguments: TxConfirmParams(
+            module: 'utility',
+            call: 'batch',
+            txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
+            txDisplay: {'': dic['v3.homa.stake.more']},
+            txDisplayBold: {
+              dic['dex.pay']!: Text(
+                '$pay $relay_chain_token_symbol',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
+              ),
+              dic['dex.receive']!: Text(
+                '≈ ${Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12, lengthMax: 4)} L$relay_chain_token_symbol',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1
+                    ?.copyWith(color: Colors.white),
+              ),
+            },
+            params: [],
+            rawParams: '[[${batchTxs.join(',')}]]',
+            isPlugin: true,
+          ))) as Map?;
+
+      if (res != null) {
+        Navigator.of(context).pop('1');
+      }
+      return;
     }
+
+    /// else only send mint call
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'homa',
-          call: call,
+          call: 'mint',
           txTitle: '${dic['homa.mint']} L$relay_chain_token_symbol',
           txDisplay: {},
           txDisplayBold: {
@@ -157,14 +188,14 @@ class _MintPageState extends State<MintPage> {
                   ?.copyWith(color: Colors.white),
             ),
             dic['dex.receive']!: Text(
-              '≈ ${Fmt.priceFloor(double.tryParse(_amountReceive), lengthMax: 4)} L$relay_chain_token_symbol',
+              '≈ ${Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12, lengthMax: 4)} L$relay_chain_token_symbol',
               style: Theme.of(context)
                   .textTheme
                   .headline1
                   ?.copyWith(color: Colors.white),
             ),
           },
-          params: params,
+          params: [amount],
           isPlugin: true,
         ))) as Map?;
 
@@ -202,6 +233,19 @@ class _MintPageState extends State<MintPage> {
         final isDataLoading = widget.plugin.store!.homa.env == null;
 
         final minStake = widget.plugin.store!.homa.env?.mintThreshold;
+
+        bool isRewardsOpen = false;
+        double rewardApr = 0;
+        final rewards =
+            widget.plugin.store!.earn.incentives.loans?['L$stakeToken'];
+        if ((rewards ?? []).length > 0) {
+          rewards?.forEach((e) {
+            if (e.tokenNameId == karura_stable_coin && (e.amount ?? 0) > 0) {
+              isRewardsOpen = true;
+              rewardApr = e.apr ?? 0;
+            }
+          });
+        }
 
         return PluginScaffold(
           appBar: PluginAppBar(
@@ -254,7 +298,9 @@ class _MintPageState extends State<MintPage> {
                                 return PluginFmt.tokenView(value);
                               },
                               enabled: false,
-                              text: _amountReceive,
+                              text: Fmt.priceFloorBigInt(
+                                  Fmt.balanceInt(_amountReceive), 12,
+                                  lengthMax: 4),
                               margin: EdgeInsets.only(bottom: 2),
                               titleTag: dic['homa.mint'],
                               balance: widget.plugin.store!.assets
@@ -262,7 +308,7 @@ class _MintPageState extends State<MintPage> {
                               tokenIconsMap: widget.plugin.tokenIcons,
                             )),
                         Container(
-                          margin: EdgeInsets.only(top: 24),
+                          margin: EdgeInsets.only(top: 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -273,6 +319,7 @@ class _MintPageState extends State<MintPage> {
                                     .headline4
                                     ?.copyWith(
                                         color: Colors.white,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -282,13 +329,94 @@ class _MintPageState extends State<MintPage> {
                                     .headline4
                                     ?.copyWith(
                                         color: Colors.white,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w600),
                               )
                             ],
                           ),
                         ),
+                        Visibility(
+                          visible: isRewardsOpen,
+                          child: Padding(
+                              padding: EdgeInsets.only(top: 10),
+                              child: Column(
+                                children: [
+                                  PluginTextTag(
+                                    title: dic['v3.homa.stake.method']!,
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 11, vertical: 14),
+                                    margin: EdgeInsets.only(bottom: 20),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Color(0xCCFFFFFF), width: 1),
+                                        borderRadius: const BorderRadius.only(
+                                            bottomLeft: Radius.circular(17),
+                                            topRight: Radius.circular(17),
+                                            bottomRight: Radius.circular(17))),
+                                    child: Column(
+                                      children: [
+                                        UnStakeTypeItemWidget(
+                                          title: dic['v3.homa.stake.more']!,
+                                          value:
+                                              "${dic['v3.homa.stake.apy.total']!} ${(19.92 + rewardApr * 100).toStringAsFixed(2)}%",
+                                          subtitle: Container(
+                                            margin: EdgeInsets.only(top: 8),
+                                            child: Text(
+                                              '(${dic['v3.homa.stake.apy.protocol']} 19.92% + ${dic['v3.homa.stake.apy.reward']} ${(rewardApr * 100).toStringAsFixed(2)}%)',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline6
+                                                  ?.copyWith(
+                                                      color: Color(0xFFFC8156)),
+                                            ),
+                                          ),
+                                          describe: dic[
+                                              'v3.homa.stake.more.describe']!,
+                                          margin: EdgeInsets.only(bottom: 12),
+                                          valueColor: Color(0xFFFC8156),
+                                          isSelect: _selectIndex == 0,
+                                          ontap: () {
+                                            setState(() {
+                                              _selectIndex = 0;
+                                            });
+                                          },
+                                        ),
+                                        UnStakeTypeItemWidget(
+                                          title: dic['v3.homa.stake']!,
+                                          value:
+                                              "${dic['v3.homa.stake.apy.total']!} 19.92%",
+                                          subtitle: Container(
+                                            margin: EdgeInsets.only(top: 8),
+                                            child: Text(
+                                              '(${dic['v3.homa.stake.apy.protocol']} 19.92%)',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline6
+                                                  ?.copyWith(
+                                                      color: Color(0xFFFC8156)),
+                                            ),
+                                          ),
+                                          describe: dic[
+                                              'v3.homa.stake.more.describe']!,
+                                          valueColor: Color(0xFFFC8156),
+                                          isSelect: _selectIndex == 1,
+                                          ontap: () {
+                                            setState(() {
+                                              _selectIndex = 1;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )),
+                        ),
                         Padding(
-                            padding: EdgeInsets.only(top: 300, bottom: 38),
+                            padding: EdgeInsets.only(top: 8, bottom: 32),
                             child: PluginButton(
                               title: dic['v3.loan.submit']!,
                               onPressed: () => _onSubmit(stakeDecimal),

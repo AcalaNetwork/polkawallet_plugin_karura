@@ -97,7 +97,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                     child: Column(
                       children: [
                         Container(
-                          margin: EdgeInsets.fromLTRB(16, 16, 0, 16),
+                          margin: EdgeInsets.only(bottom: 8),
                           child: PluginPageTitleTaps(
                             names: _tabTitle,
                             activeTab: _tab,

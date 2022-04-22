@@ -200,6 +200,18 @@ class _HomaPageState extends State<HomaPage> {
       final aprValue = '19.92%';
       // final aprValue =
       //     "${Fmt.priceFloor((env?.apy ?? 0) * 100, lengthFixed: 0)}%";
+      bool isRewardsOpen = false;
+      double rewardApr = 0;
+      final rewards =
+          widget.plugin.store!.earn.incentives.loans?['L$stakeSymbol'];
+      if ((rewards ?? []).length > 0) {
+        rewards?.forEach((e) {
+          if (e.tokenNameId == karura_stable_coin && (e.amount ?? 0) > 0) {
+            isRewardsOpen = true;
+            rewardApr = e.apr ?? 0;
+          }
+        });
+      }
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -647,7 +659,34 @@ class _HomaPageState extends State<HomaPage> {
                                                   fontWeight: FontWeight.w400),
                                         )
                                       ],
-                                    )))
+                                    ))),
+                            Visibility(
+                                visible: isRewardsOpen,
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 16),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        dic['event.vault.rewards']!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline4
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w400),
+                                      ),
+                                      Text(
+                                        " ${(19.92 + rewardApr * 100).toStringAsFixed(2)}%!",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline4
+                                            ?.copyWith(
+                                                color: Color(0xFFFC8156),
+                                                fontWeight: FontWeight.w400),
+                                      )
+                                    ],
+                                  ),
+                                )),
                           ],
                         ),
                       ),

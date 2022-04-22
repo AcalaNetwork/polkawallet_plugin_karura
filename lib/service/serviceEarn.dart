@@ -19,6 +19,7 @@ class ServiceEarn {
 
   IncentivesData _calcIncentivesAPR(IncentivesData data) {
     final pools = plugin.store!.earn.dexPools.toList();
+    final prices = store!.assets.marketPrices;
     data.dex!.forEach((k, v) {
       final poolIndex = pools.indexWhere((e) => e.tokenNameId == k);
       if (poolIndex < 0) {
@@ -30,7 +31,6 @@ class ServiceEarn {
           .toList();
 
       final poolInfo = store!.earn.dexPoolInfoMap[k];
-      final prices = store!.assets.marketPrices;
 
       /// poolValue = LPAmountOfPool / LPIssuance * token0Issuance * token0Price * 2;
       final stakingPoolValue = (poolInfo?.sharesTotal ?? BigInt.zero) /
@@ -61,6 +61,22 @@ class ServiceEarn {
       });
     });
 
+    final rewards = plugin.store!.loan.collateralRewards;
+    data.loans!.forEach((k, v) {
+      v.forEach((e) {
+        if (e.tokenNameId != 'Any') {
+          final poolToken = AssetsUtils.getBalanceFromTokenNameId(plugin, k);
+          final rewardToken =
+              AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId);
+          e.apr = (prices[rewardToken.symbol] ?? 0) *
+              e.amount! /
+              Fmt.bigIntToDouble(
+                  rewards[k]?.sharesTotal, poolToken.decimals ?? 12) /
+              prices[poolToken.symbol]!;
+        }
+      });
+    });
+
     return data;
   }
 
@@ -77,8 +93,13 @@ class ServiceEarn {
   }
 
   Future<void> queryIncentives() async {
-    final res = await api!.earn.queryIncentives();
-    store!.earn.setIncentives(_calcIncentivesAPR(res));
+    final res = await Future.wait([
+      api!.earn.queryIncentives(),
+      // we need collateral rewards data to calc incentive apy.
+      plugin.service!.loan.queryCollateralRewards(keyring.current.address!),
+    ]);
+
+    store!.earn.setIncentives(_calcIncentivesAPR((res[0] as IncentivesData)));
   }
 
   Future<void> queryDexPoolInfo() async {

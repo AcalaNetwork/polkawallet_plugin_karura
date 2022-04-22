@@ -225,6 +225,14 @@ const Map<String, String> zhDex = {
   'dex.swap.describe': '通过【兑换】进行提取将收取交易费',
   'v3.homa.unbond': '解绑',
   'v3.homa.unbond.describe': '通过【解绑】进行提取将经历28个era（大概6天）',
+  'v3.homa.stake': '质押',
+  'v3.homa.stake.describe': '质押 KSM 可以获得 LKSM 并享有协议 APY.',
+  'v3.homa.stake.method': '质押方式',
+  'v3.homa.stake.more': '质押 LKSM 已获取奖励',
+  'v3.homa.stake.more.describe': '通过质押 LKSM 获取奖励, 你还可以在债仓中 mint aUSD.',
+  'v3.homa.stake.apy.total': '总 APY',
+  'v3.homa.stake.apy.protocol': '协议 APY',
+  'v3.homa.stake.apy.reward': '奖励 APY',
   'v3.selectRedeemMethod': '选择提取方式',
   'v3.maxCanMint': '最大可生成',
   'v3.minimumGenerate': '最少生成',
@@ -271,4 +279,5 @@ const Map<String, String> zhDex = {
   'v3.loan.currentCollateral': '当前质押',
   'v3.loan.requiredSafety': '安全需求',
   'v3.loan.newLiquidationPrice': '新清算价格',
+  'event.vault.rewards': '🚀 LKSM 质押挖矿已开启! APY 最高可达'
 };
