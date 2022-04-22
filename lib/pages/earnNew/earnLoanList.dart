@@ -133,7 +133,7 @@ class CollateralIncentiveList extends StatelessWidget {
       loyaltyBonus = incentives![token.tokenNameId]![0].deduction;
     }
 
-    final bestNumber = plugin!.store!.gov.bestNumber;
+    final bestNumber = plugin.store!.gov.bestNumber;
     var blockNumber;
     dexIncentiveLoyaltyEndBlock!.forEach((e) {
       if (token.tokenNameId == PluginFmt.getPool(plugin, e['pool'])) {
@@ -241,7 +241,7 @@ class CollateralIncentiveList extends StatelessWidget {
       );
     }
     final tokens = tokenIds
-        .map((e) => AssetsUtils.getBalanceFromTokenNameId(plugin!, e))
+        .map((e) => AssetsUtils.getBalanceFromTokenNameId(plugin, e))
         .toList();
 
     return ListView.builder(
@@ -255,7 +255,7 @@ class CollateralIncentiveList extends StatelessWidget {
             incentives![token.tokenNameId]!.forEach((e) {
               if (e.tokenNameId != 'Any') {
                 final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
-                    plugin!, e.tokenNameId);
+                    plugin, e.tokenNameId);
                 apy += (marketPrices![rewardToken.symbol] ?? 0) *
                     e.amount! /
                     Fmt.bigIntToDouble(rewards![token.tokenNameId]?.sharesTotal,

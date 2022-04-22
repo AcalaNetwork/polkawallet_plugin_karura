@@ -86,15 +86,10 @@ class EarnDetailPage extends StatelessWidget {
             leftPrice = Fmt.bigIntToDouble(
                     poolInfo.amountLeft, balancePair[0].decimals!) *
                 (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0);
-            print(
-                "leftPrice====$leftPrice======shareTotal===${Fmt.bigIntToDouble(shareTotal, balancePair[0].decimals!)}");
 
             rightPrice = Fmt.bigIntToDouble(
                     poolInfo.amountRight, balancePair[1].decimals!) *
                 (plugin.store!.assets.marketPrices[balancePair[1].symbol] ?? 0);
-            print("rightPrice======$rightPrice");
-            print(
-                "all====${(leftPrice + rightPrice) * (shareTotal / issuance)}");
 
             lpAmountString =
                 '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0].symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1].symbol)}';
@@ -203,7 +198,7 @@ class EarnDetailPage extends StatelessWidget {
                                     padding:
                                         EdgeInsets.only(left: 16, bottom: 10),
                                     child: Text(
-                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0].decimals!) * (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0))}",
+                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5
@@ -544,7 +539,7 @@ class _UserCard extends StatelessWidget {
     }
 
     final savingRewardTokenMin = Fmt.balanceDouble(
-        plugin!.store!.assets.tokenBalanceMap[stableCoinSymbol]!.minBalance!,
+        plugin.store!.assets.tokenBalanceMap[stableCoinSymbol]!.minBalance!,
         stableCoinDecimal!);
     canClaim = rewardSaving > savingRewardTokenMin;
     var rewardPrice = 0.0;
@@ -557,7 +552,7 @@ class _UserCard extends StatelessWidget {
         canClaim = true;
       }
       rewardPrice +=
-          (plugin!.store!.assets.marketPrices[e['tokenNameId']] ?? 0) * amount;
+          (plugin.store!.assets.marketPrices[e['tokenNameId']] ?? 0) * amount;
       final rewardToken =
           AssetsUtils.getBalanceFromTokenNameId(plugin, e['tokenNameId']);
       return Fmt.priceFloor(amount, lengthMax: 4) +
