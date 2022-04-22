@@ -180,6 +180,33 @@ class _EarnDexListState extends State<EarnDexList> {
                   unstaked = true;
                 }
 
+                final balancePair = dexPools[i]
+                    .tokens!
+                    .map((e) =>
+                        AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+                    .toList();
+
+                BigInt? issuance = BigInt.zero;
+                BigInt? shareTotal = BigInt.zero;
+                double leftPrice = 0, rightPrice = 0;
+
+                if (poolInfo != null) {
+                  issuance = poolInfo.issuance;
+                  shareTotal = poolInfo.sharesTotal;
+
+                  leftPrice = Fmt.bigIntToDouble(
+                          poolInfo.amountLeft, balancePair[0].decimals!) *
+                      (widget.plugin.store!.assets
+                              .marketPrices[balancePair[0].symbol] ??
+                          0);
+
+                  rightPrice = Fmt.bigIntToDouble(
+                          poolInfo.amountRight, balancePair[1].decimals!) *
+                      (widget.plugin.store!.assets
+                              .marketPrices[balancePair[1].symbol] ??
+                          0);
+                }
+
                 return GestureDetector(
                   child: RoundedPluginCard(
                       borderRadius:
@@ -287,7 +314,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                           fontSize: 24),
                                 ),
                                 Text(
-                                  '${dic['earn.staked']} \$${Fmt.priceCeil(Fmt.bigIntToDouble(poolInfo!.sharesTotal, tokenPair[0].decimals ?? 12) * (widget.plugin.store!.assets.marketPrices[tokenPair[0].symbol] ?? 0))}',
+                                  '${dic['earn.staked']} \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline5

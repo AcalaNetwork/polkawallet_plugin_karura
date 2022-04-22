@@ -86,10 +86,15 @@ class EarnDetailPage extends StatelessWidget {
             leftPrice = Fmt.bigIntToDouble(
                     poolInfo.amountLeft, balancePair[0].decimals!) *
                 (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0);
+            print(
+                "leftPrice====$leftPrice======shareTotal===${Fmt.bigIntToDouble(shareTotal, balancePair[0].decimals!)}");
 
             rightPrice = Fmt.bigIntToDouble(
                     poolInfo.amountRight, balancePair[1].decimals!) *
                 (plugin.store!.assets.marketPrices[balancePair[1].symbol] ?? 0);
+            print("rightPrice======$rightPrice");
+            print(
+                "all====${(leftPrice + rightPrice) * (shareTotal / issuance)}");
 
             lpAmountString =
                 '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0].symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1].symbol)}';
@@ -170,7 +175,7 @@ class EarnDetailPage extends StatelessWidget {
                                         Padding(
                                           padding: EdgeInsets.only(left: 50),
                                           child: Text(
-                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil(Fmt.bigIntToDouble(shareTotal, balancePair[0].decimals!) * (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0))}",
+                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
