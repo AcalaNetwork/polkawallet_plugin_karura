@@ -96,7 +96,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
                 tokenIcons: widget.plugin.tokenIcons,
                 incentives: widget.plugin.store!.earn.incentives.loans,
                 rewards: widget.plugin.store!.loan.collateralRewards,
-                marketPrices: widget.plugin.store!.assets.marketPrices,
                 incentiveTokenSymbol: incentiveTokenSymbol,
                 dexIncentiveLoyaltyEndBlock:
                     widget.plugin.store!.earn.dexIncentiveLoyaltyEndBlock,
@@ -112,7 +111,6 @@ class CollateralIncentiveList extends StatelessWidget {
     this.incentives,
     this.rewards,
     this.tokenIcons,
-    this.marketPrices,
     this.incentiveTokenSymbol,
     this.dexIncentiveLoyaltyEndBlock,
   });
@@ -121,7 +119,6 @@ class CollateralIncentiveList extends StatelessWidget {
   final Map<String?, List<IncentiveItemData>>? incentives;
   final Map<String?, CollateralRewardData>? rewards;
   final Map<String, Widget>? tokenIcons;
-  final Map<String?, double>? marketPrices;
   final String? incentiveTokenSymbol;
   final List<dynamic>? dexIncentiveLoyaltyEndBlock;
 
@@ -250,8 +247,7 @@ class CollateralIncentiveList extends StatelessWidget {
         itemBuilder: (_, i) {
           final token = tokens[i];
           double apy = 0;
-          if (marketPrices![token.symbol] != null &&
-              incentives![token.tokenNameId] != null) {
+          if (incentives![token.tokenNameId] != null) {
             incentives![token.tokenNameId]!.forEach((e) {
               if (e.tokenNameId != 'Any') {
                 apy += e.apr ?? 0;

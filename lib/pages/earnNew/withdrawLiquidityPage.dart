@@ -372,7 +372,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                     ),
                   )),
               PluginTagCard(
-                titleTag: dic['v3.earn.amout'],
+                titleTag: dic['v3.earn.amount'],
                 padding:
                     EdgeInsets.only(top: 14, bottom: 16, right: 14, left: 23),
                 margin: EdgeInsets.only(top: 16),

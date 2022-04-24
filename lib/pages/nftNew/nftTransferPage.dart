@@ -133,7 +133,7 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                           key: _formKey,
                           child: PluginTagCard(
                             margin: EdgeInsets.only(top: 16),
-                            titleTag: dic['v3.earn.amout'],
+                            titleTag: dic['v3.earn.amount'],
                             padding: EdgeInsets.only(
                                 left: 16, right: 16, bottom: 27, top: 12),
                             child: TextFormField(

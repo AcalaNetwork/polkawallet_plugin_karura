@@ -19,7 +19,6 @@ class ServiceEarn {
 
   IncentivesData _calcIncentivesAPR(IncentivesData data) {
     final pools = plugin.store!.earn.dexPools.toList();
-    final prices = store!.assets.marketPrices;
     data.dex!.forEach((k, v) {
       final poolIndex = pools.indexWhere((e) => e.tokenNameId == k);
       if (poolIndex < 0) {
@@ -36,18 +35,21 @@ class ServiceEarn {
       final stakingPoolValue = (poolInfo?.sharesTotal ?? BigInt.zero) /
           (poolInfo?.issuance ?? BigInt.zero) *
           (Fmt.bigIntToDouble(poolInfo?.amountLeft, balancePair[0].decimals!) *
-                  (prices[balancePair[0].symbol] ?? 0) +
+                  AssetsUtils.getMarketPrice(
+                      plugin, balancePair[0].symbol ?? '') +
               Fmt.bigIntToDouble(
                       poolInfo?.amountRight, balancePair[1].decimals!) *
-                  (prices[balancePair[1].symbol] ?? 0));
+                  AssetsUtils.getMarketPrice(
+                      plugin, balancePair[1].symbol ?? ''));
 
       v.forEach((e) {
         final rewardToken =
             AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId);
 
         /// rewardsRate = rewardsAmount * rewardsTokenPrice / poolValue;
-        final rate =
-            e.amount! * (prices[rewardToken.symbol] ?? 0) / stakingPoolValue;
+        final rate = e.amount! *
+            AssetsUtils.getMarketPrice(plugin, rewardToken.symbol ?? '') /
+            stakingPoolValue;
         e.apr = rate > 0 ? rate : 0;
       });
     });
@@ -68,11 +70,11 @@ class ServiceEarn {
           final poolToken = AssetsUtils.getBalanceFromTokenNameId(plugin, k);
           final rewardToken =
               AssetsUtils.getBalanceFromTokenNameId(plugin, e.tokenNameId);
-          e.apr = (prices[rewardToken.symbol] ?? 0) *
+          e.apr = AssetsUtils.getMarketPrice(plugin, rewardToken.symbol ?? '') *
               e.amount! /
               Fmt.bigIntToDouble(
                   rewards[k]?.sharesTotal, poolToken.decimals ?? 12) /
-              prices[poolToken.symbol]!;
+              AssetsUtils.getMarketPrice(plugin, poolToken.symbol ?? '');
         }
       });
     });

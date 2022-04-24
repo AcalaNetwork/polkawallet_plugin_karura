@@ -228,7 +228,7 @@ const Map<String, String> zhDex = {
   'v3.homa.stake': '质押',
   'v3.homa.stake.describe': '质押 KSM 可以获得 LKSM 并享有协议 APY.',
   'v3.homa.stake.method': '质押方式',
-  'v3.homa.stake.more': '质押 LKSM 已获取奖励',
+  'v3.homa.stake.more': '同时质押 LKSM 获取奖励',
   'v3.homa.stake.more.describe': '通过质押 LKSM 获取奖励, 你还可以在债仓中 mint aUSD.',
   'v3.homa.stake.apy.total': '总 APY',
   'v3.homa.stake.apy.protocol': '协议 APY',
@@ -240,7 +240,7 @@ const Map<String, String> zhDex = {
   'v3.loan.paybackMessage':
       '您已经销毁了所有已铸造的 aUSD，但是你仍然有已抵押的 KSM。如果您想关闭债仓，您可以同时提取所有抵押的 KSM。',
   'v3.earn.lpTokenReceived': '收到的LP Token',
-  'v3.earn.amout': '数量',
+  'v3.earn.amount': '数量',
   'v3.earn.tokenReceived': '收到的Token',
   'v3.swap.max': '最大兑换',
   'v3.earn.totalValueLocked': '总质押价值',

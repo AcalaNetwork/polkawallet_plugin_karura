@@ -54,6 +54,21 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  final _$dexPricesAtom = Atom(name: '_AssetsStore.dexPrices');
+
+  @override
+  Map<String, double> get dexPrices {
+    _$dexPricesAtom.reportRead();
+    return super.dexPrices;
+  }
+
+  @override
+  set dexPrices(Map<String, double> value) {
+    _$dexPricesAtom.reportWrite(value, super.dexPrices, () {
+      super.dexPrices = value;
+    });
+  }
+
   final _$nftAtom = Atom(name: '_AssetsStore.nft');
 
   @override
@@ -121,6 +136,17 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
+  void setDexPrices(Map<String, double> data) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.setDexPrices');
+    try {
+      return super.setDexPrices(data);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setNFTs(List<NFTData> list) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.setNFTs');
@@ -159,6 +185,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
 tokenBalanceMap: ${tokenBalanceMap},
 prices: ${prices},
 marketPrices: ${marketPrices},
+dexPrices: ${dexPrices},
 nft: ${nft},
 aggregatedAssets: ${aggregatedAssets}
     ''';

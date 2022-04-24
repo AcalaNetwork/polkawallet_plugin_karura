@@ -27,6 +27,9 @@ class ServiceAssets {
     if (store!.earn.dexPools.length == 0) {
       await plugin.service?.earn.getDexPools();
     }
+
+    queryDexPrices();
+
     final all =
         PluginFmt.getAllDexTokens(plugin).map((e) => e!.symbol).toList();
     all.removeWhere((e) =>
@@ -55,6 +58,29 @@ class ServiceAssets {
     }
 
     store!.assets.setMarketPrices(prices);
+  }
+
+  Future<void> queryDexPrices() async {
+    final tokens = PluginFmt.getAllDexTokens(plugin);
+    tokens.removeWhere((e) =>
+        e?.tokenNameId == karura_stable_coin ||
+        (e?.symbol ?? '').toLowerCase().contains('tai'));
+
+    final output = await plugin.sdk.webView?.evalJavascript(
+        'Promise.all([${tokens.map((e) => 'acala.calcTokenSwapAmount(api, 1, null, ${jsonEncode([
+              e?.tokenNameId,
+              karura_stable_coin
+            ].map((e) {
+              final token = AssetsUtils.getBalanceFromTokenNameId(plugin, e);
+              return {...token.currencyId!, 'decimals': token.decimals};
+            }).toList())}, "0.05")').join(',')}])');
+
+    final Map<String, double> prices = {};
+    output.asMap().forEach((k, v) {
+      prices[tokens[k]!.symbol!] = v?['amount'] ?? 0;
+    });
+
+    store?.assets.setDexPrices(prices);
   }
 
   Future<TokenBalanceData> updateTokenBalances(TokenBalanceData token) async {
@@ -104,9 +130,11 @@ class ServiceAssets {
           .toList();
       prices[tokenPair.map((e) => e.symbol).join('-')] =
           (Fmt.bigIntToDouble(e.amountLeft, tokenPair[0].decimals!) *
-                      (store!.assets.marketPrices[tokenPair[0].symbol] ?? 0) +
+                      AssetsUtils.getMarketPrice(
+                          plugin, tokenPair[0].symbol ?? '') +
                   Fmt.bigIntToDouble(e.amountRight, tokenPair[1].decimals!) *
-                      (store!.assets.marketPrices[tokenPair[1].symbol] ?? 0)) /
+                      AssetsUtils.getMarketPrice(
+                          plugin, tokenPair[1].symbol ?? '')) /
               Fmt.bigIntToDouble(e.issuance, tokenPair[0].decimals!);
     });
     store!.assets.setMarketPrices(prices);

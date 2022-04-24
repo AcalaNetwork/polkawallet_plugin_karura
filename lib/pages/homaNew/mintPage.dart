@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -121,7 +122,7 @@ class _MintPageState extends State<MintPage> {
     }
   }
 
-  Future<void> _onSubmit(int stakeDecimal) async {
+  Future<void> _onSubmit(bool isRewardsOpen, int stakeDecimal) async {
     final pay = _amountPayCtrl.text.trim();
 
     if (_error != null || pay.isEmpty) return;
@@ -132,7 +133,7 @@ class _MintPageState extends State<MintPage> {
         ? _maxInput.toString()
         : Fmt.tokenInt(pay, stakeDecimal).toString();
 
-    if (_selectIndex == 0) {
+    if (isRewardsOpen && _selectIndex == 0) {
       final receive = Fmt.balanceInt(_amountReceive).toString();
       final batchTxs = [
         'api.tx.homa.mint("$amount")',
@@ -167,7 +168,9 @@ class _MintPageState extends State<MintPage> {
           ))) as Map?;
 
       if (res != null) {
-        Navigator.of(context).pop('1');
+        Navigator.popUntil(context, ModalRoute.withName('/'));
+        Navigator.of(context)
+            .pushNamed(EarnPage.route, arguments: {'tab': '1'});
       }
       return;
     }
@@ -399,8 +402,8 @@ class _MintPageState extends State<MintPage> {
                                                       color: Color(0xFFFC8156)),
                                             ),
                                           ),
-                                          describe: dic[
-                                              'v3.homa.stake.more.describe']!,
+                                          describe:
+                                              dic['v3.homa.stake.describe']!,
                                           valueColor: Color(0xFFFC8156),
                                           isSelect: _selectIndex == 1,
                                           ontap: () {
@@ -419,7 +422,8 @@ class _MintPageState extends State<MintPage> {
                             padding: EdgeInsets.only(top: 8, bottom: 32),
                             child: PluginButton(
                               title: dic['v3.loan.submit']!,
-                              onPressed: () => _onSubmit(stakeDecimal),
+                              onPressed: () =>
+                                  _onSubmit(isRewardsOpen, stakeDecimal),
                             ))
                       ],
                     )),

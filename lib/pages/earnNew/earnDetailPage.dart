@@ -85,11 +85,11 @@ class EarnDetailPage extends StatelessWidget {
 
             leftPrice = Fmt.bigIntToDouble(
                     poolInfo.amountLeft, balancePair[0].decimals!) *
-                (plugin.store!.assets.marketPrices[balancePair[0].symbol] ?? 0);
+                AssetsUtils.getMarketPrice(plugin, balancePair[0].symbol ?? '');
 
             rightPrice = Fmt.bigIntToDouble(
                     poolInfo.amountRight, balancePair[1].decimals!) *
-                (plugin.store!.assets.marketPrices[balancePair[1].symbol] ?? 0);
+                AssetsUtils.getMarketPrice(plugin, balancePair[1].symbol ?? '');
 
             lpAmountString =
                 '${Fmt.priceFloor(lpAmount)} ${PluginFmt.tokenView(balancePair[0].symbol)} + ${Fmt.priceFloor(lpAmount2)} ${PluginFmt.tokenView(balancePair[1].symbol)}';
@@ -551,10 +551,10 @@ class _UserCard extends StatelessWidget {
       if (amount > 0.001) {
         canClaim = true;
       }
-      rewardPrice +=
-          (plugin.store!.assets.marketPrices[e['tokenNameId']] ?? 0) * amount;
       final rewardToken =
           AssetsUtils.getBalanceFromTokenNameId(plugin, e['tokenNameId']);
+      rewardPrice +=
+          AssetsUtils.getMarketPrice(plugin, rewardToken.symbol ?? '') * amount;
       return Fmt.priceFloor(amount, lengthMax: 4) +
           ' ${PluginFmt.tokenView(rewardToken.symbol)}';
     }).join(' + ');

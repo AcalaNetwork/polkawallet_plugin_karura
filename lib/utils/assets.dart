@@ -113,4 +113,11 @@ class AssetsUtils {
         .map((e) => getBalanceFromTokenNameId(plugin, e))
         .toList();
   }
+
+  static double getMarketPrice(PluginKarura plugin, String tokenSymbol) {
+    final market = plugin.store!.assets.marketPrices[tokenSymbol] ?? 0;
+    return market == 0
+        ? plugin.store!.assets.dexPrices[tokenSymbol] ?? 0
+        : market;
+  }
 }

@@ -27,6 +27,9 @@ abstract class _AssetsStore with Store {
   ObservableMap<String?, double> marketPrices = ObservableMap();
 
   @observable
+  Map<String, double> dexPrices = {};
+
+  @observable
   List<NFTData> nft = [];
 
   @observable
@@ -80,6 +83,11 @@ abstract class _AssetsStore with Store {
   @action
   void setMarketPrices(Map<String?, double> data) {
     marketPrices.addAll(data);
+  }
+
+  @action
+  void setDexPrices(Map<String, double> data) {
+    dexPrices = {...dexPrices, ...data};
   }
 
   @action

@@ -196,15 +196,13 @@ class _EarnDexListState extends State<EarnDexList> {
 
                   leftPrice = Fmt.bigIntToDouble(
                           poolInfo.amountLeft, balancePair[0].decimals!) *
-                      (widget.plugin.store!.assets
-                              .marketPrices[balancePair[0].symbol] ??
-                          0);
+                      AssetsUtils.getMarketPrice(
+                          widget.plugin, balancePair[0].symbol ?? '');
 
                   rightPrice = Fmt.bigIntToDouble(
                           poolInfo.amountRight, balancePair[1].decimals!) *
-                      (widget.plugin.store!.assets
-                              .marketPrices[balancePair[1].symbol] ??
-                          0);
+                      AssetsUtils.getMarketPrice(
+                          widget.plugin, balancePair[1].symbol ?? '');
                 }
 
                 return GestureDetector(
