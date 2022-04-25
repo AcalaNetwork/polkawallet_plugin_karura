@@ -323,7 +323,12 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
     final chainFromInfo = (tokensConfig['xcmChains'] ?? {})[_chainFrom] ?? {};
     final chainToInfo = (tokensConfig['xcmChains'] ?? {})[_chainTo] ?? {};
-    final sendFee = List.of((tokensConfig['xcmSendFee'] ?? {})[_chainTo] ?? []);
+    final isFromKar = _chainFrom == plugin_name_karura;
+    final sendFee = List.of(
+        (((tokensConfig['xcmInfo'] ?? {})[isFromKar ? _chainTo : _chainFrom] ??
+                    {})[_token?.symbol ?? ''] ??
+                {})['sendFee'] ??
+            []);
 
     final address = _chainTo == para_chain_name_moon
         ? feeEstimate
