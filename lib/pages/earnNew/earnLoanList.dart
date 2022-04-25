@@ -37,10 +37,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
 
-    final priceQueryTokens = widget.plugin.store!.loan.loanTypes
-        .map((e) => e.token!.symbol)
-        .toList();
-    priceQueryTokens.add(widget.plugin.networkState.tokenSymbol![0]);
     widget.plugin.service!.assets.queryMarketPrices();
 
     if (mounted) {
