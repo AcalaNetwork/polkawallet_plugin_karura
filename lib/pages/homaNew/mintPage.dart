@@ -316,7 +316,7 @@ class _MintPageState extends State<MintPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                dic['v3.homa.minStakingAmmount']!,
+                                dic['v3.homa.minStakingAmount']!,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline4

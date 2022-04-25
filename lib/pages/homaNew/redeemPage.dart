@@ -74,12 +74,7 @@ class _RedeemPageState extends State<RedeemPage> {
 
     stakeDecimal = decimals![symbols!.indexOf("L$stakeToken")];
 
-    minRedeem = widget.plugin.store!.homa.env != null
-        ? widget.plugin.store!.homa.env!.redeemThreshold
-        : Fmt.balanceDouble(
-            widget.plugin.networkConst['homaLite']['minimumRedeemThreshold']
-                .toString(),
-            stakeDecimal);
+    minRedeem = widget.plugin.store!.homa.env?.redeemThreshold ?? 0;
   }
 
   Future<void> _updateReceiveAmount(double? input) async {
@@ -331,7 +326,7 @@ class _RedeemPageState extends State<RedeemPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          dic['v3.homa.minUnstakingAmmount']!,
+                          dic['v3.homa.minUnstakingAmount']!,
                           style: Theme.of(context)
                               .textTheme
                               .headline5
