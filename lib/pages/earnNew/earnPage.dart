@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDexList.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnLoanList.dart';
+import 'package:polkawallet_plugin_karura/pages/types/earnPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -31,10 +32,11 @@ class _EarnPageState extends State<EarnPage> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
-      if (args['tab'] != null) {
+      final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      final args = EarnPageParams.fromJson(argsJson);
+      if (args.tab != null) {
         setState(() {
-          _tab = int.parse(args['tab']);
+          _tab = int.parse(args.tab!);
         });
       }
     });

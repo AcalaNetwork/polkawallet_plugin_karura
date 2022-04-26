@@ -231,21 +231,36 @@ class _RedeemPageState extends State<RedeemPage> {
       params = [];
     } else if (_selectIndex == 1) {
       // swap
-      module = 'utility';
-      call = 'batch';
-      params = [
-        [
-          {'Token': 'L$stakeToken'},
-          {'Token': stakeToken}
-        ],
-        (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
-        "0",
-      ];
-      paramsRaw = '[['
-          'api.tx.homa.requestRedeem(...${jsonEncode([0, false])}),'
-          'api.tx.dex.swapWithExactSupply(...${jsonEncode(params)})'
-          ']]';
-      params = [];
+      final pendingRedeemReq = Fmt.balanceInt(
+          (widget.plugin.store!.homa.userInfo?.redeemRequest ?? {})['amount'] ??
+              '0');
+      if (pendingRedeemReq > BigInt.zero) {
+        module = 'utility';
+        call = 'batch';
+        params = [];
+        paramsRaw = '[['
+            'api.tx.homa.requestRedeem(...${jsonEncode([0, false])}),'
+            'api.tx.dex.swapWithExactSupply(...${jsonEncode([
+              [
+                {'Token': 'L$stakeToken'},
+                {'Token': stakeToken}
+              ],
+              (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
+              "0",
+            ])})'
+            ']]';
+      } else {
+        module = 'dex';
+        call = 'swapWithExactSupply';
+        params = [
+          [
+            {'Token': 'L$stakeToken'},
+            {'Token': stakeToken}
+          ],
+          (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
+          "0",
+        ];
+      }
     }
 
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
@@ -429,7 +444,7 @@ class _RedeemPageState extends State<RedeemPage> {
                         ],
                       )),
                   Padding(
-                      padding: EdgeInsets.only(bottom: 24, top: 24),
+                      padding: EdgeInsets.only(bottom: 24, top: 8),
                       child: PluginButton(
                         title: dic['homa.redeem']!,
                         onPressed: _onSubmit,

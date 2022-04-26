@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/common/components/insufficientKARWarn.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferFormXCM.dart';
+import 'package:polkawallet_plugin_karura/pages/types/transferPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -272,21 +273,22 @@ class _TransferPageState extends State<TransferPage> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      final args = TransferPageParams.fromJson(argsJson);
       setState(() {
         _token = AssetsUtils.getBalanceFromTokenNameId(
-            widget.plugin, args['tokenNameId']);
+            widget.plugin, args.tokenNameId);
         _accountOptions = widget.keyring.allWithContacts.toList();
 
-        if (args['address'] != null) {
-          _accountTo = KeyPairData()..address = args['address'];
-          _updateAddressIcon(args['address']);
+        if (args.address != null) {
+          _accountTo = KeyPairData()..address = args.address;
+          _updateAddressIcon(args.address!);
         } else {
           _accountTo = widget.keyring.current;
         }
 
-        if (args['isXCM'] != null) {
-          _tab = args['isXCM'] == "true" ? 1 : 0;
+        if (args.isXCM != null) {
+          _tab = args.isXCM == "true" ? 1 : 0;
         }
       });
     });
@@ -301,10 +303,10 @@ class _TransferPageState extends State<TransferPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
-    final args = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+    final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+    final args = TransferPageParams.fromJson(argsJson);
     final token = _token ??
-        AssetsUtils.getBalanceFromTokenNameId(
-            widget.plugin, args['tokenNameId']);
+        AssetsUtils.getBalanceFromTokenNameId(widget.plugin, args.tokenNameId);
 
     final tokensConfig =
         widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
