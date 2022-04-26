@@ -68,10 +68,22 @@ class _EarnDexListState extends State<EarnDexList> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
     return Observer(builder: (_) {
-      var dexPools = widget.plugin.store!.earn.dexPools.toList();
-      dexPools.retainWhere((e) => e.provisioning == null);
-
       final incentivesV2 = widget.plugin.store!.earn.incentives;
+
+      var dexPools = widget.plugin.store!.earn.dexPools.toList();
+      dexPools.removeWhere((e) {
+        final poolInfo =
+            widget.plugin.store!.earn.dexPoolInfoMap[e.tokenNameId];
+        double incentive = 0;
+        (incentivesV2.dex?[e.tokenNameId] ?? []).forEach((i) {
+          incentive += i.amount ?? 0;
+        });
+
+        return e.provisioning != null ||
+            (incentive == 0 &&
+                (poolInfo?.shares ?? BigInt.zero) == BigInt.zero);
+      });
+
       if (dexPools.length > 0) {
         final List<DexPoolData> datas = [];
         final List<DexPoolData> otherDatas = [];
@@ -318,36 +330,6 @@ class _EarnDexListState extends State<EarnDexList> {
                                       .headline5
                                       ?.copyWith(color: Color(0xBDFFFFFF)),
                                 ),
-                                // Container(
-                                //   margin: EdgeInsets.only(top: 4),
-                                //   child: Text('staked'),
-                                // ),
-                                // Container(
-                                //   margin: EdgeInsets.only(top: 8),
-                                //   child: Row(
-                                //     children: [
-                                //       InfoItem(
-                                //         crossAxisAlignment:
-                                //             CrossAxisAlignment.center,
-                                //         title: dic!['earn.apy'],
-                                //         content: rewardsEmpty
-                                //             ? '--.--%'
-                                //             : Fmt.ratio(dexPools[i].rewards),
-                                //         color: Theme.of(context).primaryColor,
-                                //       ),
-                                //       InfoItem(
-                                //         crossAxisAlignment:
-                                //             CrossAxisAlignment.center,
-                                //         title: dic['earn.apy.0'],
-                                //         content: rewardsEmpty
-                                //             ? '--.--%'
-                                //             : Fmt.ratio(
-                                //                 dexPools[i].rewardsLoyalty),
-                                //         color: Theme.of(context).primaryColor,
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
                               ],
                             ),
                           )),
