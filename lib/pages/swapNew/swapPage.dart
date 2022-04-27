@@ -2,17 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
-import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapList.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/dexPoolList.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapForm.dart';
+import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
+import 'package:polkawallet_plugin_karura/pages/types/swapPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 
@@ -41,6 +42,21 @@ class _SwapPageState extends State<SwapPage> {
         });
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
+      final args = SwapPageParams.fromJson(argsJson);
+      if (args.tab != null) {
+        setState(() {
+          _tab = int.parse(args.tab!);
+        });
+      }
+    });
   }
 
   @override

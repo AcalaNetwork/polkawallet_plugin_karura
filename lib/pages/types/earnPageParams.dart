@@ -5,7 +5,7 @@ part 'earnPageParams.g.dart';
 @JsonSerializable()
 class EarnPageParams extends _EarnPageParams {
   static EarnPageParams fromJson(Map json) =>
-      _$EarnPageParamsFromJson(json as Map<String, dynamic>);
+      _$EarnPageParamsFromJson(Map<String, dynamic>.from(json));
   Map toJson() => _$EarnPageParamsToJson(this);
 }
 
@@ -16,7 +16,7 @@ abstract class _EarnPageParams {
 @JsonSerializable()
 class EarnDetailPageParams extends _EarnDetailPageParams {
   static EarnDetailPageParams fromJson(Map json) =>
-      _$EarnDetailPageParamsFromJson(json as Map<String, dynamic>);
+      _$EarnDetailPageParamsFromJson(Map<String, dynamic>.from(json));
   Map toJson() => _$EarnDetailPageParamsToJson(this);
 }
 

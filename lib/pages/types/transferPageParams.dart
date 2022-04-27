@@ -5,7 +5,7 @@ part 'transferPageParams.g.dart';
 @JsonSerializable()
 class TransferPageParams extends _TransferPageParams {
   static TransferPageParams fromJson(Map json) =>
-      _$TransferPageParamsFromJson(json as Map<String, dynamic>);
+      _$TransferPageParamsFromJson(Map<String, dynamic>.from(json));
   Map toJson() => _$TransferPageParamsToJson(this);
 }
 
