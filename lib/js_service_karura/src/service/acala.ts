@@ -12,10 +12,11 @@ import { of } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 
 const ONE = FixedPointNumber.ONE;
-const ACA_SYS_BLOCK_TIME = new BN(12000);
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
 const KSM_DECIMAL = 12;
 const native_token = "KAR";
+
+let ACA_SYS_BLOCK_TIME = new BN(20000);
 
 let walletPromise: WalletPromise;
 let homa: Homa;
@@ -39,6 +40,15 @@ function _getTokenSymbol(allTokens: any[], tokenNameId: string): string {
 
   return allTokens.find((i) => i.tokenNameId === tokenNameId)?.symbol;
 }
+
+async function _fetchBlockDuration() {
+  const res = await axios.get("https://api.polkawallet.io/height-time-avg?recent=300");
+
+  if (res.status === 200) {
+    ACA_SYS_BLOCK_TIME = new BN((res.data["avg"] * 1000).toFixed(0));
+  }
+}
+_fetchBlockDuration();
 
 // let swapper: SwapPromise;
 /**
