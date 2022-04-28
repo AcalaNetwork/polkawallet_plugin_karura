@@ -280,7 +280,8 @@ class _RedeemPageState extends State<RedeemPage> {
         ))) as Map?;
 
     if (res != null) {
-      Navigator.of(context).pop('1');
+      Navigator.of(context).pop(
+          '${(_selectIndex == 0 ? _fastReceiveAmount : _selectIndex == 1 ? _swapAmount : _receiveAmount)}');
     }
   }
 

@@ -203,7 +203,7 @@ class _MintPageState extends State<MintPage> {
         ))) as Map?;
 
     if (res != null) {
-      Navigator.of(context).pop('1');
+      Navigator.of(context).pop('${Fmt.balanceDouble(_amountReceive, 12)}');
     }
   }
 
