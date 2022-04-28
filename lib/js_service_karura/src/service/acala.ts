@@ -812,6 +812,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
   const data = await api.query.scheduler.agenda.entries();
 
   const result: { blockNumber: number; pool: any }[] = [];
+  const loyalty: { blockNumber: number; pool: any }[] = [];
 
   data.forEach(([key, value]) => {
     const blockNumber = key.args[0].toNumber();
@@ -830,6 +831,24 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
             const ratio = item[1].toString();
 
             if (ratio === "0") {
+              loyalty.push({
+                blockNumber,
+                pool: api.createType("ModuleIncentivesPoolId", item[0]),
+              });
+            }
+          });
+        });
+      }
+
+      if (call.method === "updateIncentiveRewards" && call.section === "incentives") {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const args = data.args as any;
+
+        args.forEach((i) => {
+          i.forEach((item) => {
+            const amount = item[1][0][1].toString();
+
+            if (amount === "0") {
               result.push({
                 blockNumber,
                 pool: api.createType("ModuleIncentivesPoolId", item[0]),
@@ -848,7 +867,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
     value.forEach((item) => inner(item.unwrapOrDefault().call));
   });
 
-  return result;
+  return { result, loyalty };
 }
 
 export default {

@@ -28,7 +28,7 @@ class _EarnPageState extends State<EarnPage> {
 
   @override
   void initState() {
-    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
+    widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {

@@ -18,6 +18,7 @@ import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
@@ -54,6 +55,7 @@ class EarnDetailPage extends StatelessWidget {
     final balancePair = pool.tokens!
         .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
         .toList();
+    final poolSymbol = balancePair.map((e) => e.symbol).join('-');
     return PluginScaffold(
       appBar: PluginAppBar(
           title: Text(
@@ -114,9 +116,19 @@ class EarnDetailPage extends StatelessWidget {
             });
           }
 
-          final balance = Fmt.balanceInt(
-              plugin.store!.assets.tokenBalanceMap[pool.tokenNameId]?.amount ??
-                  '0');
+          final incentiveEndIndex = plugin.store?.earn.dexIncentiveEndBlock
+              .indexWhere(
+                  (e) => poolSymbol == PluginFmt.getPool(plugin, e['pool']));
+          final incentiveEndBlock = (incentiveEndIndex ?? -1) < 0
+              ? null
+              : plugin.store?.earn.dexIncentiveEndBlock[incentiveEndIndex!]
+                  ['blockNumber'];
+
+          final incentiveEndBlocks = incentiveEndBlock != null
+              ? incentiveEndBlock - plugin.store!.gov.bestNumber.toInt()
+              : null;
+          final incentiveEndTime = DateTime.now()
+              .add(Duration(seconds: (20 * (incentiveEndBlocks ?? 0)).toInt()));
 
           return SafeArea(
               child: Stack(
@@ -365,11 +377,7 @@ class EarnDetailPage extends StatelessWidget {
                           plugin: plugin,
                           share: stakeShare,
                           poolInfo: poolInfo,
-                          poolSymbol: pool.tokens!
-                              .map((e) =>
-                                  AssetsUtils.tokenDataFromCurrencyId(plugin, e)
-                                      .symbol)
-                              .join('-'),
+                          poolSymbol: poolSymbol,
                           rewardAPY: rewardAPR,
                           rewardSavingAPY: savingRewardAPR,
                           loyaltyBonus: loyaltyBonus,
@@ -392,6 +400,42 @@ class EarnDetailPage extends StatelessWidget {
                 onTap: () => Navigator.of(context)
                     .pushNamed(InviteFriendsPage.route, arguments: pool),
               ),
+              incentiveEndBlock == null
+                  ? Container()
+                  : Container(
+                      margin: EdgeInsets.only(right: 16, top: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TapTooltip(
+                            message:
+                                '${dic['earn.incentive.est']} ${Fmt.dateTime(incentiveEndTime).split(' ')[0]}',
+                            child: Row(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(right: 2),
+                                  child: Icon(
+                                    Icons.access_time_rounded,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
+                                Text(
+                                  dic['earn.incentive.end']!,
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                ),
+                                Text(
+                                  ' ${Fmt.priceFloor(double.parse(incentiveEndBlocks.toString()), lengthFixed: 0)} ${dic['earn.incentive.blocks']}',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Color(0xFFFF7849)),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
             ],
           ));
         },

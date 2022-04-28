@@ -54,7 +54,7 @@ class _LoanPageState extends State<LoanPage> {
   final colorDanger = [Color(0xFFE3542E), Color(0x88F27863)];
 
   Future<void> _fetchData() async {
-    widget.plugin.store!.earn.getdexIncentiveLoyaltyEndBlock(widget.plugin);
+    widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     widget.plugin.service!.gov.updateBestNumber();
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);

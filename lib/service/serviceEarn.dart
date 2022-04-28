@@ -124,4 +124,11 @@ class ServiceEarn {
 
     queryIncentives();
   }
+
+  Future<void> getDexIncentiveLoyaltyEndBlock() async {
+    if (store!.earn.dexIncentiveLoyaltyEndBlock.isEmpty) {
+      store!.earn.setDexIncentiveLoyaltyEndBlock(
+          await plugin.api!.earn.queryDexIncentiveLoyaltyEndBlock());
+    }
+  }
 }

@@ -69,17 +69,34 @@ mixin _$EarnStore on _EarnStore, Store {
     });
   }
 
+  final _$dexIncentiveEndBlockAtom =
+      Atom(name: '_EarnStore.dexIncentiveEndBlock');
+
+  @override
+  List<dynamic> get dexIncentiveEndBlock {
+    _$dexIncentiveEndBlockAtom.reportRead();
+    return super.dexIncentiveEndBlock;
+  }
+
+  @override
+  set dexIncentiveEndBlock(List<dynamic> value) {
+    _$dexIncentiveEndBlockAtom.reportWrite(value, super.dexIncentiveEndBlock,
+        () {
+      super.dexIncentiveEndBlock = value;
+    });
+  }
+
   final _$dexIncentiveLoyaltyEndBlockAtom =
       Atom(name: '_EarnStore.dexIncentiveLoyaltyEndBlock');
 
   @override
-  List<dynamic>? get dexIncentiveLoyaltyEndBlock {
+  List<dynamic> get dexIncentiveLoyaltyEndBlock {
     _$dexIncentiveLoyaltyEndBlockAtom.reportRead();
     return super.dexIncentiveLoyaltyEndBlock;
   }
 
   @override
-  set dexIncentiveLoyaltyEndBlock(List<dynamic>? value) {
+  set dexIncentiveLoyaltyEndBlock(List<dynamic> value) {
     _$dexIncentiveLoyaltyEndBlockAtom
         .reportWrite(value, super.dexIncentiveLoyaltyEndBlock, () {
       super.dexIncentiveLoyaltyEndBlock = value;
@@ -89,11 +106,11 @@ mixin _$EarnStore on _EarnStore, Store {
   final _$_EarnStoreActionController = ActionController(name: '_EarnStore');
 
   @override
-  void setDexIncentiveLoyaltyEndBlock(List<dynamic>? list) {
+  void setDexIncentiveLoyaltyEndBlock(Map<dynamic, dynamic>? data) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setDexIncentiveLoyaltyEndBlock');
     try {
-      return super.setDexIncentiveLoyaltyEndBlock(list);
+      return super.setDexIncentiveLoyaltyEndBlock(data);
     } finally {
       _$_EarnStoreActionController.endAction(_$actionInfo);
     }
@@ -151,6 +168,7 @@ incentives: ${incentives},
 dexPools: ${dexPools},
 bootstraps: ${bootstraps},
 dexPoolInfoMap: ${dexPoolInfoMap},
+dexIncentiveEndBlock: ${dexIncentiveEndBlock},
 dexIncentiveLoyaltyEndBlock: ${dexIncentiveLoyaltyEndBlock}
     ''';
   }
