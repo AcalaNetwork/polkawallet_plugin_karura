@@ -18,4 +18,10 @@ class AcalaServiceEarn {
         .evalJavascript('acala.queryDexIncentiveLoyaltyEndBlock(api)');
     return res;
   }
+
+  Future<int> getBlockDuration() async {
+    final res =
+        await plugin.sdk.webView!.evalJavascript('acala.getBlockDuration()');
+    return res;
+  }
 }

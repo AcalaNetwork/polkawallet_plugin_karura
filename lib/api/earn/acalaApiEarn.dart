@@ -15,4 +15,8 @@ class AcalaApiEarn {
   Future<Map?> queryDexIncentiveLoyaltyEndBlock() async {
     return service.queryDexIncentiveLoyaltyEndBlock();
   }
+
+  Future<int> getBlockDuration() async {
+    return service.getBlockDuration();
+  }
 }

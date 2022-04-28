@@ -13,6 +13,7 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
@@ -271,6 +272,23 @@ class CollateralIncentiveList extends StatelessWidget {
           final deposit =
               Fmt.priceFloorBigInt(reward?.shares, token.decimals ?? 12);
 
+          final incentiveEndIndex = plugin.store?.earn.dexIncentiveEndBlock
+              .indexWhere((e) =>
+                  token.tokenNameId == PluginFmt.getPool(plugin, e['pool']));
+          final incentiveEndBlock = (incentiveEndIndex ?? -1) < 0
+              ? null
+              : plugin.store?.earn.dexIncentiveEndBlock[incentiveEndIndex!]
+                  ['blockNumber'];
+
+          final incentiveEndBlocks = incentiveEndBlock != null
+              ? incentiveEndBlock - plugin.store!.gov.bestNumber.toInt()
+              : null;
+          final incentiveEndTime = DateTime.now().add(Duration(
+              seconds: (plugin.store!.earn.blockDuration /
+                      1000 *
+                      (incentiveEndBlocks ?? 0))
+                  .toInt()));
+
           return RoundedPluginCard(
             borderRadius: const BorderRadius.all(const Radius.circular(14)),
             margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -288,22 +306,57 @@ class CollateralIncentiveList extends StatelessWidget {
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                                margin: EdgeInsets.only(right: 12),
-                                child: PluginTokenIcon(
-                                  token.symbol!,
-                                  tokenIcons!,
-                                  size: 26,
-                                )),
-                            Text(PluginFmt.tokenView(token.symbol),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline3
-                                    ?.copyWith(
-                                        fontSize: 18, color: Colors.white))
-                          ],
+                        Container(
+                            margin: EdgeInsets.only(right: 12),
+                            child: PluginTokenIcon(
+                              token.symbol!,
+                              tokenIcons!,
+                              size: 26,
+                            )),
+                        Text(PluginFmt.tokenView(token.symbol),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline3
+                                ?.copyWith(fontSize: 18, color: Colors.white)),
+                        Expanded(
+                          child: incentiveEndBlock == null
+                              ? Container()
+                              : Container(
+                                  margin: EdgeInsets.only(right: 16, top: 4),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TapTooltip(
+                                        message:
+                                            '${dic['earn.incentive.est']} ${Fmt.dateTime(incentiveEndTime).split(' ')[0]}',
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.only(right: 2),
+                                              child: Icon(
+                                                Icons.access_time_rounded,
+                                                color: Colors.white,
+                                                size: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              dic['earn.incentive.end']!,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.white),
+                                            ),
+                                            Text(
+                                              ' ${Fmt.priceFloor(double.parse(incentiveEndBlocks.toString()), lengthFixed: 0)} ${dic['earn.incentive.blocks']}',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Color(0xFFFF7849)),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
                         ),
                         Visibility(
                             visible: canClaim,

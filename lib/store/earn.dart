@@ -14,6 +14,8 @@ abstract class _EarnStore with Store {
 
   final StoreCache? cache;
 
+  int blockDuration = 20000;
+
   @observable
   IncentivesData incentives = IncentivesData();
 
@@ -35,8 +37,13 @@ abstract class _EarnStore with Store {
 
   @action
   void setDexIncentiveLoyaltyEndBlock(Map? data) {
-    dexIncentiveEndBlock = List.of(data?['result'] ?? []);
-    dexIncentiveLoyaltyEndBlock = List.of(data?['loyalty'] ?? []);
+    final result = List.of(data?['result'] ?? []);
+    result.sort((a, b) => a['blockNumber'] - b['blockNumber']);
+    final loyalty = List.of(data?['loyalty'] ?? []);
+    loyalty.sort((a, b) => a['blockNumber'] - b['blockNumber']);
+
+    dexIncentiveEndBlock = result;
+    dexIncentiveLoyaltyEndBlock = loyalty;
   }
 
   @action
@@ -62,5 +69,9 @@ abstract class _EarnStore with Store {
   @action
   void setIncentives(IncentivesData data) {
     incentives = data;
+  }
+
+  void setBlockDuration(int duration) {
+    blockDuration = duration;
   }
 }

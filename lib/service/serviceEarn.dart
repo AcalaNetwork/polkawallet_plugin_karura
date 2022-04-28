@@ -131,4 +131,8 @@ class ServiceEarn {
           await plugin.api!.earn.queryDexIncentiveLoyaltyEndBlock());
     }
   }
+
+  Future<void> getBlockDuration() async {
+    store!.earn.setBlockDuration(await plugin.api!.earn.getBlockDuration());
+  }
 }

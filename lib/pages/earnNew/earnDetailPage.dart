@@ -127,8 +127,11 @@ class EarnDetailPage extends StatelessWidget {
           final incentiveEndBlocks = incentiveEndBlock != null
               ? incentiveEndBlock - plugin.store!.gov.bestNumber.toInt()
               : null;
-          final incentiveEndTime = DateTime.now()
-              .add(Duration(seconds: (20 * (incentiveEndBlocks ?? 0)).toInt()));
+          final incentiveEndTime = DateTime.now().add(Duration(
+              seconds: (plugin.store!.earn.blockDuration /
+                      1000 *
+                      (incentiveEndBlocks ?? 0))
+                  .toInt()));
 
           return SafeArea(
               child: Stack(
