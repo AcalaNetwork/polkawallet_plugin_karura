@@ -66,8 +66,8 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
   const outputToken = Token.fromCurrencyId(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, swapPair[1]), {
     decimal: swapPair[1]["decimals"],
   });
-  const i = new FixedPointNumber(input || 0, inputToken.decimal);
-  const o = new FixedPointNumber(output || 0, outputToken.decimal);
+  const i = new FixedPointNumber(input || 0, inputToken.decimals);
+  const o = new FixedPointNumber(output || 0, outputToken.decimals);
 
   const mode = output === null ? "EXACT_INPUT" : "EXACT_OUTPUT";
 
@@ -119,7 +119,7 @@ async function getAllTokens(api: ApiPromise) {
   const res2 = foreign
     .map(([args, data]) => {
       const key = args.toHuman()[0];
-      if (Object.keys(key)[0] === "NativeAssetId") return null;
+      if (Object.keys(key)[0] === "NativeAssetId" || Object.keys(key)[0] === "Erc20") return null;
 
       const json = data.toJSON();
       const currencyId = _getCurrencyIdFromCurrencyIdKey(key);
@@ -156,7 +156,7 @@ async function getAllTokens(api: ApiPromise) {
 
 function _getCurrencyIdFromCurrencyIdKey(key: Object) {
   const currencyIdMap = {
-    ERC20: "ERC20",
+    ERC20: "Erc20",
     StableAssetId: "StableAssetPoolToken",
     ForeignAssetId: "ForeignAsset",
   };
