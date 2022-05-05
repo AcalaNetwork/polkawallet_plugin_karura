@@ -16,7 +16,7 @@ const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
 const KSM_DECIMAL = 12;
 const native_token = "KAR";
 
-let ACA_SYS_BLOCK_TIME = new BN(20000);
+let ACA_SYS_BLOCK_TIME = new BN(12000);
 
 let walletPromise: WalletPromise;
 let homa: Homa;
