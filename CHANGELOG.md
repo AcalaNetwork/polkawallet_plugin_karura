@@ -1,3 +1,8 @@
+## [0.4.5] - 20220505
+- bump polkawallet_sdk v0.4.5.
+- XCM transfer rebuild.
+- Vault adjust page rebuild.
+
 ## [0.4.4] - 20220322
 - bump polkawallet_sdk v0.4.4.
 - ui v3 update.
