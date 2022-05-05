@@ -540,12 +540,13 @@ class _LoanPageState extends State<LoanPage> {
                       ClipOval(
                           child: WaveWidget(
                         config: CustomConfig(
-                          colors: loan.collateralRatio > requiredCollateralRatio
-                              ? loan.collateralRatio >
+                          colors: debitRatio == 0 ||
+                                  loan.collateralRatio >
                                       requiredCollateralRatio + 0.2
-                                  ? colorSafe
-                                  : colorWarn
-                              : colorDanger,
+                              ? colorSafe
+                              : loan.collateralRatio > requiredCollateralRatio
+                                  ? colorWarn
+                                  : colorDanger,
                           durations: [8000, 6000],
                           heightPercentages: [
                             debitRatio == 0 ? 1 : 1 - debitRatio - 0.04,
@@ -621,15 +622,21 @@ class _LoanPageState extends State<LoanPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${dic['liquid.ratio']}',
+                  Text('${dic['v3.loan.vaultState']}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
                           )),
                   Text(
-                      '${Fmt.ratio(Fmt.bigIntToDouble(loan.type.liquidationRatio, 18))}',
+                      '${dic[debitRatio == 0 || loan.collateralRatio > requiredCollateralRatio + 0.2 ? 'v3.loan.healthy' : loan.collateralRatio > requiredCollateralRatio ? 'v3.loan.needAdjust' : 'v3.loan.liquidationWarning']}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
-                            color: Color(0xFFA1FBBE),
+                            color: debitRatio == 0 ||
+                                    loan.collateralRatio >
+                                        requiredCollateralRatio + 0.2
+                                ? colorSafe[0]
+                                : loan.collateralRatio > requiredCollateralRatio
+                                    ? colorWarn[0]
+                                    : colorDanger[0],
                             height: 1.1,
                             fontSize: 12,
                           ))
