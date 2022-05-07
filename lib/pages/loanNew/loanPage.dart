@@ -604,7 +604,7 @@ class _LoanPageState extends State<LoanPage> {
                           )),
                   Text('≈ ${Fmt.ratio(loan.stableFeeYear)}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
-                            color: Color(0xFFFC8156),
+                            color: colorSafe[0],
                             height: 1.1,
                             fontSize: 12,
                           ))
@@ -628,13 +628,7 @@ class _LoanPageState extends State<LoanPage> {
                   Text(
                       '${Fmt.ratio(1 / Fmt.bigIntToDouble(loan.type.liquidationRatio, 18))}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
-                            color: debitRatio == 0 ||
-                                    loan.collateralRatio >
-                                        requiredCollateralRatio + 0.2
-                                ? colorSafe[0]
-                                : loan.collateralRatio > requiredCollateralRatio
-                                    ? colorWarn[0]
-                                    : colorDanger[0],
+                            color: Color(0xFFFC8156),
                             height: 1.1,
                             fontSize: 12,
                           ))
