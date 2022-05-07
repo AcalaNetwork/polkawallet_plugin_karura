@@ -507,9 +507,7 @@ class _LoanPageState extends State<LoanPage> {
 
     final debitRatio = loan.collateralInUSD == BigInt.zero
         ? 0.0
-        : loan.debits /
-            loan.collateralInUSD *
-            Fmt.bigIntToDouble(loan.type.liquidationRatio, 18);
+        : loan.debits / loan.collateralInUSD;
 
     return Container(
       padding: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 10),
@@ -622,13 +620,13 @@ class _LoanPageState extends State<LoanPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${dic['v3.loan.vaultState']}',
+                  Text(dic['v3.loan.liquidRatio']!,
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
                           )),
                   Text(
-                      '${dic[debitRatio == 0 || loan.collateralRatio > requiredCollateralRatio + 0.2 ? 'v3.loan.healthy' : loan.collateralRatio > requiredCollateralRatio ? 'v3.loan.needAdjust' : 'v3.loan.liquidationWarning']}',
+                      '${Fmt.ratio(1 / Fmt.bigIntToDouble(loan.type.liquidationRatio, 18))}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: debitRatio == 0 ||
                                     loan.collateralRatio >
@@ -733,7 +731,7 @@ class LoanItemView extends StatelessWidget {
           children: [
             Expanded(
                 child: Padding(
-                    padding: EdgeInsets.only(left: 23),
+                    padding: EdgeInsets.only(left: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -768,6 +766,7 @@ class LoanItemView extends StatelessWidget {
                 detailWidget,
                 PluginOutlinedButtonSmall(
                   padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  margin: EdgeInsets.all(0),
                   content: btnText,
                   color: PluginColorsDark.primary,
                   active: true,

@@ -224,7 +224,7 @@ const Map<String, String> enDex = {
   'warn.fee': 'The transaction may fail due to insufficient KAR balance.',
   'v3.switchDefi': 'Switch to DeFi',
   'v3.switchBack': 'Switch Back',
-  'v3.totalBalance': 'Total Balance',
+  'v3.totalBalance': 'Balance',
   'v3.myDefi': 'My DeFi',
   'v3.totalStaked': 'Total Staked',
   'v3.total': 'Total',
@@ -301,9 +301,6 @@ const Map<String, String> enDex = {
   'v3.loan.currentCollateral': 'Current Collateral',
   'v3.loan.requiredSafety': 'Required for safety',
   'v3.loan.newLiquidationPrice': 'New Liquidation Price',
-  'v3.loan.vaultState': 'Vault State',
-  'v3.loan.healthy': 'healthy',
-  'v3.loan.needAdjust': 'need adjust',
-  'v3.loan.liquidationWarning': 'liquidation warning',
+  'v3.loan.liquidRatio': 'Liquidation Loan Ratio',
   'event.vault.rewards': '🚀 LKSM staking launched! Max. APY up to'
 };
