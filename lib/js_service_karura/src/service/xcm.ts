@@ -11,6 +11,7 @@ interface ChainData {
 const chain_name_karura = "karura";
 const chain_name_kusama = "kusama";
 const chain_name_statemine = "statemine";
+const chain_name_bifrost = "bifrost";
 const chain_name_kint = "kintsugi";
 const chain_name_parallel = "parallel heiko";
 const chain_name_khala = "khala";
@@ -28,6 +29,13 @@ const chainNodes = {
     "wss://kusama-rpc.dwellir.com",
   ],
   [chain_name_statemine]: ["wss://kusama-statemine-rpc.paritytech.net", "wss://statemine.api.onfinality.io/public-ws"],
+  [chain_name_bifrost]: [
+    "wss://bifrost-rpc.liebi.com/ws",
+    "wss://us.bifrost-rpc.liebi.com/ws",
+    "wss://eu.bifrost-rpc.liebi.com/ws",
+    "wss://bifrost-parachain.api.onfinality.io/public-ws",
+    "wss://bifrost-rpc.dwellir.com",
+  ],
   [chain_name_kint]: ["wss://kintsugi.api.onfinality.io/public-ws", "wss://api-kusama.interlay.io/parachain"],
   [chain_name_parallel]: ["wss://parallel-heiko.api.onfinality.io/public-ws", "wss://heiko-rpc.parallel.fi"],
   [chain_name_khala]: ["wss://khala.api.onfinality.io/public-ws", "wss://khala-api.phala.network/ws"],
@@ -116,7 +124,7 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
-  if (chain.match(chain_name_kint)) {
+  if (chain.match(chain_name_bifrost) || chain.match(chain_name_kint)) {
     const res = await api.query.tokens.accounts(address, { Token: tokenNameId });
     return {
       amount: (res as any)?.free?.toString(),
@@ -280,8 +288,8 @@ async function getTransferParams(
     };
   }
 
-  // kintsugi
-  if (chainFrom.name === chain_name_kint && chainTo.name === chain_name_karura) {
+  // bifrost/kintsugi
+  if ((chainFrom.name === chain_name_bifrost && tokenName === "KSM") || chainFrom.name === chain_name_kint) {
     const dst = {
       parents: 1,
       interior: {
