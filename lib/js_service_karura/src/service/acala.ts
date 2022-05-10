@@ -2,23 +2,23 @@ import { createDexShareName, FixedPointNumber, forceToCurrencyId, forceToCurrenc
 import { SwapPromise } from "@acala-network/sdk-swap";
 import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
-import { existential_deposit, nft_image_config } from "../constants/acala";
+import { nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
-import { WalletPromise } from "@acala-network/sdk-wallet";
-import { Homa } from "@acala-network/sdk";
+import { Homa, Wallet } from "@acala-network/sdk";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
-import { of } from "rxjs";
+import { firstValueFrom } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
+import { BalanceData } from "@acala-network/sdk/wallet/type";
 
 const ONE = FixedPointNumber.ONE;
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
 const KSM_DECIMAL = 12;
 const native_token = "KAR";
+const native_token_list = [native_token, "KSM", "LKSM", "KUSD"];
 
 let ACA_SYS_BLOCK_TIME = new BN(12000);
 
-let walletPromise: WalletPromise;
 let homa: Homa;
 
 function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
@@ -97,70 +97,58 @@ async function calcTokenSwapAmount(api: ApiPromise, input: number, output: numbe
  * getAllTokens, with ForeignAssets
  */
 async function getAllTokens(api: ApiPromise) {
-  const [{ tokenSymbol, tokenDecimals }, foreign, locations] = await Promise.all([
-    api.rpc.system.properties(),
-    api.query.assetRegistry.assetMetadatas.entries(),
-    api.query.assetRegistry.foreignAssetLocations.entries(),
-  ]);
-  const tokens = [...api.registry.chainTokens];
-  tokens.shift();
-  const res = tokens.map((e) => ({
-    type: "Token",
-    tokenNameId: forceToCurrencyName(
-      api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, {
-        Token: e,
-      })
-    ),
-    symbol: e,
-    currencyId: { Token: e },
-    decimals: tokenDecimals.toJSON()[tokenSymbol.toJSON().indexOf(e)],
-    minBalance: existential_deposit[e],
-  }));
-  const res2 = foreign
-    .map(([args, data]) => {
-      const key = args.toHuman()[0];
-      if (Object.keys(key)[0] === "NativeAssetId" || Object.keys(key)[0] === "Erc20") return null;
+  const allTokens = await ((<any>window).wallet as Wallet).getTokens();
 
-      const json = data.toJSON();
-      const currencyId = _getCurrencyIdFromCurrencyIdKey(key);
-      const type = Object.keys(currencyId)[0];
-      const id = Object.values(currencyId)[0];
-      const location = locations.find(([k, _]) => type === "ForeignAsset" && k.toHuman()[0] === id);
-      const src = {};
-      if (!!location) {
-        const interior = location[1].toHuman()["interior"];
-        Object.values(interior).forEach((e) => {
-          if (e instanceof Array) {
-            e.forEach((i) => {
-              src[Object.keys(i)[0]] = Object.values(i)[0];
-            });
-          } else {
-            src[Object.keys(e)[0]] = Object.values(e)[0];
-          }
-        });
-      }
+  return Object.values(allTokens)
+    .map((e) => {
       return {
-        type,
-        id,
-        tokenNameId: forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currencyId)),
-        currencyId: currencyId,
-        src,
-        ...(data.toHuman() as Object),
-        decimals: json["decimals"],
-        minBalance: json["minimalBalance"].toString(),
+        type: _getTokenType(e),
+        tokenNameId: e.name,
+        symbol: e.symbol === "aUSD" ? e.name : e.symbol,
+        id: Object.values(e.toChainData())[0].toString(),
+        src: e.locations,
+        currencyId: e.toChainData(),
+        decimals: e.decimals,
+        minBalance: e.ed.toString(),
       };
     })
-    .filter((e) => !!e);
-  return [...res, ...res2];
+    .filter((e) => e.tokenNameId !== native_token && e.type !== "Erc20" && e.type !== "DexShare");
 }
 
-function _getCurrencyIdFromCurrencyIdKey(key: Object) {
-  const currencyIdMap = {
-    ERC20: "Erc20",
-    StableAssetId: "StableAssetPoolToken",
-    ForeignAssetId: "ForeignAsset",
+function _getTokenType(token: Token) {
+  return native_token_list.includes(token.name)
+    ? "Token"
+    : token.name.startsWith("lp")
+    ? "DexShare"
+    : token.name.startsWith("erc20")
+    ? "Erc20"
+    : token.name.startsWith("sa") || token.name === "TAI"
+    ? "TaigaAsset"
+    : "ForeignAsset";
+}
+
+/**
+ * get token balance from acala wallet sdk
+ */
+async function getTokenBalance(api: ApiPromise, address: string, tokenNameId: string, callback: (value: any) => void) {
+  const sub = ((<any>window).wallet as Wallet).subscribeBalance(tokenNameId, address);
+  if (!!callback) {
+    sub.subscribe({
+      next: (value: BalanceData) => {
+        callback(_formatBalanceData(value));
+      },
+    });
+  }
+  const value = await firstValueFrom(sub);
+  return _formatBalanceData(value);
+}
+function _formatBalanceData(value: BalanceData) {
+  return {
+    free: value.free.toChainData().toString(),
+    frozen: value.locked.toChainData().toString(),
+    reserved: value.reserved.toChainData().toString(),
+    available: value.available.toChainData().toString(),
   };
-  return { [currencyIdMap[Object.keys(key)[0]]]: Object.values(key)[0] };
 }
 
 /**
@@ -463,35 +451,6 @@ async function queryNFTs(api: ApiPromise, address: string) {
   return res.map((e, i) => ({ ...e, deposit: (deposits[i] as any).toJSON()["data"]["deposit"].toString() }));
 }
 
-async function checkExistentialDepositForTransfer(
-  api: ApiPromise,
-  address: string,
-  currencyId: Object,
-  decimals: number,
-  amount: number,
-  direction = "to"
-) {
-  if (!walletPromise) {
-    walletPromise = new WalletPromise(api);
-  }
-
-  return new Promise((resolve, _) => {
-    walletPromise
-      .checkTransfer(
-        address,
-        api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, currencyId),
-        new FixedPointNumber(amount, decimals),
-        direction as "from" | "to"
-      )
-      .then((res) => {
-        resolve({ error: null, result: res });
-      })
-      .catch((err) => {
-        resolve({ error: err.message, result: false });
-      });
-  });
-}
-
 async function queryIncentives(api: ApiPromise) {
   const pools = await Promise.all([
     api.query.incentives.incentiveRewardAmounts.entries(),
@@ -730,14 +689,7 @@ function _formatHomaEnv(env: HomaEnvironment) {
 
 async function queryHomaNewEnv(api: ApiPromise) {
   if (!homa) {
-    if (!walletPromise) {
-      walletPromise = new WalletPromise(api);
-    }
-    const walletAdapter = {
-      subscribeToken: (token: any) => of(walletPromise.getToken(token)),
-    };
-
-    homa = new Homa(api, walletAdapter);
+    homa = new Homa(api, (<any>window).wallet);
   }
 
   const result = await homa.getEnv();
@@ -746,13 +698,7 @@ async function queryHomaNewEnv(api: ApiPromise) {
 
 async function calcHomaNewMintAmount(api: ApiPromise, amount: number) {
   if (!homa) {
-    if (!walletPromise) {
-      walletPromise = new WalletPromise(api);
-    }
-    const walletAdapter = {
-      subscribeToken: (token: any) => of(walletPromise.getToken(token)),
-    };
-    homa = new Homa(api, walletAdapter);
+    homa = new Homa(api, (<any>window).wallet);
   }
   const result = await homa.getEstimateMintResult(new FixedPointNumber(amount, KSM_DECIMAL));
 
@@ -765,13 +711,7 @@ async function calcHomaNewMintAmount(api: ApiPromise, amount: number) {
 
 async function calcHomaNewRedeemAmount(api: ApiPromise, amount: number, isFastRedeem: boolean) {
   if (!homa) {
-    if (!walletPromise) {
-      walletPromise = new WalletPromise(api);
-    }
-    const walletAdapter = {
-      subscribeToken: (token: any) => of(walletPromise.getToken(token)),
-    };
-    homa = new Homa(api, walletAdapter);
+    homa = new Homa(api, (<any>window).wallet);
   }
 
   const result = await homa.getEstimateRedeemResult(new FixedPointNumber(amount, KSM_DECIMAL), isFastRedeem);
@@ -786,13 +726,7 @@ async function calcHomaNewRedeemAmount(api: ApiPromise, amount: number, isFastRe
 
 async function queryHomaPendingRedeem(api: ApiPromise, address: string) {
   if (!homa) {
-    if (!walletPromise) {
-      walletPromise = new WalletPromise(api);
-    }
-    const walletAdapter = {
-      subscribeToken: (token: any) => of(walletPromise.getToken(token)),
-    };
-    homa = new Homa(api, walletAdapter);
+    homa = new Homa(api, (<any>window).wallet);
   }
 
   const result = await homa.getUserLiquidTokenSummary(address);
@@ -873,13 +807,13 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
 export default {
   calcTokenSwapAmount,
   getAllTokens,
+  getTokenBalance,
   getTokenPairs,
   getBootstraps,
   fetchCollateralRewards,
   fetchDexPoolInfo,
   fetchHomaUserInfo,
   queryNFTs,
-  checkExistentialDepositForTransfer,
   queryIncentives,
   queryAggregatedAssets,
 
