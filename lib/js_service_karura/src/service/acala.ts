@@ -112,7 +112,7 @@ async function getAllTokens(api: ApiPromise) {
         minBalance: e.ed.toString(),
       };
     })
-    .filter((e) => e.tokenNameId !== native_token && e.type !== "Erc20" && e.type !== "DexShare");
+    .filter((e) => e.tokenNameId !== native_token && e.type !== "DexShare");
 }
 
 function _getTokenType(token: Token) {

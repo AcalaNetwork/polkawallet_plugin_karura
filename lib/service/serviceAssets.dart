@@ -85,7 +85,7 @@ class ServiceAssets {
 
   Future<TokenBalanceData> updateTokenBalances(TokenBalanceData token) async {
     final res = await plugin.sdk.webView!.evalJavascript(
-        'api.query.tokens.accounts("${keyring.current.address}", ${jsonEncode(token.currencyId)})');
+        'acala.getTokenBalance(api, "${keyring.current.address}", "${token.tokenNameId}")');
 
     final balances =
         Map<String?, TokenBalanceData>.from(store!.assets.tokenBalanceMap);

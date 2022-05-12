@@ -35,7 +35,7 @@ async function connect(nodes: string[]) {
       if (!(<any>window).api) {
         (<any>window).api = res;
         // (<any>window).apiWallet = new WalletPromise(res);
-        const url = nodes[(<any>res)._options.provider.__private_21_endpointIndex];
+        const url = nodes[(<any>res)._options.provider.__private_29_endpointIndex];
         send("log", `${url} wss connected success`);
         resolve(url);
 
@@ -43,7 +43,7 @@ async function connect(nodes: string[]) {
         (<any>window).wallet.isReady;
       } else {
         res.disconnect();
-        const url = nodes[(<any>res)._options.provider.__private_21_endpointIndex];
+        const url = nodes[(<any>res)._options.provider.__private_29_endpointIndex];
         send("log", `${url} wss success and disconnected`);
         resolve(url);
       }
