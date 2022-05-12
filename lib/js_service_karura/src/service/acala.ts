@@ -109,7 +109,7 @@ async function getAllTokens(api: ApiPromise) {
         src: e.locations,
         currencyId: e.toChainData(),
         decimals: e.decimals,
-        minBalance: e.ed.toString(),
+        minBalance: e.ed.toChainData().toString(),
       };
     })
     .filter((e) => e.tokenNameId !== native_token && e.type !== "DexShare");
