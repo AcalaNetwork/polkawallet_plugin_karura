@@ -81,6 +81,32 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     if (Fmt.tokenInt(value, collateralDecimals!) > available) {
       return dic!['amount.low'];
     }
+
+    final params = ModalRoute.of(context)!.settings.arguments as Map;
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        widget.plugin, [params['tokenNameId'], karura_stable_coin]);
+
+    final deposit = widget.plugin.store!.loan
+            .collateralRewards[params['tokenNameId']]?.shares ??
+        BigInt.zero;
+    BigInt collateral;
+    final token = _token ?? balancePair[0];
+    final _loan = widget.plugin.store!.loan.loans[params['tokenNameId']];
+
+    if (params["type"] == LoanDepositPage.actionTypeDeposit) {
+      collateral = Fmt.tokenInt(value, collateralDecimals) + deposit;
+    } else {
+      collateral = deposit - Fmt.tokenInt(value, collateralDecimals);
+    }
+    print(
+        '${token.symbol}===${token.minBalance}==${Fmt.balanceInt(token.minBalance) * BigInt.from(100)}');
+    if ((_loan == null || _loan.debits == BigInt.zero) &&
+        collateral > BigInt.zero &&
+        collateral < Fmt.balanceInt(token.minBalance) * BigInt.from(100)) {
+      final minLabel = I18n.of(context)!
+          .getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min'];
+      return '$minLabel   ${Fmt.priceFloorBigInt(Fmt.balanceInt(token.minBalance) * BigInt.from(100), collateralDecimals, lengthFixed: 4)}';
+    }
     return null;
   }
 
