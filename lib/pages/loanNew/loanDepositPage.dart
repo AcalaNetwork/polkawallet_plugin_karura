@@ -274,6 +274,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
                             : (max) {
                                 {
                                   setState(() {
+                                    _error1 = null;
                                     _amountCollateral = max;
                                     _amountCtrl.text = Fmt.bigIntToDouble(
                                             max, balancePair[0].decimals!)
