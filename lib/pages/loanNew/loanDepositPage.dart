@@ -98,8 +98,6 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     } else {
       collateral = deposit - Fmt.tokenInt(value, collateralDecimals);
     }
-    print(
-        '${token.symbol}===${token.minBalance}==${Fmt.balanceInt(token.minBalance) * BigInt.from(100)}');
     if ((_loan == null || _loan.debits == BigInt.zero) &&
         collateral > BigInt.zero &&
         collateral < Fmt.balanceInt(token.minBalance) * BigInt.from(100)) {
