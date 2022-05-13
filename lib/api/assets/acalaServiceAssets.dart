@@ -72,7 +72,7 @@ class AcalaServiceAssets {
           '$tokenBalanceChannel${lpToken.map((e) => e.symbol).join('')}';
       plugin.sdk.api.subscribeMessage(
         'acala.getTokenBalance',
-        ['api', address, lpToken.map((e) => e.tokenNameId).toList()],
+        ['api', address, e.tokenNameId],
         channel,
         (Map data) {
           callback({
