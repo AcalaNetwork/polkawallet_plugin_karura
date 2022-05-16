@@ -167,7 +167,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                             child: PluginButton(
                               title: '${dic['v3.loan.submit']}',
                               onPressed: () {
-                                if (_error1 == null && _error2 == null) {
+                                if (_error1 == null &&
+                                    (!_selectRadio ||
+                                        _selectRadio && _error2 == null)) {
                                   _onSubmit();
                                 }
                               },
@@ -258,17 +260,12 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   var value = Fmt.bigIntToDouble(
                                           max, banlance.decimals!)
                                       .toString();
-                                  if (titleTag != dic['loan.payback'] &&
-                                      value.split(".").length > 1 &&
-                                      value.split(".")[1].length > 6) {
-                                    value = value.substring(
-                                        0, value.split(".")[0].length + 7);
-                                  }
                                   var error = _validateAmount(
                                       value,
                                       banlance.amount!,
                                       banlance.decimals!,
-                                      titleTag);
+                                      titleTag,
+                                      valueBigint: max);
                                   setState(() {
                                     _lastController.text = value;
                                     _error2 = null;
@@ -413,15 +410,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                   ? (max) {
                       var value = Fmt.bigIntToDouble(max, banlance.decimals!)
                           .toString();
-
-                      if (titleTag != dic['loan.payback']! &&
-                          value.split(".").length > 1 &&
-                          value.split(".")[1].length > 6) {
-                        value =
-                            value.substring(0, value.split(".")[0].length + 7);
-                      }
-                      var error = _validateAmount(value, banlance.amount!,
-                          banlance.decimals!, titleTag);
+                      var error = _validateAmount(
+                          value, banlance.amount!, banlance.decimals!, titleTag,
+                          valueBigint: max);
                       setState(() {
                         _firstController.text = value;
                         _error1 = error;
@@ -565,7 +556,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   String? _validateAmount(
-      String value, String max, int decimals, String titleTag) {
+      String value, String max, int decimals, String titleTag,
+      {BigInt? valueBigint}) {
     // final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
@@ -578,8 +570,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       return error;
     }
 
-    BigInt debits = Fmt.tokenInt(v, decimals);
-    if (debits > BigInt.parse(max)) {
+    BigInt debit = valueBigint ?? Fmt.tokenInt(v, decimals);
+    if (debit > BigInt.parse(max)) {
       return '${dic!['loan.max']} ${Fmt.priceFloorBigIntFormatter(BigInt.parse(max), decimals)}';
     }
 
@@ -587,8 +579,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       final minimumDebitValue =
           Fmt.bigIntToDouble(_loan!.type.minimumDebitValue, decimals);
       final debits = titleTag == dic['loan.payback']!
-          ? _loan!.debits - Fmt.tokenInt(v, decimals)
-          : _loan!.debits + Fmt.tokenInt(v, decimals);
+          ? _loan!.debits - debit
+          : _loan!.debits + debit;
       if (debits > BigInt.zero && debits < _loan!.type.minimumDebitValue) {
         return '${dic['loan.warn1']}$minimumDebitValue ${PluginFmt.tokenView(karura_stable_coin)}';
       }
@@ -756,6 +748,27 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       var dicValue = 'loan.deposit';
       if (collaterals < BigInt.zero) {
         dicValue = 'loan.withdraw';
+      }
+      if (loan.debits == BigInt.zero &&
+          loan.collaterals > BigInt.zero &&
+          loan.collaterals <
+              Fmt.balanceInt(loan.token!.minBalance) * BigInt.from(100)) {
+        showCupertinoDialog(
+            context: context,
+            builder: (_) {
+              return CupertinoAlertDialog(
+                content: Text(
+                    "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min']} ${Fmt.priceFloorBigInt(Fmt.balanceInt(loan.token!.minBalance) * BigInt.from(100), loan.token!.decimals!, lengthFixed: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}"),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                    child: Text(I18n.of(context)!.getDic(
+                        i18n_full_dic_karura, 'common')!['upgrading.btn']!),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  )
+                ],
+              );
+            });
+        return null;
       }
       detail[dic![dicValue]!] = Text(
         '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',

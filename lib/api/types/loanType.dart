@@ -179,7 +179,8 @@ abstract class _LoanData {
   BigInt liquidationPrice = BigInt.zero;
 
   double calcStableFee(int seconds) {
-    final base = (type.globalInterestRatePerSec! + type.interestRatePerSec) /
+    final base = (type.globalInterestRatePerSec ??
+            BigInt.zero + type.interestRatePerSec) /
         BigInt.from(pow(10, acala_price_decimals));
     return pow((1 + base), seconds) - 1;
   }
