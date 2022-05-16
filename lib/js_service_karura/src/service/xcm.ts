@@ -329,18 +329,16 @@ async function getTransferParams(
 
   // khala
   if (chainFrom.name === chain_name_khala) {
-    if (tokenName === "PHA") {
-      const dst = {
-        parents: 1,
-        interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
-      };
+    const dst = {
+      parents: 1,
+      interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
+    };
+    let asset: any = {
+      id: { Concrete: { parents: 0, interior: "Here" } },
+      fun: { Fungible: amount },
+    };
 
-      return {
-        module: "xcmTransfer",
-        call: "transferNative",
-        params: [dst, amount, xcm_dest_weight_v2],
-      };
-    } else {
+    if (tokenName !== "PHA") {
       const tokenIds: Record<string, string> = {
         KUSD: "0x0081",
         KAR: "0x0080",
@@ -350,18 +348,17 @@ async function getTransferParams(
 
       if (!id) return;
 
-      const asset = { parents: 1, interior: { X2: [{ Parachain: chainTo.paraChainId }, { GeneralKey: id }] } };
-      const dst = {
-        parents: 1,
-        interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
-      };
-
-      return {
-        module: "xcmTransfer",
-        call: "transferAsset",
-        params: [asset, dst, amount, xcm_dest_weight_v2],
+      asset = {
+        id: { Concrete: { parents: 1, interior: { X2: [{ Parachain: chainTo.paraChainId }, { GeneralKey: id }] } } },
+        fun: { Fungible: amount },
       };
     }
+
+    return {
+      module: "xTransfer",
+      call: "transfer",
+      params: [asset, dst, 0],
+    };
   }
 
   // quartz & crust
