@@ -19,6 +19,7 @@ const chain_name_quart = "quartz";
 const chain_name_moon = "moonriver";
 const chain_name_kico = "kico";
 const chain_name_crust = "crust shadow";
+const chain_name_calamari = "calamari";
 
 const chainNodes = {
   [chain_name_kusama]: [
@@ -47,6 +48,7 @@ const chainNodes = {
   ],
   [chain_name_kico]: ["wss://rpc.api.kico.dico.io", "wss://rpc.kico.dico.io"],
   [chain_name_crust]: ["wss://rpc-shadow.crust.network/"],
+  [chain_name_calamari]: ["wss://ws.calamari.systems/", "wss://calamari.api.onfinality.io/public-ws", "wss://calamari-rpc.dwellir.com"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -357,7 +359,7 @@ async function getTransferParams(
     return {
       module: "xTransfer",
       call: "transfer",
-      params: [asset, dst, 0],
+      params: [asset, dst, xcm_dest_weight_v2],
     };
   }
 
@@ -393,6 +395,22 @@ async function getTransferParams(
       module: "xTokens",
       call: "transfer",
       params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+    };
+  }
+
+  // calamari
+  if (chainFrom.name === chain_name_calamari && token.symbol === "KMA") {
+    const dst = {
+      parents: 1,
+      interior: {
+        X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
+      },
+    };
+
+    return {
+      module: "xTokens",
+      call: "transfer",
+      params: [{ MantaCurrency: 1 }, amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 
