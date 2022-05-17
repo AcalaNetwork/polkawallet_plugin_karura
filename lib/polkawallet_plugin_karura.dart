@@ -18,6 +18,7 @@ import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/governancePage.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/newUIRoutes.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
 import 'package:polkawallet_plugin_karura/service/graphql.dart';
@@ -266,7 +267,10 @@ class PluginKarura extends PolkawalletPlugin {
       TransferDetailPage.route: (_) => TransferDetailPage(this, keyring),
 
       //new ui
-      ...getNewUiRoutes(this, keyring)
+      ...getNewUiRoutes(this, keyring),
+
+      //multiply
+      MultiplyPage.route: (_) => MultiplyPage(this, keyring),
     };
   }
 

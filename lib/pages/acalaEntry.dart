@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -21,6 +22,7 @@ class DefiWidget extends StatelessWidget {
     'swap': SwapPage.route,
     'earn': EarnPage.route,
     'homa': HomaPage.route,
+    'multiply': MultiplyPage.route,
   };
 
   @override
