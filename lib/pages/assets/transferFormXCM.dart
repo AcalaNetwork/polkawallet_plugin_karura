@@ -535,7 +535,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 .tokenBalanceMap[token.tokenNameId]!.minBalance);
         final fee = Fmt.balanceInt(_fee);
         BigInt max = available;
-        if (tokenSymbol == nativeToken) {
+        if (isFromKar && tokenSymbol == nativeToken) {
           max = notTransferable > BigInt.zero
               ? notTransferable > accountED
                   ? available - fee
