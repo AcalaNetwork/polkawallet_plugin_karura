@@ -89,5 +89,7 @@ const Map<String, String> zhGov = {
   'v3.canClear': '可取回',
   'v3.locked': '锁定',
   'v3.externals': '外部提案',
-  'v3.end': '结束'
+  'v3.end': '结束',
+  'v3.voting': '你投票',
+  'v3.voteVaule': '投票数量'
 };
