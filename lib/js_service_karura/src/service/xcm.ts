@@ -184,6 +184,24 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
+  if (chain.match(chain_name_calamari) && token.symbol !== "KMA") {
+    const tokenIds: Record<string, number> = {
+      KAR: 8,
+      KUSD: 9,
+      KSM: 12,
+      LKSM: 10,
+    };
+
+    if (!tokenIds[token.name]) return null;
+
+    const res = await api.query.assets.account(tokenIds[token.name], address);
+    return {
+      amount: (res as any).unwrapOrDefault().balance.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
   // for kusama/polkadot/khala-pha/heiko-hko/crust-csm/kico
   const res = await api.derive.balances.all(address);
   return {
@@ -399,18 +417,31 @@ async function getTransferParams(
   }
 
   // calamari
-  if (chainFrom.name === chain_name_calamari && token.symbol === "KMA") {
-    const dst = {
-      parents: 1,
-      interior: {
-        X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
-      },
+  if (chainFrom.name === chain_name_calamari) {
+    const tokenIds: Record<string, number> = {
+      "fa://10": 1,
+      KAR: 8,
+      KUSD: 9,
+      KSM: 12,
+      LKSM: 10,
     };
 
     return {
       module: "xTokens",
       call: "transfer",
-      params: [{ MantaCurrency: 1 }, amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [
+        { MantaCurrency: tokenIds[tokenName] },
+        amount,
+        {
+          V1: {
+            parents: 1,
+            interior: {
+              X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
+            },
+          },
+        },
+        xcm_dest_weight_v2,
+      ],
     };
   }
 
