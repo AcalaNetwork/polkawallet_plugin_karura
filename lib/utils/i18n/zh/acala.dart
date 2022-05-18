@@ -283,5 +283,10 @@ const Map<String, String> zhDex = {
   'v3.loan.requiredSafety': '安全需求',
   'v3.loan.newLiquidationPrice': '新清算价格',
   'v3.loan.liquidRatio': '清算质押率',
-  'event.vault.rewards': '🚀 LKSM 质押挖矿已开启! APY 最高可达'
+  'event.vault.rewards': '🚀 LKSM 质押挖矿已开启! APY 最高可达',
+  'loan.multiply.maxMultiple': '最大倍数',
+  'loan.multiply.variableAnnualFee': '稳定费率（可波动）',
+  'loan.multiply.with': '',
+  'loan.multiply.message1': '敞口最高可达',
+  'loan.multiply.message2': ''
 };

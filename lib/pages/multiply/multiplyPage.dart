@@ -3,8 +3,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTabBarWidget.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/pieChartPainter.dart';
 import 'package:polkawallet_plugin_karura/pages/types/loanPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -27,6 +29,8 @@ class MultiplyPage extends StatefulWidget {
 }
 
 class _MultiplyPageState extends State<MultiplyPage> {
+  Map<String, PageController> _pageController = Map<String, PageController>();
+
   Future<void> _fetchData() async {
     widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     widget.plugin.service!.gov.updateBestNumber();
@@ -47,7 +51,8 @@ class _MultiplyPageState extends State<MultiplyPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
     final args = LoanPageParams.fromJson(argsJson);
 
@@ -70,7 +75,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
       }
       return PluginScaffold(
           appBar: PluginAppBar(
-            title: Text(dic!['multiply.title']!),
+            title: Text(dicCommon!['multiply.title']!),
           ),
           body: isDataLoading
               ? Column(
@@ -89,12 +94,59 @@ class _MultiplyPageState extends State<MultiplyPage> {
                     final _loans = loans
                         .where((data) => data.token!.symbol == e.token!.symbol);
                     LoanData? loan = _loans.length > 0 ? _loans.first : null;
-                    Widget child = CreateVaultWidget(onPressed: () {
+                    Widget child =
+                        CreateVaultWidget(e.token!.symbol!, onPressed: () {
                       Navigator.of(context)
                           .pushNamed(LoanCreatePage.route, arguments: e.token);
                     });
                     if (loan != null) {
-                      child = SingleChildScrollView();
+                      if (_pageController[loan.token!.symbol] == null) {
+                        _pageController[loan.token!.symbol!] = PageController();
+                      }
+                      child = PageView(
+                        scrollDirection: Axis.vertical,
+                        controller: _pageController[loan.token!.symbol!],
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              LoanView(loan),
+                              GestureDetector(
+                                  onTap: () {
+                                    _pageController[loan.token!.symbol!]!
+                                        .animateToPage(
+                                      1,
+                                      duration: Duration(milliseconds: 400),
+                                      curve: Curves.ease,
+                                    );
+                                  },
+                                  child: Padding(
+                                      padding: EdgeInsets.only(bottom: 22),
+                                      child: Text(
+                                        "Adjust Multiple",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline3
+                                            ?.copyWith(
+                                                fontSize: 18,
+                                                color:
+                                                    PluginColorsDark.headline1),
+                                      )))
+                            ],
+                          ),
+                          Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Color(0x8AFFFFFF),
+                                borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(24),
+                                    topRight: Radius.circular(24),
+                                    bottomRight: Radius.circular(24))),
+                          )
+                        ],
+                      );
                     }
                     return LoanTabBarWidgetData(
                       PluginTokenIcon(
@@ -107,13 +159,53 @@ class _MultiplyPageState extends State<MultiplyPage> {
   }
 }
 
+class LoanView extends StatelessWidget {
+  LoanView(this._loan, {Key? key}) : super(key: key);
+  LoanData _loan;
+
+  @override
+  Widget build(BuildContext context) {
+    final sumInUSD = _loan.collateralInUSD + _loan.debitInUSD;
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 244,
+          padding: EdgeInsets.only(left: 20, top: 12, right: 20, bottom: 15),
+          decoration: BoxDecoration(
+              color: Color(0x1AFFFFFF),
+              borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                  bottomRight: Radius.circular(24))),
+          child: Column(
+            children: [
+              Container(
+                width: 150,
+                height: 150,
+                child: CustomPaint(
+                  painter: pieChartPainter(_loan.collateralInUSD / sumInUSD,
+                      _loan.debitInUSD / sumInUSD),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
 class CreateVaultWidget extends StatelessWidget {
-  const CreateVaultWidget({this.onPressed, Key? key}) : super(key: key);
+  const CreateVaultWidget(this.symbol, {this.onPressed, Key? key})
+      : super(key: key);
+  final String symbol;
   final Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -144,14 +236,14 @@ class CreateVaultWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "With 54.00 KSM",
+                        "${dic!['loan.multiply.with']} 54.00 ${PluginFmt.tokenView(symbol)}",
                         style: Theme.of(context)
                             .textTheme
                             .headline3
                             ?.copyWith(color: PluginColorsDark.headline1),
                       ),
                       Text(
-                        "Get up to 233.82 KSM exposure",
+                        "${dic['loan.multiply.message1']} 233.82 ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
                         style: Theme.of(context)
                             .textTheme
                             .headline3
@@ -172,7 +264,7 @@ class CreateVaultWidget extends StatelessWidget {
                           Padding(
                               padding: EdgeInsets.only(bottom: 10),
                               child: Text(
-                                "Max Multiple",
+                                dic['loan.multiply.maxMultiple']!,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline5
@@ -195,7 +287,7 @@ class CreateVaultWidget extends StatelessWidget {
                           Padding(
                               padding: EdgeInsets.only(bottom: 10),
                               child: Text(
-                                "Variable Annual Fee",
+                                dic['loan.multiply.variableAnnualFee']!,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline5
@@ -220,7 +312,7 @@ class CreateVaultWidget extends StatelessWidget {
           Container(
               margin: EdgeInsets.only(bottom: 38),
               child: PluginButton(
-                title: dic!['multiply.title']!,
+                title: dicCommon!['multiply.title']!,
                 onPressed: onPressed,
               ))
         ],

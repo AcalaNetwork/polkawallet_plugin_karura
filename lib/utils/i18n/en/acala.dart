@@ -302,5 +302,10 @@ const Map<String, String> enDex = {
   'v3.loan.requiredSafety': 'Required for safety',
   'v3.loan.newLiquidationPrice': 'New Liquidation Price',
   'v3.loan.liquidRatio': 'Liquidation Loan Ratio',
-  'event.vault.rewards': '🚀 LKSM staking launched! Max. APY up to'
+  'event.vault.rewards': '🚀 LKSM staking launched! Max. APY up to',
+  'loan.multiply.maxMultiple': 'Max Multiple',
+  'loan.multiply.variableAnnualFee': 'Variable Annual Fee',
+  'loan.multiply.with': 'With',
+  'loan.multiply.message1': 'Get up to 233.82 KSM exposure',
+  'loan.multiply.message2': 'exposure'
 };

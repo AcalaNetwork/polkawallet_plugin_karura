@@ -1,0 +1,52 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
+
+class pieChartPainter extends CustomPainter {
+  pieChartPainter(this.collateralRatio, this.debitRatio);
+  double collateralRatio;
+  double debitRatio;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double distance = 10;
+    final sw = size.width - distance;
+    final sh = size.height - distance;
+    final double radius = min(sw, sh) / 2;
+    final Offset center = Offset((sw + distance) / 2, (sh + distance) / 2);
+
+    Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.8
+      ..color = Colors.white;
+
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), 3 / 2 * pi,
+        2 * pi * collateralRatio, true, paint);
+
+    Paint paint1 = Paint()
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true
+      ..strokeWidth = 2.8
+      ..color = Colors.white;
+
+    var centerAngle = 3 / 2 * pi + 2 * pi * collateralRatio + pi * debitRatio;
+    for (; centerAngle >= pi / 2; centerAngle -= pi / 2) {}
+
+    var y = centerAngle == 0 ? 0 : sin(centerAngle) * distance;
+    var x = centerAngle == 0 ? distance : cos(centerAngle) * distance;
+
+    canvas.drawArc(
+        Rect.fromCircle(
+            center: Offset(center.dx - x, center.dy - y), radius: radius),
+        3 / 2 * pi + 2 * pi * collateralRatio,
+        2 * pi * debitRatio,
+        true,
+        paint1);
+  }
+
+  @override
+  bool shouldRepaint(pieChartPainter oldDelegate) =>
+      oldDelegate.collateralRatio != collateralRatio ||
+      oldDelegate.debitRatio != debitRatio;
+}
