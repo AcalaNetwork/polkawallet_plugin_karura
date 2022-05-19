@@ -3,7 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTabBarWidget.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/adjustMultipleWidget.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyAdjustPanel.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/pieChartPainter.dart';
 import 'package:polkawallet_plugin_karura/pages/types/loanPageParams.dart';
@@ -155,7 +155,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
                                       )))
                             ],
                           ),
-                          AdjustMultipleWidget(),
+                          MultiplyAdjustPanel(widget.plugin, widget.keyring, e),
                         ],
                       );
                     }
