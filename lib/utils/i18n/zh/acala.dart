@@ -62,6 +62,7 @@ const Map<String, String> zhDex = {
   'collateral.require': '安全质押数量',
   'borrow.limit': '最大额度',
   'borrow.able': '可生成',
+  'borrow.min': '最低生成',
   'withdraw.able': '可取',
   'loan.amount': '数量',
   'loan.amount.debit': '您要生成多少稳定币？',

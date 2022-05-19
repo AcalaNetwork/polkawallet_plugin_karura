@@ -327,10 +327,6 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       final balance = Fmt.balanceInt(balancePair[0].amount);
       final available = balance;
 
-      final loans = widget.plugin.store!.loan.loans.values.toList();
-      final loan =
-          loans.firstWhere((data) => data.token!.symbol == token.symbol);
-
       final maxToBorrow =
           Fmt.priceFloorBigInt(_maxToBorrow, balancePair[1].decimals!);
 
@@ -437,7 +433,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
                   requiredRatio: loanType.requiredCollateralRatio,
                   currentRatio: _currentRatio,
                   liquidationPrice: _liquidationPrice,
-                  stableFeeYear: loan.stableFeeYear,
+                  stableFeeYear: loanType.stableFeeYear,
                 ),
                 Padding(
                     padding: EdgeInsets.only(top: 37, bottom: 38),
