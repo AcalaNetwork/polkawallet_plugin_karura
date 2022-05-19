@@ -295,7 +295,7 @@ class LoanView extends StatelessWidget {
                       Padding(
                           padding: EdgeInsets.only(left: 5),
                           child: Text(
-                            "${dic['loan.multiply.debit']} ${Fmt.priceFloorBigIntFormatter(_loan.debits, balancePair[1].decimals!)} $karura_stable_coin_view",
+                            "${dic['loan.multiply.debt']} ${Fmt.priceFloorBigIntFormatter(_loan.debits, balancePair[1].decimals!)} $karura_stable_coin_view",
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5

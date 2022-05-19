@@ -4,6 +4,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanInfoPanel.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderOverlayShape.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderThumbShape.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTickMarkShape.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTrackShape.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -12,11 +16,12 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -261,25 +266,76 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
               padding: EdgeInsets.all(16),
               children: <Widget>[
                 Container(
-                  margin: EdgeInsets.only(bottom: 16),
+                  margin: EdgeInsets.only(bottom: 28),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  decoration: BoxDecoration(
+                      color: Color(0x24FFFFFF),
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(4),
+                          topRight: Radius.circular(4),
+                          bottomRight: Radius.circular(4))),
                   child: Row(
                     children: [
-                      InfoItem(
+                      PluginInfoItem(
                         title: dic['collateral.interest']!,
                         content: Fmt.ratio(loanType.stableFeeYear),
+                        titleStyle: Theme.of(context)
+                            .textTheme
+                            .headline5
+                            ?.copyWith(
+                                color: PluginColorsDark.headline1,
+                                fontSize: 12),
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: PluginColorsDark.headline1,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            height: 1.7),
                       ),
-                      InfoItem(
+                      PluginInfoItem(
                         title: dic['liquid.ratio']!,
                         content: Fmt.ratio(ratioRight / 100),
+                        titleStyle: Theme.of(context)
+                            .textTheme
+                            .headline5
+                            ?.copyWith(
+                                color: PluginColorsDark.headline1,
+                                fontSize: 12),
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: PluginColorsDark.headline1,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            height: 1.7),
                       ),
-                      InfoItem(
+                      PluginInfoItem(
                         title: dic['collateral.price.current']!,
                         content: '\$${Fmt.priceFloor(priceDouble)}',
+                        titleStyle: Theme.of(context)
+                            .textTheme
+                            .headline5
+                            ?.copyWith(
+                                color: PluginColorsDark.headline1,
+                                fontSize: 12),
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: PluginColorsDark.headline1,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            height: 1.7),
                       ),
-                      InfoItem(
+                      PluginInfoItem(
                         title: dic['borrow.min']!,
                         content:
                             '${minToBorrow.toStringAsFixed(2)} $karura_stable_coin_view',
+                        titleStyle: Theme.of(context)
+                            .textTheme
+                            .headline5
+                            ?.copyWith(
+                                color: PluginColorsDark.headline1,
+                                fontSize: 12),
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: PluginColorsDark.headline1,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            height: 1.7),
                       ),
                     ],
                   ),
@@ -295,6 +351,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       v, loanType, price, available, balancePair),
                   balance: token,
                   tokenIconsMap: widget.plugin.tokenIcons,
+                  marketPrices: widget.plugin.store!.assets.marketPrices,
                   onClear: () {
                     setState(() {
                       _amountCtrl.text = '';
@@ -304,59 +361,119 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                 ),
                 ErrorMessage(_error1,
                     margin: EdgeInsets.symmetric(vertical: 2)),
-
-                /// ----------------- slider start --------------------
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text('$ratioLeft%'), Text('$ratioRight%')],
-                ),
-                Slider(
-                  min: 0,
-                  max: ratioLeft - ratioRight,
-                  divisions: steps.toInt(),
-                  value: _slider,
-                  label: '${ratioLeft - _slider}%',
-                  onChanged: (v) => _onSliderChanged(balancePair, loanType, v),
-                ),
-                Text(
-                    'liquidation price ------- \$${Fmt.priceFloorBigInt(_liquidationPrice, acala_price_decimals)}'),
-
-                /// ----------------- slider end --------------------
-                Padding(
-                    padding: EdgeInsets.only(bottom: 23, top: 15),
-                    child: Image.asset(
-                        "packages/polkawallet_plugin_karura/assets/images/divider.png")),
-
-                LoanInfoItemRow(
-                  'multiple',
-                  multiple.toStringAsFixed(2) + 'x',
-                ),
-                LoanInfoItemRow(
-                  'buying',
-                  '${Fmt.priceFloor(buyingCollateral.toDouble(), lengthMax: 4)} (\$${Fmt.priceFloor((buyingCollateral * priceDouble).toDouble())})',
-                ),
-                LoanInfoItemRow(
-                  'total exp',
-                  Fmt.priceFloor(
-                      Fmt.bigIntToDouble(
-                              _amountCollateral, balancePair[0].decimals!) +
-                          buyingCollateral.toDouble(),
-                      lengthMax: 4),
-                ),
-                LoanInfoItemRow(
-                  'debt',
-                  Fmt.priceFloor(
-                      Fmt.bigIntToDouble(
-                          _amountDebit, balancePair[1].decimals!),
-                      lengthMax: 4),
-                ),
-                LoanInfoItemRow('slippage', Fmt.ratio(slippage)),
                 ErrorMessage(
                     _amountDebit > BigInt.zero &&
                             _amountDebit < loanType.minimumDebitValue
                         ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}'
                         : null,
                     margin: EdgeInsets.symmetric(vertical: 2)),
+                PluginTextTag(
+                  title: dic['loan.multiply.adjustYourMultiply']!,
+                  margin: EdgeInsets.only(top: 18),
+                ),
+                Container(
+                    margin: EdgeInsets.only(bottom: 24),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    decoration: BoxDecoration(
+                        color: Color(0x24FFFFFF),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                            bottomRight: Radius.circular(4))),
+                    child: Column(
+                      children: [
+                        SliderTheme(
+                            data: SliderThemeData(
+                                trackHeight: 12,
+                                activeTrackColor: PluginColorsDark.green,
+                                disabledActiveTrackColor:
+                                    PluginColorsDark.primary,
+                                inactiveTrackColor: Color(0x4DFFFFFF),
+                                disabledInactiveTrackColor: Color(0x4DFFFFFF),
+                                overlayColor: Colors.transparent,
+                                trackShape: const MultiplySliderTrackShape(),
+                                thumbShape: MultiplySliderThumbShape(),
+                                tickMarkShape:
+                                    const MultiplySliderTickMarkShape(),
+                                overlayShape:
+                                    const MultiplySliderOverlayShape(),
+                                valueIndicatorColor: Color(0xFFC9C9C9),
+                                valueIndicatorTextStyle: Theme.of(context)
+                                    .textTheme
+                                    .headline3
+                                    ?.copyWith(
+                                        color: Colors.black, fontSize: 14)),
+                            child: Slider(
+                              min: 0,
+                              max: ratioLeft - ratioRight,
+                              divisions: steps.toInt(),
+                              value: _slider,
+                              label:
+                                  '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(_liquidationPrice, acala_price_decimals)})',
+                              onChanged: (v) =>
+                                  _onSliderChanged(balancePair, loanType, v),
+                            )),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '$ratioLeft%',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline4
+                                  ?.copyWith(
+                                      color: PluginColorsDark.green,
+                                      fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '$ratioRight%',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline4
+                                  ?.copyWith(
+                                      color: PluginColorsDark.primary,
+                                      fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ],
+                    )),
+                PluginTextTag(
+                  title: dic['loan.multiply.orderInfo']!,
+                  margin: EdgeInsets.only(top: 18),
+                ),
+                Container(
+                    margin: EdgeInsets.only(bottom: 24),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    decoration: BoxDecoration(
+                        color: Color(0x24FFFFFF),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                            bottomRight: Radius.circular(4))),
+                    child: Column(
+                      children: [
+                        LoanInfoItemRow(
+                          I18n.of(context)!.getDic(i18n_full_dic_karura,
+                              'common')!['multiply.title']!,
+                          multiple.toStringAsFixed(2) + 'x',
+                        ),
+                        LoanInfoItemRow(
+                          "${dic['loan.multiply.buying']} ${PluginFmt.tokenView(token.symbol)}",
+                          '${Fmt.priceFloor(buyingCollateral.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloor((buyingCollateral * priceDouble).toDouble())})',
+                        ),
+                        LoanInfoItemRow(
+                          dic['loan.multiply.totalExposure']!,
+                          "${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) + buyingCollateral.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
+                        ),
+                        LoanInfoItemRow(
+                          dic['loan.multiply.outstandingDebt']!,
+                          "${Fmt.priceFloor(Fmt.bigIntToDouble(_amountDebit, balancePair[1].decimals!), lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
+                        ),
+                        LoanInfoItemRow(dic['loan.multiply.slippageLimit']!,
+                            Fmt.ratio(slippage)),
+                      ],
+                    )),
                 Padding(
                     padding: EdgeInsets.only(top: 37, bottom: 38),
                     child: PluginButton(
