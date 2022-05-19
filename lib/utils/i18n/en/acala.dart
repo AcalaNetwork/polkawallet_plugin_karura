@@ -311,4 +311,6 @@ const Map<String, String> enDex = {
   'loan.multiply.message2': 'exposure',
   'loan.multiply.debit': 'Debit',
   'loan.multiply.highRisk': 'High risk',
+  'loan.multiply.totalExposure': 'Total exposure',
+  'loan.multiply.adjustMultiple': 'Adjust Multiple',
 };

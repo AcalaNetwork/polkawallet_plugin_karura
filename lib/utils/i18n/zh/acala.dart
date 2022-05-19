@@ -292,4 +292,6 @@ const Map<String, String> zhDex = {
   'loan.multiply.message2': '',
   'loan.multiply.debit': '已生成',
   'loan.multiply.highRisk': '高风险',
+  'loan.multiply.totalExposure': '总敞口',
+  'loan.multiply.adjustMultiple': '调整倍数',
 };
