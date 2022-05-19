@@ -98,8 +98,8 @@ class _MultiplyPageState extends State<MultiplyPage> {
                     final _loans = loans
                         .where((data) => data.token!.symbol == e.token!.symbol);
                     LoanData? loan = _loans.length > 0 ? _loans.first : null;
-                    Widget child =
-                        CreateVaultWidget(e.token!.symbol!, onPressed: () {
+                    Widget child = CreateVaultWidget(
+                        e.token!.symbol!, widget.plugin, onPressed: () {
                       Navigator.of(context).pushNamed(MultiplyCreatePage.route,
                           arguments: e.token);
                     });
@@ -519,15 +519,23 @@ class LoanView extends StatelessWidget {
 }
 
 class CreateVaultWidget extends StatelessWidget {
-  const CreateVaultWidget(this.symbol, {this.onPressed, Key? key})
+  const CreateVaultWidget(this.symbol, this.plugin, {this.onPressed, Key? key})
       : super(key: key);
   final String symbol;
   final Function()? onPressed;
+  final PluginKarura plugin;
 
   @override
   Widget build(BuildContext context) {
     final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final loanType = plugin.store!.loan.loanTypes
+        .firstWhere((i) => i.token!.symbol == symbol);
+    final ratioRight = Fmt.bigIntToDouble(loanType.liquidationRatio, 18) * 100;
+
+    final maxMultiple = ratioRight / (ratioRight - 100);
+    final _amountCollateral = 54.0;
+    final buyingCollateral = _amountCollateral * (maxMultiple - 1);
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -558,14 +566,14 @@ class CreateVaultWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "${dic!['loan.multiply.with']} 54.00 ${PluginFmt.tokenView(symbol)}",
+                        "${dic!['loan.multiply.with']} ${Fmt.priceFloor(_amountCollateral)} ${PluginFmt.tokenView(symbol)}",
                         style: Theme.of(context)
                             .textTheme
                             .headline3
                             ?.copyWith(color: PluginColorsDark.headline1),
                       ),
                       Text(
-                        "${dic['loan.multiply.message1']} 233.82 ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
+                        "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
                         style: Theme.of(context)
                             .textTheme
                             .headline3
@@ -594,7 +602,7 @@ class CreateVaultWidget extends StatelessWidget {
                                         color: PluginColorsDark.headline1),
                               )),
                           Text(
-                            "4.33x",
+                            maxMultiple.toStringAsFixed(2) + 'x',
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5
@@ -617,7 +625,7 @@ class CreateVaultWidget extends StatelessWidget {
                                         color: PluginColorsDark.headline1),
                               )),
                           Text(
-                            "3.00%",
+                            "${Fmt.ratio(loanType.stableFeeYear)}",
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5
