@@ -602,7 +602,7 @@ class _LoanPageState extends State<LoanPage> {
                             color: Colors.white,
                             fontSize: 10,
                           )),
-                  Text('≈ ${Fmt.ratio(loan.stableFeeYear)}',
+                  Text('≈ ${Fmt.ratio(loan.type.stableFeeYear)}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: colorSafe[0],
                             height: 1.1,

@@ -19,9 +19,7 @@ class LoanType extends _LoanType {
         BigInt.parse((json['requiredCollateralRatio'] ?? 0).toString());
     data.interestRatePerSec =
         BigInt.parse((json['interestRatePerSec'] ?? 0).toString());
-    data.globalInterestRatePerSec = json['globalInterestRatePerSec'] == null
-        ? null
-        : BigInt.parse(json['globalInterestRatePerSec'].toString());
+    data.stableFeeYear = data.calcStableFee(SECONDS_OF_YEAR);
     data.maximumTotalDebitValue =
         BigInt.parse(json['maximumTotalDebitValue'].toString());
     data.minimumDebitValue = BigInt.parse(json['minimumDebitValue'].toString());
@@ -87,6 +85,12 @@ class LoanType extends _LoanType {
             requiredCollateralRatio
         : BigInt.zero;
   }
+
+  double calcStableFee(int seconds) {
+    final base =
+        interestRatePerSec / BigInt.from(pow(10, acala_price_decimals));
+    return pow((1 + base), seconds) - 1;
+  }
 }
 
 abstract class _LoanType {
@@ -96,9 +100,9 @@ abstract class _LoanType {
   BigInt liquidationRatio = BigInt.zero;
   BigInt requiredCollateralRatio = BigInt.zero;
   BigInt interestRatePerSec = BigInt.zero;
-  BigInt? globalInterestRatePerSec = BigInt.zero;
   BigInt maximumTotalDebitValue = BigInt.zero;
   BigInt minimumDebitValue = BigInt.zero;
+  double stableFeeYear = 0;
   int expectedBlockTime = 0;
 }
 
@@ -131,7 +135,6 @@ class LoanData extends _LoanData {
     data.maxToBorrow = type.calcMaxToBorrow(data.collaterals, tokenPrice,
         stableCoinDecimals: stableCoinDecimals,
         collateralDecimals: collateralDecimals);
-    data.stableFeeYear = data.calcStableFee(SECONDS_OF_YEAR);
     data.liquidationPrice = type.calcLiquidationPrice(
         data.debitInUSD, data.collaterals,
         stableCoinDecimals: stableCoinDecimals,
@@ -155,7 +158,6 @@ class LoanData extends _LoanData {
     data.maxToBorrow = this.maxToBorrow;
     data.stableCoinPrice = this.stableCoinPrice;
     data.liquidationPrice = this.liquidationPrice;
-    data.stableFeeYear = this.stableFeeYear;
     return data;
   }
 }
@@ -175,14 +177,7 @@ abstract class _LoanData {
   double collateralRatio = 0;
   BigInt requiredCollateral = BigInt.zero;
   BigInt maxToBorrow = BigInt.zero;
-  double stableFeeYear = 0;
   BigInt liquidationPrice = BigInt.zero;
-
-  double calcStableFee(int seconds) {
-    final base =
-        type.interestRatePerSec / BigInt.from(pow(10, acala_price_decimals));
-    return pow((1 + base), seconds) - 1;
-  }
 }
 
 class CollateralIncentiveData extends _CollateralIncentiveData {
