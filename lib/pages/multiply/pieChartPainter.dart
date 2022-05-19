@@ -22,7 +22,7 @@ class pieChartPainter extends CustomPainter {
       ..color = Colors.white;
 
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius), 3 / 2 * pi,
-        2 * pi * collateralRatio, true, paint);
+        2 * pi * collateralRatio, collateralRatio == 1 ? false : true, paint);
 
     Paint paint1 = Paint()
       ..style = PaintingStyle.fill
@@ -31,17 +31,18 @@ class pieChartPainter extends CustomPainter {
       ..color = Colors.white;
 
     var centerAngle = 3 / 2 * pi + 2 * pi * collateralRatio + pi * debitRatio;
-    for (; centerAngle >= pi / 2; centerAngle -= pi / 2) {}
+    centerAngle = centerAngle % (pi / 2);
 
     var y = centerAngle == 0 ? 0 : sin(centerAngle) * distance;
     var x = centerAngle == 0 ? distance : cos(centerAngle) * distance;
 
     canvas.drawArc(
         Rect.fromCircle(
-            center: Offset(center.dx - x, center.dy - y), radius: radius),
+            center: Offset(center.dx - x, center.dy - y),
+            radius: radius + distance / 3),
         3 / 2 * pi + 2 * pi * collateralRatio,
         2 * pi * debitRatio,
-        true,
+        debitRatio == 1 ? false : true,
         paint1);
   }
 

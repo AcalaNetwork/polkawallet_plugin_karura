@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTabBarWidget.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/pieChartPainter.dart';
 import 'package:polkawallet_plugin_karura/pages/types/loanPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -16,6 +18,8 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class MultiplyPage extends StatefulWidget {
   MultiplyPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -111,7 +115,11 @@ class _MultiplyPageState extends State<MultiplyPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              LoanView(loan),
+                              LoanView(
+                                  loan,
+                                  widget.plugin.store!.assets
+                                      .prices[loan.token!.tokenNameId]!,
+                                  widget.plugin),
                               GestureDetector(
                                   onTap: () {
                                     _pageController[loan.token!.symbol!]!
@@ -160,18 +168,24 @@ class _MultiplyPageState extends State<MultiplyPage> {
 }
 
 class LoanView extends StatelessWidget {
-  LoanView(this._loan, {Key? key}) : super(key: key);
+  LoanView(this._loan, this._prices, this.plugin, {Key? key}) : super(key: key);
   LoanData _loan;
+  BigInt _prices;
+  final PluginKarura plugin;
 
   @override
   Widget build(BuildContext context) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final sumInUSD = _loan.collateralInUSD + _loan.debitInUSD;
+    final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
+        plugin, [_loan.token!.tokenNameId, karura_stable_coin]);
     return Column(
       children: [
         Container(
           width: double.infinity,
           height: 244,
           padding: EdgeInsets.only(left: 20, top: 12, right: 20, bottom: 15),
+          margin: EdgeInsets.only(bottom: 31),
           decoration: BoxDecoration(
               color: Color(0x1AFFFFFF),
               borderRadius: const BorderRadius.only(
@@ -180,17 +194,116 @@ class LoanView extends StatelessWidget {
                   bottomRight: Radius.circular(24))),
           child: Column(
             children: [
-              Container(
-                width: 150,
-                height: 150,
-                child: CustomPaint(
-                  painter: pieChartPainter(_loan.collateralInUSD / sumInUSD,
-                      _loan.debitInUSD / sumInUSD),
-                ),
-              )
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      child: CustomPaint(
+                        painter: pieChartPainter(
+                            _loan.collateralInUSD / sumInUSD,
+                            _loan.debitInUSD / sumInUSD),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                      visible: _loan.debits != BigInt.zero &&
+                          _loan.collateralRatio <
+                              Fmt.bigIntToDouble(
+                                      _loan.type.liquidationRatio, 18) +
+                                  0.05,
+                      child: Align(
+                          alignment: Alignment.topRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(6.0)),
+                                  border: Border.all(
+                                      width: 2,
+                                      color: PluginColorsDark.primary),
+                                ),
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.only(left: 5),
+                                  child: Text(
+                                    dic!['loan.multiply.highRisk']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            fontSize: 12,
+                                            color: PluginColorsDark.headline1),
+                                  ))
+                            ],
+                          )))
+                ],
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 18),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                          border: Border.all(width: 2, color: Colors.white),
+                        ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: Text(
+                            "${dic!['loan.collateral']} ${Fmt.priceFloorBigIntFormatter(_loan.collaterals, _loan.token!.decimals!)} ${PluginFmt.tokenView(_loan.token!.symbol)} (≈\$${Fmt.priceFloorFormatter(Fmt.bigIntToDouble(_loan.collaterals, _loan.token!.decimals!) * Fmt.bigIntToDouble(_prices, acala_price_decimals))})",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(
+                                    fontSize: 12,
+                                    color: PluginColorsDark.headline1),
+                          ))
+                    ],
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                          border: Border.all(width: 2, color: Colors.white),
+                        ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: Text(
+                            "${dic['loan.multiply.debit']} ${Fmt.priceFloorBigIntFormatter(_loan.debits, balancePair[1].decimals!)} $karura_stable_coin_view",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(
+                                    fontSize: 12,
+                                    color: PluginColorsDark.headline1),
+                          ))
+                    ],
+                  ))
             ],
           ),
-        )
+        ),
+        Row()
       ],
     );
   }

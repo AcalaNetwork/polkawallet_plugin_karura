@@ -307,5 +307,7 @@ const Map<String, String> enDex = {
   'loan.multiply.variableAnnualFee': 'Variable Annual Fee',
   'loan.multiply.with': 'With',
   'loan.multiply.message1': 'Get up to',
-  'loan.multiply.message2': 'exposure'
+  'loan.multiply.message2': 'exposure',
+  'loan.multiply.debit': 'Debit',
+  'loan.multiply.highRisk': 'High risk',
 };

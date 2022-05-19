@@ -288,5 +288,7 @@ const Map<String, String> zhDex = {
   'loan.multiply.variableAnnualFee': '稳定费率（可波动）',
   'loan.multiply.with': '',
   'loan.multiply.message1': '敞口最高可达',
-  'loan.multiply.message2': ''
+  'loan.multiply.message2': '',
+  'loan.multiply.debit': '已生成',
+  'loan.multiply.highRisk': '高风险',
 };
