@@ -80,8 +80,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
 
       final List<LoanType> loantypes = [];
       widget.plugin.store!.loan.loanTypes.forEach((element) {
-        if (widget.plugin.store!.assets.prices[element.token!.tokenNameId] !=
-            null) {
+        if (element.maximumTotalDebitValue != BigInt.zero) {
           loantypes.add(element);
         }
       });
@@ -89,92 +88,111 @@ class _MultiplyPageState extends State<MultiplyPage> {
           appBar: PluginAppBar(
             title: Text(dicCommon!['multiply.title']!),
           ),
-          body: isDataLoading
-              ? Column(
-                  children: [
-                    ConnectionChecker(widget.plugin, onConnected: _fetchData),
-                    Container(
-                      height: MediaQuery.of(context).size.height / 2,
-                      child: PluginLoadingWidget(),
-                    )
-                  ],
-                )
-              : LoanTabBarWidget(
-                  initialTab:
-                      initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
-                  data: loantypes.map((e) {
-                    final _loans = loans
-                        .where((data) => data.token!.symbol == e.token!.symbol);
-                    LoanData? loan = _loans.length > 0 ? _loans.first : null;
-                    Widget child = CreateVaultWidget(
-                        e.token!.symbol!, widget.plugin, onPressed: () {
-                      Navigator.of(context).pushNamed(MultiplyCreatePage.route,
-                          arguments: e.token);
-                    });
-                    if (loan != null) {
-                      if (_pageController[loan.token!.symbol] == null) {
-                        _pageController[loan.token!.symbol!] = PageController();
-                      }
-                      child = PageView(
-                        scrollDirection: Axis.vertical,
-                        controller: _pageController[loan.token!.symbol!],
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              LoanView(
-                                  loan,
-                                  widget.plugin.store!.assets
-                                          .prices[loan.token!.tokenNameId] ??
-                                      BigInt.zero,
-                                  widget.plugin),
-                              GestureDetector(
-                                  onTap: () {
-                                    _pageController[loan.token!.symbol!]!
-                                        .animateToPage(
-                                      1,
-                                      duration: Duration(milliseconds: 400),
-                                      curve: Curves.ease,
-                                    );
-                                  },
-                                  child: Padding(
-                                      padding: EdgeInsets.only(bottom: 22),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            dic![
-                                                'loan.multiply.adjustMultiple']!,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline3
-                                                ?.copyWith(
-                                                    fontSize: 18,
-                                                    color: PluginColorsDark
-                                                        .headline1),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(left: 5),
-                                            child: Image.asset(
-                                              "packages/polkawallet_plugin_karura/assets/images/adjust_multiple.png",
-                                              width: 10,
-                                            ),
-                                          )
-                                        ],
-                                      )))
-                            ],
-                          ),
-                          MultiplyAdjustPanel(widget.plugin, widget.keyring, e),
-                        ],
-                      );
-                    }
-                    return LoanTabBarWidgetData(
-                      PluginTokenIcon(
-                          e.token!.symbol!, widget.plugin.tokenIcons),
-                      child,
-                    );
-                  }).toList(),
-                ));
+          body: Container(
+              width: double.infinity,
+              height: double.infinity,
+              margin: EdgeInsets.only(top: 16),
+              child: SafeArea(
+                  child: isDataLoading
+                      ? Column(
+                          children: [
+                            ConnectionChecker(widget.plugin,
+                                onConnected: _fetchData),
+                            Container(
+                              height: MediaQuery.of(context).size.height / 2,
+                              child: PluginLoadingWidget(),
+                            )
+                          ],
+                        )
+                      : LoanTabBarWidget(
+                          initialTab: initialLoanTypeIndex > -1
+                              ? initialLoanTypeIndex
+                              : 0,
+                          data: loantypes.map((e) {
+                            final _loans = loans.where((data) =>
+                                data.token!.symbol == e.token!.symbol);
+                            LoanData? loan =
+                                _loans.length > 0 ? _loans.first : null;
+                            Widget child = CreateVaultWidget(
+                                e.token!.symbol!, widget.plugin, onPressed: () {
+                              Navigator.of(context).pushNamed(
+                                  MultiplyCreatePage.route,
+                                  arguments: e.token);
+                            });
+                            if (loan != null) {
+                              if (_pageController[loan.token!.symbol] == null) {
+                                _pageController[loan.token!.symbol!] =
+                                    PageController();
+                              }
+                              child = PageView(
+                                scrollDirection: Axis.vertical,
+                                controller:
+                                    _pageController[loan.token!.symbol!],
+                                children: [
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      LoanView(
+                                          loan,
+                                          widget.plugin.store!.assets.prices[
+                                                  loan.token!.tokenNameId] ??
+                                              BigInt.zero,
+                                          widget.plugin),
+                                      GestureDetector(
+                                          onTap: () {
+                                            _pageController[
+                                                    loan.token!.symbol!]!
+                                                .animateToPage(
+                                              1,
+                                              duration:
+                                                  Duration(milliseconds: 400),
+                                              curve: Curves.ease,
+                                            );
+                                          },
+                                          child: Padding(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 22),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    dic![
+                                                        'loan.multiply.adjustMultiple']!,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline3
+                                                        ?.copyWith(
+                                                            fontSize: 18,
+                                                            color:
+                                                                PluginColorsDark
+                                                                    .headline1),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 5),
+                                                    child: Image.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/adjust_multiple.png",
+                                                      width: 10,
+                                                    ),
+                                                  )
+                                                ],
+                                              )))
+                                    ],
+                                  ),
+                                  MultiplyAdjustPanel(
+                                      widget.plugin, widget.keyring, e),
+                                ],
+                              );
+                            }
+                            return LoanTabBarWidgetData(
+                              PluginTokenIcon(
+                                  e.token!.symbol!, widget.plugin.tokenIcons),
+                              child,
+                            );
+                          }).toList(),
+                        ))));
     });
   }
 }
@@ -199,7 +217,7 @@ class LoanView extends StatelessWidget {
           width: double.infinity,
           height: 244,
           padding: EdgeInsets.only(left: 20, top: 12, right: 20, bottom: 15),
-          margin: EdgeInsets.only(bottom: 31),
+          margin: EdgeInsets.only(bottom: 31, top: 10),
           decoration: BoxDecoration(
               color: Color(0x1AFFFFFF),
               borderRadius: const BorderRadius.only(
@@ -269,9 +287,8 @@ class LoanView extends StatelessWidget {
                         width: 12,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: Colors.transparent,
+                          color: Colors.white.withAlpha(76),
                           borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                          border: Border.all(width: 2, color: Colors.white),
                         ),
                       ),
                       Padding(
@@ -298,7 +315,6 @@ class LoanView extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                          border: Border.all(width: 2, color: Colors.white),
                         ),
                       ),
                       Padding(
@@ -571,23 +587,48 @@ class CreateVaultWidget extends StatelessWidget {
                   width: double.infinity,
                   height: 96,
                   color: Color(0x33FFFFFF),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Stack(
                     children: [
-                      Text(
-                        "${dic!['loan.multiply.with']} ${Fmt.priceFloor(_amountCollateral)} ${PluginFmt.tokenView(symbol)}",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline3
-                            ?.copyWith(color: PluginColorsDark.headline1),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        margin: EdgeInsets.only(left: 6, top: 6),
+                        decoration: BoxDecoration(
+                            color: Color(0xFF727272),
+                            borderRadius: BorderRadius.circular(2)),
+                        child: Text(
+                          dic!['loan.multiply.example']!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: PluginColorsDark.headline1),
+                        ),
                       ),
-                      Text(
-                        "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline3
-                            ?.copyWith(color: PluginColorsDark.headline1),
-                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "${dic!['loan.multiply.with']} ${Fmt.priceFloor(_amountCollateral)} ${PluginFmt.tokenView(symbol)}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline3
+                                  ?.copyWith(color: PluginColorsDark.headline1),
+                            ),
+                            Text(
+                              "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline3
+                                  ?.copyWith(color: PluginColorsDark.headline1),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),

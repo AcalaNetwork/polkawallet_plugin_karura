@@ -318,4 +318,7 @@ const Map<String, String> enDex = {
   'loan.multiply.buying': 'Buying',
   'loan.multiply.outstandingDebt': 'Outstanding debt',
   'loan.multiply.slippageLimit': 'Slippage limit',
+  'loan.multiply.adjustInfo': 'Adjust Info',
+  'loan.multiply.selling': 'Selling',
+  'loan.multiply.example': 'Example',
 };

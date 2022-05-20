@@ -299,4 +299,7 @@ const Map<String, String> zhDex = {
   'loan.multiply.buying': '购买',
   'loan.multiply.outstandingDebt': '未偿债务',
   'loan.multiply.slippageLimit': '滑点限制',
+  'loan.multiply.adjustInfo': '调整信息',
+  'loan.multiply.selling': '抛售',
+  'loan.multiply.example': '示例',
 };

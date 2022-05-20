@@ -17,17 +17,14 @@ class pieChartPainter extends CustomPainter {
     final Offset center = Offset((sw + distance) / 2, (sh + distance) / 2);
 
     Paint paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.8
-      ..color = Colors.white;
+      ..style = PaintingStyle.fill
+      ..color = Colors.white.withAlpha(76);
 
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius), 3 / 2 * pi,
         2 * pi * collateralRatio, collateralRatio == 1 ? false : true, paint);
 
     Paint paint1 = Paint()
       ..style = PaintingStyle.fill
-      ..isAntiAlias = true
-      ..strokeWidth = 2.8
       ..color = Colors.white;
 
     var centerAngle = 3 / 2 * pi + 2 * pi * collateralRatio + pi * debitRatio;
@@ -39,7 +36,7 @@ class pieChartPainter extends CustomPainter {
     canvas.drawArc(
         Rect.fromCircle(
             center: Offset(center.dx - x, center.dy - y),
-            radius: radius + distance / 3),
+            radius: radius + distance * (pi / 4 - centerAngle)),
         3 / 2 * pi + 2 * pi * collateralRatio,
         2 * pi * debitRatio,
         debitRatio == 1 ? false : true,

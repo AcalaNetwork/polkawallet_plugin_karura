@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/loanNew/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderOverlayShape.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderThumbShape.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTickMarkShape.dart';
@@ -266,7 +265,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
               padding: EdgeInsets.all(16),
               children: <Widget>[
                 Container(
-                  margin: EdgeInsets.only(bottom: 28),
+                  margin: EdgeInsets.only(bottom: 25, top: 10),
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   decoration: BoxDecoration(
                       color: Color(0x24FFFFFF),
@@ -361,18 +360,12 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                 ),
                 ErrorMessage(_error1,
                     margin: EdgeInsets.symmetric(vertical: 2)),
-                ErrorMessage(
-                    _amountDebit > BigInt.zero &&
-                            _amountDebit < loanType.minimumDebitValue
-                        ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}'
-                        : null,
-                    margin: EdgeInsets.symmetric(vertical: 2)),
                 PluginTextTag(
                   title: dic['loan.multiply.adjustYourMultiply']!,
-                  margin: EdgeInsets.only(top: 18),
+                  margin: EdgeInsets.only(top: 25),
                 ),
                 Container(
-                    margin: EdgeInsets.only(bottom: 24),
+                    margin: EdgeInsets.only(bottom: 25),
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     decoration: BoxDecoration(
                         color: Color(0x24FFFFFF),
@@ -440,10 +433,9 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                     )),
                 PluginTextTag(
                   title: dic['loan.multiply.orderInfo']!,
-                  margin: EdgeInsets.only(top: 18),
                 ),
                 Container(
-                    margin: EdgeInsets.only(bottom: 24),
+                    margin: EdgeInsets.only(bottom: 25),
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     decoration: BoxDecoration(
                         color: Color(0x24FFFFFF),
@@ -453,27 +445,36 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             bottomRight: Radius.circular(4))),
                     child: Column(
                       children: [
-                        LoanInfoItemRow(
+                        MultiplyInfoItemRow(
                           I18n.of(context)!.getDic(i18n_full_dic_karura,
                               'common')!['multiply.title']!,
                           multiple.toStringAsFixed(2) + 'x',
+                          oldContent: '0.00',
                         ),
-                        LoanInfoItemRow(
+                        MultiplyInfoItemRow(
                           "${dic['loan.multiply.buying']} ${PluginFmt.tokenView(token.symbol)}",
                           '${Fmt.priceFloor(buyingCollateral.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloor((buyingCollateral * priceDouble).toDouble())})',
                         ),
-                        LoanInfoItemRow(
+                        MultiplyInfoItemRow(
                           dic['loan.multiply.totalExposure']!,
                           "${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) + buyingCollateral.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
+                          oldContent: '0.00',
                         ),
-                        LoanInfoItemRow(
+                        MultiplyInfoItemRow(
                           dic['loan.multiply.outstandingDebt']!,
                           "${Fmt.priceFloor(Fmt.bigIntToDouble(_amountDebit, balancePair[1].decimals!), lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
+                          oldContent: '0.00',
                         ),
-                        LoanInfoItemRow(dic['loan.multiply.slippageLimit']!,
+                        MultiplyInfoItemRow(dic['loan.multiply.slippageLimit']!,
                             Fmt.ratio(slippage)),
                       ],
                     )),
+                ErrorMessage(
+                    _amountDebit > BigInt.zero &&
+                            _amountDebit < loanType.minimumDebitValue
+                        ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}'
+                        : null,
+                    margin: EdgeInsets.symmetric(vertical: 2)),
                 Padding(
                     padding: EdgeInsets.only(top: 37, bottom: 38),
                     child: PluginButton(
@@ -491,5 +492,54 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
         }),
       );
     });
+  }
+}
+
+class MultiplyInfoItemRow extends StatelessWidget {
+  MultiplyInfoItemRow(this.title, this.content,
+      {this.oldContent = '', this.contentColor = Colors.white});
+  final String title;
+  final String content;
+  final String oldContent;
+  final Color contentColor;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.only(bottom: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title,
+                style: Theme.of(context).textTheme.headline5?.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.w600)),
+            Row(
+              children: [
+                Visibility(
+                    visible: oldContent.trim().length > 0,
+                    child: Text(
+                      oldContent,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          ?.copyWith(color: Colors.white, fontSize: 12),
+                    )),
+                Visibility(
+                    visible: oldContent.trim().length > 0,
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 3, right: 3),
+                        child: Image.asset(
+                            "packages/polkawallet_plugin_karura/assets/images/multiply_update.png",
+                            width: 11))),
+                Text(
+                  content,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5
+                      ?.copyWith(color: this.contentColor, fontSize: 12),
+                ),
+              ],
+            )
+          ],
+        ));
   }
 }
