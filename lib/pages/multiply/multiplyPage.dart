@@ -77,6 +77,14 @@ class _MultiplyPageState extends State<MultiplyPage> {
         initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes.indexWhere(
             (e) => e.token?.tokenNameId == loans[0].token?.tokenNameId);
       }
+
+      final List<LoanType> loantypes = [];
+      widget.plugin.store!.loan.loanTypes.forEach((element) {
+        if (widget.plugin.store!.assets.prices[element.token!.tokenNameId] !=
+            null) {
+          loantypes.add(element);
+        }
+      });
       return PluginScaffold(
           appBar: PluginAppBar(
             title: Text(dicCommon!['multiply.title']!),
@@ -94,7 +102,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
               : LoanTabBarWidget(
                   initialTab:
                       initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
-                  data: widget.plugin.store!.loan.loanTypes.map((e) {
+                  data: loantypes.map((e) {
                     final _loans = loans
                         .where((data) => data.token!.symbol == e.token!.symbol);
                     LoanData? loan = _loans.length > 0 ? _loans.first : null;
@@ -118,7 +126,8 @@ class _MultiplyPageState extends State<MultiplyPage> {
                               LoanView(
                                   loan,
                                   widget.plugin.store!.assets
-                                      .prices[loan.token!.tokenNameId]!,
+                                          .prices[loan.token!.tokenNameId] ??
+                                      BigInt.zero,
                                   widget.plugin),
                               GestureDetector(
                                   onTap: () {

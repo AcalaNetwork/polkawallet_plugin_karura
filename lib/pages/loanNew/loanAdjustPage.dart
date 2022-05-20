@@ -625,7 +625,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
   void _valueChange({BigInt? debits, BigInt? collaterals}) {
     final tokenPrice =
-        widget.plugin.store!.assets.prices[_editorLoan!.token!.tokenNameId]!;
+        widget.plugin.store!.assets.prices[_editorLoan!.token!.tokenNameId] ??
+            BigInt.zero;
     final stableCoinDecimals = widget
         .plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!;
     final collateralDecimals = _editorLoan!.token!.decimals!;

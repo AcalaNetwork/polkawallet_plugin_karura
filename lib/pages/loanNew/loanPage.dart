@@ -387,7 +387,7 @@ class _LoanPageState extends State<LoanPage> {
                                           ),
                                           InfoItemRow(
                                               dic['collateral.price.current']!,
-                                              '≈ \$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId]!, acala_price_decimals)}',
+                                              '≈ \$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId] ?? BigInt.zero, acala_price_decimals)}',
                                               labelStyle: itemStype,
                                               contentStyle: itemStype),
                                           InfoItemRow(dic['liquid.price']!,

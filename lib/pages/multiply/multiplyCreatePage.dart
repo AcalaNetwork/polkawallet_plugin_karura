@@ -146,7 +146,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final token =
         ModalRoute.of(context)?.settings.arguments as TokenBalanceData;
-    final debitShare = loanType.debitToDebitShare(_amountDebit);
+    final debitShare = _amountDebit;
 
     const slippage = 5;
     final ratioLeft =
