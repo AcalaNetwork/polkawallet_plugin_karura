@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderOverlayShape.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderThumbShape.dart';
@@ -36,6 +40,7 @@ class MultiplyAdjustPanel extends StatefulWidget {
 
 class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   double _slider = 0;
+  bool _isInfoOpen = false;
 
   Map _getBuyingParams(LoanType loanType, List<TokenBalanceData> balancePair,
       double collateralChange, double debitChange, double debitNew) {
@@ -248,7 +253,6 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               title: dic['loan.multiply.adjustYourMultiply']!,
             ),
             Container(
-                margin: EdgeInsets.only(bottom: 25),
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                 decoration: BoxDecoration(
                     color: Color(0x24FFFFFF),
@@ -306,12 +310,13 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                     const MultiplySliderTickMarkShape(),
                                 overlayShape:
                                     const MultiplySliderOverlayShape(),
-                                valueIndicatorColor: Color(0xFFC9C9C9),
+                                valueIndicatorColor: Color(0xFF7D7D7D),
                                 valueIndicatorTextStyle: Theme.of(context)
                                     .textTheme
                                     .headline3
                                     ?.copyWith(
-                                        color: Colors.black, fontSize: 14)),
+                                        color: PluginColorsDark.headline1,
+                                        fontSize: 14)),
                             child: Slider(
                               min: 0,
                               max: ratioLeft - ratioRight,
@@ -352,12 +357,19 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                     ),
                   ],
                 )),
+            ErrorMessage(
+                ratioLeft - _slider <= ratioRight + 10
+                    ? dic['loan.multiply.message3']
+                    : null,
+                margin: EdgeInsets.symmetric(vertical: 2)),
             PluginTextTag(
+              margin: EdgeInsets.only(top: 25),
               title: dic['loan.multiply.adjustInfo']!,
             ),
             Container(
                 margin: EdgeInsets.only(bottom: 25),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                // padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                padding: EdgeInsets.only(top: 15),
                 decoration: BoxDecoration(
                     color: Color(0x24FFFFFF),
                     borderRadius: const BorderRadius.only(
@@ -365,69 +377,110 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                         topRight: Radius.circular(4),
                         bottomRight: Radius.circular(4))),
                 child: Column(children: [
-                  MultiplyInfoItemRow(
-                    dic['loan.ratio']!,
-                    "${ratioLeft - _slider}%",
-                    oldContent: "${ratioLeft - _oldSlider}%",
-                    contentColor: _slider > _oldSlider
-                        ? PluginColorsDark.primary
-                        : _slider < _oldSlider
-                            ? PluginColorsDark.green
-                            : PluginColorsDark.headline1,
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Column(
+                      children: [
+                        MultiplyInfoItemRow(
+                          dic['loan.ratio']!,
+                          "${ratioLeft - _slider}%",
+                          oldContent: "${ratioLeft - _oldSlider}%",
+                          contentColor: _slider > _oldSlider
+                              ? PluginColorsDark.primary
+                              : _slider < _oldSlider
+                                  ? PluginColorsDark.green
+                                  : PluginColorsDark.headline1,
+                        ),
+                        MultiplyInfoItemRow(
+                          dic['liquid.price']!,
+                          "\$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)}",
+                          oldContent:
+                              "\$${Fmt.priceFloorBigInt(loan?.liquidationPrice, acala_price_decimals)}",
+                          contentColor:
+                              loan!.liquidationPrice < liquidationPriceNew
+                                  ? PluginColorsDark.primary
+                                  : loan.liquidationPrice > liquidationPriceNew
+                                      ? PluginColorsDark.green
+                                      : PluginColorsDark.headline1,
+                        ),
+                        MultiplyInfoItemRow(
+                          I18n.of(context)!.getDic(i18n_full_dic_karura,
+                              'common')!['multiply.title']!,
+                          multiple.toStringAsFixed(2) + 'x',
+                          oldContent: '${oldMultiple.toStringAsFixed(2)}x',
+                          contentColor: multiple > oldMultiple
+                              ? PluginColorsDark.primary
+                              : multiple < oldMultiple
+                                  ? PluginColorsDark.green
+                                  : PluginColorsDark.headline1,
+                        ),
+                        Visibility(
+                            visible: _isInfoOpen,
+                            child: Column(
+                              children: [
+                                MultiplyInfoItemRow(
+                                  "${collateralChange < 0 ? dic['loan.multiply.selling']! : dic['loan.multiply.buying']!} ${PluginFmt.tokenView(token.symbol)}",
+                                  '${Fmt.priceFloor(collateralChange.abs().toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloor((collateralChange.abs() * priceDouble).toDouble())})',
+                                ),
+                                MultiplyInfoItemRow(
+                                  dic['loan.multiply.totalExposure']!,
+                                  "${Fmt.priceFloor(collateralDouble + collateralChange, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
+                                  oldContent: "$collateralView",
+                                  contentColor: collateralDouble +
+                                              collateralChange >
+                                          Fmt.bigIntToDouble(loan.collaterals,
+                                              balancePair[0].decimals!)
+                                      ? PluginColorsDark.primary
+                                      : collateralDouble + collateralChange <
+                                              Fmt.bigIntToDouble(
+                                                  loan.collaterals,
+                                                  balancePair[0].decimals!)
+                                          ? PluginColorsDark.green
+                                          : PluginColorsDark.headline1,
+                                ),
+                                MultiplyInfoItemRow(
+                                  dic['loan.multiply.outstandingDebt']!,
+                                  "${Fmt.priceFloor(debitDouble + collateralValueChange, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
+                                  oldContent: Fmt.priceFloor(debitDouble),
+                                  contentColor: debitDouble +
+                                              collateralValueChange >
+                                          debitDouble
+                                      ? PluginColorsDark.primary
+                                      : debitDouble + collateralValueChange <
+                                              debitDouble
+                                          ? PluginColorsDark.green
+                                          : PluginColorsDark.headline1,
+                                ),
+                                MultiplyInfoItemRow(
+                                    dic['loan.multiply.slippageLimit']!,
+                                    Fmt.ratio(slippage)),
+                              ],
+                            )),
+                      ],
+                    ),
                   ),
-                  MultiplyInfoItemRow(
-                    dic['liquid.price']!,
-                    "\$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)}",
-                    oldContent:
-                        "\$${Fmt.priceFloorBigInt(loan?.liquidationPrice, acala_price_decimals)}",
-                    contentColor: loan!.liquidationPrice < liquidationPriceNew
-                        ? PluginColorsDark.primary
-                        : loan.liquidationPrice > liquidationPriceNew
-                            ? PluginColorsDark.green
-                            : PluginColorsDark.headline1,
-                  ),
-                  MultiplyInfoItemRow(
-                    I18n.of(context)!.getDic(
-                        i18n_full_dic_karura, 'common')!['multiply.title']!,
-                    multiple.toStringAsFixed(2) + 'x',
-                    oldContent: '${oldMultiple.toStringAsFixed(2)}x',
-                    contentColor: multiple > oldMultiple
-                        ? PluginColorsDark.primary
-                        : multiple < oldMultiple
-                            ? PluginColorsDark.green
-                            : PluginColorsDark.headline1,
-                  ),
-                  MultiplyInfoItemRow(
-                    "${collateralChange < 0 ? dic['loan.multiply.selling']! : dic['loan.multiply.buying']!} ${PluginFmt.tokenView(token.symbol)}",
-                    '${Fmt.priceFloor(collateralChange.abs().toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloor((collateralChange.abs() * priceDouble).toDouble())})',
-                  ),
-                  MultiplyInfoItemRow(
-                    dic['loan.multiply.totalExposure']!,
-                    "${Fmt.priceFloor(collateralDouble + collateralChange, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
-                    oldContent: "$collateralView",
-                    contentColor: collateralDouble + collateralChange >
-                            Fmt.bigIntToDouble(
-                                loan.collaterals, balancePair[0].decimals!)
-                        ? PluginColorsDark.primary
-                        : collateralDouble + collateralChange <
-                                Fmt.bigIntToDouble(
-                                    loan.collaterals, balancePair[0].decimals!)
-                            ? PluginColorsDark.green
-                            : PluginColorsDark.headline1,
-                  ),
-                  MultiplyInfoItemRow(
-                    dic['loan.multiply.outstandingDebt']!,
-                    "${Fmt.priceFloor(debitDouble + collateralValueChange, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
-                    oldContent: Fmt.priceFloor(debitDouble),
-                    contentColor:
-                        debitDouble + collateralValueChange > debitDouble
-                            ? PluginColorsDark.primary
-                            : debitDouble + collateralValueChange < debitDouble
-                                ? PluginColorsDark.green
-                                : PluginColorsDark.headline1,
-                  ),
-                  MultiplyInfoItemRow(
-                      dic['loan.multiply.slippageLimit']!, Fmt.ratio(slippage)),
+                  GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isInfoOpen = !_isInfoOpen;
+                        });
+                      },
+                      child: Container(
+                        height: 32,
+                        decoration: BoxDecoration(
+                            color: Color(0xFF626467),
+                            borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(4),
+                                bottomRight: Radius.circular(4))),
+                        child: Center(
+                          child: Transform.rotate(
+                              angle: _isInfoOpen ? pi : 0,
+                              child: SvgPicture.asset(
+                                "packages/polkawallet_ui/assets/images/triangle_bottom.svg",
+                                color: PluginColorsDark.headline1,
+                              )),
+                        ),
+                      ))
                 ])),
             ErrorMessage(
                 debitNew < minDebitDouble
@@ -435,7 +488,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                     : null,
                 margin: EdgeInsets.symmetric(vertical: 2)),
             Padding(
-                padding: EdgeInsets.only(top: 37),
+                padding: EdgeInsets.only(top: 10),
                 child: PluginButton(
                   title: '${dic['v3.loan.submit']}',
                   onPressed: () {
@@ -445,6 +498,20 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                     }
                   },
                 )),
+            Padding(
+              padding: EdgeInsets.only(top: 9),
+              child: GestureDetector(
+                child: Text(
+                  dic['loan.multiply.manageYourVault']!,
+                  style: Theme.of(context).textTheme.headline5?.copyWith(
+                      decoration: TextDecoration.underline,
+                      color: Color(0xFFFFFFFF).withAlpha(204)),
+                ),
+                onTap: () {
+                  Navigator.of(context).pushNamed(LoanPage.route);
+                },
+              ),
+            )
           ],
         ),
       );

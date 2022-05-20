@@ -346,7 +346,6 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                   margin: EdgeInsets.only(top: 25),
                 ),
                 Container(
-                    margin: EdgeInsets.only(bottom: 25),
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     decoration: BoxDecoration(
                         color: Color(0x24FFFFFF),
@@ -371,12 +370,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                                     const MultiplySliderTickMarkShape(),
                                 overlayShape:
                                     const MultiplySliderOverlayShape(),
-                                valueIndicatorColor: Color(0xFFC9C9C9),
+                                valueIndicatorColor: Color(0xFF7D7D7D),
                                 valueIndicatorTextStyle: Theme.of(context)
                                     .textTheme
                                     .headline3
                                     ?.copyWith(
-                                        color: Colors.black, fontSize: 14)),
+                                        color: PluginColorsDark.headline1,
+                                        fontSize: 14)),
                             child: Slider(
                               min: 0,
                               max: ratioLeft - ratioRight,
@@ -412,7 +412,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                         ),
                       ],
                     )),
+                ErrorMessage(
+                    ratioLeft - _slider <= ratioRight + 10
+                        ? dic['loan.multiply.message3']
+                        : null,
+                    margin: EdgeInsets.symmetric(vertical: 2)),
                 PluginTextTag(
+                  margin: EdgeInsets.only(top: 25),
                   title: dic['loan.multiply.orderInfo']!,
                 ),
                 Container(
@@ -494,7 +500,7 @@ class MultiplyInfoItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(bottom: 5),
+        padding: EdgeInsets.only(bottom: 7),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
