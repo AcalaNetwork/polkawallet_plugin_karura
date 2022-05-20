@@ -407,11 +407,11 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                     oldContent: "$collateralView",
                     contentColor: collateralDouble + collateralChange >
                             Fmt.bigIntToDouble(
-                                loan?.collaterals, balancePair[0].decimals!)
+                                loan.collaterals, balancePair[0].decimals!)
                         ? PluginColorsDark.primary
                         : collateralDouble + collateralChange <
                                 Fmt.bigIntToDouble(
-                                    loan?.collaterals, balancePair[0].decimals!)
+                                    loan.collaterals, balancePair[0].decimals!)
                             ? PluginColorsDark.green
                             : PluginColorsDark.headline1,
                   ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -43,20 +45,9 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
   BigInt _amountDebit = BigInt.zero;
   double _slider = 0;
 
-  BigInt _liquidationPrice = BigInt.zero;
-
   bool _autoValidate = false;
 
   String? _error1;
-
-  void _updateState(LoanType loanType, BigInt collateral, BigInt debit,
-      {required int stableCoinDecimals, required int collateralDecimals}) {
-    setState(() {
-      _liquidationPrice = loanType.calcLiquidationPrice(debit, collateral,
-          stableCoinDecimals: stableCoinDecimals,
-          collateralDecimals: collateralDecimals);
-    });
-  }
 
   void _onAmount1Change(String value, LoanType loanType, BigInt? price,
       BigInt available, List<TokenBalanceData> balancePair) {
@@ -99,17 +90,6 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
             BigInt.from(inputCollateralRatio);
       }
     });
-
-    if (_amountCollateral > BigInt.zero && _amountDebit > BigInt.zero) {
-      _updateState(
-          loanType,
-          _amountCollateral *
-              BigInt.from(ratioLeft - value) ~/
-              BigInt.from(ratioLeft - value - 100),
-          _amountDebit,
-          stableCoinDecimals: balancePair[1].decimals!,
-          collateralDecimals: loanType.token!.decimals!);
-    }
   }
 
   void _checkAutoValidate({String? value1, String? value2}) {
@@ -140,49 +120,6 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     return null;
   }
 
-  Map _getTxParams(
-      LoanType loanType, List<TokenBalanceData> balancePair, double multiple) {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final token =
-        ModalRoute.of(context)?.settings.arguments as TokenBalanceData;
-    final debitShare = _amountDebit;
-
-    const slippage = 5;
-    final ratioLeft =
-        Fmt.bigIntToDouble(loanType.requiredCollateralRatio, 18) * 100;
-    final buyingWithSlippage = _amountCollateral *
-        BigInt.from(100) ~/
-        BigInt.from(ratioLeft - _slider - 100) *
-        BigInt.from(100 - slippage) ~/
-        BigInt.from(100);
-    print('buyingWithSlippage');
-    print(buyingWithSlippage);
-
-    return {
-      'detail': {
-        'buying': Text(
-          '≈ ${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) * (multiple - 1), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
-          style: Theme.of(context)
-              .textTheme
-              .headline1
-              ?.copyWith(color: PluginColorsDark.headline1),
-        ),
-        'debt': Text(
-          '${Fmt.priceCeilBigInt(_amountDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
-          style: Theme.of(context)
-              .textTheme
-              .headline1
-              ?.copyWith(color: PluginColorsDark.headline1),
-        ),
-      },
-      'params': [
-        token.currencyId,
-        debitShare.toString(),
-        buyingWithSlippage.toString()
-      ]
-    };
-  }
-
   Future<void> _onSubmit(
       String pageTitle, LoanType loanType, double multiple) async {
     final token =
@@ -197,14 +134,50 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     if (error != null) {
       return;
     }
-    final params = _getTxParams(loanType, balancePair, multiple);
+
+    const slippage = 5;
+    final ratioLeft =
+        Fmt.bigIntToDouble(loanType.requiredCollateralRatio, 18) * 100;
+    final buyingWithSlippage = _amountCollateral *
+        BigInt.from(100) ~/
+        BigInt.from(ratioLeft - _slider - 100) *
+        BigInt.from(100 - slippage) ~/
+        BigInt.from(100);
+    final batchTxs = [
+      'api.tx.honzon.adjustLoan(...${jsonEncode([
+            token.currencyId,
+            _amountCollateral.toString(),
+            '0'
+          ])})',
+      'api.tx.honzon.expandPositionCollateral(...${jsonEncode([
+            token.currencyId,
+            _amountDebit.toString(),
+            buyingWithSlippage.toString()
+          ])})',
+    ];
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
-          module: 'honzon',
-          call: 'expandPositionCollateral',
+          module: 'utility',
+          call: 'batchAll',
           txTitle: pageTitle,
-          txDisplayBold: params['detail'],
-          params: params['params'],
+          txDisplayBold: {
+            'buying': Text(
+              '≈ ${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) * (multiple - 1), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: PluginColorsDark.headline1),
+            ),
+            'debt': Text(
+              '${Fmt.priceCeilBigInt(_amountDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: PluginColorsDark.headline1),
+            ),
+          },
+          params: [],
+          rawParams: '[[${batchTxs.join(',')}]]',
           isPlugin: true,
         ))) as Map?;
     if (res != null) {
@@ -256,6 +229,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           ? Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) *
               (multiple - 1)
           : 0;
+
+      final collateralNew =
+          Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) +
+              buyingCollateral.toDouble();
+      final liquidationPriceNew = loanType.calcLiquidationPrice(_amountDebit,
+          Fmt.tokenInt(collateralNew.toString(), balancePair[0].decimals!),
+          collateralDecimals: balancePair[0].decimals!,
+          stableCoinDecimals: balancePair[1].decimals!);
 
       return PluginScaffold(
         appBar: PluginAppBar(title: Text(pageTitle), centerTitle: true),
@@ -402,7 +383,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                               divisions: steps.toInt(),
                               value: _slider,
                               label:
-                                  '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(_liquidationPrice, acala_price_decimals)})',
+                                  '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
                               onChanged: (v) =>
                                   _onSliderChanged(balancePair, loanType, v),
                             )),
@@ -446,6 +427,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                     child: Column(
                       children: [
                         MultiplyInfoItemRow(
+                          dic['loan.ratio']!,
+                          "${ratioLeft - _slider}%",
+                        ),
+                        MultiplyInfoItemRow(
+                          dic['liquid.price']!,
+                          "\$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)}",
+                        ),
+                        MultiplyInfoItemRow(
                           I18n.of(context)!.getDic(i18n_full_dic_karura,
                               'common')!['multiply.title']!,
                           multiple.toStringAsFixed(2) + 'x',
@@ -457,7 +446,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                         ),
                         MultiplyInfoItemRow(
                           dic['loan.multiply.totalExposure']!,
-                          "${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) + buyingCollateral.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
+                          "${Fmt.priceFloor(collateralNew, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
                           oldContent: '0.00',
                         ),
                         MultiplyInfoItemRow(
