@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
@@ -100,6 +101,10 @@ class AcalaServiceAssets {
             AssetsUtils.tokenDataFromCurrencyId(plugin, e[0]).tokenNameId!;
         prices[tokenNameId] = Fmt.balanceInt(e[1]['value'].toString());
       });
+      if (prices[relay_chain_token_symbol] != null &&
+          prices[relay_chain_token_symbol]! > BigInt.zero) {
+        prices['sa://0'] = prices[relay_chain_token_symbol]!;
+      }
       callback(prices);
     }
 
