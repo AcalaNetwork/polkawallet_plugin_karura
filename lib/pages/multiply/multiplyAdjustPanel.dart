@@ -224,15 +224,6 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               (loan?.collateralRatio ?? 2) * 100 >= ratioLeft
           ? 0.0
           : ratioLeft - loan!.collateralRatio * 100;
-      final ratioOld = (ratioLeft - _oldSlider) / 100;
-      final _oldCollateralValueChange =
-          (Fmt.bigIntToDouble(loan?.collateralInUSD, balancePair[1].decimals!) -
-                  Fmt.bigIntToDouble(loan?.debits, balancePair[1].decimals!) *
-                      ratioOld) /
-              (ratioOld - 1);
-      final _oldCollateralChange = _oldCollateralValueChange / priceDouble;
-      final oldMultiple =
-          (collateralDouble + _oldCollateralChange) / collateralDouble;
 
       return SingleChildScrollView(
         child: Column(
@@ -362,6 +353,12 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                     ? dic['loan.multiply.message3']
                     : null,
                 margin: EdgeInsets.symmetric(vertical: 2)),
+            ErrorMessage(
+                debitNew < loanType.minimumDebitValue
+                    ? '${assetDic!['min']} ${Fmt.bigIntToDouble(loanType.minimumDebitValue, balancePair[1].decimals!).toStringAsFixed(2)} ${PluginFmt.tokenView(karura_stable_coin_view)}'
+                    : null,
+                margin: EdgeInsets.symmetric(vertical: 2),
+                isRight: true),
             PluginTextTag(
               margin: EdgeInsets.only(top: 25),
               title: dic['loan.multiply.adjustInfo']!,
@@ -407,10 +404,10 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                           I18n.of(context)!.getDic(i18n_full_dic_karura,
                               'common')!['multiply.title']!,
                           multiple.toStringAsFixed(2) + 'x',
-                          oldContent: '${oldMultiple.toStringAsFixed(2)}x',
-                          contentColor: multiple > oldMultiple
+                          oldContent: '1.0x',
+                          contentColor: multiple > 1.0
                               ? PluginColorsDark.primary
-                              : multiple < oldMultiple
+                              : multiple < 1.0
                                   ? PluginColorsDark.green
                                   : PluginColorsDark.headline1,
                         ),
@@ -473,11 +470,6 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                         ),
                       ))
                 ])),
-            ErrorMessage(
-                debitNew < loanType.minimumDebitValue
-                    ? '${assetDic!['min']} ${Fmt.bigIntToDouble(loanType.minimumDebitValue, balancePair[1].decimals!).toStringAsFixed(2)}'
-                    : null,
-                margin: EdgeInsets.symmetric(vertical: 2)),
             Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: PluginButton(

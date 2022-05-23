@@ -418,6 +418,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                         ? dic['loan.multiply.message3']
                         : null,
                     margin: EdgeInsets.symmetric(vertical: 2)),
+                ErrorMessage(
+                    _amountDebit > BigInt.zero &&
+                            _amountDebit < loanType.minimumDebitValue
+                        ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}  ${PluginFmt.tokenView(karura_stable_coin_view)}'
+                        : null,
+                    margin: EdgeInsets.symmetric(vertical: 2),
+                    isRight: true),
                 PluginTextTag(
                   margin: EdgeInsets.only(top: 25),
                   title: dic['loan.multiply.orderInfo']!,
@@ -465,12 +472,6 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             Fmt.ratio(slippage)),
                       ],
                     )),
-                ErrorMessage(
-                    _amountDebit > BigInt.zero &&
-                            _amountDebit < loanType.minimumDebitValue
-                        ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}'
-                        : null,
-                    margin: EdgeInsets.symmetric(vertical: 2)),
                 Padding(
                     padding: EdgeInsets.only(top: 37, bottom: 38),
                     child: PluginButton(
