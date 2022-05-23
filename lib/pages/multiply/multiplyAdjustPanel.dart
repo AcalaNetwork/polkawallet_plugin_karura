@@ -51,6 +51,9 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
     print('buyingWithSlippage');
     print(buyingWithSlippage);
 
+    /// loan.debits * 1/1000000 covers interests raise in about 10 minutes.
+    final raisingDebit = (debitNew - debitChange) * 0.000001;
+
     return {
       'detail': {
         'buying': Text(
@@ -61,7 +64,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               ?.copyWith(color: PluginColorsDark.headline1),
         ),
         'outstanding debt': Text(
-          '${Fmt.priceCeil(debitNew)} $karura_stable_coin_view',
+          '${Fmt.priceCeil(debitNew - raisingDebit)} $karura_stable_coin_view',
           style: Theme.of(context)
               .textTheme
               .headline1
@@ -70,10 +73,10 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
       },
       'params': [
         widget.loanType.token?.currencyId,
-        Fmt.tokenInt(debitChange.abs().toString(), balancePair[1].decimals!)
+        Fmt.tokenInt((debitChange - raisingDebit).toString(),
+                balancePair[1].decimals!)
             .toString(),
-        Fmt.tokenInt(
-                buyingWithSlippage.abs().toString(), balancePair[0].decimals!)
+        Fmt.tokenInt(buyingWithSlippage.toString(), balancePair[0].decimals!)
             .toString()
       ]
     };
