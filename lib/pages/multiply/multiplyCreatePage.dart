@@ -141,8 +141,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     final buyingWithSlippage = _amountCollateral *
         BigInt.from(100) ~/
         BigInt.from(ratioLeft - _slider - 100) *
-        BigInt.from(100 - slippage) ~/
-        BigInt.from(100);
+        BigInt.from(1000 - slippage) ~/
+        BigInt.from(1000);
     final batchTxs = [
       'api.tx.honzon.adjustLoan(...${jsonEncode([
             token.currencyId,
@@ -223,7 +223,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           Fmt.bigIntToDouble(loanType.liquidationRatio, 18) * 100;
       final steps = (ratioLeft - ratioRight) / 5;
 
-      const slippage = 0.05;
+      const slippage = 0.005;
       final multiple = (ratioLeft - _slider) / (ratioLeft - _slider - 100);
       final buyingCollateral = _amountCollateral > BigInt.zero
           ? Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) *

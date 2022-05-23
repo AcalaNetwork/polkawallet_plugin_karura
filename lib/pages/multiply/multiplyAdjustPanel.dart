@@ -44,27 +44,26 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   bool _isInfoOpen = false;
 
   Map _getBuyingParams(LoanType loanType, List<TokenBalanceData> balancePair,
-      double collateralChange, double debitChange, double debitNew) {
+      BigInt collateralChange, BigInt debitChange, BigInt debitNew) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    const slippage = 0.05;
-    final buyingWithSlippage = collateralChange * (1 - slippage);
-    print('buyingWithSlippage');
-    print(buyingWithSlippage);
+    const slippage = 0.005;
+    final buyingWithSlippage =
+        collateralChange * BigInt.from(1000 - 5) ~/ BigInt.from(1000);
 
     /// loan.debits * 1/1000000 covers interests raise in about 10 minutes.
-    final raisingDebit = (debitNew - debitChange) * 0.000001;
+    final raisingDebit = (debitNew - debitChange) ~/ BigInt.from(1000000);
 
     return {
       'detail': {
         'buying': Text(
-          '≈ ${Fmt.priceFloor(collateralChange, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
+          '≈ ${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
           style: Theme.of(context)
               .textTheme
               .headline1
               ?.copyWith(color: PluginColorsDark.headline1),
         ),
         'outstanding debt': Text(
-          '${Fmt.priceCeil(debitNew - raisingDebit)} $karura_stable_coin_view',
+          '${Fmt.priceCeilBigInt(debitNew - raisingDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
           style: Theme.of(context)
               .textTheme
               .headline1
@@ -73,37 +72,29 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
       },
       'params': [
         widget.loanType.token?.currencyId,
-        Fmt.tokenInt((debitChange - raisingDebit).toString(),
-                balancePair[1].decimals!)
-            .toString(),
-        Fmt.tokenInt(buyingWithSlippage.toString(), balancePair[0].decimals!)
-            .toString()
+        (debitChange - raisingDebit).toString(),
+        buyingWithSlippage.toString()
       ]
     };
   }
 
   Map _getSellingParams(LoanType loanType, List<TokenBalanceData> balancePair,
-      double collateralChange, double debitChange, double debitNew) {
+      BigInt collateralChange, BigInt debitChange, BigInt debitNew) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    const slippage = 0.05;
-    final debitChangeWithSlippage = debitChange * (1 - slippage);
-    print('debitChangeWithSlippage');
-    print(debitChangeWithSlippage);
-    print(Fmt.tokenInt(
-        debitChangeWithSlippage.abs().toString(), balancePair[1].decimals!));
-    print(loanType.debitToDebitShare(Fmt.tokenInt(
-        debitChangeWithSlippage.abs().toString(), balancePair[1].decimals!)));
+    const slippage = 0.005;
+    final debitChangeWithSlippage =
+        debitChange * BigInt.from(1000 - 5) ~/ BigInt.from(1000);
 
     final detail = {
       'selling': Text(
-        '${Fmt.priceFloor(collateralChange.abs(), lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
+        '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
             ?.copyWith(color: PluginColorsDark.headline1),
       ),
       'outstanding debt': Text(
-        '≈ ${Fmt.priceCeil(debitNew)} $karura_stable_coin_view',
+        '≈ ${Fmt.priceCeilBigInt(debitNew, balancePair[1].decimals!)} $karura_stable_coin_view',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -116,24 +107,20 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
       'detail': detail,
       'params': [
         widget.loanType.token?.currencyId,
-        Fmt.tokenInt(
-                collateralChange.abs().toString(), balancePair[0].decimals!)
-            .toString(),
-        Fmt.tokenInt(debitChangeWithSlippage.abs().toString(),
-                balancePair[1].decimals!)
-            .toString()
+        collateralChange.abs().toString(),
+        debitChangeWithSlippage.abs().toString()
       ]
     };
   }
 
-  Future<void> _onSubmit(LoanType loanType, double collateralChange,
-      double debitChange, double debitNew) async {
+  Future<void> _onSubmit(LoanType loanType, BigInt collateralChange,
+      BigInt debitChange, BigInt debitNew) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(widget.plugin,
         [widget.loanType.token?.tokenNameId, karura_stable_coin]);
 
-    final params = collateralChange > 0
+    final params = collateralChange > BigInt.zero
         ? _getBuyingParams(
             loanType, balancePair, collateralChange, debitChange, debitNew)
         : _getSellingParams(
@@ -142,7 +129,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
     final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'honzon',
-          call: collateralChange > 0
+          call: collateralChange > BigInt.zero
               ? 'expandPositionCollateral'
               : 'shrinkPositionDebit',
           txTitle:
@@ -194,38 +181,44 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
       final price = widget.plugin.store!.assets.prices[token.tokenNameId];
       final priceDouble = Fmt.bigIntToDouble(price, acala_price_decimals);
 
-      final balance = Fmt.balanceInt(balancePair[0].amount);
-      final available = balance;
-
-      final minToBorrow = Fmt.bigIntToDouble(
-          loanType.minimumDebitValue, balancePair[1].decimals!);
-
       final ratioLeft =
           Fmt.bigIntToDouble(loanType.requiredCollateralRatio, 18) * 100;
       final ratioRight =
           Fmt.bigIntToDouble(loanType.liquidationRatio, 18) * 100;
       final steps = (ratioLeft - ratioRight) / 5;
 
-      final ratioNew = (ratioLeft - _slider) / 100;
-      final collateralValueChange =
-          (Fmt.bigIntToDouble(loan?.collateralInUSD, balancePair[1].decimals!) -
-                  Fmt.bigIntToDouble(loan?.debits, balancePair[1].decimals!) *
-                      ratioNew) /
-              (ratioNew - 1);
-      final collateralChange = collateralValueChange / priceDouble;
+      ///      (collaterals + collateralChange) * price
+      /// 1： ------------------------------------------- = ratioNew
+      ///                 debits + debitChange
+      ///
+      /// 2： collateralChange * price = debitChange
+      ///
+      /// so:
+      ///                      collaterals * price - debits * ratioNew
+      ///     debitChange = ------------------------------------------------
+      ///                               ratioNew - 1
+      final debitChange = ((loan?.collateralInUSD ?? BigInt.zero) -
+              (loan?.debits ?? BigInt.zero) *
+                  BigInt.from(ratioLeft - _slider) ~/
+                  BigInt.from(100)) *
+          BigInt.from(100) ~/
+          BigInt.from(ratioLeft - _slider - 100);
+      final collateralChange = debitChange *
+          BigInt.from(pow(10, acala_price_decimals)) ~/
+          (price ?? BigInt.zero);
+      final collateralNew =
+          (loan?.collaterals ?? BigInt.zero) + collateralChange;
       final debitDouble =
           Fmt.bigIntToDouble(loan?.debits, balancePair[1].decimals!);
-      final debitNew = debitDouble + collateralValueChange;
+      final debitNew = (loan?.debits ?? BigInt.zero) + debitChange;
+
       final liquidationPriceNew = loanType.calcLiquidationPrice(
-          Fmt.tokenInt(debitNew.toString(), balancePair[1].decimals!),
-          Fmt.tokenInt((collateralDouble + collateralChange).toString(),
-              balancePair[0].decimals!),
+          debitNew, collateralNew,
           collateralDecimals: balancePair[0].decimals!,
           stableCoinDecimals: balancePair[1].decimals!);
-      final minDebitDouble = Fmt.bigIntToDouble(
-          loanType.minimumDebitValue, balancePair[1].decimals!);
-      const slippage = 0.05;
-      final multiple = (collateralDouble + collateralChange) / collateralDouble;
+
+      const slippage = 0.005;
+      final multiple = collateralNew / (loan?.collaterals ?? BigInt.zero);
 
       final _oldSlider = (loan?.collateralRatio ?? 2) < 1 ||
               (loan?.collateralRatio ?? 2) * 100 >= ratioLeft
@@ -426,35 +419,26 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                             child: Column(
                               children: [
                                 MultiplyInfoItemRow(
-                                  "${collateralChange < 0 ? dic['loan.multiply.selling']! : dic['loan.multiply.buying']!} ${PluginFmt.tokenView(token.symbol)}",
-                                  '${Fmt.priceFloor(collateralChange.abs().toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloor((collateralChange.abs() * priceDouble).toDouble())})',
+                                  "${collateralChange < BigInt.zero ? dic['loan.multiply.selling']! : dic['loan.multiply.buying']!} ${PluginFmt.tokenView(token.symbol)}",
+                                  '${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloorBigInt(debitChange, balancePair[1].decimals!)})',
                                 ),
                                 MultiplyInfoItemRow(
                                   dic['loan.multiply.totalExposure']!,
-                                  "${Fmt.priceFloor(collateralDouble + collateralChange, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
+                                  "${Fmt.priceFloorBigInt(collateralNew, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
                                   oldContent: "$collateralView",
-                                  contentColor: collateralDouble +
-                                              collateralChange >
-                                          Fmt.bigIntToDouble(loan.collaterals,
-                                              balancePair[0].decimals!)
+                                  contentColor: collateralChange > BigInt.zero
                                       ? PluginColorsDark.primary
-                                      : collateralDouble + collateralChange <
-                                              Fmt.bigIntToDouble(
-                                                  loan.collaterals,
-                                                  balancePair[0].decimals!)
+                                      : collateralChange < BigInt.zero
                                           ? PluginColorsDark.green
                                           : PluginColorsDark.headline1,
                                 ),
                                 MultiplyInfoItemRow(
                                   dic['loan.multiply.outstandingDebt']!,
-                                  "${Fmt.priceFloor(debitDouble + collateralValueChange, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
+                                  "${Fmt.priceFloorBigInt(debitNew, balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
                                   oldContent: Fmt.priceFloor(debitDouble),
-                                  contentColor: debitDouble +
-                                              collateralValueChange >
-                                          debitDouble
+                                  contentColor: collateralChange > BigInt.zero
                                       ? PluginColorsDark.primary
-                                      : debitDouble + collateralValueChange <
-                                              debitDouble
+                                      : collateralChange < BigInt.zero
                                           ? PluginColorsDark.green
                                           : PluginColorsDark.headline1,
                                 ),
@@ -490,8 +474,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                       ))
                 ])),
             ErrorMessage(
-                debitNew < minDebitDouble
-                    ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}'
+                debitNew < loanType.minimumDebitValue
+                    ? '${assetDic!['min']} ${Fmt.bigIntToDouble(loanType.minimumDebitValue, balancePair[1].decimals!).toStringAsFixed(2)}'
                     : null,
                 margin: EdgeInsets.symmetric(vertical: 2)),
             Padding(
@@ -499,9 +483,10 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                 child: PluginButton(
                   title: '${dic['v3.loan.submit']}',
                   onPressed: () {
-                    if (debitNew > minDebitDouble && collateralChange != 0) {
-                      _onSubmit(loanType, collateralChange,
-                          collateralValueChange, debitNew);
+                    if (debitNew > loanType.minimumDebitValue &&
+                        collateralChange != BigInt.zero) {
+                      _onSubmit(
+                          loanType, collateralChange, debitChange, debitNew);
                     }
                   },
                 )),
