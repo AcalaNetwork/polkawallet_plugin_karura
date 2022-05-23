@@ -29,10 +29,11 @@ import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class MultiplyAdjustPanel extends StatefulWidget {
-  MultiplyAdjustPanel(this.plugin, this.keyring, this.loanType);
+  MultiplyAdjustPanel(this.plugin, this.keyring, this.loanType, this.onRefresh);
   final PluginKarura plugin;
   final Keyring keyring;
   final LoanType loanType;
+  final Function onRefresh;
 
   @override
   _MultiplyAdjustPanelState createState() => _MultiplyAdjustPanelState();
@@ -135,7 +136,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
         : _getSellingParams(
             loanType, balancePair, collateralChange, debitChange, debitNew);
 
-    Navigator.of(context).pushNamed(TxConfirmPage.route,
+    final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'honzon',
           call: collateralChange > 0
@@ -147,6 +148,9 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           params: params['params'],
           isPlugin: true,
         ));
+    if (res != null) {
+      widget.onRefresh();
+    }
   }
 
   @override

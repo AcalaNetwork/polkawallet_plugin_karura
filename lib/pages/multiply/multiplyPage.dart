@@ -182,7 +182,9 @@ class _MultiplyPageState extends State<MultiplyPage> {
                                     ],
                                   ),
                                   MultiplyAdjustPanel(
-                                      widget.plugin, widget.keyring, e),
+                                      widget.plugin, widget.keyring, e, () {
+                                    _fetchData();
+                                  }),
                                 ],
                               );
                             }
