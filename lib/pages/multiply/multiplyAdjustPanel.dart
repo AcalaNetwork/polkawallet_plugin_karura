@@ -55,14 +55,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
 
     return {
       'detail': {
-        'buying': Text(
+        dic['loan.multiply.buying']: Text(
           '≈ ${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
           style: Theme.of(context)
               .textTheme
               .headline1
               ?.copyWith(color: PluginColorsDark.headline1),
         ),
-        'outstanding debt': Text(
+        dic['loan.multiply.outstandingDebt']: Text(
           '${Fmt.priceCeilBigInt(debitNew - raisingDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
           style: Theme.of(context)
               .textTheme
@@ -86,14 +86,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
         debitChange * BigInt.from(1000 - 5) ~/ BigInt.from(1000);
 
     final detail = {
-      'selling': Text(
+      dic['loan.multiply.selling']: Text(
         '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
             ?.copyWith(color: PluginColorsDark.headline1),
       ),
-      'outstanding debt': Text(
+      dic['loan.multiply.outstandingDebt']: Text(
         '≈ ${Fmt.priceCeilBigInt(debitNew, balancePair[1].decimals!)} $karura_stable_coin_view',
         style: Theme.of(context)
             .textTheme
@@ -133,7 +133,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               ? 'expandPositionCollateral'
               : 'shrinkPositionDebit',
           txTitle:
-              'Adjust Multiply ${PluginFmt.tokenView(loanType.token?.symbol)}',
+              '${dic['loan.multiply.adjustMultiple']} ${PluginFmt.tokenView(loanType.token?.symbol)}',
           txDisplayBold: params['detail'],
           params: params['params'],
           isPlugin: true,

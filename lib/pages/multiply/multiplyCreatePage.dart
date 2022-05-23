@@ -134,6 +134,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     if (error != null) {
       return;
     }
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     const slippage = 5;
     final ratioLeft =
@@ -161,14 +162,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           call: 'batchAll',
           txTitle: pageTitle,
           txDisplayBold: {
-            'buying': Text(
+            dic['loan.multiply.buying']!: Text(
               '≈ ${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) * (multiple - 1), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
                   ?.copyWith(color: PluginColorsDark.headline1),
             ),
-            'debt': Text(
+            dic['loan.multiply.debt']!: Text(
               '${Fmt.priceCeilBigInt(_amountDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
               style: Theme.of(context)
                   .textTheme
