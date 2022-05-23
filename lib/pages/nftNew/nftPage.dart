@@ -92,7 +92,6 @@ class _NftPageState extends State<NftPage> {
                         height: itemCardSize,
                         child: Image.network(
                           '${item.metadata!['imageServiceUrl']}?imageView2/2/w/400',
-                          fit: BoxFit.cover,
                         ),
                       ),
                       Align(
