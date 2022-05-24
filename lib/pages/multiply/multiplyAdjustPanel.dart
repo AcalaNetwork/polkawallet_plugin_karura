@@ -532,8 +532,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                       decoration: TextDecoration.underline,
                       color: Color(0xFFFFFFFF).withAlpha(204)),
                 ),
-                onTap: () {
-                  Navigator.of(context).pushNamed(LoanPage.route);
+                onTap: () async {
+                  final res =
+                      await Navigator.of(context).pushNamed(LoanPage.route);
+                  if (res != null) {
+                    Future.delayed(Duration(milliseconds: 500), () {
+                      widget.onRefresh();
+                    });
+                  }
                 },
               ),
             )

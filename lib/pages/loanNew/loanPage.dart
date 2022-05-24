@@ -215,10 +215,10 @@ class _LoanPageState extends State<LoanPage> {
       final loans = widget.plugin.store!.loan.loans.values.toList();
       loans.retainWhere((loan) =>
           loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-      final isDataLoading =
-          widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+      final isDataLoading = widget.plugin.store!.loan.loansLoading &&
+          (loans.length == 0 ||
               // do not show loan card if collateralRatio was not calculated.
-              (loans.length > 0 && loans[0].collateralRatio <= 0);
+              (loans.length > 0 && loans[0].collateralRatio <= 0));
 
       /// The initial tab index will be from arguments or user's vault.
       int initialLoanTypeIndex = 0;

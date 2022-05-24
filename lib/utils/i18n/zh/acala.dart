@@ -303,5 +303,5 @@ const Map<String, String> zhDex = {
   'loan.multiply.selling': '抛售',
   'loan.multiply.example': '示例',
   'loan.multiply.manageYourVault': '管理您的债仓',
-  'loan.multiply.message3': '您的抵押率非常接近清算率，可能面临被清算的风险。 ',
+  'loan.multiply.message3': '您的质押率太低，可能面临被清算的风险，本次交易有可能失败。',
 };

@@ -323,5 +323,5 @@ const Map<String, String> enDex = {
   'loan.multiply.example': 'Example',
   'loan.multiply.manageYourVault': 'Manage your vault',
   'loan.multiply.message3':
-      'Your collateral ratio is very close to the liquidation ratio that may face the risk of being liquidated. ',
+      'The collateral ratio is too low that may face the risk of being liquidated and this transaction might be failed. ',
 };
