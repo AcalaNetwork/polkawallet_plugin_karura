@@ -114,10 +114,14 @@ class _MultiplyPageState extends State<MultiplyPage> {
                             LoanData? loan =
                                 _loans.length > 0 ? _loans.first : null;
                             Widget child = CreateVaultWidget(
-                                e.token!.symbol!, widget.plugin, onPressed: () {
-                              Navigator.of(context).pushNamed(
+                                e.token!.symbol!, widget.plugin,
+                                onPressed: () async {
+                              final res = await Navigator.of(context).pushNamed(
                                   MultiplyCreatePage.route,
                                   arguments: e.token);
+                              if (res != null) {
+                                _fetchData();
+                              }
                             });
                             if (loan != null) {
                               if (_pageController[loan.token!.symbol] == null) {

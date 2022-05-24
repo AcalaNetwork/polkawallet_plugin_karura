@@ -41,6 +41,7 @@ class MultiplyAdjustPanel extends StatefulWidget {
 
 class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   double _slider = 0;
+  double _dexPrice = 1;
   bool _isInfoOpen = false;
 
   Map _getBuyingParams(LoanType loanType, List<TokenBalanceData> balancePair,
@@ -143,6 +144,34 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
     }
   }
 
+  Future<void> _updateDexBuyingPrice() async {
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
+        null,
+        '1',
+        [karura_stable_coin, widget.loanType.token!.tokenNameId!].map((e) {
+          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
+          return {...token.currencyId!, 'decimals': token.decimals};
+        }).toList(),
+        '0.005');
+    setState(() {
+      _dexPrice = res.amount ?? 0;
+    });
+  }
+
+  Future<void> _updateDexSellingPrice() async {
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
+        '1',
+        null,
+        [widget.loanType.token!.tokenNameId!, karura_stable_coin].map((e) {
+          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
+          return {...token.currencyId!, 'decimals': token.decimals};
+        }).toList(),
+        '0.005');
+    setState(() {
+      _dexPrice = res.amount ?? 0;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -157,6 +186,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           _slider = ratioLeft - loan!.collateralRatio * 100;
         });
       }
+
+      _updateDexBuyingPrice();
     });
   }
 
@@ -173,13 +204,12 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
 
       final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
           widget.plugin, [token.tokenNameId, karura_stable_coin]);
-      final collateralDouble =
-          Fmt.bigIntToDouble(loan?.collaterals, balancePair[0].decimals!);
       final collateralView =
           Fmt.priceFloorBigInt(loan?.collaterals, balancePair[0].decimals!);
 
-      final price = widget.plugin.store!.assets.prices[token.tokenNameId];
-      final priceDouble = Fmt.bigIntToDouble(price, acala_price_decimals);
+      final oraclePrice =
+          widget.plugin.store!.assets.prices[token.tokenNameId] ?? BigInt.zero;
+      final dexPrice = Fmt.tokenInt(_dexPrice.toString(), acala_price_decimals);
 
       final ratioLeft =
           Fmt.bigIntToDouble(loanType.requiredCollateralRatio, 18) * 100;
@@ -197,15 +227,20 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
       ///                      collaterals * price - debits * ratioNew
       ///     debitChange = ------------------------------------------------
       ///                               ratioNew - 1
+      ///
+      /// tip: we have oracle-price & dex-price in the calculation
+      /// debitChange = debitChangeCalculatedByRatioChange * oraclePrice / dexPrice
+      /// collateralChange = debitChange / dexPrice
       final debitChange = ((loan?.collateralInUSD ?? BigInt.zero) -
               (loan?.debits ?? BigInt.zero) *
                   BigInt.from(ratioLeft - _slider) ~/
                   BigInt.from(100)) *
           BigInt.from(100) ~/
-          BigInt.from(ratioLeft - _slider - 100);
-      final collateralChange = debitChange *
-          BigInt.from(pow(10, acala_price_decimals)) ~/
-          (price ?? BigInt.zero);
+          BigInt.from(ratioLeft - _slider - 100) *
+          oraclePrice ~/
+          dexPrice;
+      final collateralChange =
+          debitChange * BigInt.from(pow(10, acala_price_decimals)) ~/ dexPrice;
       final collateralNew =
           (loan?.collaterals ?? BigInt.zero) + collateralChange;
       final debitDouble =
@@ -319,6 +354,12 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                 setState(() {
                                   _slider = value;
                                 });
+
+                                if (collateralChange > BigInt.zero) {
+                                  _updateDexBuyingPrice();
+                                } else {
+                                  _updateDexSellingPrice();
+                                }
                               },
                             )),
                       ],
@@ -380,8 +421,9 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                       children: [
                         MultiplyInfoItemRow(
                           dic['loan.ratio']!,
-                          "${ratioLeft - _slider}%",
-                          oldContent: "${ratioLeft - _oldSlider}%",
+                          "${(ratioLeft - _slider).toStringAsFixed(2)}%",
+                          oldContent:
+                              "${(ratioLeft - _oldSlider).toStringAsFixed(2)}%",
                           contentColor: _slider > _oldSlider
                               ? PluginColorsDark.primary
                               : _slider < _oldSlider

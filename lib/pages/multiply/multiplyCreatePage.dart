@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,15 +43,30 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
   final TextEditingController _amountCtrl = new TextEditingController();
 
   BigInt _amountCollateral = BigInt.zero;
-  BigInt _amountDebit = BigInt.zero;
   double _slider = 0;
 
-  bool _autoValidate = false;
+  double _dexPrice = 1;
 
   String? _error1;
 
-  void _onAmount1Change(String value, LoanType loanType, BigInt? price,
-      BigInt available, List<TokenBalanceData> balancePair) {
+  Future<void> _updateDexBuyingPrice() async {
+    final token =
+        ModalRoute.of(context)?.settings.arguments as TokenBalanceData;
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
+        null,
+        '1',
+        [karura_stable_coin, token.tokenNameId!].map((e) {
+          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
+          return {...token.currencyId!, 'decimals': token.decimals};
+        }).toList(),
+        '0.005');
+    setState(() {
+      _dexPrice = res.amount ?? 0;
+    });
+  }
+
+  void _onAmount1Change(String value, LoanType loanType, BigInt available,
+      List<TokenBalanceData> balancePair) {
     String v = value.trim();
 
     var error = _validateAmount1(value, available, balancePair[0].decimals);
@@ -68,38 +84,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
 
     if (v.isEmpty) return;
 
-    _onSliderChanged(balancePair, loanType, 0);
-
-    _checkAutoValidate();
+    _onSliderChanged(_slider);
   }
 
-  void _onSliderChanged(
-      List<TokenBalanceData> balancePair, LoanType loanType, double value) {
-    final ratioLeft =
-        Fmt.bigIntToDouble(loanType.requiredCollateralRatio, 18) * 100;
-    setState(() {
-      _slider = value;
-      if (_amountCollateral > BigInt.zero) {
-        final inputCollateralRatio = ratioLeft - value - 100;
-        final price =
-            widget.plugin.store!.assets.prices[loanType.token!.tokenNameId];
-        _amountDebit = loanType.tokenToUSD(_amountCollateral, price,
-                stableCoinDecimals: balancePair[1].decimals!,
-                collateralDecimals: loanType.token!.decimals!) *
-            BigInt.from(100) ~/
-            BigInt.from(inputCollateralRatio);
-      }
-    });
-  }
-
-  void _checkAutoValidate({String? value1, String? value2}) {
-    if (_autoValidate) return;
-    if (value1 == null) {
-      value1 = _amountCtrl.text.trim();
-    }
-    if (value1.isNotEmpty) {
+  void _onSliderChanged(double value) {
+    if (_slider != value && mounted) {
       setState(() {
-        _autoValidate = true;
+        _slider = value;
       });
     }
   }
@@ -120,8 +111,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     return null;
   }
 
-  Future<void> _onSubmit(
-      String pageTitle, LoanType loanType, double multiple) async {
+  Future<void> _onSubmit(String pageTitle, LoanType loanType,
+      BigInt buyingCollateral, BigInt debitChange) async {
     final token =
         ModalRoute.of(context)?.settings.arguments as TokenBalanceData;
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
@@ -137,13 +128,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     const slippage = 5;
-    final ratioLeft =
-        Fmt.bigIntToDouble(loanType.requiredCollateralRatio, 18) * 100;
-    final buyingWithSlippage = _amountCollateral *
-        BigInt.from(100) ~/
-        BigInt.from(ratioLeft - _slider - 100) *
-        BigInt.from(1000 - slippage) ~/
-        BigInt.from(1000);
+    final buyingWithSlippage =
+        buyingCollateral * BigInt.from(1000 - slippage) ~/ BigInt.from(1000);
     final batchTxs = [
       'api.tx.honzon.adjustLoan(...${jsonEncode([
             token.currencyId,
@@ -152,7 +138,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           ])})',
       'api.tx.honzon.expandPositionCollateral(...${jsonEncode([
             token.currencyId,
-            _amountDebit.toString(),
+            debitChange.toString(),
             buyingWithSlippage.toString()
           ])})',
     ];
@@ -163,14 +149,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           txTitle: pageTitle,
           txDisplayBold: {
             dic['loan.multiply.buying']!: Text(
-              '≈ ${Fmt.priceFloor(Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) * (multiple - 1), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
+              '≈ ${Fmt.priceFloorBigInt(buyingCollateral, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
                   ?.copyWith(color: PluginColorsDark.headline1),
             ),
             dic['loan.multiply.debt']!: Text(
-              '${Fmt.priceCeilBigInt(_amountDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
+              '${Fmt.priceCeilBigInt(debitChange, balancePair[1].decimals!)} $karura_stable_coin_view',
               style: Theme.of(context)
                   .textTheme
                   .headline1
@@ -184,6 +170,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     if (res != null) {
       Navigator.of(context).pop(res);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _updateDexBuyingPrice();
+    });
   }
 
   @override
@@ -207,8 +201,9 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
       final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
           widget.plugin, [token.tokenNameId, karura_stable_coin]);
 
-      final price = widget.plugin.store!.assets.prices[token.tokenNameId];
-      final priceDouble = Fmt.bigIntToDouble(price, acala_price_decimals);
+      final oraclePrice =
+          widget.plugin.store!.assets.prices[token.tokenNameId] ?? BigInt.zero;
+      final dexPrice = Fmt.tokenInt(_dexPrice.toString(), acala_price_decimals);
 
       final loanType = widget.plugin.store!.loan.loanTypes
           .firstWhere((i) => i.token!.tokenNameId == token.tokenNameId);
@@ -226,16 +221,20 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
 
       const slippage = 0.005;
       final multiple = (ratioLeft - _slider) / (ratioLeft - _slider - 100);
-      final buyingCollateral = _amountCollateral > BigInt.zero
-          ? Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) *
-              (multiple - 1)
-          : 0;
 
-      final collateralNew =
-          Fmt.bigIntToDouble(_amountCollateral, balancePair[0].decimals!) +
-              buyingCollateral.toDouble();
-      final liquidationPriceNew = loanType.calcLiquidationPrice(_amountDebit,
-          Fmt.tokenInt(collateralNew.toString(), balancePair[0].decimals!),
+      final debitChange = loanType.tokenToUSD(_amountCollateral, oraclePrice,
+              collateralDecimals: balancePair[0].decimals!,
+              stableCoinDecimals: balancePair[1].decimals!) *
+          BigInt.from(100) ~/
+          BigInt.from(ratioLeft - _slider - 100) *
+          oraclePrice ~/
+          dexPrice;
+      final buyingCollateral =
+          debitChange * BigInt.from(pow(10, acala_price_decimals)) ~/ dexPrice;
+      final collateralNew = _amountCollateral + buyingCollateral;
+
+      final liquidationPriceNew = loanType.calcLiquidationPrice(
+          debitChange, collateralNew,
           collateralDecimals: balancePair[0].decimals!,
           stableCoinDecimals: balancePair[1].decimals!);
 
@@ -289,7 +288,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       ),
                       PluginInfoItem(
                         title: dic['collateral.price.current']!,
-                        content: '\$${Fmt.priceFloor(priceDouble)}',
+                        content:
+                            '\$${Fmt.priceFloorBigInt(oraclePrice, acala_price_decimals)}',
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -328,8 +328,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                   inputCtrl: _amountCtrl,
                   margin: EdgeInsets.only(bottom: 2),
                   titleTag: dic['loan.collateral'],
-                  onInputChange: (v) => _onAmount1Change(
-                      v, loanType, price, available, balancePair),
+                  onInputChange: (v) =>
+                      _onAmount1Change(v, loanType, available, balancePair),
                   balance: token,
                   tokenIconsMap: widget.plugin.tokenIcons,
                   marketPrices: widget.plugin.store!.assets.marketPrices,
@@ -385,8 +385,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                               value: _slider,
                               label:
                                   '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
-                              onChanged: (v) =>
-                                  _onSliderChanged(balancePair, loanType, v),
+                              onChanged: _onSliderChanged,
                             )),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -419,8 +418,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                         : null,
                     margin: EdgeInsets.symmetric(vertical: 2)),
                 ErrorMessage(
-                    _amountDebit > BigInt.zero &&
-                            _amountDebit < loanType.minimumDebitValue
+                    debitChange > BigInt.zero &&
+                            debitChange < loanType.minimumDebitValue
                         ? '${assetDic!['min']} ${minToBorrow.toStringAsFixed(2)}  ${PluginFmt.tokenView(karura_stable_coin_view)}'
                         : null,
                     margin: EdgeInsets.symmetric(vertical: 2),
@@ -456,16 +455,16 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                         ),
                         MultiplyInfoItemRow(
                           "${dic['loan.multiply.buying']} ${PluginFmt.tokenView(token.symbol)}",
-                          '${Fmt.priceFloor(buyingCollateral.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloor((buyingCollateral * priceDouble).toDouble())})',
+                          '${Fmt.priceFloorBigInt(buyingCollateral, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloorBigInt(debitChange, balancePair[1].decimals!)})',
                         ),
                         MultiplyInfoItemRow(
                           dic['loan.multiply.totalExposure']!,
-                          "${Fmt.priceFloor(collateralNew, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
+                          "${Fmt.priceFloorBigInt(collateralNew, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}",
                           oldContent: '0.00',
                         ),
                         MultiplyInfoItemRow(
                           dic['loan.multiply.outstandingDebt']!,
-                          "${Fmt.priceFloor(Fmt.bigIntToDouble(_amountDebit, balancePair[1].decimals!), lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
+                          "${Fmt.priceFloor(Fmt.bigIntToDouble(debitChange, balancePair[1].decimals!), lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin_view)}",
                           oldContent: '0.00',
                         ),
                         MultiplyInfoItemRow(dic['loan.multiply.slippageLimit']!,
@@ -478,8 +477,9 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       title: '${dic['v3.loan.submit']}',
                       onPressed: () {
                         if (_error1 == null &&
-                            _amountDebit > loanType.minimumDebitValue) {
-                          _onSubmit(pageTitle, loanType, multiple);
+                            debitChange > loanType.minimumDebitValue) {
+                          _onSubmit(pageTitle, loanType, buyingCollateral,
+                              debitChange);
                         }
                       },
                     )),
