@@ -48,6 +48,8 @@ class ServiceAssets {
 
     try {
       if (prices[relay_chain_token_symbol] != null) {
+        prices['taiKSM'] = prices[relay_chain_token_symbol]!;
+
         final homaEnv = await plugin.service!.homa.queryHomaEnv();
         prices['L$relay_chain_token_symbol'] =
             prices[relay_chain_token_symbol]! * homaEnv.exchangeRate;
