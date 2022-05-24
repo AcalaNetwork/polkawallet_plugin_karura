@@ -59,7 +59,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
           return {...token.currencyId!, 'decimals': token.decimals};
         }).toList(),
-        '0.005');
+        '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
@@ -127,7 +127,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-    const slippage = 5;
+    const slippage = 50;
     final buyingWithSlippage =
         buyingCollateral * BigInt.from(1000 - slippage) ~/ BigInt.from(1000);
     final batchTxs = [
@@ -219,7 +219,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           Fmt.bigIntToDouble(loanType.liquidationRatio, 18) * 100;
       final steps = (ratioLeft - ratioRight) / 5;
 
-      const slippage = 0.005;
+      const slippage = 0.05;
       final multiple = (ratioLeft - _slider) / (ratioLeft - _slider - 100);
 
       final debitChange = loanType.tokenToUSD(_amountCollateral, oraclePrice,

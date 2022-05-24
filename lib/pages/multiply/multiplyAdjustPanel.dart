@@ -47,9 +47,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   Map _getBuyingParams(LoanType loanType, List<TokenBalanceData> balancePair,
       BigInt collateralChange, BigInt debitChange, BigInt debitNew) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    const slippage = 0.005;
     final buyingWithSlippage =
-        collateralChange * BigInt.from(1000 - 5) ~/ BigInt.from(1000);
+        collateralChange * BigInt.from(1000 - 50) ~/ BigInt.from(1000);
 
     /// loan.debits * 1/1000000 covers interests raise in about 10 minutes.
     final raisingDebit = (debitNew - debitChange) ~/ BigInt.from(1000000);
@@ -82,9 +81,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   Map _getSellingParams(LoanType loanType, List<TokenBalanceData> balancePair,
       BigInt collateralChange, BigInt debitChange, BigInt debitNew) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    const slippage = 0.005;
     final debitChangeWithSlippage =
-        debitChange * BigInt.from(1000 - 5) ~/ BigInt.from(1000);
+        debitChange * BigInt.from(1000 - 50) ~/ BigInt.from(1000);
 
     final detail = {
       dic['loan.multiply.selling']: Text(
@@ -152,7 +150,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
           return {...token.currencyId!, 'decimals': token.decimals};
         }).toList(),
-        '0.005');
+        '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
@@ -166,7 +164,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
           return {...token.currencyId!, 'decimals': token.decimals};
         }).toList(),
-        '0.005');
+        '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
@@ -252,7 +250,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           collateralDecimals: balancePair[0].decimals!,
           stableCoinDecimals: balancePair[1].decimals!);
 
-      const slippage = 0.005;
+      const slippage = 0.05;
       final multiple = collateralNew / (loan?.collaterals ?? BigInt.zero);
 
       final _oldSlider = (loan?.collateralRatio ?? 2) < 1 ||
