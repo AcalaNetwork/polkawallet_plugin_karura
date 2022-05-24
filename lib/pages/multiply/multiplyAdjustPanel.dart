@@ -351,14 +351,15 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                               label:
                                   '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
                               onChanged: (value) {
-                                setState(() {
-                                  _slider = value;
-                                });
-
-                                if (collateralChange > BigInt.zero) {
-                                  _updateDexBuyingPrice();
-                                } else {
-                                  _updateDexSellingPrice();
+                                if (_slider != value) {
+                                  if (value > _slider) {
+                                    _updateDexBuyingPrice();
+                                  } else {
+                                    _updateDexSellingPrice();
+                                  }
+                                  setState(() {
+                                    _slider = value;
+                                  });
                                 }
                               },
                             )),
@@ -459,7 +460,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                               children: [
                                 MultiplyInfoItemRow(
                                   "${collateralChange < BigInt.zero ? dic['loan.multiply.selling']! : dic['loan.multiply.buying']!} ${PluginFmt.tokenView(token.symbol)}",
-                                  '${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloorBigInt(debitChange, balancePair[1].decimals!)})',
+                                  '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)} (\$${Fmt.priceFloorBigInt(debitChange.abs(), balancePair[1].decimals!)})',
                                 ),
                                 MultiplyInfoItemRow(
                                   dic['loan.multiply.totalExposure']!,
