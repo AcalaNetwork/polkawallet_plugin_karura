@@ -419,7 +419,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                     ratioLeft - _slider <= ratioRight + 10
                         ? dic['loan.multiply.message3']
                         : null,
-                    margin: EdgeInsets.symmetric(vertical: 2)),
+                    margin: EdgeInsets.symmetric(vertical: 2),
+                    isRight: true),
                 ErrorMessage(
                     debitChange > BigInt.zero &&
                             debitChange < loanType.minimumDebitValue

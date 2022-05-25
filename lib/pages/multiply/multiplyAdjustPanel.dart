@@ -395,7 +395,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                 ratioLeft - _slider <= ratioRight + 10
                     ? dic['loan.multiply.message3']
                     : null,
-                margin: EdgeInsets.symmetric(vertical: 2)),
+                margin: EdgeInsets.symmetric(vertical: 2),
+                isRight: true),
             ErrorMessage(
                 debitNew < loanType.minimumDebitValue
                     ? '${assetDic!['min']} ${Fmt.bigIntToDouble(loanType.minimumDebitValue, balancePair[1].decimals!).toStringAsFixed(2)} ${PluginFmt.tokenView(karura_stable_coin_view)}'

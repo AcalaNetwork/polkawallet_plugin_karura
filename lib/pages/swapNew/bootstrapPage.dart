@@ -575,15 +575,14 @@ class ErrorMessage extends StatelessWidget {
           : margin ?? EdgeInsets.only(left: 16, top: 4),
       child: error == null
           ? null
-          : Row(
-              mainAxisAlignment:
-                  isRight ? MainAxisAlignment.end : MainAxisAlignment.start,
-              children: [
-                  Text(
-                    error,
-                    style: TextStyle(fontSize: 12, color: Colors.red),
-                  )
-                ]),
+          : Row(children: [
+              Expanded(
+                  child: Text(
+                error,
+                textAlign: isRight ? TextAlign.right : TextAlign.left,
+                style: TextStyle(fontSize: 12, color: Colors.red),
+              ))
+            ]),
     );
   }
 }
