@@ -18,11 +18,11 @@ class DefiWidget extends StatelessWidget {
   final PluginKarura plugin;
 
   final _liveModuleRoutes = {
+    'multiply': MultiplyPage.route,
     'loan': LoanPage.route,
     'swap': SwapPage.route,
     'earn': EarnPage.route,
     'homa': HomaPage.route,
-    'multiply': MultiplyPage.route,
   };
 
   @override
@@ -30,17 +30,16 @@ class DefiWidget extends StatelessWidget {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final modulesConfig =
         plugin.store!.setting.remoteConfig['modules'] ?? config_modules;
-    List liveModules = [];
-    if (modulesConfig.keys.length > 0) {
-      liveModules = modulesConfig.keys.toList().sublist(1);
-    }
+    List liveModules = _liveModuleRoutes.keys.toList();
 
-    liveModules.retainWhere((e) => modulesConfig[e]['visible'] && e != 'nft');
+    liveModules.retainWhere(
+        (e) => modulesConfig[e] == null || modulesConfig[e]['visible']);
 
     return SingleChildScrollView(
       child: Column(
         children: liveModules.map((e) {
-          final enabled = modulesConfig[e]['enabled'];
+          final enabled =
+              modulesConfig[e] == null ? true : modulesConfig[e]['enabled'];
           return GestureDetector(
             child: PluginItemCard(
               margin: EdgeInsets.only(bottom: 16),

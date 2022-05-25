@@ -38,12 +38,14 @@ class _MultiplyPageState extends State<MultiplyPage> {
   Future<void> _fetchData() async {
     widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     widget.plugin.service!.gov.updateBestNumber();
-    await widget.plugin.service!.loan
-        .queryLoanTypes(widget.keyring.current.address);
+    if (widget.plugin.store!.loan.loanTypes.length == 0) {
+      await widget.plugin.service!.loan
+          .queryLoanTypes(widget.keyring.current.address);
+    }
 
-    await widget.plugin.service!.assets.queryMarketPrices();
+    widget.plugin.service!.assets.queryMarketPrices();
 
-    await widget.plugin.service!.loan
+    widget.plugin.service!.loan
         .subscribeAccountLoans(widget.keyring.current.address);
   }
 
