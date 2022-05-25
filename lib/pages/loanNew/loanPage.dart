@@ -200,6 +200,9 @@ class _LoanPageState extends State<LoanPage> {
         );
       }
       if (res != null) {
+        Future.delayed(Duration(milliseconds: 500), () {
+          _fetchData();
+        });
         Navigator.of(context).pop(res);
       }
     }
@@ -275,10 +278,15 @@ class _LoanPageState extends State<LoanPage> {
                               (data) => data.token!.symbol == e.token!.symbol);
                           LoanData? loan =
                               _loans.length > 0 ? _loans.first : null;
-                          Widget child = CreateVaultWidget(onPressed: () {
-                            Navigator.of(context).pushNamed(
+                          Widget child = CreateVaultWidget(onPressed: () async {
+                            final res = await Navigator.of(context).pushNamed(
                                 LoanCreatePage.route,
                                 arguments: e.token);
+                            if (res != null) {
+                              Future.delayed(Duration(milliseconds: 500), () {
+                                _fetchData();
+                              });
+                            }
                           });
                           if (loan != null) {
                             final balancePair =
