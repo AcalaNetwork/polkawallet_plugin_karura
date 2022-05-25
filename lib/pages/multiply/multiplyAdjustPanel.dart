@@ -237,8 +237,11 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           BigInt.from(ratioLeft - _slider - 100) *
           oraclePrice ~/
           dexPrice;
-      final collateralChange =
-          debitChange * BigInt.from(pow(10, acala_price_decimals)) ~/ dexPrice;
+      final collateralChange = debitChange *
+          BigInt.from(pow(10, balancePair[0].decimals!)) ~/
+          BigInt.from(pow(10, balancePair[1].decimals!)) *
+          BigInt.from(pow(10, acala_price_decimals)) ~/
+          dexPrice;
       final collateralNew =
           (loan?.collaterals ?? BigInt.zero) + collateralChange;
       final debitDouble =
