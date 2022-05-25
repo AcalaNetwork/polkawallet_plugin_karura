@@ -225,7 +225,7 @@ class LoanView extends StatelessWidget {
           width: double.infinity,
           height: 244,
           padding: EdgeInsets.only(left: 20, top: 12, right: 20, bottom: 15),
-          margin: EdgeInsets.only(bottom: 31, top: 10),
+          margin: EdgeInsets.only(bottom: 31),
           decoration: BoxDecoration(
               color: Color(0x1AFFFFFF),
               borderRadius: const BorderRadius.only(
