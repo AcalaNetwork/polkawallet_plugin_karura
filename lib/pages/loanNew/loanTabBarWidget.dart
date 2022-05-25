@@ -45,7 +45,9 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.initialTab != null) {
-        _isTabBarOnClick = true;
+        if (widget.initialTab != 0) {
+          _isTabBarOnClick = true;
+        }
         onChange(widget.initialTab!);
       }
     });
