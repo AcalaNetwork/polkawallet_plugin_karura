@@ -2,7 +2,7 @@ import { WsProvider, ApiPromise } from "@polkadot/api";
 import { subscribeMessage, getNetworkConst, getNetworkProperties } from "./service/setting";
 import keyring from "./service/keyring";
 import { options } from "@acala-network/api";
-// import { WalletPromise } from "@acala-network/sdk-wallet";
+import { Wallet } from "@acala-network/sdk";
 import account from "./service/account";
 import acala from "./service/acala";
 import gov from "./service/gov";
@@ -35,12 +35,15 @@ async function connect(nodes: string[]) {
       if (!(<any>window).api) {
         (<any>window).api = res;
         // (<any>window).apiWallet = new WalletPromise(res);
-        const url = nodes[(<any>res)._options.provider.__private_27_endpointIndex];
+        const url = nodes[(<any>res)._options.provider.__private_29_endpointIndex];
         send("log", `${url} wss connected success`);
         resolve(url);
+
+        (<any>window).wallet = new Wallet(res, { wsProvider });
+        (<any>window).wallet.isReady;
       } else {
         res.disconnect();
-        const url = nodes[(<any>res)._options.provider.__private_27_endpointIndex];
+        const url = nodes[(<any>res)._options.provider.__private_29_endpointIndex];
         send("log", `${url} wss success and disconnected`);
         resolve(url);
       }

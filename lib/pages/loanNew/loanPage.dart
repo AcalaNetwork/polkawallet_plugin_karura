@@ -56,12 +56,14 @@ class _LoanPageState extends State<LoanPage> {
   Future<void> _fetchData() async {
     widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     widget.plugin.service!.gov.updateBestNumber();
-    await widget.plugin.service!.loan
-        .queryLoanTypes(widget.keyring.current.address);
+    if (widget.plugin.store!.loan.loanTypes.length == 0) {
+      await widget.plugin.service!.loan
+          .queryLoanTypes(widget.keyring.current.address);
+    }
 
-    await widget.plugin.service!.assets.queryMarketPrices();
+    widget.plugin.service!.assets.queryMarketPrices();
 
-    await widget.plugin.service!.loan
+    widget.plugin.service!.loan
         .subscribeAccountLoans(widget.keyring.current.address);
   }
 
@@ -200,6 +202,9 @@ class _LoanPageState extends State<LoanPage> {
         );
       }
       if (res != null) {
+        Future.delayed(Duration(milliseconds: 500), () {
+          _fetchData();
+        });
         Navigator.of(context).pop(res);
       }
     }
@@ -215,10 +220,10 @@ class _LoanPageState extends State<LoanPage> {
       final loans = widget.plugin.store!.loan.loans.values.toList();
       loans.retainWhere((loan) =>
           loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-      final isDataLoading =
-          widget.plugin.store!.loan.loansLoading && loans.length == 0 ||
+      final isDataLoading = widget.plugin.store!.loan.loansLoading &&
+          (loans.length == 0 ||
               // do not show loan card if collateralRatio was not calculated.
-              (loans.length > 0 && loans[0].collateralRatio <= 0);
+              (loans.length > 0 && loans[0].collateralRatio <= 0));
 
       /// The initial tab index will be from arguments or user's vault.
       int initialLoanTypeIndex = 0;
@@ -275,10 +280,15 @@ class _LoanPageState extends State<LoanPage> {
                               (data) => data.token!.symbol == e.token!.symbol);
                           LoanData? loan =
                               _loans.length > 0 ? _loans.first : null;
-                          Widget child = CreateVaultWidget(onPressed: () {
-                            Navigator.of(context).pushNamed(
+                          Widget child = CreateVaultWidget(onPressed: () async {
+                            final res = await Navigator.of(context).pushNamed(
                                 LoanCreatePage.route,
                                 arguments: e.token);
+                            if (res != null) {
+                              Future.delayed(Duration(milliseconds: 500), () {
+                                _fetchData();
+                              });
+                            }
                           });
                           if (loan != null) {
                             final balancePair =
@@ -387,7 +397,7 @@ class _LoanPageState extends State<LoanPage> {
                                           ),
                                           InfoItemRow(
                                               dic['collateral.price.current']!,
-                                              '≈ \$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId]!, acala_price_decimals)}',
+                                              '≈ \$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId] ?? BigInt.zero, acala_price_decimals)}',
                                               labelStyle: itemStype,
                                               contentStyle: itemStype),
                                           InfoItemRow(dic['liquid.price']!,
@@ -507,9 +517,7 @@ class _LoanPageState extends State<LoanPage> {
 
     final debitRatio = loan.collateralInUSD == BigInt.zero
         ? 0.0
-        : loan.debits /
-            loan.collateralInUSD *
-            Fmt.bigIntToDouble(loan.type.liquidationRatio, 18);
+        : loan.debits / loan.collateralInUSD;
 
     return Container(
       padding: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 10),
@@ -540,12 +548,13 @@ class _LoanPageState extends State<LoanPage> {
                       ClipOval(
                           child: WaveWidget(
                         config: CustomConfig(
-                          colors: loan.collateralRatio > requiredCollateralRatio
-                              ? loan.collateralRatio >
+                          colors: debitRatio == 0 ||
+                                  loan.collateralRatio >
                                       requiredCollateralRatio + 0.2
-                                  ? colorSafe
-                                  : colorWarn
-                              : colorDanger,
+                              ? colorSafe
+                              : loan.collateralRatio > requiredCollateralRatio
+                                  ? colorWarn
+                                  : colorDanger,
                           durations: [8000, 6000],
                           heightPercentages: [
                             debitRatio == 0 ? 1 : 1 - debitRatio - 0.04,
@@ -603,9 +612,9 @@ class _LoanPageState extends State<LoanPage> {
                             color: Colors.white,
                             fontSize: 10,
                           )),
-                  Text('≈ ${Fmt.ratio(loan.stableFeeYear)}',
+                  Text('≈ ${Fmt.ratio(loan.type.stableFeeYear)}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
-                            color: Color(0xFFFC8156),
+                            color: colorSafe[0],
                             height: 1.1,
                             fontSize: 12,
                           ))
@@ -621,15 +630,15 @@ class _LoanPageState extends State<LoanPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${dic['liquid.ratio']}',
+                  Text(dic['v3.loan.liquidRatio']!,
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
                             fontSize: 10,
                           )),
                   Text(
-                      '${Fmt.ratio(Fmt.bigIntToDouble(loan.type.liquidationRatio, 18))}',
+                      '${Fmt.ratio(1 / Fmt.bigIntToDouble(loan.type.liquidationRatio, 18))}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
-                            color: Color(0xFFA1FBBE),
+                            color: Color(0xFFFC8156),
                             height: 1.1,
                             fontSize: 12,
                           ))
@@ -726,7 +735,7 @@ class LoanItemView extends StatelessWidget {
           children: [
             Expanded(
                 child: Padding(
-                    padding: EdgeInsets.only(left: 23),
+                    padding: EdgeInsets.only(left: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -761,6 +770,7 @@ class LoanItemView extends StatelessWidget {
                 detailWidget,
                 PluginOutlinedButtonSmall(
                   padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  margin: EdgeInsets.all(0),
                   content: btnText,
                   color: PluginColorsDark.primary,
                   active: true,

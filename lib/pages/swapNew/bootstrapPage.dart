@@ -563,9 +563,10 @@ class _BootstrapPageState extends State<BootstrapPage> {
 }
 
 class ErrorMessage extends StatelessWidget {
-  ErrorMessage(this.error, {this.margin});
+  ErrorMessage(this.error, {this.margin, this.isRight = false});
   final error;
   EdgeInsetsGeometry? margin;
+  final bool isRight;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -575,10 +576,12 @@ class ErrorMessage extends StatelessWidget {
       child: error == null
           ? null
           : Row(children: [
-              Text(
+              Expanded(
+                  child: Text(
                 error,
+                textAlign: isRight ? TextAlign.right : TextAlign.left,
                 style: TextStyle(fontSize: 12, color: Colors.red),
-              )
+              ))
             ]),
     );
   }

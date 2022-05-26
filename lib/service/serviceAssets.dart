@@ -48,6 +48,8 @@ class ServiceAssets {
 
     try {
       if (prices[relay_chain_token_symbol] != null) {
+        prices['taiKSM'] = prices[relay_chain_token_symbol]!;
+
         final homaEnv = await plugin.service!.homa.queryHomaEnv();
         prices['L$relay_chain_token_symbol'] =
             prices[relay_chain_token_symbol]! * homaEnv.exchangeRate;
@@ -85,7 +87,7 @@ class ServiceAssets {
 
   Future<TokenBalanceData> updateTokenBalances(TokenBalanceData token) async {
     final res = await plugin.sdk.webView!.evalJavascript(
-        'api.query.tokens.accounts("${keyring.current.address}", ${jsonEncode(token.currencyId)})');
+        'acala.getTokenBalance(api, "${keyring.current.address}", "${token.tokenNameId}")');
 
     final balances =
         Map<String?, TokenBalanceData>.from(store!.assets.tokenBalanceMap);

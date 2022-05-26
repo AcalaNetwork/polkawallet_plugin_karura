@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
@@ -43,11 +44,8 @@ class AcalaServiceAssets {
     tokens.forEach((e) {
       final channel = '$tokenBalanceChannel${e.symbol}';
       plugin.sdk.api.subscribeMessage(
-        'api.query.tokens.accounts',
-        [
-          address,
-          e.currencyId ?? {'Token': e.symbol}
-        ],
+        'acala.getTokenBalance',
+        ['api', address, e.tokenNameId],
         channel,
         (Map data) {
           callback({
@@ -74,8 +72,8 @@ class AcalaServiceAssets {
       final channel =
           '$tokenBalanceChannel${lpToken.map((e) => e.symbol).join('')}';
       plugin.sdk.api.subscribeMessage(
-        'api.query.tokens.accounts',
-        [address, currencyId],
+        'acala.getTokenBalance',
+        ['api', address, e.tokenNameId],
         channel,
         (Map data) {
           callback({
@@ -103,6 +101,10 @@ class AcalaServiceAssets {
             AssetsUtils.tokenDataFromCurrencyId(plugin, e[0]).tokenNameId!;
         prices[tokenNameId] = Fmt.balanceInt(e[1]['value'].toString());
       });
+      if (prices[relay_chain_token_symbol] != null &&
+          prices[relay_chain_token_symbol]! > BigInt.zero) {
+        prices['sa://0'] = prices[relay_chain_token_symbol]!;
+      }
       callback(prices);
     }
 

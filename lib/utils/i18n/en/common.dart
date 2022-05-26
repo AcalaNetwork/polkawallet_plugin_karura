@@ -65,6 +65,9 @@ const Map<String, String> enCommon = {
       'Stake KSM in Karura to earn staking rewards with keeping liquidity of your tokens.',
   'nft.title': 'NFTs',
   'nft.brief': 'NFT collectables.',
+  'multiply.title': 'Multiply',
+  'multiply.brief':
+      'The biggest possible Multiple to maximize your exposure with aUSD',
   'coming': 'Await governance activation',
   'asset.lock': 'Locked',
   'asset.reserve': 'Reserved',

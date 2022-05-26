@@ -1,3 +1,8 @@
+## [0.4.6] - 20220526
+- bump polkawallet_sdk v0.4.6.
+- new module browser.
+- new module vault-multiply.
+
 ## [0.4.5] - 20220505
 - bump polkawallet_sdk v0.4.5.
 - XCM transfer rebuild.

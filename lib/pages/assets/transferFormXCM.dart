@@ -419,7 +419,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   void _fetchData() {
-    _getTxFee();
+    if (_token != null) {
+      _getTxFee();
+    }
     _getAccountSysInfo();
   }
 
@@ -449,6 +451,11 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
           _chainTo = tokenXcmConfig[0];
         }
       });
+
+      if (widget.plugin.sdk.api.connectedNode != null) {
+        // get tx fee while init state if connected
+        _getTxFee();
+      }
     });
   }
 
@@ -528,7 +535,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 .tokenBalanceMap[token.tokenNameId]!.minBalance);
         final fee = Fmt.balanceInt(_fee);
         BigInt max = available;
-        if (tokenSymbol == nativeToken) {
+        if (isFromKar && tokenSymbol == nativeToken) {
           max = notTransferable > BigInt.zero
               ? notTransferable > accountED
                   ? available - fee
@@ -875,7 +882,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                               ),
                             ),
                             Text(
-                                '${Fmt.priceCeilBigInt(Fmt.balanceInt(_fee), nativeTokenDecimals, lengthMax: 6)} $feeToken',
+                                '${Fmt.priceCeilBigInt(fee, isFromKar ? nativeTokenDecimals : token.decimals!, lengthMax: 6)} $feeToken',
                                 style: infoValueStyle),
                           ],
                         ),

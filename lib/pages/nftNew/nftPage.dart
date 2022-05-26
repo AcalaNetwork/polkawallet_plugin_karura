@@ -92,7 +92,6 @@ class _NftPageState extends State<NftPage> {
                         height: itemCardSize,
                         child: Image.network(
                           '${item.metadata!['imageServiceUrl']}?imageView2/2/w/400',
-                          fit: BoxFit.cover,
                         ),
                       ),
                       Align(
@@ -169,7 +168,7 @@ class _NftPageState extends State<NftPage> {
           title: Text('NFTs'),
           actions: [
             Padding(
-                padding: EdgeInsets.only(right: 8),
+                padding: EdgeInsets.only(right: 16),
                 child: PluginIconButton(
                   icon: Center(
                       child: Image.asset(
@@ -266,7 +265,9 @@ class _NftPageState extends State<NftPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              buildHeaderView(classes, list),
+                              Padding(
+                                  padding: EdgeInsets.only(top: 5),
+                                  child: buildHeaderView(classes, list)),
                               Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16),
                                   child: Column(

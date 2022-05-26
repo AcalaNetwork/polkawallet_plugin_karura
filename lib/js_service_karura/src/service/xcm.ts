@@ -11,6 +11,7 @@ interface ChainData {
 const chain_name_karura = "karura";
 const chain_name_kusama = "kusama";
 const chain_name_statemine = "statemine";
+const chain_name_bifrost = "bifrost";
 const chain_name_kint = "kintsugi";
 const chain_name_parallel = "parallel heiko";
 const chain_name_khala = "khala";
@@ -18,6 +19,9 @@ const chain_name_quart = "quartz";
 const chain_name_moon = "moonriver";
 const chain_name_kico = "kico";
 const chain_name_crust = "crust shadow";
+const chain_name_calamari = "calamari";
+const chain_name_integritee = "integritee";
+const chain_name_altair = "altair";
 
 const chainNodes = {
   [chain_name_kusama]: [
@@ -28,6 +32,13 @@ const chainNodes = {
     "wss://kusama-rpc.dwellir.com",
   ],
   [chain_name_statemine]: ["wss://kusama-statemine-rpc.paritytech.net", "wss://statemine.api.onfinality.io/public-ws"],
+  [chain_name_bifrost]: [
+    "wss://bifrost-rpc.liebi.com/ws",
+    "wss://us.bifrost-rpc.liebi.com/ws",
+    "wss://eu.bifrost-rpc.liebi.com/ws",
+    "wss://bifrost-parachain.api.onfinality.io/public-ws",
+    "wss://bifrost-rpc.dwellir.com",
+  ],
   [chain_name_kint]: ["wss://kintsugi.api.onfinality.io/public-ws", "wss://api-kusama.interlay.io/parachain"],
   [chain_name_parallel]: ["wss://parallel-heiko.api.onfinality.io/public-ws", "wss://heiko-rpc.parallel.fi"],
   [chain_name_khala]: ["wss://khala.api.onfinality.io/public-ws", "wss://khala-api.phala.network/ws"],
@@ -39,6 +50,9 @@ const chainNodes = {
   ],
   [chain_name_kico]: ["wss://rpc.api.kico.dico.io", "wss://rpc.kico.dico.io"],
   [chain_name_crust]: ["wss://rpc-shadow.crust.network/"],
+  [chain_name_calamari]: ["wss://ws.calamari.systems/", "wss://calamari.api.onfinality.io/public-ws", "wss://calamari-rpc.dwellir.com"],
+  [chain_name_integritee]: ["wss://kusama.api.integritee.network", "wss://integritee-kusama.api.onfinality.io/public-ws"],
+  [chain_name_altair]: ["wss://fullnode.altair.centrifuge.io", "wss://altair.api.onfinality.io/public-ws"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -116,7 +130,7 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
-  if (chain.match(chain_name_kint)) {
+  if (chain.match(chain_name_bifrost) || chain.match(chain_name_kint)) {
     const res = await api.query.tokens.accounts(address, { Token: tokenNameId });
     return {
       amount: (res as any)?.free?.toString(),
@@ -169,6 +183,33 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     const res = await api.query.tokens.accounts(address, tokenIds[token.name]);
     return {
       amount: (res as any).free.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
+  if (chain.match(chain_name_calamari) && token.symbol !== "KMA") {
+    const tokenIds: Record<string, number> = {
+      KAR: 8,
+      KUSD: 9,
+      KSM: 12,
+      LKSM: 10,
+    };
+
+    if (!tokenIds[token.name]) return null;
+
+    const res = await api.query.assets.account(tokenIds[token.name], address);
+    return {
+      amount: (res as any).unwrapOrDefault().balance.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
+  if (chain.match(chain_name_altair) && token.symbol !== "AIR") {
+    const res = await api.query.ormlTokens.accounts(address, token.symbol);
+    return {
+      amount: (res as any).unwrapOrDefault().free.toString(),
       tokenNameId,
       decimals: token.decimals,
     };
@@ -280,8 +321,8 @@ async function getTransferParams(
     };
   }
 
-  // kintsugi
-  if (chainFrom.name === chain_name_kint && chainTo.name === chain_name_karura) {
+  // bifrost/kintsugi
+  if ((chainFrom.name === chain_name_bifrost && tokenName === "KSM") || chainFrom.name === chain_name_kint) {
     const dst = {
       parents: 1,
       interior: {
@@ -321,18 +362,16 @@ async function getTransferParams(
 
   // khala
   if (chainFrom.name === chain_name_khala) {
-    if (tokenName === "PHA") {
-      const dst = {
-        parents: 1,
-        interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
-      };
+    const dst = {
+      parents: 1,
+      interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
+    };
+    let asset: any = {
+      id: { Concrete: { parents: 0, interior: "Here" } },
+      fun: { Fungible: amount },
+    };
 
-      return {
-        module: "xcmTransfer",
-        call: "transferNative",
-        params: [dst, amount, xcm_dest_weight_v2],
-      };
-    } else {
+    if (tokenName !== "PHA") {
       const tokenIds: Record<string, string> = {
         KUSD: "0x0081",
         KAR: "0x0080",
@@ -342,18 +381,17 @@ async function getTransferParams(
 
       if (!id) return;
 
-      const asset = { parents: 1, interior: { X2: [{ Parachain: chainTo.paraChainId }, { GeneralKey: id }] } };
-      const dst = {
-        parents: 1,
-        interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
-      };
-
-      return {
-        module: "xcmTransfer",
-        call: "transferAsset",
-        params: [asset, dst, amount, xcm_dest_weight_v2],
+      asset = {
+        id: { Concrete: { parents: 1, interior: { X2: [{ Parachain: chainTo.paraChainId }, { GeneralKey: id }] } } },
+        fun: { Fungible: amount },
       };
     }
+
+    return {
+      module: "xTransfer",
+      call: "transfer",
+      params: [asset, dst, xcm_dest_weight_v2],
+    };
   }
 
   // quartz & crust
@@ -388,6 +426,63 @@ async function getTransferParams(
       module: "xTokens",
       call: "transfer",
       params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+    };
+  }
+
+  // calamari
+  if (chainFrom.name === chain_name_calamari) {
+    const tokenIds: Record<string, number> = {
+      "fa://10": 1,
+      KAR: 8,
+      KUSD: 9,
+      KSM: 12,
+      LKSM: 10,
+    };
+
+    return {
+      module: "xTokens",
+      call: "transfer",
+      params: [
+        { MantaCurrency: tokenIds[tokenName] },
+        amount,
+        {
+          V1: {
+            parents: 1,
+            interior: {
+              X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }],
+            },
+          },
+        },
+        xcm_dest_weight_v2,
+      ],
+    };
+  }
+
+  // integritee
+  if (chainFrom.name === chain_name_integritee) {
+    const dst = {
+      parents: 1,
+      interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
+    };
+
+    return {
+      module: "xTokens",
+      call: "transfer",
+      params: [token.symbol, amount, { V1: dst }, xcm_dest_weight_v2],
+    };
+  }
+
+  // altair
+  if (chainFrom.name === chain_name_altair) {
+    const dst = {
+      parents: 1,
+      interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
+    };
+
+    return {
+      module: "xTokens",
+      call: "transfer",
+      params: [token.symbol === "AIR" ? "Native" : token.symbol, amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 

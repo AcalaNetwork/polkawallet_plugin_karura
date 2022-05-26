@@ -77,7 +77,8 @@ class AssetsUtils {
               : plugin.store!.assets.allTokens)
           .toList();
       final i = list.indexWhere((e) =>
-          e.type.toLowerCase() == currencyIdKey.toLowerCase() &&
+          (e.currencyId?.keys.toList() ?? [''])[0].toLowerCase() ==
+              currencyIdKey.toLowerCase() &&
           e.id == currencyId[currencyIdKey].toString());
       return i > -1 ? list[i] : TokenBalanceData();
     }

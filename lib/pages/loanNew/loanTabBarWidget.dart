@@ -45,6 +45,9 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.initialTab != null) {
+        if (widget.initialTab != 0) {
+          _isTabBarOnClick = true;
+        }
         onChange(widget.initialTab!);
       }
     });
@@ -152,7 +155,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
             physics: BouncingScrollPhysics(),
             children: widget.data
                 .map((e) => Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.all(16),
                       child: e.context,
                     ))
                 .toList(),
