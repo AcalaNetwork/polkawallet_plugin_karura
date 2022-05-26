@@ -1,6 +1,6 @@
 name: polkawallet_plugin_karura
 description: Karura network plugin for Polkawallet.
-version: 0.4.5
+version: 0.4.6
 homepage:
 
 environment:
@@ -21,8 +21,8 @@ dependencies:
   device_info: ^2.0.1
   graphql_flutter: ^5.0.0-nullsafety.5
   liquid_progress_indicator: ^0.4.0
-  polkawallet_sdk: ^0.4.5
-  polkawallet_ui: ^0.4.5
+  polkawallet_sdk: ^0.4.6
+  polkawallet_ui: ^0.4.6
   flutter_screenutil: ^5.0.0+2
   skeleton_loader: ^2.0.0+4
   rive: ^0.7.33
@@ -40,11 +40,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-dependency_overrides:
- polkawallet_sdk:
-   path: ../sdk
- polkawallet_ui:
-   path: ../ui
+#dependency_overrides:
+# polkawallet_sdk:
+#   path: ../sdk
+# polkawallet_ui:
+#   path: ../ui
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
