@@ -132,18 +132,18 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                           child: Stack(
                             children: [
                               Container(
-                                  width: 30,
-                                  height: 30,
+                                  width: 48,
+                                  height: 48,
                                   child: widget.data[index].icon),
                               Container(
-                                  width: 30,
-                                  height: 30,
+                                  width: 48,
+                                  height: 48,
                                   decoration: BoxDecoration(
                                       color: _index == index
                                           ? Colors.transparent
                                           : Color(0x33000000),
                                       borderRadius: const BorderRadius.all(
-                                          Radius.circular(15))))
+                                          Radius.circular(6))))
                             ],
                           ),
                         ),
