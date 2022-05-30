@@ -121,13 +121,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     return null;
   }
 
-  Future<void> _validateAccountTo(KeyPairData acc, int chainToSS58) async {
-    final error = await _checkAccountTo(acc, chainToSS58);
-    setState(() {
-      _accountToError = error;
-    });
-  }
-
   Future<void> _getAccountSysInfo() async {
     final info = await widget.plugin.sdk.webView?.evalJavascript(
         'api.query.system.account("${widget.keyring.current.address}")');
@@ -521,12 +514,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final balanceData = isFromKar
             ? AssetsUtils.getBalanceFromTokenNameId(
                 widget.plugin, token.tokenNameId)
-            : _fromChainBalances[_chainFrom]!;
-        final available = Fmt.balanceInt(balanceData.amount) -
-            Fmt.balanceInt(balanceData.locked);
+            : _fromChainBalances[_chainFrom];
+        final available = Fmt.balanceInt(balanceData?.amount) -
+            Fmt.balanceInt(balanceData?.locked);
         final nativeToken = widget.plugin.networkState.tokenSymbol![0];
-        final nativeTokenDecimals = widget.plugin.networkState.tokenDecimals![
-            widget.plugin.networkState.tokenSymbol!.indexOf(nativeToken)];
         final existDeposit = token.tokenNameId == nativeToken
             ? Fmt.balanceInt(widget
                 .plugin.networkConst['balances']['existentialDeposit']
@@ -589,7 +580,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final feeTokenSymbol = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
             {})['nativeToken'];
         final feeToken = isFromKar
-            ? balanceData
+            ? AssetsUtils.getBalanceFromTokenNameId(widget.plugin, nativeToken)
             : widget.plugin.store!.assets.allTokens.firstWhere((e) =>
                 e.symbol!.toUpperCase() ==
                 feeTokenSymbol.toString().toUpperCase());
