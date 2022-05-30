@@ -71,23 +71,12 @@ class _EarnDexListState extends State<EarnDexList> {
       final incentivesV2 = widget.plugin.store!.earn.incentives;
 
       var dexPools = widget.plugin.store!.earn.dexPools.toList();
-      dexPools.removeWhere((e) {
-        final poolInfo =
-            widget.plugin.store!.earn.dexPoolInfoMap[e.tokenNameId];
-        double incentive = 0;
-        (incentivesV2.dex?[e.tokenNameId] ?? []).forEach((i) {
-          incentive += i.amount ?? 0;
-        });
-
-        return e.provisioning != null ||
-            (incentive == 0 &&
-                (poolInfo?.shares ?? BigInt.zero) == BigInt.zero);
-      });
 
       if (dexPools.length > 0) {
         final List<DexPoolData> datas = [];
         final List<DexPoolData> otherDatas = [];
         for (int i = 0; i < dexPools.length; i++) {
+          double incentive = 0;
           double rewards = 0;
           double savingRewards = 0;
           double? loyaltyBonus = 0;
@@ -95,6 +84,7 @@ class _EarnDexListState extends State<EarnDexList> {
 
           if (incentivesV2.dex != null) {
             (incentivesV2.dex![dexPools[i].tokenNameId!] ?? []).forEach((e) {
+              incentive += e.amount ?? 0;
               rewards += e.apr ?? 0;
               loyaltyBonus = e.deduction;
             });
@@ -109,10 +99,20 @@ class _EarnDexListState extends State<EarnDexList> {
           dexPools[i].rewardsLoyalty = rewards * (1 - loyaltyBonus!) +
               savingRewards * (1 - savingLoyaltyBonus!);
 
-          if (dexPools[i].tokenNameId!.indexOf("KAR") >= 0) {
-            datas.add(dexPools[i]);
-          } else {
-            otherDatas.add(dexPools[i]);
+          double userReward = 0;
+          final poolInfo =
+              widget.plugin.store!.earn.dexPoolInfoMap[dexPools[i].tokenNameId];
+          (poolInfo?.reward?.incentive ?? []).forEach((e) {
+            userReward = double.parse(e['amount']);
+          });
+
+          if (dexPools[i].provisioning == null &&
+              (incentive > 0 || userReward > 0)) {
+            if (dexPools[i].tokenNameId!.indexOf("KAR") >= 0) {
+              datas.add(dexPools[i]);
+            } else {
+              otherDatas.add(dexPools[i]);
+            }
           }
         }
 
@@ -179,7 +179,7 @@ class _EarnDexListState extends State<EarnDexList> {
 
                 (poolInfo?.reward?.incentive ?? []).forEach((e) {
                   final amount = double.parse(e['amount']);
-                  if (amount > 0.001) {
+                  if (amount > 0.0001) {
                     canClaim = true;
                   }
                 });
