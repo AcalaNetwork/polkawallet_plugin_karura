@@ -349,7 +349,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   Future<XcmTxConfirmParams?> _getTxParams(
-      Widget? chainFromIcon, String feeToken) async {
+      Widget? chainFromIcon, TokenBalanceData feeToken) async {
     if (_accountToError == null &&
         _formKey.currentState!.validate() &&
         !_submitting &&
@@ -521,9 +521,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final balanceData = isFromKar
             ? AssetsUtils.getBalanceFromTokenNameId(
                 widget.plugin, token.tokenNameId)
-            : _fromChainBalances[_chainFrom];
-        final available = Fmt.balanceInt(balanceData?.amount) -
-            Fmt.balanceInt(balanceData?.locked);
+            : _fromChainBalances[_chainFrom]!;
+        final available = Fmt.balanceInt(balanceData.amount) -
+            Fmt.balanceInt(balanceData.locked);
         final nativeToken = widget.plugin.networkState.tokenSymbol![0];
         final nativeTokenDecimals = widget.plugin.networkState.tokenDecimals![
             widget.plugin.networkState.tokenSymbol!.indexOf(nativeToken)];
@@ -586,8 +586,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final chainToSS58 = isFromKar
             ? ((tokensConfig['xcmChains'] ?? {})[chainTo] ?? {})['ss58']
             : widget.plugin.basic.ss58;
-        final feeToken = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
+        final feeTokenSymbol = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
             {})['nativeToken'];
+        final feeToken = isFromKar
+            ? balanceData
+            : widget.plugin.store!.assets.allTokens.firstWhere((e) =>
+                e.symbol!.toUpperCase() ==
+                feeTokenSymbol.toString().toUpperCase());
 
         final labelStyle = Theme.of(context).textTheme.headline4;
         final subTitleStyle = TextStyle(fontSize: 12, height: 1);
@@ -882,7 +887,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                               ),
                             ),
                             Text(
-                                '${Fmt.priceCeilBigInt(fee, isFromKar ? nativeTokenDecimals : token.decimals!, lengthMax: 6)} $feeToken',
+                                '${Fmt.priceCeilBigInt(fee, feeToken.decimals!, lengthMax: 6)} $feeTokenSymbol',
                                 style: infoValueStyle),
                           ],
                         ),
