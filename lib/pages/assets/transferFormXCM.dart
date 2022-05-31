@@ -121,13 +121,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     return null;
   }
 
-  Future<void> _validateAccountTo(KeyPairData acc, int chainToSS58) async {
-    final error = await _checkAccountTo(acc, chainToSS58);
-    setState(() {
-      _accountToError = error;
-    });
-  }
-
   Future<void> _getAccountSysInfo() async {
     final info = await widget.plugin.sdk.webView?.evalJavascript(
         'api.query.system.account("${widget.keyring.current.address}")');
@@ -349,7 +342,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   Future<XcmTxConfirmParams?> _getTxParams(
-      Widget? chainFromIcon, String feeToken) async {
+      Widget? chainFromIcon, TokenBalanceData feeToken) async {
     if (_accountToError == null &&
         _formKey.currentState!.validate() &&
         !_submitting &&
@@ -525,8 +518,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final available = Fmt.balanceInt(balanceData?.amount) -
             Fmt.balanceInt(balanceData?.locked);
         final nativeToken = widget.plugin.networkState.tokenSymbol![0];
-        final nativeTokenDecimals = widget.plugin.networkState.tokenDecimals![
-            widget.plugin.networkState.tokenSymbol!.indexOf(nativeToken)];
         final existDeposit = token.tokenNameId == nativeToken
             ? Fmt.balanceInt(widget
                 .plugin.networkConst['balances']['existentialDeposit']
@@ -586,8 +577,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         final chainToSS58 = isFromKar
             ? ((tokensConfig['xcmChains'] ?? {})[chainTo] ?? {})['ss58']
             : widget.plugin.basic.ss58;
-        final feeToken = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
+        final feeTokenSymbol = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
             {})['nativeToken'];
+        final feeToken = isFromKar
+            ? AssetsUtils.getBalanceFromTokenNameId(widget.plugin, nativeToken)
+            : widget.plugin.store!.assets.allTokens.firstWhere((e) =>
+                e.symbol!.toUpperCase() ==
+                feeTokenSymbol.toString().toUpperCase());
 
         final labelStyle = Theme.of(context).textTheme.headline4;
         final subTitleStyle = TextStyle(fontSize: 12, height: 1);
@@ -882,7 +878,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                               ),
                             ),
                             Text(
-                                '${Fmt.priceCeilBigInt(fee, isFromKar ? nativeTokenDecimals : token.decimals!, lengthMax: 6)} $feeToken',
+                                '${Fmt.priceCeilBigInt(fee, feeToken.decimals!, lengthMax: 6)} $feeTokenSymbol',
                                 style: infoValueStyle),
                           ],
                         ),

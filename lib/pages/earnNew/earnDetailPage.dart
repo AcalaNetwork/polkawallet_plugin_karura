@@ -600,7 +600,7 @@ class _UserCard extends StatelessWidget {
       if (amount < 0) {
         amount = 0;
       }
-      if (amount > 0.001) {
+      if (amount > 0.0001) {
         canClaim = true;
       }
       final rewardToken =

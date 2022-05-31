@@ -207,9 +207,9 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
   }
 
   if (chain.match(chain_name_altair) && token.symbol !== "AIR") {
-    const res = await api.query.ormlTokens.accounts(address, token.symbol);
+    const res = await api.query.ormlTokens.accounts(address, token.name);
     return {
-      amount: (res as any).unwrapOrDefault().free.toString(),
+      amount: (res as any).free.toString(),
       tokenNameId,
       decimals: token.decimals,
     };
@@ -482,7 +482,7 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [token.symbol === "AIR" ? "Native" : token.symbol, amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [token.symbol === "AIR" ? "Native" : token.name, amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 
