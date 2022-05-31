@@ -702,7 +702,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'honzon',
-          call: 'adjustLoan',
+          call: 'adjustLoanByDebitValue',
           txTitle: "adjust Vault",
           txDisplayBold: params['detail'],
           params: params['params'],
@@ -716,7 +716,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   Future<Map?> _getTxParams(LoanData loan, LoanData originalLoan) async {
     final collaterals = loan.collaterals - originalLoan.collaterals;
     final debitShares = loan.debitShares - originalLoan.debitShares;
-    final debits = loan.debits - originalLoan.debits;
+    var debits = loan.debits - originalLoan.debits;
 
     if (collaterals == BigInt.zero && debits == BigInt.zero) {
       return null;
@@ -780,7 +780,6 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       );
     }
 
-    BigInt debitSubtract = debitShares;
     if (debitShares != BigInt.zero) {
       var dicValue = 'loan.mint';
       if (originalLoan.debits == BigInt.zero &&
@@ -810,8 +809,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 '${dic!['loan.warn4']}$minimumDebitValue ${dic['loan.warn5']}')
             as Future<bool>);
         if (!canContinue) return null;
-        debitSubtract = loan.type.debitToDebitShare(
-            (loan.type.minimumDebitValue + BigInt.from(10000)));
+        debits = loan.type.minimumDebitValue + BigInt.from(10000);
       }
       if (debitShares < BigInt.zero) {
         dicValue = 'loan.payback';
@@ -833,14 +831,13 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
         final BigInt balanceStableCoin = Fmt.balanceInt(balancePair[1].amount) -
             Fmt.balanceInt(balancePair[1].minBalance);
-        if (balanceStableCoin <=
-            loan.type.debitShareToDebit(debitSubtract).abs()) {
-          debitSubtract = loan.type.debitToDebitShare(
-              balanceStableCoin ~/ BigInt.from(1000000) - balanceStableCoin);
+        if (balanceStableCoin <= debits.abs()) {
+          debits =
+              balanceStableCoin ~/ BigInt.from(1000000) - balanceStableCoin;
         }
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(debitSubtract == debitShares ? debits : loan.type.debitShareToDebit(debitSubtract).abs(), balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
+        '${Fmt.priceFloorBigInt(debits.abs(), balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -853,7 +850,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       'params': [
         loan.token!.currencyId,
         collaterals != BigInt.zero ? collaterals.toString() : 0,
-        debitSubtract.toString()
+        debits.toString()
       ]
     };
   }

@@ -131,7 +131,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     final buyingWithSlippage =
         buyingCollateral * BigInt.from(1000 - slippage) ~/ BigInt.from(1000);
     final batchTxs = [
-      'api.tx.honzon.adjustLoan(...${jsonEncode([
+      'api.tx.honzon.adjustLoanByDebitValue(...${jsonEncode([
             token.currencyId,
             _amountCollateral.toString(),
             '0'

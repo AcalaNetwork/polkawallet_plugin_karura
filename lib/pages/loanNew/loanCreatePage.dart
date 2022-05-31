@@ -197,10 +197,9 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   Map _getTxParams(LoanType loanType,
       {required int stableCoinDecimals, required int collateralDecimals}) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final debitShare = loanType.debitToDebitShare(
-        _amountDebit <= loanType.minimumDebitValue
-            ? (loanType.minimumDebitValue + BigInt.from(10000))
-            : _amountDebit);
+    final debit = _amountDebit <= loanType.minimumDebitValue
+        ? (loanType.minimumDebitValue + BigInt.from(10000))
+        : _amountDebit;
     return {
       'detail': {
         dic['loan.collateral']: Text(
@@ -221,7 +220,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       'params': [
         _token!.currencyId,
         _amountCollateral.toString(),
-        debitShare.toString(),
+        debit.toString(),
       ]
     };
   }
@@ -268,7 +267,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'honzon',
-          call: 'adjustLoan',
+          call: 'adjustLoanByDebitValue',
           txTitle: pageTitle,
           txDisplayBold: params['detail'],
           params: params['params'],

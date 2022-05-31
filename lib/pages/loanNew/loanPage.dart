@@ -190,7 +190,7 @@ class _LoanPageState extends State<LoanPage> {
           TxConfirmPage.route,
           arguments: TxConfirmParams(
             module: 'honzon',
-            call: "adjustLoan",
+            call: "adjustLoanByDebitValue",
             txTitle: "adjust Vault",
             txDisplay: {
               dic!['loan.withdraw']:
@@ -488,7 +488,10 @@ class _LoanPageState extends State<LoanPage> {
                           }
                           return LoanTabBarWidgetData(
                             PluginTokenIcon(
-                                e.token!.symbol!, widget.plugin.tokenIcons),
+                              e.token!.symbol!,
+                              widget.plugin.tokenIcons,
+                              size: 34,
+                            ),
                             child,
                           );
                         }).toList(),
