@@ -137,7 +137,7 @@ class _MintPageState extends State<MintPage> {
       final receive = Fmt.balanceInt(_amountReceive).toString();
       final batchTxs = [
         'api.tx.homa.mint("$amount")',
-        'api.tx.honzon.adjustLoan({Token: "L$relay_chain_token_symbol"}, "$receive", 0)',
+        'api.tx.honzon.adjustLoanByDebitValue({Token: "L$relay_chain_token_symbol"}, "$receive", 0)',
       ];
 
       final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,

@@ -63,8 +63,8 @@ class ServiceLoan {
 
     await plugin.service!.earn.updateAllDexPoolInfo();
     final res = await api!.loan.queryLoanTypes();
-    res.removeWhere((e) => e.requiredCollateralRatio == BigInt.zero);
-    store!.loan.setLoanTypes(res);
+    res?.removeWhere((e) => e.requiredCollateralRatio == BigInt.zero);
+    store!.loan.setLoanTypes(res ?? []);
 
     queryTotalCDPs();
   }

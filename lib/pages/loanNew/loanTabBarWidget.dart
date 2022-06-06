@@ -104,10 +104,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
             ),
             decoration: BoxDecoration(
                 color: Color(0x66FFFFFF),
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(13),
-                    topRight: Radius.circular(13),
-                    bottomRight: Radius.circular(13))),
+                borderRadius: BorderRadius.circular(6)),
             child: ScrollablePositionedList.builder(
                 scrollDirection: Axis.horizontal,
                 itemScrollController: _scrollController,
@@ -122,7 +119,6 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                       child: Center(
                         child: Container(
                           margin: EdgeInsets.symmetric(horizontal: 18),
-                          padding: _index == index ? EdgeInsets.all(5) : null,
                           decoration: _index == index
                               ? BoxDecoration(
                                   color: Color(0xCCFFFFFF),
@@ -130,20 +126,23 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                                       const Radius.circular(10)))
                               : null,
                           child: Stack(
+                            alignment: Alignment.center,
                             children: [
                               Container(
-                                  width: 30,
-                                  height: 30,
-                                  child: widget.data[index].icon),
+                                  width: 48,
+                                  height: 48,
+                                  child: Center(
+                                    child: widget.data[index].icon,
+                                  )),
                               Container(
-                                  width: 30,
-                                  height: 30,
+                                  width: 34,
+                                  height: 34,
                                   decoration: BoxDecoration(
                                       color: _index == index
                                           ? Colors.transparent
                                           : Color(0x33000000),
                                       borderRadius: const BorderRadius.all(
-                                          Radius.circular(15))))
+                                          Radius.circular(34))))
                             ],
                           ),
                         ),

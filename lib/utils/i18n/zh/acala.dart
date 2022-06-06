@@ -304,4 +304,8 @@ const Map<String, String> zhDex = {
   'loan.multiply.example': '示例',
   'loan.multiply.manageYourVault': '管理您的债仓',
   'loan.multiply.message3': '您的质押率太低，可能面临被清算的风险，本次交易有可能失败。',
+  'earn.dex.sort0': '默认',
+  'earn.dex.sort1': '年利率最高',
+  'earn.dex.sort2': '质押量最大',
+  'earn.dex.sort3': '获利最多',
 };

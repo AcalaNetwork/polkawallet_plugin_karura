@@ -196,7 +196,10 @@ class _MultiplyPageState extends State<MultiplyPage> {
                             }
                             return LoanTabBarWidgetData(
                               PluginTokenIcon(
-                                  e.token!.symbol!, widget.plugin.tokenIcons),
+                                e.token!.symbol!,
+                                widget.plugin.tokenIcons,
+                                size: 34,
+                              ),
                               child,
                             );
                           }).toList(),

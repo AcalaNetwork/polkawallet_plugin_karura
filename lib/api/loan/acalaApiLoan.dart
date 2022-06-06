@@ -12,7 +12,7 @@ class AcalaApiLoan {
     return res;
   }
 
-  Future<List<LoanType>> queryLoanTypes() async {
+  Future<List<LoanType>?> queryLoanTypes() async {
     final List res = await (service.queryLoanTypes() as Future<List<dynamic>>);
     return res
         .map((e) =>

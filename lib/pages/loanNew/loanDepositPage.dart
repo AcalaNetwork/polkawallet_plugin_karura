@@ -163,7 +163,7 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
     final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
         arguments: TxConfirmParams(
           module: 'honzon',
-          call: 'adjustLoan',
+          call: 'adjustLoanByDebitValue',
           txTitle: title,
           txDisplayBold: params['detail'],
           params: params['params'],
