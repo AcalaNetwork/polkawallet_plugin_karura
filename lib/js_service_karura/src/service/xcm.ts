@@ -22,6 +22,7 @@ const chain_name_crust = "crust shadow";
 const chain_name_calamari = "calamari";
 const chain_name_integritee = "integritee";
 const chain_name_altair = "altair";
+const chain_name_crab = "crab";
 
 const chainNodes = {
   [chain_name_kusama]: [
@@ -53,6 +54,7 @@ const chainNodes = {
   [chain_name_calamari]: ["wss://ws.calamari.systems/", "wss://calamari.api.onfinality.io/public-ws", "wss://calamari-rpc.dwellir.com"],
   [chain_name_integritee]: ["wss://kusama.api.integritee.network", "wss://integritee-kusama.api.onfinality.io/public-ws"],
   [chain_name_altair]: ["wss://fullnode.altair.centrifuge.io", "wss://altair.api.onfinality.io/public-ws"],
+  [chain_name_crab]: ["wss://crab-parachain-rpc.darwinia.network/"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -394,8 +396,8 @@ async function getTransferParams(
     };
   }
 
-  // quartz & crust
-  if (chainFrom.name === chain_name_quart || chainFrom.name === chain_name_crust) {
+  // quartz & crust & crab
+  if (chainFrom.name === chain_name_quart || chainFrom.name === chain_name_crust || chainFrom.name === chain_name_crab) {
     const dst = { X2: ["Parent", { ParaChain: chainTo.paraChainId }] };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
