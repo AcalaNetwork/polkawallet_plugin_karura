@@ -50,7 +50,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final TokenBalanceData token =
           ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
       widget.plugin.service!.assets.updateTokenBalances(token);
@@ -64,7 +64,6 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
     final TokenBalanceData token =
         ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
 
-    final primaryColor = Theme.of(context).primaryColor;
     final titleColor = Theme.of(context).cardColor;
 
     final filterOptions = [dic['all'], dic['in'], dic['out']];

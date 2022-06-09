@@ -28,7 +28,7 @@ class _InstrumentWidgetState extends State<InstrumentWidget> {
 
   @override
   void initState() {
-    WidgetsBinding.instance!
+    WidgetsBinding.instance
         .addPostFrameCallback((_) => controller.switchAction(isOnClick: false));
     super.initState();
   }

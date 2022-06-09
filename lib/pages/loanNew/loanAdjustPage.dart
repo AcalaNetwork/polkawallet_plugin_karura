@@ -57,7 +57,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final data = ModalRoute.of(context)!.settings.arguments as Map;
       setState(() {
         _loan = data["loan"];

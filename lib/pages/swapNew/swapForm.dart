@@ -392,7 +392,7 @@ class _SwapFormState extends State<SwapForm>
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _getTxFee();
 
       final cachedSwapPair =

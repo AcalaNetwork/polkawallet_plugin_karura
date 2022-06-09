@@ -53,7 +53,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
     });
   }

@@ -53,7 +53,7 @@ class _EarnDexListState extends State<EarnDexList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
     });
   }
@@ -508,7 +508,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                         Padding(
                                             padding: EdgeInsets.only(top: 17),
                                             child: Text(
-                                              dic!['earn.apy']!,
+                                              dic['earn.apy']!,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline3

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
 
 class pieChartPainter extends CustomPainter {
   pieChartPainter(this.collateralRatio, this.debitRatio);

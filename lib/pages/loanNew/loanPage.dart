@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
@@ -118,7 +117,6 @@ class _LoanPageState extends State<LoanPage> {
       LoanData loan, int? collateralDecimal, double debit) async {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
     final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_ui, 'common');
-    SwapOutputData? output;
     final confirmed = debit > 0
         ? await showCupertinoDialog(
             context: context,
@@ -133,7 +131,6 @@ class _LoanPageState extends State<LoanPage> {
                       future: _queryReceiveAmount(ctx, loan.token!, debit),
                       builder: (_, AsyncSnapshot<SwapOutputData> snapshot) {
                         if (snapshot.hasData) {
-                          output = snapshot.data;
                           final left = Fmt.bigIntToDouble(
                                   loan.collaterals, collateralDecimal!) -
                               snapshot.data!.amount!;
