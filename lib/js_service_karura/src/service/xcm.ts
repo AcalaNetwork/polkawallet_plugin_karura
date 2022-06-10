@@ -342,13 +342,13 @@ async function getTransferParams(
   // parallel
   if (chainFrom.name === chain_name_parallel && chainTo.name === chain_name_karura) {
     const tokenIds: Record<string, number> = {
-      HKO: 0,
+      "fa://4": 0,
       KAR: 107,
       KUSD: 103,
       LKSM: 109,
     };
 
-    if (typeof tokenIds[token.symbol] === "undefined") return;
+    if (typeof tokenIds[tokenName] === "undefined") return;
 
     const dst = {
       parents: 1,
@@ -358,7 +358,7 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [tokenIds[tokenName], amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 
@@ -401,6 +401,9 @@ async function getTransferParams(
     const dst = { X2: ["Parent", { ParaChain: chainTo.paraChainId }] };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
+    if (chainFrom.name === chain_name_crab && tokenName === "fa://13") {
+      ass[0].ConcreteFungible["id"] = { X1: { PalletInstance: 5 } };
+    }
 
     return {
       module: "polkadotXcm",
@@ -412,12 +415,12 @@ async function getTransferParams(
   // kico
   if (chainFrom.name === chain_name_kico) {
     const tokenIds: Record<string, number> = {
-      KICO: 0,
+      "fa://6": 0,
       KUSD: 10,
       KAR: 102,
     };
 
-    if (typeof tokenIds[token.symbol] === "undefined") return;
+    if (typeof tokenIds[tokenName] === "undefined") return;
 
     const dst = {
       parents: 1,
@@ -427,7 +430,7 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [tokenIds[tokenName], amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 
