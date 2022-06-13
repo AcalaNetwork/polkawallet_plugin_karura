@@ -485,7 +485,7 @@ class _LoanPageState extends State<LoanPage> {
                           }
                           return LoanTabBarWidgetData(
                             PluginTokenIcon(
-                              e.token!.symbol!,
+                              e.token?.symbol ?? "",
                               widget.plugin.tokenIcons,
                               size: 34,
                             ),
@@ -666,7 +666,7 @@ class _LoanPageState extends State<LoanPage> {
                   bottom: 5 / 210 * headCardHeight),
               alignment: Alignment.bottomLeft,
               child: Text(
-                  '${Fmt.priceFloorBigIntFormatter(loan.collaterals, loan.token!.decimals!)} ${PluginFmt.tokenView(loan.token!.symbol!)}',
+                  '${Fmt.priceFloorBigIntFormatter(loan.collaterals, loan.token!.decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)}',
                   style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
                         fontSize: 12,
