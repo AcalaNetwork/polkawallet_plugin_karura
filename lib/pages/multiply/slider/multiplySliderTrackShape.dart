@@ -110,10 +110,6 @@ class MultiplySliderTrackShape extends SliderTrackShape {
         break;
     }
 
-    final Radius trackRadius = Radius.circular(trackRect.height / 2);
-    final Radius activeTrackRadius =
-        Radius.circular((trackRect.height + additionalActiveTrackHeight) / 2);
-
     context.canvas.drawRRect(
       RRect.fromLTRBAndCorners(
           trackRect.left,
