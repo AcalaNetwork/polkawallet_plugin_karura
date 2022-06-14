@@ -19,6 +19,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTxButton.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class BootstrapPage extends StatefulWidget {
   BootstrapPage(this.plugin, this.keyring);
@@ -296,7 +297,9 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                       .textTheme
                                       .headline3
                                       ?.copyWith(
-                                          color: Colors.white, fontSize: 24),
+                                          color: Colors.white,
+                                          fontSize:
+                                              UI.getTextSize(24, context)),
                                 )),
                             Container(
                               margin: EdgeInsets.only(top: 6, bottom: 10),
@@ -578,7 +581,8 @@ class ErrorMessage extends StatelessWidget {
                   child: Text(
                 error,
                 textAlign: isRight ? TextAlign.right : TextAlign.left,
-                style: TextStyle(fontSize: 12, color: Colors.red),
+                style: TextStyle(
+                    fontSize: UI.getTextSize(12, context), color: Colors.red),
               ))
             ]),
     );

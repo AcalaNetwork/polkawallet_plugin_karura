@@ -33,6 +33,7 @@ import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
@@ -341,7 +342,7 @@ class _LoanPageState extends State<LoanPage> {
                                 .headline5
                                 ?.copyWith(
                                     color: PluginColorsDark.headline1,
-                                    fontSize: 12);
+                                    fontSize: UI.getTextSize(12, context));
 
                             child = SingleChildScrollView(
                                 physics: BouncingScrollPhysics(),
@@ -472,7 +473,9 @@ class _LoanPageState extends State<LoanPage> {
                                                     .headline6
                                                     ?.copyWith(
                                                         color: Colors.white,
-                                                        fontSize: 10))),
+                                                        fontSize:
+                                                            UI.getTextSize(
+                                                                10, context)))),
                                         onTap: () => _closeVault(
                                             loan,
                                             balancePair[0].decimals,
@@ -511,7 +514,7 @@ class _LoanPageState extends State<LoanPage> {
             '$availableView',
             Theme.of(context).textTheme.headline5?.copyWith(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: UI.getTextSize(12, context),
                 )).width;
     availableViewRight = availableViewRight < 0 ? 0 : availableViewRight;
 
@@ -579,7 +582,7 @@ class _LoanPageState extends State<LoanPage> {
                                     .headline3
                                     ?.copyWith(
                                       color: Colors.white,
-                                      fontSize: 18,
+                                      fontSize: UI.getTextSize(18, context),
                                     )),
                             Text(Fmt.ratio(debitRatio),
                                 style: Theme.of(context)
@@ -588,7 +591,7 @@ class _LoanPageState extends State<LoanPage> {
                                     ?.copyWith(
                                       color: Colors.white,
                                       height: 1.0,
-                                      fontSize: 26.5,
+                                      fontSize: UI.getTextSize(26.5, context),
                                     ))
                           ],
                         ),
@@ -610,13 +613,13 @@ class _LoanPageState extends State<LoanPage> {
                   Text('${dic['v3.loan.annualStabilityFee']!}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
-                            fontSize: 10,
+                            fontSize: UI.getTextSize(10, context),
                           )),
                   Text('≈ ${Fmt.ratio(loan.type.stableFeeYear)}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: colorSafe[0],
                             height: 1.1,
-                            fontSize: 12,
+                            fontSize: UI.getTextSize(12, context),
                           ))
                 ],
               ),
@@ -633,14 +636,14 @@ class _LoanPageState extends State<LoanPage> {
                   Text(dic['v3.loan.liquidRatio']!,
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
-                            fontSize: 10,
+                            fontSize: UI.getTextSize(10, context),
                           )),
                   Text(
                       '${Fmt.ratio(1 / Fmt.bigIntToDouble(loan.type.liquidationRatio, 18))}',
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Color(0xFFFC8156),
                             height: 1.1,
-                            fontSize: 12,
+                            fontSize: UI.getTextSize(12, context),
                           ))
                 ],
               ),
@@ -657,7 +660,7 @@ class _LoanPageState extends State<LoanPage> {
               child: Text('${dic['loan.collateral']!}:',
                   style: Theme.of(context).textTheme.headline3?.copyWith(
                         color: Color(0xFF26282d),
-                        fontSize: 10,
+                        fontSize: UI.getTextSize(10, context),
                       )),
             ),
             Container(
@@ -669,7 +672,7 @@ class _LoanPageState extends State<LoanPage> {
                   '${Fmt.priceFloorBigIntFormatter(loan.collaterals, loan.token!.decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)}',
                   style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: UI.getTextSize(12, context),
                       )),
             ),
             Container(
@@ -680,7 +683,7 @@ class _LoanPageState extends State<LoanPage> {
                           '${dic['v3.loan.currentMinted']!}:',
                           Theme.of(context).textTheme.headline3?.copyWith(
                                 color: Color(0xFF26282d),
-                                fontSize: 10,
+                                fontSize: UI.getTextSize(10, context),
                               )).width,
                   bottom: (I18n.of(context)!.locale.languageCode == 'zh'
                           ? 51
@@ -691,7 +694,7 @@ class _LoanPageState extends State<LoanPage> {
               child: Text('${dic['v3.loan.currentMinted']!}:',
                   style: Theme.of(context).textTheme.headline3?.copyWith(
                         color: Color(0xFF26282d),
-                        fontSize: 10,
+                        fontSize: UI.getTextSize(10, context),
                       )),
             ),
             Container(
@@ -701,7 +704,7 @@ class _LoanPageState extends State<LoanPage> {
               child: Text('$availableView',
                   style: Theme.of(context).textTheme.headline5?.copyWith(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: UI.getTextSize(12, context),
                       )),
             ),
           ],
@@ -774,7 +777,7 @@ class LoanItemView extends StatelessWidget {
                   content: btnText,
                   color: PluginColorsDark.primary,
                   active: true,
-                  fontSize: 14,
+                  fontSize: UI.getTextSize(14, context),
                   onPressed: () {
                     onTap();
                   },

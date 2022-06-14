@@ -14,6 +14,7 @@ import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class HomaHistoryPage extends StatelessWidget {
   HomaHistoryPage(this.plugin, this.keyring);
@@ -146,10 +147,9 @@ class HomaHistoryPage extends StatelessWidget {
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true)),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5
-                            ?.copyWith(color: Colors.white, fontSize: 10)),
+                        style: Theme.of(context).textTheme.headline5?.copyWith(
+                            color: Colors.white,
+                            fontSize: UI.getTextSize(10, context))),
                     leading:
                         TransferIcon(type: type, bgColor: Color(0x57FFFFFF)),
                     onTap: () => Navigator.of(context)

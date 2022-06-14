@@ -15,6 +15,7 @@ import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class LoanHistoryPage extends StatelessWidget {
   LoanHistoryPage(this.plugin, this.keyring);
@@ -129,7 +130,9 @@ class LoanHistoryPage extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .headline5
-                              ?.copyWith(color: Colors.white, fontSize: 10)),
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: UI.getTextSize(10, context))),
                       leading: TransferIcon(
                           type: detail.isSuccess!
                               ? type

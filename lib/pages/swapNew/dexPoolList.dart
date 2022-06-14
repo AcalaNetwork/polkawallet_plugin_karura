@@ -19,6 +19,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.da
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class DexPoolList extends StatefulWidget {
   DexPoolList(this.plugin, this.keyring);
@@ -186,10 +187,9 @@ class _DexPoolCard extends StatelessWidget {
                   Expanded(
                       child: Text(
                     tokenPairView,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline3
-                        ?.copyWith(color: Colors.white, fontSize: 18),
+                    style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Colors.white,
+                        fontSize: UI.getTextSize(18, context)),
                   )),
                   Row(
                     children: [

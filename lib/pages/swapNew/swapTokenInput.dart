@@ -131,7 +131,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                               .headline3
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: 24,
+                                  fontSize: UI.getTextSize(24, context),
                                   fontWeight: FontWeight.bold),
                           errorStyle: TextStyle(height: 0.3),
                           contentPadding: EdgeInsets.all(0),
@@ -147,7 +147,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                         ),
                         style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: UI.getTextSize(24, context),
                             fontWeight: FontWeight.bold),
                         inputFormatters: [
                           UI.decimalInputFormatter(

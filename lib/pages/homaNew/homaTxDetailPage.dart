@@ -10,6 +10,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class HomaTxDetailPage extends StatelessWidget {
   HomaTxDetailPage(this.plugin, this.keyring);
@@ -33,7 +34,7 @@ class HomaTxDetailPage extends StatelessWidget {
     final liquidDecimal = decimals[symbols.indexOf('L$symbol')];
 
     final amountStyle = TextStyle(
-        fontSize: 16,
+        fontSize: UI.getTextSize(16, context),
         fontWeight: FontWeight.bold,
         color: PluginColorsDark.headline1);
 

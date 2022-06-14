@@ -385,7 +385,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           style: Theme.of(context)
                               .textTheme
                               .headline3
-                              ?.copyWith(color: Colors.white, fontSize: 40),
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: UI.getTextSize(40, context)),
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,

@@ -26,6 +26,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MultiplyAdjustPanel extends StatefulWidget {
   MultiplyAdjustPanel(this.plugin, this.keyring, this.loanType, this.onRefresh);
@@ -309,7 +310,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                   .textTheme
                                   .headline3
                                   ?.copyWith(
-                                      color: Colors.black, fontSize: 14)),
+                                      color: Colors.black,
+                                      fontSize: UI.getTextSize(14, context))),
                           child: Slider(
                             min: 0,
                             max: ratioLeft - ratioRight,
@@ -342,7 +344,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                     .headline3
                                     ?.copyWith(
                                         color: PluginColorsDark.headline1,
-                                        fontSize: 14)),
+                                        fontSize: UI.getTextSize(14, context))),
                             child: Slider(
                               min: 0,
                               max: ratioLeft - ratioRight,

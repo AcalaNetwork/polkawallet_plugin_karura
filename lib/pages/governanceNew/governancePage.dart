@@ -340,7 +340,8 @@ class _GovernancePageState extends State<GovernancePage> {
                                               .headline3
                                               ?.copyWith(
                                                   color: Colors.white,
-                                                  fontSize: 22,
+                                                  fontSize: UI.getTextSize(
+                                                      22, context),
                                                   fontWeight: FontWeight.bold),
                                         ),
                                         PluginInfoItem(
@@ -365,7 +366,8 @@ class _GovernancePageState extends State<GovernancePage> {
                                               .headline3
                                               ?.copyWith(
                                                   color: Colors.white,
-                                                  fontSize: 22,
+                                                  fontSize: UI.getTextSize(
+                                                      22, context),
                                                   fontWeight: FontWeight.bold),
                                         )
                                       ],
@@ -596,7 +598,8 @@ class _GovernancePageState extends State<GovernancePage> {
                                                 .textTheme
                                                 .headline5
                                                 ?.copyWith(
-                                                    fontSize: 12,
+                                                    fontSize: UI.getTextSize(
+                                                        12, context),
                                                     color: Colors.white),
                                           ),
                                           Padding(
@@ -611,7 +614,10 @@ class _GovernancePageState extends State<GovernancePage> {
                                                         .textTheme
                                                         .headline5
                                                         ?.copyWith(
-                                                            fontSize: 12,
+                                                            fontSize:
+                                                                UI.getTextSize(
+                                                                    12,
+                                                                    context),
                                                             color:
                                                                 Colors.white)),
                                                 Row(
@@ -627,9 +633,8 @@ class _GovernancePageState extends State<GovernancePage> {
                                                       size: 14,
                                                     ),
                                                     Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 5),
+                                                        padding: EdgeInsets.only(
+                                                            left: 5),
                                                         child: UI.accountDisplayName(
                                                             info.proposer,
                                                             widget
@@ -638,13 +643,12 @@ class _GovernancePageState extends State<GovernancePage> {
                                                                     .accounts
                                                                     .addressIndexMap[
                                                                 info.proposer],
-                                                            style: Theme.of(
-                                                                    context)
+                                                            style: Theme.of(context)
                                                                 .textTheme
                                                                 .headline5
                                                                 ?.copyWith(
-                                                                    fontSize:
-                                                                        12,
+                                                                    fontSize: UI.getTextSize(
+                                                                        12, context),
                                                                     color: Colors
                                                                         .white),
                                                             expand: false))
@@ -665,13 +669,15 @@ class _GovernancePageState extends State<GovernancePage> {
                                                   .textTheme
                                                   .headline5
                                                   ?.copyWith(
-                                                      fontSize: 12,
+                                                      fontSize: UI.getTextSize(
+                                                          12, context),
                                                       color: Colors.white),
                                               contentStyle: Theme.of(context)
                                                   .textTheme
                                                   .headline5
                                                   ?.copyWith(
-                                                      fontSize: 12,
+                                                      fontSize: UI.getTextSize(
+                                                          12, context),
                                                       color: Colors.white),
                                             ),
                                           ),

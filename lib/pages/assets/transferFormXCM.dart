@@ -585,7 +585,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 feeTokenSymbol.toString().toUpperCase());
 
         final labelStyle = Theme.of(context).textTheme.headline4;
-        final subTitleStyle = TextStyle(fontSize: 12, height: 1);
+        final subTitleStyle =
+            TextStyle(fontSize: UI.getTextSize(12, context), height: 1);
         final infoValueStyle = Theme.of(context)
             .textTheme
             .headline5!
@@ -645,7 +646,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                       child: Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Text(_accountToError ?? "",
-                            style: TextStyle(fontSize: 12, color: Colors.red)),
+                            style: TextStyle(
+                                fontSize: UI.getTextSize(12, context),
+                                color: Colors.red)),
                       )),
                   isToMoonRiver
                       ? v3.TextInputWidget(
@@ -683,7 +686,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                                   padding: EdgeInsets.only(top: 8),
                                   child: Text(
                                     dicAcala['cross.edit']!,
-                                    style: TextStyle(fontSize: 14),
+                                    style: TextStyle(
+                                        fontSize: UI.getTextSize(14, context)),
                                   ),
                                 ),
                               ],
@@ -941,7 +945,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     margin: EdgeInsets.only(top: 8),
                     child: Text(
                       '$relay_chain_token_symbol ${dic['xcm.foreign.fee']!} (${Fmt.balance(foreign_asset_xcm_dest_fee, relayChainTokenBalance.decimals ?? 12)} $relay_chain_token_symbol)',
-                      style: TextStyle(color: Colors.red, fontSize: 10),
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: UI.getTextSize(10, context)),
                     ),
                   )
                 : Container(),
@@ -998,7 +1004,7 @@ class _CrossChainTransferWarning extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).errorColor),
           ),
-          Text(message, style: TextStyle(fontSize: 12))
+          Text(message, style: TextStyle(fontSize: UI.getTextSize(12, context)))
         ],
       ),
     );

@@ -537,7 +537,7 @@ class _SwapFormState extends State<SwapForm>
                                   .headline5
                                   ?.copyWith(
                                       color: Color(0x88ffffff),
-                                      fontSize: 12,
+                                      fontSize: UI.getTextSize(12, context),
                                       fontWeight: FontWeight.w600)),
                           onTap: () {
                             _onSetMax(Fmt.balanceInt(balancePair[0].amount),
@@ -781,7 +781,7 @@ class _SwapFormState extends State<SwapForm>
                                   _slippageError ?? "",
                                   style: TextStyle(
                                       color: Theme.of(context).errorColor,
-                                      fontSize: 10),
+                                      fontSize: UI.getTextSize(10, context)),
                                 ))
                           ],
                         ),

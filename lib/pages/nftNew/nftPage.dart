@@ -17,6 +17,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 const nft_filter_name_all = 'All';
 
@@ -106,7 +107,7 @@ class _NftPageState extends State<NftPage> {
                             child: Text(
                               'x${classes[item.classId]}',
                               style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: UI.getTextSize(20, context),
                                   color: PluginColorsDark.headline1,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -482,7 +483,7 @@ class _tabBarState extends State<_tabBar> {
                                   .textTheme
                                   .headline5
                                   ?.copyWith(
-                                      fontSize: 12,
+                                      fontSize: UI.getTextSize(12, context),
                                       fontWeight: FontWeight.w600,
                                       color: _initIndex == itemIndex
                                           ? Colors.black

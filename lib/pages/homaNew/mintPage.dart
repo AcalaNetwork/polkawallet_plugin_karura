@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MintPage extends StatefulWidget {
   MintPage(this.plugin, this.keyring);
@@ -321,7 +322,7 @@ class _MintPageState extends State<MintPage> {
                                     .headline4
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: UI.getTextSize(12, context),
                                         fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -331,7 +332,7 @@ class _MintPageState extends State<MintPage> {
                                     .headline4
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: UI.getTextSize(12, context),
                                         fontWeight: FontWeight.w600),
                               )
                             ],

@@ -22,6 +22,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class LPStakePageParams {
   LPStakePageParams(this.pool, this.action);
@@ -460,7 +461,9 @@ class _LPStakePage extends State<LPStakePage> {
                           style: Theme.of(context)
                               .textTheme
                               .headline5
-                              ?.copyWith(color: Colors.white, fontSize: 14)),
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: UI.getTextSize(14, context))),
                     )
                   ],
                 ),
@@ -549,7 +552,9 @@ class _LPStakePage extends State<LPStakePage> {
                             _errorLeft == null
                                 ? "${PluginFmt.tokenView(tokenPair[1]!.symbol)} $_errorRight"
                                 : "${PluginFmt.tokenView(tokenPair[0]!.symbol)} $_errorLeft",
-                            style: TextStyle(fontSize: 12, color: Colors.red),
+                            style: TextStyle(
+                                fontSize: UI.getTextSize(12, context),
+                                color: Colors.red),
                           )
                         ]),
                 ),

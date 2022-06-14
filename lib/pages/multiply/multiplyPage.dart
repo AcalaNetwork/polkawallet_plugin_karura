@@ -20,6 +20,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MultiplyPage extends StatefulWidget {
   MultiplyPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -170,7 +171,10 @@ class _MultiplyPageState extends State<MultiplyPage> {
                                                         .textTheme
                                                         .headline3
                                                         ?.copyWith(
-                                                            fontSize: 18,
+                                                            fontSize:
+                                                                UI.getTextSize(
+                                                                    18,
+                                                                    context),
                                                             color:
                                                                 PluginColorsDark
                                                                     .headline1),
@@ -282,7 +286,8 @@ class LoanView extends StatelessWidget {
                                         .textTheme
                                         .headline5
                                         ?.copyWith(
-                                            fontSize: 12,
+                                            fontSize:
+                                                UI.getTextSize(12, context),
                                             color: PluginColorsDark.headline1),
                                   ))
                             ],
@@ -310,7 +315,7 @@ class LoanView extends StatelessWidget {
                                 .textTheme
                                 .headline5
                                 ?.copyWith(
-                                    fontSize: 12,
+                                    fontSize: UI.getTextSize(12, context),
                                     color: PluginColorsDark.headline1),
                           ))
                     ],
@@ -336,7 +341,7 @@ class LoanView extends StatelessWidget {
                                 .textTheme
                                 .headline5
                                 ?.copyWith(
-                                    fontSize: 12,
+                                    fontSize: UI.getTextSize(12, context),
                                     color: PluginColorsDark.headline1),
                           ))
                     ],
@@ -613,7 +618,7 @@ class CreateVaultWidget extends StatelessWidget {
                               .textTheme
                               .headline5
                               ?.copyWith(
-                                  fontSize: 12,
+                                  fontSize: UI.getTextSize(12, context),
                                   fontWeight: FontWeight.bold,
                                   color: PluginColorsDark.headline1),
                         ),

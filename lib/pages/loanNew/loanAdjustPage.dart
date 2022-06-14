@@ -22,6 +22,7 @@ import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class LoanAdjustPage extends StatefulWidget {
   LoanAdjustPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -72,7 +73,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final textStyle = Theme.of(context).textTheme.headline5?.copyWith(
-        color: PluginColorsDark.headline1, fontSize: 12, height: 2.0);
+        color: PluginColorsDark.headline1,
+        fontSize: UI.getTextSize(12, context),
+        height: 2.0);
 
     final debitRatio =
         (_editorLoan?.collateralInUSD ?? BigInt.zero) == BigInt.zero
@@ -206,10 +209,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     }
     final banlance = getBalance(titleTag);
 
-    final textStyle = Theme.of(context)
-        .textTheme
-        .headline5
-        ?.copyWith(color: PluginColorsDark.headline1, fontSize: 14);
+    final textStyle = Theme.of(context).textTheme.headline5?.copyWith(
+        color: PluginColorsDark.headline1,
+        fontSize: UI.getTextSize(14, context));
     return Padding(
         padding: EdgeInsets.only(bottom: 10),
         child: Column(

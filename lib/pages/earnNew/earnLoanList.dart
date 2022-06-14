@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnLoanList extends StatefulWidget {
   EarnLoanList(this.plugin, this.keyring);
@@ -151,38 +152,33 @@ class CollateralIncentiveList extends StatelessWidget {
                     text: I18n.of(context)!.locale.toString().contains('zh')
                         ? "即刻领取收益将造成"
                         : "The immediate claim will burn ",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Colors.black,
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: Fmt.ratio(loyaltyBonus),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Color(0xFFFF3B30),
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: I18n.of(context)!.locale.toString().contains('zh')
                         ? "的收益损失。"
                         : " of the total rewards.You will be able to claim the full reward in ",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Colors.black,
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: Fmt.blockToTime(blocksToEnd ?? 0, 12500,
                         locale: I18n.of(context)!.locale.toString()),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Color(0xFFFF3B30),
+                        fontSize: UI.getTextSize(13, context))),
                 I18n.of(context)!.locale.toString().contains('zh')
                     ? TextSpan(
                         text: "后，您可以领取全额收益",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1
-                            ?.copyWith(color: Colors.black, fontSize: 13))
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: Colors.black,
+                            fontSize: UI.getTextSize(13, context)))
                     : TextSpan(),
               ])),
               actions: <Widget>[
@@ -317,7 +313,9 @@ class CollateralIncentiveList extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3
-                                ?.copyWith(fontSize: 18, color: Colors.white)),
+                                ?.copyWith(
+                                    fontSize: UI.getTextSize(18, context),
+                                    color: Colors.white)),
                         Expanded(
                           child: incentiveEndBlock == null
                               ? Container()
@@ -342,13 +340,15 @@ class CollateralIncentiveList extends StatelessWidget {
                                             Text(
                                               dic['earn.incentive.end']!,
                                               style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: UI.getTextSize(
+                                                      12, context),
                                                   color: Colors.white),
                                             ),
                                             Text(
                                               ' ${Fmt.priceFloor(double.parse(incentiveEndBlocks.toString()), lengthFixed: 0)} ${dic['earn.incentive.blocks']}',
                                               style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: UI.getTextSize(
+                                                      12, context),
                                                   color: Color(0xFFFF7849)),
                                             )
                                           ],
@@ -391,7 +391,7 @@ class CollateralIncentiveList extends StatelessWidget {
                                 .headline5
                                 ?.copyWith(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: UI.getTextSize(24, context),
                                     height: 1.5,
                                     fontWeight: FontWeight.bold),
                           ),
@@ -415,7 +415,7 @@ class CollateralIncentiveList extends StatelessWidget {
                                   .headline5
                                   ?.copyWith(
                                       color: Colors.white,
-                                      fontSize: 20,
+                                      fontSize: UI.getTextSize(20, context),
                                       height: 1.5,
                                       fontWeight: FontWeight.bold),
                             ),
@@ -435,7 +435,7 @@ class CollateralIncentiveList extends StatelessWidget {
                                   .headline5
                                   ?.copyWith(
                                       color: Colors.white,
-                                      fontSize: 20,
+                                      fontSize: UI.getTextSize(20, context),
                                       height: 1.5,
                                       fontWeight: FontWeight.bold),
                             ),

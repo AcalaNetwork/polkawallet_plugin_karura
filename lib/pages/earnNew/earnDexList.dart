@@ -18,6 +18,7 @@ import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/components/v3/index.dart' as v3;
+import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnDexList extends StatefulWidget {
   EarnDexList(this.plugin);
@@ -517,7 +518,8 @@ class _EarnDexListState extends State<EarnDexList> {
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       height: 1.0,
-                                                      fontSize: 24),
+                                                      fontSize: UI.getTextSize(
+                                                          24, context)),
                                             )),
                                         Text(
                                           rewardsEmpty
@@ -530,7 +532,8 @@ class _EarnDexListState extends State<EarnDexList> {
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold,
                                                   height: 1.0,
-                                                  fontSize: 24),
+                                                  fontSize: UI.getTextSize(
+                                                      24, context)),
                                         ),
                                         Text(
                                           '${dic['earn.staked']} \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}',

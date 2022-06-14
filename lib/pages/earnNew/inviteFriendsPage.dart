@@ -85,7 +85,9 @@ class InviteFriendsPage extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3
-                                ?.copyWith(fontSize: 18, color: Colors.white)),
+                                ?.copyWith(
+                                    fontSize: UI.getTextSize(18, context),
+                                    color: Colors.white)),
                       )
                     ],
                   )),
@@ -134,7 +136,7 @@ class InviteFriendsPage extends StatelessWidget {
                                 .headline3
                                 ?.copyWith(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: UI.getTextSize(24, context),
                                     fontWeight: FontWeight.bold,
                                     height: 1.0)),
                         Image.asset(

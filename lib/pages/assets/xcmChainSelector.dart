@@ -9,6 +9,7 @@ import 'package:polkawallet_ui/components/currencyWithIcon.dart';
 import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/bottomSheetContainer.dart';
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class XcmChainSelector extends StatelessWidget {
   XcmChainSelector(
@@ -128,7 +129,7 @@ class XcmChainSelector extends StatelessWidget {
                                 : Container())
                       ],
                     ),
-                    textStyle: TextStyle(fontSize: 14),
+                    textStyle: TextStyle(fontSize: UI.getTextSize(14, context)),
                     trailing: fromChains.length == 0
                         ? null
                         : Icon(Icons.keyboard_arrow_down_rounded,
@@ -170,7 +171,7 @@ class XcmChainSelector extends StatelessWidget {
                     (to.length > 8 ? '${to.substring(0, 8)}...' : to)
                         .toUpperCase(),
                     TokenIcon(to, crossChainIcons, size: 28),
-                    textStyle: TextStyle(fontSize: 14),
+                    textStyle: TextStyle(fontSize: UI.getTextSize(14, context)),
                     trailing: toChains.length == 1 && fromChains.length == 0
                         ? null
                         : Icon(

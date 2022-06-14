@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class RedeemPage extends StatefulWidget {
   RedeemPage(this.plugin, this.keyring);
@@ -347,7 +348,7 @@ class _RedeemPageState extends State<RedeemPage> {
                               .headline5
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: UI.getTextSize(12, context),
                                   fontWeight: FontWeight.w300),
                         ),
                         Text(
@@ -357,7 +358,7 @@ class _RedeemPageState extends State<RedeemPage> {
                               .headline5
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: UI.getTextSize(12, context),
                                   fontWeight: FontWeight.w300),
                         )
                       ],
@@ -438,7 +439,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                     .headline5
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: UI.getTextSize(12, context),
                                         fontWeight: FontWeight.w300),
                               )),
                         ],
@@ -523,7 +524,7 @@ class UnStakeTypeItemWidget extends StatelessWidget {
                         color: Colors.white,
                         fontWeight: FontWeight.w300,
                         height: 1.3,
-                        fontSize: 12),
+                        fontSize: UI.getTextSize(12, context)),
                   ))
             ],
           ),

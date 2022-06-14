@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
 
 class HomaPage extends StatefulWidget {
@@ -213,7 +214,7 @@ class _HomaPageState extends State<HomaPage> {
         });
       }
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
-          fontSize: 24,
+          fontSize: UI.getTextSize(24, context),
           fontWeight: FontWeight.bold,
           height: 0.9,
           color: Colors.white);
@@ -286,7 +287,8 @@ class _HomaPageState extends State<HomaPage> {
                                       .appBarTheme
                                       .titleTextStyle
                                       ?.copyWith(
-                                          fontSize: 14, color: Colors.white)),
+                                          fontSize: UI.getTextSize(14, context),
+                                          color: Colors.white)),
                             ))
                       ],
                     ),
@@ -303,7 +305,8 @@ class _HomaPageState extends State<HomaPage> {
                                 .appBarTheme
                                 .titleTextStyle
                                 ?.copyWith(
-                                    fontSize: 16, color: Color(0xFF292929)),
+                                    fontSize: UI.getTextSize(16, context),
+                                    color: Color(0xFF292929)),
                           ),
                         ),
                         Container(
@@ -316,7 +319,9 @@ class _HomaPageState extends State<HomaPage> {
                             style: Theme.of(context)
                                 .appBarTheme
                                 .titleTextStyle
-                                ?.copyWith(fontSize: 16, color: Colors.white),
+                                ?.copyWith(
+                                    fontSize: UI.getTextSize(16, context),
+                                    color: Colors.white),
                           ),
                         ),
                         Container(

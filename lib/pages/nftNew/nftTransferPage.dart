@@ -19,6 +19,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTxButton.dart';
 import 'package:polkawallet_ui/pages/scanPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class NFTTransferPage extends StatefulWidget {
   NFTTransferPage(this.plugin, this.keyring);
@@ -139,7 +140,9 @@ class _NFTTransferPageState extends State<NFTTransferPage> {
                               style: Theme.of(context)
                                   .textTheme
                                   .headline3
-                                  ?.copyWith(color: Colors.white, fontSize: 40),
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: UI.getTextSize(40, context)),
                               decoration: InputDecoration(
                                 contentPadding: EdgeInsets.zero,
                                 border: InputBorder.none,

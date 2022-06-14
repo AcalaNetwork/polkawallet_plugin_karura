@@ -23,6 +23,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class BootstrapList extends StatefulWidget {
   BootstrapList(this.plugin, this.keyring);
@@ -316,10 +317,9 @@ class _BootStrapCard extends StatelessWidget {
                   Expanded(
                       child: Text(
                     tokenPairView.join('-'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline3
-                        ?.copyWith(color: Colors.white, fontSize: 18),
+                    style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Colors.white,
+                        fontSize: UI.getTextSize(18, context)),
                   )),
                   Text(
                     dic['boot.provision']!,

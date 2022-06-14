@@ -432,8 +432,8 @@ class _TransferPageState extends State<TransferPage> {
 
                         final labelStyle =
                             Theme.of(context).textTheme.headline4;
-                        final subTitleStyle =
-                            TextStyle(fontSize: 12, height: 1);
+                        final subTitleStyle = TextStyle(
+                            fontSize: UI.getTextSize(12, context), height: 1);
                         final infoValueStyle = Theme.of(context)
                             .textTheme
                             .headline5!
@@ -474,7 +474,8 @@ class _TransferPageState extends State<TransferPage> {
                                         margin: EdgeInsets.only(top: 4),
                                         child: Text(_accountToError ?? "",
                                             style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize:
+                                                    UI.getTextSize(12, context),
                                                 color: Colors.red)),
                                       )),
                                   Container(height: 10.h),
