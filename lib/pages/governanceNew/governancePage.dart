@@ -471,7 +471,7 @@ class _GovernancePageState extends State<GovernancePage> {
                     padding: EdgeInsets.only(left: 16, right: 16, top: 20),
                     child: StickyHeader(
                         header: Container(
-                            color: Color.fromARGB(255, 37, 39, 44),
+                            color: Colors.transparent,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
