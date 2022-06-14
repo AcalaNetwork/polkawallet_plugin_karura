@@ -528,9 +528,9 @@ class _LoanPageState extends State<LoanPage> {
       decoration: BoxDecoration(
           color: Color(0x1AFFFFFF),
           borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-              bottomRight: Radius.circular(24))),
+              bottomLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+              bottomRight: Radius.circular(8))),
       width: double.infinity,
       child: Container(
         width: double.infinity,
@@ -807,9 +807,9 @@ class CreateVaultWidget extends StatelessWidget {
               decoration: BoxDecoration(
                   color: Color(0x1AFFFFFF),
                   borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
-                      bottomRight: Radius.circular(24))),
+                      bottomLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8))),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

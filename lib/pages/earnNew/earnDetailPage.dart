@@ -144,7 +144,6 @@ class EarnDetailPage extends StatelessWidget {
                     children: <Widget>[
                       PluginTagCard(
                         titleTag: dic['v3.earn.totalValueLocked'],
-                        radius: const Radius.circular(14),
                         backgroundColor: Color(0x1AFFFFFF),
                         margin: EdgeInsets.only(bottom: 20),
                         padding: EdgeInsets.symmetric(vertical: 11),
@@ -642,7 +641,6 @@ class _UserCard extends StatelessWidget {
             child: RoundedPluginCard(
               padding: EdgeInsets.only(top: 24, bottom: 16),
               margin: EdgeInsets.zero,
-              borderRadius: const BorderRadius.all(const Radius.circular(14)),
               child: Column(
                 children: <Widget>[
                   Container(

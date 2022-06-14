@@ -476,7 +476,7 @@ class _tabBarState extends State<_tabBar> {
                                     ? Colors.white
                                     : Colors.white.withAlpha(28),
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(6))),
+                                    BorderRadius.all(Radius.circular(8))),
                             child: Text(
                               "${widget.nfts[itemIndex].metadata!['name']} x${widget.datas[e]}",
                               style: Theme.of(context)

@@ -67,7 +67,7 @@ class InviteFriendsPage extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Color(0x1AD8D8D8),
                       borderRadius:
-                          BorderRadius.only(topRight: Radius.circular(14))),
+                          BorderRadius.only(topRight: Radius.circular(8))),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -97,9 +97,9 @@ class InviteFriendsPage extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: Color(0xFFFFFFFF).withAlpha(36),
                     borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(14),
-                        bottomLeft: Radius.circular(14),
-                        bottomRight: Radius.circular(14))),
+                        topRight: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8))),
                 child: Container(
                   width: size,
                   height: size,

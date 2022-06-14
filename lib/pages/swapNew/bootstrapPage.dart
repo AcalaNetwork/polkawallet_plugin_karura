@@ -277,7 +277,6 @@ class _BootstrapPageState extends State<BootstrapPage> {
                     children: [
                       PluginTagCard(
                         titleTag: dic['boot.my']!,
-                        radius: Radius.circular(14),
                         child: Column(
                           children: [
                             Container(
@@ -286,7 +285,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                 decoration: BoxDecoration(
                                     color: Color(0xFF494b4e),
                                     borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(14))),
+                                        topRight: Radius.circular(8))),
                                 alignment: Alignment.center,
                                 child: Text(
                                   Fmt.priceFloor(myLeft) +
@@ -347,7 +346,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                         titleTag: dic['boot.provision.add']!,
                         padding: EdgeInsets.all(16),
                         margin: EdgeInsets.only(top: 16),
-                        radius: Radius.circular(14),
+                        radius: Radius.circular(8),
                         backgroundColor: Color(0xFF494b4e),
                         child: Column(
                           children: [

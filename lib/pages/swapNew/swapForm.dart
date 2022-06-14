@@ -619,7 +619,7 @@ class _SwapFormState extends State<SwapForm>
                 ),
                 GestureDetector(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 33),
+                    padding: EdgeInsets.only(top: 45),
                     child: Image.asset(
                         'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
                         width: 39),
@@ -837,9 +837,9 @@ class _SwapFormState extends State<SwapForm>
                   decoration: BoxDecoration(
                       color: Color(0x24FFFFFF),
                       borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(14),
-                          topRight: Radius.circular(14),
-                          bottomRight: Radius.circular(14))),
+                          bottomLeft: Radius.circular(8),
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(8))),
                   margin: EdgeInsets.only(top: 12),
                   padding:
                       EdgeInsets.only(left: 10, right: 10, bottom: 32, top: 12),

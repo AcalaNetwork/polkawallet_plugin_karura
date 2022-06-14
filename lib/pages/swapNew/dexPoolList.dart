@@ -170,7 +170,6 @@ class _DexPoolCard extends StatelessWidget {
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
-      borderRadius: const BorderRadius.all(const Radius.circular(14)),
       color: Color(0x19FFFFFF),
       child: Column(
         children: [
