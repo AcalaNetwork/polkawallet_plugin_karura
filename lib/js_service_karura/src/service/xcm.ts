@@ -23,6 +23,7 @@ const chain_name_calamari = "calamari";
 const chain_name_integritee = "integritee";
 const chain_name_altair = "altair";
 const chain_name_crab = "crab";
+const chain_name_turing = "turing";
 
 const chainNodes = {
   [chain_name_kusama]: [
@@ -55,6 +56,7 @@ const chainNodes = {
   [chain_name_integritee]: ["wss://kusama.api.integritee.network", "wss://integritee-kusama.api.onfinality.io/public-ws"],
   [chain_name_altair]: ["wss://fullnode.altair.centrifuge.io", "wss://altair.api.onfinality.io/public-ws"],
   [chain_name_crab]: ["wss://crab-parachain-rpc.darwinia.network/"],
+  [chain_name_turing]: ["wss://rpc.turing.oak.tech", "wss://turing.api.onfinality.io/public-ws", "wss://turing-rpc.dwellir.com"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -210,6 +212,15 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
 
   if (chain.match(chain_name_altair) && token.symbol !== "AIR") {
     const res = await api.query.ormlTokens.accounts(address, token.name);
+    return {
+      amount: (res as any).free.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
+  if (chain.match(chain_name_turing) && token.symbol !== "TUR") {
+    const res = await api.query.tokens.accounts(address, token.name === "KUSD" ? "AUSD" : token.name);
     return {
       amount: (res as any).free.toString(),
       tokenNameId,
@@ -477,8 +488,8 @@ async function getTransferParams(
     };
   }
 
-  // altair
-  if (chainFrom.name === chain_name_altair) {
+  // altair & turing oak
+  if (chainFrom.name === chain_name_altair || chainFrom.name === chain_name_turing) {
     const dst = {
       parents: 1,
       interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
@@ -487,7 +498,16 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [token.symbol === "AIR" ? "Native" : token.name, amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [
+        token.symbol === "AIR" || token.symbol === "TUR"
+          ? "Native"
+          : chainFrom.name === chain_name_turing && token.name === "KUSD"
+          ? "AUSD"
+          : token.name,
+        amount,
+        { V1: dst },
+        xcm_dest_weight_v2,
+      ],
     };
   }
 
