@@ -662,7 +662,7 @@ class _SwapFormState extends State<SwapForm>
                   ),
                 )),
             Container(
-              margin: EdgeInsets.only(right: 1, bottom: 7),
+              margin: EdgeInsets.only(right: 1, bottom: 7, top: 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
