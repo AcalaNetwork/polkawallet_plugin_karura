@@ -371,7 +371,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '$ratioLeft%',
+                          '${ratioLeft.toStringAsFixed(1)}%',
                           style: Theme.of(context)
                               .textTheme
                               .headline4
@@ -380,7 +380,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                   fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '$ratioRight%',
+                          '${ratioRight.toStringAsFixed(1)}%',
                           style: Theme.of(context)
                               .textTheme
                               .headline4

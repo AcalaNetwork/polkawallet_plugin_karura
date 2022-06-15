@@ -394,7 +394,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '$ratioLeft%',
+                              '${ratioLeft.toStringAsFixed(1)}%',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline4
@@ -403,7 +403,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                                       fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '$ratioRight%',
+                              '${ratioRight.toStringAsFixed(1)}%',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline4
