@@ -328,4 +328,6 @@ const Map<String, String> enDex = {
   'earn.dex.sort1': 'By apy',
   'earn.dex.sort2': 'By staked LP',
   'earn.dex.sort3': 'By earn',
+  'earn.dex.edError1': 'The Claims may fail due to',
+  'earn.dex.edError2': 'is required as ED',
 };
