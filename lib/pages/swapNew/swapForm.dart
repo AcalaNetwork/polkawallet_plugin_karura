@@ -360,7 +360,7 @@ class _SwapFormState extends State<SwapForm>
         Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0]!)
             .toString(),
       ];
-      Navigator.of(context).pushNamed(TxConfirmPage.route,
+      final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
             module: 'dex',
             call:
@@ -385,6 +385,9 @@ class _SwapFormState extends State<SwapForm>
             params: params,
             isPlugin: true,
           ));
+      if (res != null) {
+        widget.plugin.updateBalances(widget.keyring.current);
+      }
     }
   }
 
