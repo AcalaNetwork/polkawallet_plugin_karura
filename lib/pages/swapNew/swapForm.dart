@@ -387,6 +387,11 @@ class _SwapFormState extends State<SwapForm>
           ));
       if (res != null) {
         widget.plugin.updateBalances(widget.keyring.current);
+        setState(() {
+          _amountReceiveCtrl.text = "";
+          _amountPayCtrl.text = "";
+          _detailShow = false;
+        });
       }
     }
   }
