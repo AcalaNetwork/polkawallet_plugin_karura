@@ -214,7 +214,7 @@ class _HomaPageState extends State<HomaPage> {
         });
       }
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
-          fontSize: UI.getTextSize(24, context),
+          fontSize: UI.getTextSize(20, context),
           fontWeight: FontWeight.bold,
           height: 0.9,
           color: Colors.white);
