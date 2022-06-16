@@ -305,6 +305,8 @@ class _NftPageState extends State<NftPage> {
                                                           .textTheme
                                                           .headline5
                                                           ?.copyWith(
+                                                              color:
+                                                                  Colors.black,
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w600),
