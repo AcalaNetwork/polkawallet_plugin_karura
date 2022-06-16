@@ -391,6 +391,8 @@ class _SwapFormState extends State<SwapForm>
           _amountReceiveCtrl.text = "";
           _amountPayCtrl.text = "";
           _detailShow = false;
+          _error = null;
+          _errorReceive = null;
         });
       }
     }
