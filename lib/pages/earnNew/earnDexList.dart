@@ -251,7 +251,8 @@ class _EarnDexListState extends State<EarnDexList> {
                                 .textTheme
                                 .headline5
                                 ?.copyWith(
-                                    fontFamily: 'SF_Pro',
+                                    fontFamily:
+                                        UI.getFontFamily('SF_Pro', context),
                                     color: PluginColorsDark.headline1),
                           ),
                         ),
