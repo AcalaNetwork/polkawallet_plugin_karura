@@ -67,7 +67,7 @@ class PluginKarura extends PolkawalletPlugin {
           isTestNet: name != plugin_name_karura,
           isXCMSupport: name == plugin_name_karura,
           parachainId: '2000',
-          jsCodeVersion: 32601,
+          jsCodeVersion: 32901,
         );
 
   @override

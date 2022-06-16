@@ -23,6 +23,7 @@ const chain_name_calamari = "calamari";
 const chain_name_integritee = "integritee";
 const chain_name_altair = "altair";
 const chain_name_crab = "crab";
+const chain_name_turing = "turing";
 
 const chainNodes = {
   [chain_name_kusama]: [
@@ -55,6 +56,7 @@ const chainNodes = {
   [chain_name_integritee]: ["wss://kusama.api.integritee.network", "wss://integritee-kusama.api.onfinality.io/public-ws"],
   [chain_name_altair]: ["wss://fullnode.altair.centrifuge.io", "wss://altair.api.onfinality.io/public-ws"],
   [chain_name_crab]: ["wss://crab-parachain-rpc.darwinia.network/"],
+  [chain_name_turing]: ["wss://rpc.turing.oak.tech", "wss://turing.api.onfinality.io/public-ws", "wss://turing-rpc.dwellir.com"],
 };
 const xcm_dest_weight_v2 = "5000000000";
 
@@ -217,6 +219,15 @@ async function _getTokenBalance(chain: string, address: string, tokenNameId: str
     };
   }
 
+  if (chain.match(chain_name_turing) && token.symbol !== "TUR") {
+    const res = await api.query.tokens.accounts(address, token.name === "KUSD" ? "AUSD" : token.name);
+    return {
+      amount: (res as any).free.toString(),
+      tokenNameId,
+      decimals: token.decimals,
+    };
+  }
+
   // for kusama/polkadot/khala-pha/heiko-hko/crust-csm/kico
   const res = await api.derive.balances.all(address);
   return {
@@ -342,13 +353,13 @@ async function getTransferParams(
   // parallel
   if (chainFrom.name === chain_name_parallel && chainTo.name === chain_name_karura) {
     const tokenIds: Record<string, number> = {
-      HKO: 0,
+      "fa://4": 0,
       KAR: 107,
       KUSD: 103,
       LKSM: 109,
     };
 
-    if (typeof tokenIds[token.symbol] === "undefined") return;
+    if (typeof tokenIds[token.name] === "undefined") return;
 
     const dst = {
       parents: 1,
@@ -358,7 +369,7 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [tokenIds[token.name], amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 
@@ -373,7 +384,7 @@ async function getTransferParams(
       fun: { Fungible: amount },
     };
 
-    if (tokenName !== "PHA") {
+    if (token.name !== "PHA") {
       const tokenIds: Record<string, string> = {
         KUSD: "0x0081",
         KAR: "0x0080",
@@ -401,6 +412,9 @@ async function getTransferParams(
     const dst = { X2: ["Parent", { ParaChain: chainTo.paraChainId }] };
     const acc = { X1: { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } } };
     const ass = [{ ConcreteFungible: { amount } }];
+    if (chainFrom.name === chain_name_crab && token.symbol === "CRAB") {
+      ass[0].ConcreteFungible["id"] = { X1: { PalletInstance: 5 } };
+    }
 
     return {
       module: "polkadotXcm",
@@ -412,12 +426,12 @@ async function getTransferParams(
   // kico
   if (chainFrom.name === chain_name_kico) {
     const tokenIds: Record<string, number> = {
-      KICO: 0,
+      "fa://6": 0,
       KUSD: 10,
       KAR: 102,
     };
 
-    if (typeof tokenIds[token.symbol] === "undefined") return;
+    if (typeof tokenIds[token.name] === "undefined") return;
 
     const dst = {
       parents: 1,
@@ -427,7 +441,7 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [tokenIds[token.symbol], amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [tokenIds[token.name], amount, { V1: dst }, xcm_dest_weight_v2],
     };
   }
 
@@ -445,7 +459,7 @@ async function getTransferParams(
       module: "xTokens",
       call: "transfer",
       params: [
-        { MantaCurrency: tokenIds[tokenName] },
+        { MantaCurrency: tokenIds[token.name] },
         amount,
         {
           V1: {
@@ -474,8 +488,8 @@ async function getTransferParams(
     };
   }
 
-  // altair
-  if (chainFrom.name === chain_name_altair) {
+  // altair & turing oak
+  if (chainFrom.name === chain_name_altair || chainFrom.name === chain_name_turing) {
     const dst = {
       parents: 1,
       interior: { X2: [{ Parachain: chainTo.paraChainId }, { AccountId32: { id: u8aToHex(decodeAddress(addressTo)), network: "Any" } }] },
@@ -484,7 +498,16 @@ async function getTransferParams(
     return {
       module: "xTokens",
       call: "transfer",
-      params: [token.symbol === "AIR" ? "Native" : token.name, amount, { V1: dst }, xcm_dest_weight_v2],
+      params: [
+        token.symbol === "AIR" || token.symbol === "TUR"
+          ? "Native"
+          : chainFrom.name === chain_name_turing && token.name === "KUSD"
+          ? "AUSD"
+          : token.name,
+        amount,
+        { V1: dst },
+        xcm_dest_weight_v2,
+      ],
     };
   }
 

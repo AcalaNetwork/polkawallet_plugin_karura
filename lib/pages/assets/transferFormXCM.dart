@@ -336,7 +336,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
         'xcm.getTransferParams('
         '{name: "$_chainFrom", paraChainId: ${chainFromInfo['id']}},'
         '{name: "$_chainTo", paraChainId: ${chainToInfo['id']}},'
-        '"${_token?.symbol}", "$amount", "$address", ${jsonEncode(sendFee)})');
+        '"${_token?.tokenNameId}", "$amount", "$address", ${jsonEncode(sendFee)})');
     return xcmParams;
   }
 
