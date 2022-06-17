@@ -351,7 +351,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                               divisions: steps.toInt(),
                               value: _slider,
                               label:
-                                  '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
+                                  '${dic['loan.ratio']} ${(ratioLeft - _slider).toStringAsFixed(1)}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
                               onChanged: (value) {
                                 if (_slider != value) {
                                   if (value > _slider) {
