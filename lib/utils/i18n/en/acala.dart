@@ -324,6 +324,9 @@ const Map<String, String> enDex = {
   'loan.multiply.manageYourVault': 'Manage your vault',
   'loan.multiply.message3':
       'The collateral ratio is too low that may face the risk of being liquidated and this transaction might be failed. ',
+  'loan.multiply.shrinkPositionDebit': 'ExpandCollateral',
+  'loan.multiply.expandPositionCollateral': 'ExpandCollateral',
+  'loan.multiply.indebt': 'In Debt',
   'earn.dex.sort0': 'By default',
   'earn.dex.sort1': 'By apy',
   'earn.dex.sort2': 'By staked LP',
