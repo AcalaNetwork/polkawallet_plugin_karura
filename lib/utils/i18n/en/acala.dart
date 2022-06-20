@@ -330,4 +330,5 @@ const Map<String, String> enDex = {
   'earn.dex.sort3': 'By earn',
   'earn.dex.edError1': 'The Claims may fail due to',
   'earn.dex.edError2': 'is required as ED',
+  'earn.dex.searchPools': 'Search Pools'
 };

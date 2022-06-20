@@ -271,7 +271,7 @@ class _EarnDexListState extends State<EarnDexList> {
                         ?.copyWith(color: PluginColorsDark.headline1),
                     decoration: InputDecoration(
                         isDense: true,
-                        hintText: "Search Pools",
+                        hintText: dic!['earn.dex.searchPools'],
                         border: InputBorder.none,
                         hintStyle: Theme.of(context)
                             .textTheme
