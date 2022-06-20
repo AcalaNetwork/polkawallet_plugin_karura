@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,9 @@ class _EarnDexListState extends State<EarnDexList> {
   bool _loading = true;
   bool _partake = false;
   String _sort = 'earn.dex.sort0';
+
+  TextEditingController _controller = TextEditingController();
+  String _search = '';
 
   Future<void> _fetchData() async {
     await widget.plugin.service!.earn.updateAllDexPoolInfo();
@@ -113,6 +117,20 @@ class _EarnDexListState extends State<EarnDexList> {
 
           if (dexPools[i].provisioning == null &&
               (incentive > 0 || userReward > 0)) {
+            if (_search.isNotEmpty) {
+              final balancePair = dexPools[i]
+                  .tokens!
+                  .map((e) =>
+                      AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+                  .toList();
+
+              var tokenSymbol = balancePair.map((e) => e.symbol).join('-');
+              if (!PluginFmt.tokenView(tokenSymbol)
+                  .toUpperCase()
+                  .contains(_search.toUpperCase())) {
+                continue;
+              }
+            }
             if (dexPools[i].tokenNameId!.indexOf("KAR") >= 0) {
               datas.add(dexPools[i]);
             } else {
@@ -235,6 +253,17 @@ class _EarnDexListState extends State<EarnDexList> {
       }
       return Column(
         children: [
+          Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: TextField(
+                controller: _controller,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (value) {
+                  setState(() {
+                    _search = value;
+                  });
+                },
+              )),
           Padding(
               padding: EdgeInsets.only(left: 16, right: 16),
               child: Row(
