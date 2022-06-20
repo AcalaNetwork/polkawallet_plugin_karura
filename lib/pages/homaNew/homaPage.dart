@@ -198,7 +198,7 @@ class _HomaPageState extends State<HomaPage> {
       final riveHeight = riveWidget / 360 * 292;
 
       // todo: use dead coded 19.92% now.
-      final aprValue = '19.92%';
+      final aprValue = 22.44;
       // final aprValue =
       //     "${Fmt.priceFloor((env?.apy ?? 0) * 100, lengthFixed: 0)}%";
       bool isRewardsOpen = false;
@@ -207,7 +207,7 @@ class _HomaPageState extends State<HomaPage> {
           widget.plugin.store!.earn.incentives.loans?['L$stakeSymbol'];
       if ((rewards ?? []).length > 0) {
         rewards?.forEach((e) {
-          if (e.tokenNameId == karura_stable_coin && (e.amount ?? 0) > 0) {
+          if ((e.amount ?? 0) > 0) {
             isRewardsOpen = true;
             rewardApr = e.apr ?? 0;
           }
@@ -341,7 +341,9 @@ class _HomaPageState extends State<HomaPage> {
                               top: riveTop + riveHeight * 0.17,
                               right: paddingHorizontal +
                                   riveWidget * 0.195 -
-                                  PluginFmt.boundingTextSize(aprValue, aprStyle)
+                                  PluginFmt.boundingTextSize(
+                                              aprValue.toStringAsFixed(2) + '%',
+                                              aprStyle)
                                           .width /
                                       2),
                           child: Column(
@@ -355,7 +357,7 @@ class _HomaPageState extends State<HomaPage> {
                                     ?.copyWith(color: Colors.white),
                               ),
                               Text(
-                                aprValue,
+                                aprValue.toStringAsFixed(2) + '%',
                                 style: aprStyle,
                               )
                             ],
@@ -681,7 +683,7 @@ class _HomaPageState extends State<HomaPage> {
                                                 fontWeight: FontWeight.w400),
                                       ),
                                       Text(
-                                        " ${(19.92 + rewardApr * 100).toStringAsFixed(2)}%!",
+                                        " ${(aprValue + rewardApr * 100).toStringAsFixed(2)}%!",
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline4
