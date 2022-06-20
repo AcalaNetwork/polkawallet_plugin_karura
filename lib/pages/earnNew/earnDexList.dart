@@ -253,16 +253,52 @@ class _EarnDexListState extends State<EarnDexList> {
       }
       return Column(
         children: [
-          Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: TextField(
-                controller: _controller,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (value) {
-                  setState(() {
-                    _search = value;
-                  });
-                },
+          Container(
+              margin: EdgeInsets.only(left: 16, right: 16, bottom: 14, top: 5),
+              padding: EdgeInsets.only(left: 8, top: 4, bottom: 5, right: 8),
+              decoration: BoxDecoration(
+                  color: PluginColorsDark.cardColor,
+                  borderRadius: BorderRadius.all(Radius.circular(6))),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                    controller: _controller,
+                    textInputAction: TextInputAction.search,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        ?.copyWith(color: PluginColorsDark.headline1),
+                    decoration: InputDecoration(
+                        isDense: true,
+                        hintText: "Search Pools",
+                        border: InputBorder.none,
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .headline5
+                            ?.copyWith(
+                                color:
+                                    PluginColorsDark.headline1.withAlpha(127)),
+                        contentPadding: EdgeInsets.zero),
+                    onSubmitted: (value) {
+                      setState(() {
+                        _search = value;
+                      });
+                    },
+                  )),
+                  GestureDetector(
+                    child: Icon(
+                      Icons.search,
+                      color: Color(0xFF979797),
+                      size: 16,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _search = _controller.text;
+                      });
+                    },
+                  )
+                ],
               )),
           Padding(
               padding: EdgeInsets.only(left: 16, right: 16),
@@ -273,15 +309,14 @@ class _EarnDexListState extends State<EarnDexList> {
                     child: Row(
                       children: [
                         Container(
-                          margin: EdgeInsets.only(right: 4),
+                          margin: EdgeInsets.only(right: 12),
                           child: Text(
                             dic!['earn.staked']!,
                             style: Theme.of(context)
                                 .textTheme
-                                .headline5
+                                .headline4
                                 ?.copyWith(
-                                    fontFamily:
-                                        UI.getFontFamily('SF_Pro', context),
+                                    fontWeight: FontWeight.bold,
                                     color: PluginColorsDark.headline1),
                           ),
                         ),
@@ -289,6 +324,7 @@ class _EarnDexListState extends State<EarnDexList> {
                             height: 20,
                             child: v3.CupertinoSwitch(
                               value: _partake,
+                              isPlugin: true,
                               onChanged: (v) {
                                 setState(() {
                                   _partake = v;
@@ -304,9 +340,20 @@ class _EarnDexListState extends State<EarnDexList> {
                     },
                   ),
                   GestureDetector(
-                    child: Image.asset(
-                      "assets/images/icon_assetsType.png",
-                      width: 28,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          border: Border.all(
+                              width: 1, color: PluginColorsDark.headline1)),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/images/icon_screening.svg',
+                          color: PluginColorsDark.headline1,
+                          width: 22,
+                        ),
+                      ),
                     ),
                     onTap: () {
                       showCupertinoModalPopup(
