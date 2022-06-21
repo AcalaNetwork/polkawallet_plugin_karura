@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDexList.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
@@ -31,7 +30,7 @@ class _EarnPageState extends State<EarnPage> {
     widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
       final args = EarnPageParams.fromJson(argsJson);
       if (args.tab != null) {

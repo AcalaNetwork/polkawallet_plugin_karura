@@ -9,7 +9,6 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/gov/referendumInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTxButton.dart';
@@ -122,7 +121,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                 padding: EdgeInsets.all(16),
                 child: Text(
                   _getConvictionLabel(i)!,
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: UI.getTextSize(16, context)),
                 ));
           }).toList(),
           onSelectedItemChanged: (v) {
@@ -171,7 +170,6 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                             PluginTagCard(
                               margin: EdgeInsets.zero,
                               padding: EdgeInsets.symmetric(vertical: 25),
-                              radius: const Radius.circular(14),
                               titleTag: dicGov['v3.voting'],
                               child: Container(
                                 alignment: Alignment.center,
@@ -198,7 +196,8 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                                     .textTheme
                                     .headline3
                                     ?.copyWith(
-                                        color: Colors.white, fontSize: 40),
+                                        color: Colors.white,
+                                        fontSize: UI.getTextSize(40, context)),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.zero,
                                   border: InputBorder.none,

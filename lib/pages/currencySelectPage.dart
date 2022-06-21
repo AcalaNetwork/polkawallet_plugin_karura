@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -17,7 +16,8 @@ class CurrencySelectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// the arguments can be List<TokenBalanceData> or List<String>.
-    final List currencyIds = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+    final List currencyIds =
+        ModalRoute.of(context)!.settings.arguments as List<dynamic>;
     return Scaffold(
       appBar: AppBar(
         title: Text(I18n.of(context)!

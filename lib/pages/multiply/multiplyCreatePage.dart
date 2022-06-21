@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
@@ -27,6 +26,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MultiplyCreatePage extends StatefulWidget {
   MultiplyCreatePage(this.plugin, this.keyring);
@@ -175,7 +175,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateDexBuyingPrice();
     });
   }
@@ -267,11 +267,11 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             .headline5
                             ?.copyWith(
                                 color: PluginColorsDark.headline1,
-                                fontSize: 12),
+                                fontSize: UI.getTextSize(12, context)),
                         style: Theme.of(context).textTheme.bodyText1?.copyWith(
                             color: PluginColorsDark.headline1,
                             fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                            fontSize: UI.getTextSize(12, context),
                             height: 1.7),
                       ),
                       PluginInfoItem(
@@ -282,11 +282,11 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             .headline5
                             ?.copyWith(
                                 color: PluginColorsDark.headline1,
-                                fontSize: 12),
+                                fontSize: UI.getTextSize(12, context)),
                         style: Theme.of(context).textTheme.bodyText1?.copyWith(
                             color: PluginColorsDark.headline1,
                             fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                            fontSize: UI.getTextSize(12, context),
                             height: 1.7),
                       ),
                       PluginInfoItem(
@@ -298,11 +298,11 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             .headline5
                             ?.copyWith(
                                 color: PluginColorsDark.headline1,
-                                fontSize: 12),
+                                fontSize: UI.getTextSize(12, context)),
                         style: Theme.of(context).textTheme.bodyText1?.copyWith(
                             color: PluginColorsDark.headline1,
                             fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                            fontSize: UI.getTextSize(12, context),
                             height: 1.7),
                       ),
                       PluginInfoItem(
@@ -314,11 +314,11 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             .headline5
                             ?.copyWith(
                                 color: PluginColorsDark.headline1,
-                                fontSize: 12),
+                                fontSize: UI.getTextSize(12, context)),
                         style: Theme.of(context).textTheme.bodyText1?.copyWith(
                             color: PluginColorsDark.headline1,
                             fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                            fontSize: UI.getTextSize(12, context),
                             height: 1.7),
                       ),
                     ],
@@ -380,7 +380,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                                     .headline3
                                     ?.copyWith(
                                         color: PluginColorsDark.headline1,
-                                        fontSize: 14)),
+                                        fontSize: UI.getTextSize(14, context))),
                             child: Slider(
                               min: 0,
                               max: ratioLeft - ratioRight,
@@ -394,7 +394,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '$ratioLeft%',
+                              '${ratioLeft.toStringAsFixed(1)}%',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline4
@@ -403,7 +403,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                                       fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '$ratioRight%',
+                              '${ratioRight.toStringAsFixed(1)}%',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline4

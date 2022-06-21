@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
@@ -22,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class RedeemPage extends StatefulWidget {
   RedeemPage(this.plugin, this.keyring);
@@ -348,7 +348,7 @@ class _RedeemPageState extends State<RedeemPage> {
                               .headline5
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: UI.getTextSize(12, context),
                                   fontWeight: FontWeight.w300),
                         ),
                         Text(
@@ -358,7 +358,7 @@ class _RedeemPageState extends State<RedeemPage> {
                               .headline5
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: UI.getTextSize(12, context),
                                   fontWeight: FontWeight.w300),
                         )
                       ],
@@ -383,9 +383,9 @@ class _RedeemPageState extends State<RedeemPage> {
                                 border: Border.all(
                                     color: Color(0xCCFFFFFF), width: 1),
                                 borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(17),
-                                    topRight: Radius.circular(17),
-                                    bottomRight: Radius.circular(17))),
+                                    bottomLeft: Radius.circular(8),
+                                    topRight: Radius.circular(8),
+                                    bottomRight: Radius.circular(8))),
                             child: Column(
                               children: [
                                 UnStakeTypeItemWidget(
@@ -439,7 +439,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                     .headline5
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: UI.getTextSize(12, context),
                                         fontWeight: FontWeight.w300),
                               )),
                         ],
@@ -524,7 +524,7 @@ class UnStakeTypeItemWidget extends StatelessWidget {
                         color: Colors.white,
                         fontWeight: FontWeight.w300,
                         height: 1.3,
-                        fontSize: 12),
+                        fontSize: UI.getTextSize(12, context)),
                   ))
             ],
           ),

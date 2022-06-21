@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -235,7 +234,7 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshData();
     });
   }
@@ -386,7 +385,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           style: Theme.of(context)
                               .textTheme
                               .headline3
-                              ?.copyWith(color: Colors.white, fontSize: 40),
+                              ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: UI.getTextSize(40, context)),
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,

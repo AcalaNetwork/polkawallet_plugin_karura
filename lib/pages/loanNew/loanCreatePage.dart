@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
@@ -282,7 +281,7 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final token =
           ModalRoute.of(context)?.settings.arguments as TokenBalanceData?;
       if (token != null) {

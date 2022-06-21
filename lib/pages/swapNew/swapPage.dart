@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapList.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/dexPoolList.dart';
@@ -48,7 +47,7 @@ class _SwapPageState extends State<SwapPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
       final args = SwapPageParams.fromJson(argsJson);
       if (args.tab != null) {

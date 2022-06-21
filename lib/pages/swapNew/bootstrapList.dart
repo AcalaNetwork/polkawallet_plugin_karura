@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -16,7 +15,6 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
-import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/PluginTxButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLinearProgressBar.dart';
@@ -25,6 +23,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class BootstrapList extends StatefulWidget {
   BootstrapList(this.plugin, this.keyring);
@@ -168,7 +167,7 @@ class _BootstrapListState extends State<BootstrapList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshKey.currentState!.show();
     });
   }
@@ -304,7 +303,6 @@ class _BootStrapCard extends StatelessWidget {
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
-      borderRadius: const BorderRadius.all(const Radius.circular(14)),
       child: Column(
         children: [
           Padding(
@@ -318,10 +316,9 @@ class _BootStrapCard extends StatelessWidget {
                   Expanded(
                       child: Text(
                     tokenPairView.join('-'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline3
-                        ?.copyWith(color: Colors.white, fontSize: 18),
+                    style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Colors.white,
+                        fontSize: UI.getTextSize(18, context)),
                   )),
                   Text(
                     dic['boot.provision']!,
@@ -516,7 +513,6 @@ class _BootStrapCardEnabled extends StatelessWidget {
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
-      borderRadius: const BorderRadius.all(const Radius.circular(14)),
       child: Column(
         children: [
           Padding(

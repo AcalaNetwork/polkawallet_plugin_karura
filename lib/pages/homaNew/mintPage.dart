@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
@@ -18,6 +17,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MintPage extends StatefulWidget {
   MintPage(this.plugin, this.keyring);
@@ -238,12 +238,13 @@ class _MintPageState extends State<MintPage> {
         final minStake = widget.plugin.store!.homa.env?.mintThreshold;
 
         bool isRewardsOpen = false;
+        final baseApr = 22.44;
         double rewardApr = 0;
         final rewards =
             widget.plugin.store!.earn.incentives.loans?['L$stakeToken'];
         if ((rewards ?? []).length > 0) {
           rewards?.forEach((e) {
-            if (e.tokenNameId == karura_stable_coin && (e.amount ?? 0) > 0) {
+            if ((e.amount ?? 0) > 0) {
               isRewardsOpen = true;
               rewardApr = e.apr ?? 0;
             }
@@ -322,7 +323,7 @@ class _MintPageState extends State<MintPage> {
                                     .headline4
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: UI.getTextSize(12, context),
                                         fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -332,7 +333,7 @@ class _MintPageState extends State<MintPage> {
                                     .headline4
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: UI.getTextSize(12, context),
                                         fontWeight: FontWeight.w600),
                               )
                             ],
@@ -356,19 +357,19 @@ class _MintPageState extends State<MintPage> {
                                         border: Border.all(
                                             color: Color(0xCCFFFFFF), width: 1),
                                         borderRadius: const BorderRadius.only(
-                                            bottomLeft: Radius.circular(17),
-                                            topRight: Radius.circular(17),
-                                            bottomRight: Radius.circular(17))),
+                                            bottomLeft: Radius.circular(8),
+                                            topRight: Radius.circular(8),
+                                            bottomRight: Radius.circular(8))),
                                     child: Column(
                                       children: [
                                         UnStakeTypeItemWidget(
                                           title: dic['v3.homa.stake.more']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} ${(19.92 + rewardApr * 100).toStringAsFixed(2)}%",
+                                              "${dic['v3.homa.stake.apy.total']!} ${(baseApr + rewardApr * 100).toStringAsFixed(2)}%",
                                           subtitle: Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} 19.92% + ${dic['v3.homa.stake.apy.reward']} ${(rewardApr * 100).toStringAsFixed(2)}%)',
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}% + ${dic['v3.homa.stake.apy.reward']} ${(rewardApr * 100).toStringAsFixed(2)}%)',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6
@@ -390,11 +391,11 @@ class _MintPageState extends State<MintPage> {
                                         UnStakeTypeItemWidget(
                                           title: dic['v3.homa.stake']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} 19.92%",
+                                              "${dic['v3.homa.stake.apy.total']!} ${baseApr.toStringAsFixed(2)}%",
                                           subtitle: Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} 19.92%)',
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%)',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6

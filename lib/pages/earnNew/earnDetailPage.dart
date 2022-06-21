@@ -16,6 +16,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
@@ -27,6 +28,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnDetailPage extends StatelessWidget {
   EarnDetailPage(this.plugin, this.keyring);
@@ -143,7 +145,6 @@ class EarnDetailPage extends StatelessWidget {
                     children: <Widget>[
                       PluginTagCard(
                         titleTag: dic['v3.earn.totalValueLocked'],
-                        radius: const Radius.circular(14),
                         backgroundColor: Color(0x1AFFFFFF),
                         margin: EdgeInsets.only(bottom: 20),
                         padding: EdgeInsets.symmetric(vertical: 11),
@@ -194,7 +195,8 @@ class EarnDetailPage extends StatelessWidget {
                                                 .headline5
                                                 ?.copyWith(
                                                     color: Colors.white,
-                                                    fontSize: 12,
+                                                    fontSize: UI.getTextSize(
+                                                        12, context),
                                                     fontWeight:
                                                         FontWeight.w600),
                                           ),
@@ -222,7 +224,8 @@ class EarnDetailPage extends StatelessWidget {
                                           .headline5
                                           ?.copyWith(
                                               color: Colors.white,
-                                              fontSize: 12,
+                                              fontSize:
+                                                  UI.getTextSize(12, context),
                                               fontWeight: FontWeight.w600),
                                     ),
                                   );
@@ -243,7 +246,8 @@ class EarnDetailPage extends StatelessWidget {
                                             .headline5
                                             ?.copyWith(
                                                 color: Colors.white,
-                                                fontSize: 12,
+                                                fontSize:
+                                                    UI.getTextSize(12, context),
                                                 fontWeight: FontWeight.w600),
                                         titleStyle: Theme.of(context)
                                             .textTheme
@@ -261,7 +265,8 @@ class EarnDetailPage extends StatelessWidget {
                                             .headline5
                                             ?.copyWith(
                                                 color: Colors.white,
-                                                fontSize: 12,
+                                                fontSize:
+                                                    UI.getTextSize(12, context),
                                                 fontWeight: FontWeight.w600),
                                         titleStyle: Theme.of(context)
                                             .textTheme
@@ -279,7 +284,8 @@ class EarnDetailPage extends StatelessWidget {
                                             .headline5
                                             ?.copyWith(
                                                 color: Colors.white,
-                                                fontSize: 12,
+                                                fontSize:
+                                                    UI.getTextSize(12, context),
                                                 fontWeight: FontWeight.w600),
                                         titleStyle: Theme.of(context)
                                             .textTheme
@@ -298,7 +304,8 @@ class EarnDetailPage extends StatelessWidget {
                                             .headline5
                                             ?.copyWith(
                                                 color: Colors.white,
-                                                fontSize: 12,
+                                                fontSize:
+                                                    UI.getTextSize(12, context),
                                                 fontWeight: FontWeight.w600),
                                         titleStyle: Theme.of(context)
                                             .textTheme
@@ -332,7 +339,9 @@ class EarnDetailPage extends StatelessWidget {
                                                     .headline5
                                                     ?.copyWith(
                                                         color: Colors.white,
-                                                        fontSize: 12,
+                                                        fontSize:
+                                                            UI.getTextSize(
+                                                                12, context),
                                                         fontWeight:
                                                             FontWeight.w600)),
                                           )
@@ -426,12 +435,14 @@ class EarnDetailPage extends StatelessWidget {
                                 Text(
                                   dic['earn.incentive.end']!,
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.white),
+                                      fontSize: UI.getTextSize(12, context),
+                                      color: Colors.white),
                                 ),
                                 Text(
                                   ' ${Fmt.priceFloor(double.parse(incentiveEndBlocks.toString()), lengthFixed: 0)} ${dic['earn.incentive.blocks']}',
                                   style: TextStyle(
-                                      fontSize: 12, color: Color(0xFFFF7849)),
+                                      fontSize: UI.getTextSize(12, context),
+                                      color: Color(0xFFFF7849)),
                                 )
                               ],
                             ),
@@ -495,38 +506,33 @@ class _UserCard extends StatelessWidget {
                     text: I18n.of(context)!.locale.toString().contains('zh')
                         ? "即刻领取收益将造成"
                         : "The immediate claim will burn ",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Colors.black,
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: Fmt.ratio(loyaltyBonus),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Color(0xFFFF3B30),
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: I18n.of(context)!.locale.toString().contains('zh')
                         ? "的收益损失。"
                         : " of the total rewards.You will be able to claim the full reward in ",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Colors.black,
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: Fmt.blockToTime(blocksToEnd ?? 0, 12500,
                         locale: I18n.of(context)!.locale.toString()),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Color(0xFFFF3B30),
+                        fontSize: UI.getTextSize(13, context))),
                 I18n.of(context)!.locale.toString().contains('zh')
                     ? TextSpan(
                         text: "后，您可以领取全额收益",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1
-                            ?.copyWith(color: Colors.black, fontSize: 13))
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: Colors.black,
+                            fontSize: UI.getTextSize(13, context)))
                     : TextSpan(),
               ])),
               actions: <Widget>[
@@ -595,6 +601,7 @@ class _UserCard extends StatelessWidget {
         stableCoinDecimal!);
     canClaim = rewardSaving > savingRewardTokenMin;
     var rewardPrice = 0.0;
+    TokenBalanceData? edErrorToken;
     final String rewardV2 = poolInfo!.reward!.incentive.map((e) {
       double amount = double.parse(e['amount']);
       if (amount < 0) {
@@ -607,6 +614,11 @@ class _UserCard extends StatelessWidget {
           AssetsUtils.getBalanceFromTokenNameId(plugin, e['tokenNameId']);
       rewardPrice +=
           AssetsUtils.getMarketPrice(plugin, rewardToken.symbol ?? '') * amount;
+      if (rewardToken.amount == BigInt.zero.toString() &&
+          BigInt.parse(rewardToken.minBalance!) >
+              Fmt.tokenInt(amount.toString(), rewardToken.decimals!)) {
+        edErrorToken = rewardToken;
+      }
       return Fmt.priceFloor(amount, lengthMax: 4) +
           ' ${PluginFmt.tokenView(rewardToken.symbol)}';
     }).join(' + ');
@@ -627,6 +639,11 @@ class _UserCard extends StatelessWidget {
       reward =
           "$reward + ${Fmt.priceFloor(rewardSaving, lengthMax: 2)} $stableCoinSymbolView";
       rewardPrice += rewardSaving;
+      if (plugin.store!.assets.tokenBalanceMap[stableCoinSymbol]!.amount ==
+              BigInt.zero.toString() &&
+          rewardSaving < savingRewardTokenMin) {
+        edErrorToken = plugin.store!.assets.tokenBalanceMap[stableCoinSymbol]!;
+      }
     }
 
     return Visibility(
@@ -636,7 +653,6 @@ class _UserCard extends StatelessWidget {
             child: RoundedPluginCard(
               padding: EdgeInsets.only(top: 24, bottom: 16),
               margin: EdgeInsets.zero,
-              borderRadius: const BorderRadius.all(const Radius.circular(14)),
               child: Column(
                 children: <Widget>[
                   Container(
@@ -656,7 +672,8 @@ class _UserCard extends StatelessWidget {
                   Text(
                     reward,
                     style: Theme.of(context).textTheme.headline5?.copyWith(
-                        color: Color(0xFFFFFFFF).withAlpha(178), fontSize: 12),
+                        color: Color(0xFFFFFFFF).withAlpha(178),
+                        fontSize: UI.getTextSize(12, context)),
                   ),
                   Container(
                     margin: EdgeInsets.only(top: 20),
@@ -671,6 +688,19 @@ class _UserCard extends StatelessWidget {
                                 context, rewardV2, rewardSaving, blocksToEnd)
                             : null),
                   ),
+                  edErrorToken != null
+                      ? Padding(
+                          padding: EdgeInsets.only(top: 16),
+                          child: Text(
+                            "${dic['earn.dex.edError1']} ${Fmt.priceFloorBigIntFormatter(BigInt.parse(edErrorToken!.minBalance!), edErrorToken!.decimals!, lengthMax: 6)} ${PluginFmt.tokenView(edErrorToken!.symbol)} ${dic['earn.dex.edError2']}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline5
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: UI.getTextSize(10, context)),
+                          ))
+                      : Container()
                 ],
               ),
             )));

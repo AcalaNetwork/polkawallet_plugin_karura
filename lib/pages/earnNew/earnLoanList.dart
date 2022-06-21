@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnLoanList extends StatefulWidget {
   EarnLoanList(this.plugin, this.keyring);
@@ -53,7 +54,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
     });
   }
@@ -151,38 +152,33 @@ class CollateralIncentiveList extends StatelessWidget {
                     text: I18n.of(context)!.locale.toString().contains('zh')
                         ? "即刻领取收益将造成"
                         : "The immediate claim will burn ",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Colors.black,
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: Fmt.ratio(loyaltyBonus),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Color(0xFFFF3B30),
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: I18n.of(context)!.locale.toString().contains('zh')
                         ? "的收益损失。"
                         : " of the total rewards.You will be able to claim the full reward in ",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Colors.black,
+                        fontSize: UI.getTextSize(13, context))),
                 TextSpan(
                     text: Fmt.blockToTime(blocksToEnd ?? 0, 12500,
                         locale: I18n.of(context)!.locale.toString()),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Color(0xFFFF3B30), fontSize: 13)),
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: Color(0xFFFF3B30),
+                        fontSize: UI.getTextSize(13, context))),
                 I18n.of(context)!.locale.toString().contains('zh')
                     ? TextSpan(
                         text: "后，您可以领取全额收益",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1
-                            ?.copyWith(color: Colors.black, fontSize: 13))
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            color: Colors.black,
+                            fontSize: UI.getTextSize(13, context)))
                     : TextSpan(),
               ])),
               actions: <Widget>[
@@ -254,6 +250,7 @@ class CollateralIncentiveList extends StatelessWidget {
 
           bool canClaim = false;
           final reward = rewards![token.tokenNameId];
+          TokenBalanceData? edErrorToken;
           final rewardView = reward != null && reward.reward!.length > 0
               ? reward.reward!.map((e) {
                   double amount = double.parse(e['amount']);
@@ -265,6 +262,12 @@ class CollateralIncentiveList extends StatelessWidget {
                   }
                   final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
                       plugin, e['tokenNameId']);
+                  if (rewardToken.amount == BigInt.zero.toString() &&
+                      BigInt.parse(rewardToken.minBalance!) >
+                          Fmt.tokenInt(
+                              amount.toString(), rewardToken.decimals!)) {
+                    edErrorToken = rewardToken;
+                  }
                   return '${Fmt.priceFloor(amount)} ${PluginFmt.tokenView(rewardToken.symbol)}';
                 }).join(' + ')
               : '0.00';
@@ -290,7 +293,6 @@ class CollateralIncentiveList extends StatelessWidget {
                   .toInt()));
 
           return RoundedPluginCard(
-            borderRadius: const BorderRadius.all(const Radius.circular(14)),
             margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: Column(
               children: [
@@ -299,8 +301,8 @@ class CollateralIncentiveList extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(14),
-                        topRight: Radius.circular(14)),
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8)),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   child: Row(
@@ -317,7 +319,9 @@ class CollateralIncentiveList extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3
-                                ?.copyWith(fontSize: 18, color: Colors.white)),
+                                ?.copyWith(
+                                    fontSize: UI.getTextSize(18, context),
+                                    color: Colors.white)),
                         Expanded(
                           child: incentiveEndBlock == null
                               ? Container()
@@ -342,13 +346,15 @@ class CollateralIncentiveList extends StatelessWidget {
                                             Text(
                                               dic['earn.incentive.end']!,
                                               style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: UI.getTextSize(
+                                                      12, context),
                                                   color: Colors.white),
                                             ),
                                             Text(
                                               ' ${Fmt.priceFloor(double.parse(incentiveEndBlocks.toString()), lengthFixed: 0)} ${dic['earn.incentive.blocks']}',
                                               style: TextStyle(
-                                                  fontSize: 12,
+                                                  fontSize: UI.getTextSize(
+                                                      12, context),
                                                   color: Color(0xFFFF7849)),
                                             )
                                           ],
@@ -371,11 +377,11 @@ class CollateralIncentiveList extends StatelessWidget {
                 Container(
                     width: double.infinity,
                     color: Color(0xFF494b4e),
-                    padding: EdgeInsets.symmetric(vertical: 20),
+                    padding: EdgeInsets.only(top: 24, bottom: 10),
                     child: Column(
                       children: [
                         Container(
-                          margin: EdgeInsets.only(bottom: 16),
+                          margin: EdgeInsets.only(bottom: 22),
                           child: PluginInfoItem(
                             isExpanded: false,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -391,56 +397,69 @@ class CollateralIncentiveList extends StatelessWidget {
                                 .headline5
                                 ?.copyWith(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: UI.getTextSize(24, context),
                                     height: 1.5,
                                     fontWeight: FontWeight.bold),
                           ),
                         ),
-                        Row(
-                          children: [
-                            PluginInfoItem(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              title:
-                                  "${dic['loan.collateral']} (${PluginFmt.tokenView(token.symbol)})",
-                              content: deposit,
-                              titleStyle: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    height: 1.0,
-                                  ),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      height: 1.5,
-                                      fontWeight: FontWeight.bold),
-                            ),
-                            PluginInfoItem(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              title: dic['earn.apy'],
-                              content: Fmt.ratio(apy),
-                              titleStyle: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    height: 1.0,
-                                  ),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      height: 1.5,
-                                      fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        )
+                        Padding(
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              children: [
+                                PluginInfoItem(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  title:
+                                      "${dic['loan.collateral']} (${PluginFmt.tokenView(token.symbol)})",
+                                  content: deposit,
+                                  titleStyle: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                        height: 1.0,
+                                      ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                          color: Colors.white,
+                                          fontSize: UI.getTextSize(20, context),
+                                          height: 1.5,
+                                          fontWeight: FontWeight.bold),
+                                ),
+                                PluginInfoItem(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  title: dic['earn.apy'],
+                                  content: Fmt.ratio(apy),
+                                  titleStyle: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                        height: 1.0,
+                                      ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                          color: Colors.white,
+                                          fontSize: UI.getTextSize(20, context),
+                                          height: 1.5,
+                                          fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            )),
+                        edErrorToken != null
+                            ? Text(
+                                "${dic['earn.dex.edError1']} ${Fmt.priceFloorBigIntFormatter(BigInt.parse(edErrorToken!.minBalance!), edErrorToken!.decimals!, lengthMax: 6)} ${PluginFmt.tokenView(edErrorToken!.symbol)} ${dic['earn.dex.edError2']}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: UI.getTextSize(10, context)),
+                              )
+                            : Container()
                       ],
                     )),
                 Container(
@@ -448,8 +467,8 @@ class CollateralIncentiveList extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 13, horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(14),
-                          bottomRight: Radius.circular(14)),
+                          bottomLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8)),
                     ),
                     child: Row(
                       children: [

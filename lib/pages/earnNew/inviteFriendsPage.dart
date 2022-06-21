@@ -67,7 +67,7 @@ class InviteFriendsPage extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Color(0x1AD8D8D8),
                       borderRadius:
-                          BorderRadius.only(topRight: Radius.circular(14))),
+                          BorderRadius.only(topRight: Radius.circular(8))),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -85,7 +85,9 @@ class InviteFriendsPage extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3
-                                ?.copyWith(fontSize: 18, color: Colors.white)),
+                                ?.copyWith(
+                                    fontSize: UI.getTextSize(18, context),
+                                    color: Colors.white)),
                       )
                     ],
                   )),
@@ -95,9 +97,9 @@ class InviteFriendsPage extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: Color(0xFFFFFFFF).withAlpha(36),
                     borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(14),
-                        bottomLeft: Radius.circular(14),
-                        bottomRight: Radius.circular(14))),
+                        topRight: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8))),
                 child: Container(
                   width: size,
                   height: size,
@@ -134,7 +136,7 @@ class InviteFriendsPage extends StatelessWidget {
                                 .headline3
                                 ?.copyWith(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: UI.getTextSize(24, context),
                                     fontWeight: FontWeight.bold,
                                     height: 1.0)),
                         Image.asset(

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
@@ -26,6 +25,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class AddLiquidityPage extends StatefulWidget {
   AddLiquidityPage(this.plugin, this.keyring);
@@ -504,7 +504,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                     : Row(children: [
                         Text(
                           _errorLeft!,
-                          style: TextStyle(fontSize: 12, color: Colors.red),
+                          style: TextStyle(
+                              fontSize: UI.getTextSize(12, context),
+                              color: Colors.red),
                         )
                       ]),
               ),
@@ -546,7 +548,9 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                     : Row(children: [
                         Text(
                           _errorRight!,
-                          style: TextStyle(fontSize: 12, color: Colors.red),
+                          style: TextStyle(
+                              fontSize: UI.getTextSize(12, context),
+                              color: Colors.red),
                         )
                       ]),
               ),
@@ -741,17 +745,15 @@ class StakeLPTips extends StatelessWidget {
                   children: [
                     Text(
                       'Mining ${dic!['earn.apy']}: ',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline3
-                          ?.copyWith(fontSize: 26, color: Colors.white),
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                          fontSize: UI.getTextSize(26, context),
+                          color: Colors.white),
                     ),
                     Text(
                       Fmt.ratio(rewardAPY + savingRewardAPY),
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline3
-                          ?.copyWith(fontSize: 26, color: Color(0xFFFC8156)),
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                          fontSize: UI.getTextSize(26, context),
+                          color: Color(0xFFFC8156)),
                     ),
                   ],
                 ),
@@ -771,7 +773,8 @@ class StakeLPTips extends StatelessWidget {
                                   .textTheme
                                   .headline5
                                   ?.copyWith(
-                                      color: Colors.white, fontSize: 14)),
+                                      color: Colors.white,
+                                      fontSize: UI.getTextSize(14, context))),
                         )
                       ],
                     )),
@@ -793,7 +796,9 @@ class StakeLPTips extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5
-                                ?.copyWith(color: Colors.white, fontSize: 14)),
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: UI.getTextSize(14, context))),
                       )
                     ],
                   ))),

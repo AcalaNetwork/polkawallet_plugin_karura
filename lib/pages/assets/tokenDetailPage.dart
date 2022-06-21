@@ -25,6 +25,7 @@ import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class TokenDetailPage extends StatefulWidget {
   TokenDetailPage(this.plugin, this.keyring);
@@ -50,7 +51,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final TokenBalanceData token =
           ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
       widget.plugin.service!.assets.updateTokenBalances(token);
@@ -64,7 +65,6 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
     final TokenBalanceData token =
         ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
 
-    final primaryColor = Theme.of(context).primaryColor;
     final titleColor = Theme.of(context).cardColor;
 
     final filterOptions = [dic['all'], dic['in'], dic['out']];
@@ -289,7 +289,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
   }
 }
 
-Widget priceItemBuild(Widget icon, String title, String price, Color color) {
+Widget priceItemBuild(Widget icon, String title, String price, Color color,
+    BuildContext context) {
   return Padding(
       padding: EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -304,9 +305,9 @@ Widget priceItemBuild(Widget icon, String title, String price, Color color) {
             title,
             style: TextStyle(
                 color: color,
-                fontSize: 12,
+                fontSize: UI.getTextSize(12, context),
                 fontWeight: FontWeight.w600,
-                fontFamily: "TitilliumWeb"),
+                fontFamily: UI.getFontFamily('TitilliumWeb', context)),
           ),
           Expanded(
             child: Text(
@@ -314,9 +315,9 @@ Widget priceItemBuild(Widget icon, String title, String price, Color color) {
               textAlign: TextAlign.end,
               style: TextStyle(
                   color: color,
-                  fontSize: 12,
+                  fontSize: UI.getTextSize(12, context),
                   fontWeight: FontWeight.w400,
-                  fontFamily: "TitilliumWeb"),
+                  fontFamily: UI.getFontFamily('TitilliumWeb', context)),
             ),
           )
         ],
@@ -396,10 +397,11 @@ class BalanceCard extends StatelessWidget {
                         Fmt.priceFloorBigInt(total, decimals, lengthMax: 8),
                         style: TextStyle(
                             color: titleColor,
-                            fontSize: 20,
+                            fontSize: UI.getTextSize(20, context),
                             letterSpacing: -0.8,
                             fontWeight: FontWeight.w600,
-                            fontFamily: "TitilliumWeb"),
+                            fontFamily:
+                                UI.getFontFamily('TitilliumWeb', context)),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Visibility(
@@ -434,7 +436,8 @@ class BalanceCard extends StatelessWidget {
                       decimals,
                       lengthMax: 4,
                     ),
-                    titleColor),
+                    titleColor,
+                    context),
                 priceItemBuild(
                     SvgPicture.asset(
                       'assets/images/locked_icon.svg',
@@ -446,7 +449,8 @@ class BalanceCard extends StatelessWidget {
                       decimals,
                       lengthMax: 4,
                     ),
-                    titleColor),
+                    titleColor,
+                    context),
                 priceItemBuild(
                     SvgPicture.asset(
                       'assets/images/reversed_icon.svg',
@@ -458,7 +462,8 @@ class BalanceCard extends StatelessWidget {
                       decimals,
                       lengthMax: 4,
                     ),
-                    titleColor),
+                    titleColor,
+                    context),
               ],
             ),
           ),

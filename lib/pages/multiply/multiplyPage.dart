@@ -20,6 +20,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MultiplyPage extends StatefulWidget {
   MultiplyPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -170,7 +171,10 @@ class _MultiplyPageState extends State<MultiplyPage> {
                                                         .textTheme
                                                         .headline3
                                                         ?.copyWith(
-                                                            fontSize: 18,
+                                                            fontSize:
+                                                                UI.getTextSize(
+                                                                    18,
+                                                                    context),
                                                             color:
                                                                 PluginColorsDark
                                                                     .headline1),
@@ -232,9 +236,9 @@ class LoanView extends StatelessWidget {
           decoration: BoxDecoration(
               color: Color(0x1AFFFFFF),
               borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                  bottomRight: Radius.circular(24))),
+                  bottomLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8))),
           child: Column(
             children: [
               Stack(
@@ -282,7 +286,8 @@ class LoanView extends StatelessWidget {
                                         .textTheme
                                         .headline5
                                         ?.copyWith(
-                                            fontSize: 12,
+                                            fontSize:
+                                                UI.getTextSize(12, context),
                                             color: PluginColorsDark.headline1),
                                   ))
                             ],
@@ -310,7 +315,7 @@ class LoanView extends StatelessWidget {
                                 .textTheme
                                 .headline5
                                 ?.copyWith(
-                                    fontSize: 12,
+                                    fontSize: UI.getTextSize(12, context),
                                     color: PluginColorsDark.headline1),
                           ))
                     ],
@@ -336,7 +341,7 @@ class LoanView extends StatelessWidget {
                                 .textTheme
                                 .headline5
                                 ?.copyWith(
-                                    fontSize: 12,
+                                    fontSize: UI.getTextSize(12, context),
                                     color: PluginColorsDark.headline1),
                           ))
                     ],
@@ -583,9 +588,9 @@ class CreateVaultWidget extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Color(0x1AFFFFFF),
                 borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                    bottomRight: Radius.circular(24))),
+                    bottomLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8))),
             child: Column(
               children: [
                 Padding(
@@ -613,7 +618,7 @@ class CreateVaultWidget extends StatelessWidget {
                               .textTheme
                               .headline5
                               ?.copyWith(
-                                  fontSize: 12,
+                                  fontSize: UI.getTextSize(12, context),
                                   fontWeight: FontWeight.bold,
                                   color: PluginColorsDark.headline1),
                         ),

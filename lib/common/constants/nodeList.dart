@@ -2,9 +2,9 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 
 const node_list = [
   {
-    'name': 'Karura (via PatractLabs)',
+    'name': 'Karura (via Dwellir)',
     'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://pub.elara.patract.io/karura',
+    'endpoint': 'wss://karura-rpc.dwellir.com',
   },
   {
     'name': 'Karura (via Polkawallet)',

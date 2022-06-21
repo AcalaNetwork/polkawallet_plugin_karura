@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
@@ -14,13 +13,13 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
-import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTxButton.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class BootstrapPage extends StatefulWidget {
   BootstrapPage(this.plugin, this.keyring);
@@ -184,7 +183,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshKey.currentState!.show();
     });
   }
@@ -278,7 +277,6 @@ class _BootstrapPageState extends State<BootstrapPage> {
                     children: [
                       PluginTagCard(
                         titleTag: dic['boot.my']!,
-                        radius: Radius.circular(14),
                         child: Column(
                           children: [
                             Container(
@@ -287,7 +285,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                 decoration: BoxDecoration(
                                     color: Color(0xFF494b4e),
                                     borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(14))),
+                                        topRight: Radius.circular(8))),
                                 alignment: Alignment.center,
                                 child: Text(
                                   Fmt.priceFloor(myLeft) +
@@ -298,7 +296,9 @@ class _BootstrapPageState extends State<BootstrapPage> {
                                       .textTheme
                                       .headline3
                                       ?.copyWith(
-                                          color: Colors.white, fontSize: 24),
+                                          color: Colors.white,
+                                          fontSize:
+                                              UI.getTextSize(24, context)),
                                 )),
                             Container(
                               margin: EdgeInsets.only(top: 6, bottom: 10),
@@ -346,7 +346,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
                         titleTag: dic['boot.provision.add']!,
                         padding: EdgeInsets.all(16),
                         margin: EdgeInsets.only(top: 16),
-                        radius: Radius.circular(14),
+                        radius: Radius.circular(8),
                         backgroundColor: Color(0xFF494b4e),
                         child: Column(
                           children: [
@@ -580,7 +580,8 @@ class ErrorMessage extends StatelessWidget {
                   child: Text(
                 error,
                 textAlign: isRight ? TextAlign.right : TextAlign.left,
-                style: TextStyle(fontSize: 12, color: Colors.red),
+                style: TextStyle(
+                    fontSize: UI.getTextSize(12, context), color: Colors.red),
               ))
             ]),
     );

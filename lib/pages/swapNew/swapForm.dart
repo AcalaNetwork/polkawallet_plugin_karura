@@ -23,6 +23,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
 class SwapForm extends StatefulWidget {
@@ -360,31 +361,47 @@ class _SwapFormState extends State<SwapForm>
         Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0]!)
             .toString(),
       ];
-      Navigator.of(context).pushNamed(TxConfirmPage.route,
+      final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
-            module: 'dex',
-            call:
-                _swapMode == 0 ? 'swapWithExactSupply' : 'swapWithExactTarget',
-            txTitle: dic['dex.title'],
-            txDisplayBold: {
-              dic['dex.pay']!: Text(
-                '$pay ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0]).symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-              dic['dex.receive']!: Text(
-                '$receive ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1]).symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-            },
-            params: params,
-            isPlugin: true,
-          ));
+              module: 'dex',
+              call: _swapMode == 0
+                  ? 'swapWithExactSupply'
+                  : 'swapWithExactTarget',
+              txTitle: dic['dex.title'],
+              txDisplayBold: {
+                dic['dex.pay']!: Text(
+                  '$pay ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0]).symbol)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
+                ),
+                dic['dex.receive']!: Text(
+                  '$receive ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1]).symbol)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
+                ),
+              },
+              params: params,
+              isPlugin: true,
+              onStatusChange: (status) {
+                if (status ==
+                    I18n.of(context)!
+                        .getDic(i18n_full_dic_ui, 'common')!['tx.Ready']) {
+                  setState(() {
+                    _amountReceiveCtrl.text = "";
+                    _amountPayCtrl.text = "";
+                    _detailShow = false;
+                    _error = null;
+                    _errorReceive = null;
+                  });
+                }
+              }));
+      if (res != null) {
+        widget.plugin.updateBalances(widget.keyring.current);
+      }
     }
   }
 
@@ -392,7 +409,7 @@ class _SwapFormState extends State<SwapForm>
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _getTxFee();
 
       final cachedSwapPair =
@@ -537,7 +554,7 @@ class _SwapFormState extends State<SwapForm>
                                   .headline5
                                   ?.copyWith(
                                       color: Color(0x88ffffff),
-                                      fontSize: 12,
+                                      fontSize: UI.getTextSize(12, context),
                                       fontWeight: FontWeight.w600)),
                           onTap: () {
                             _onSetMax(Fmt.balanceInt(balancePair[0].amount),
@@ -619,7 +636,7 @@ class _SwapFormState extends State<SwapForm>
                 ),
                 GestureDetector(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 33),
+                    padding: EdgeInsets.only(top: 45),
                     child: Image.asset(
                         'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
                         width: 39),
@@ -662,7 +679,7 @@ class _SwapFormState extends State<SwapForm>
                   ),
                 )),
             Container(
-              margin: EdgeInsets.only(right: 1, bottom: 7),
+              margin: EdgeInsets.only(right: 1, bottom: 7, top: 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -781,7 +798,7 @@ class _SwapFormState extends State<SwapForm>
                                   _slippageError ?? "",
                                   style: TextStyle(
                                       color: Theme.of(context).errorColor,
-                                      fontSize: 10),
+                                      fontSize: UI.getTextSize(10, context)),
                                 ))
                           ],
                         ),
@@ -837,9 +854,9 @@ class _SwapFormState extends State<SwapForm>
                   decoration: BoxDecoration(
                       color: Color(0x24FFFFFF),
                       borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(14),
-                          topRight: Radius.circular(14),
-                          bottomRight: Radius.circular(14))),
+                          bottomLeft: Radius.circular(8),
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(8))),
                   margin: EdgeInsets.only(top: 12),
                   padding:
                       EdgeInsets.only(left: 10, right: 10, bottom: 32, top: 12),

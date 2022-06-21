@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
 
 class HomaPage extends StatefulWidget {
@@ -197,7 +198,7 @@ class _HomaPageState extends State<HomaPage> {
       final riveHeight = riveWidget / 360 * 292;
 
       // todo: use dead coded 19.92% now.
-      final aprValue = '19.92%';
+      final aprValue = 22.44;
       // final aprValue =
       //     "${Fmt.priceFloor((env?.apy ?? 0) * 100, lengthFixed: 0)}%";
       bool isRewardsOpen = false;
@@ -206,14 +207,14 @@ class _HomaPageState extends State<HomaPage> {
           widget.plugin.store!.earn.incentives.loans?['L$stakeSymbol'];
       if ((rewards ?? []).length > 0) {
         rewards?.forEach((e) {
-          if (e.tokenNameId == karura_stable_coin && (e.amount ?? 0) > 0) {
+          if ((e.amount ?? 0) > 0) {
             isRewardsOpen = true;
             rewardApr = e.apr ?? 0;
           }
         });
       }
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
-          fontSize: 24,
+          fontSize: UI.getTextSize(20, context),
           fontWeight: FontWeight.bold,
           height: 0.9,
           color: Colors.white);
@@ -286,7 +287,8 @@ class _HomaPageState extends State<HomaPage> {
                                       .appBarTheme
                                       .titleTextStyle
                                       ?.copyWith(
-                                          fontSize: 14, color: Colors.white)),
+                                          fontSize: UI.getTextSize(14, context),
+                                          color: Colors.white)),
                             ))
                       ],
                     ),
@@ -303,7 +305,8 @@ class _HomaPageState extends State<HomaPage> {
                                 .appBarTheme
                                 .titleTextStyle
                                 ?.copyWith(
-                                    fontSize: 16, color: Color(0xFF292929)),
+                                    fontSize: UI.getTextSize(16, context),
+                                    color: Color(0xFF292929)),
                           ),
                         ),
                         Container(
@@ -316,7 +319,9 @@ class _HomaPageState extends State<HomaPage> {
                             style: Theme.of(context)
                                 .appBarTheme
                                 .titleTextStyle
-                                ?.copyWith(fontSize: 16, color: Colors.white),
+                                ?.copyWith(
+                                    fontSize: UI.getTextSize(16, context),
+                                    color: Colors.white),
                           ),
                         ),
                         Container(
@@ -336,7 +341,9 @@ class _HomaPageState extends State<HomaPage> {
                               top: riveTop + riveHeight * 0.17,
                               right: paddingHorizontal +
                                   riveWidget * 0.195 -
-                                  PluginFmt.boundingTextSize(aprValue, aprStyle)
+                                  PluginFmt.boundingTextSize(
+                                              aprValue.toStringAsFixed(2) + '%',
+                                              aprStyle)
                                           .width /
                                       2),
                           child: Column(
@@ -350,7 +357,7 @@ class _HomaPageState extends State<HomaPage> {
                                     ?.copyWith(color: Colors.white),
                               ),
                               Text(
-                                aprValue,
+                                aprValue.toStringAsFixed(2) + '%',
                                 style: aprStyle,
                               )
                             ],
@@ -676,7 +683,7 @@ class _HomaPageState extends State<HomaPage> {
                                                 fontWeight: FontWeight.w400),
                                       ),
                                       Text(
-                                        " ${(19.92 + rewardApr * 100).toStringAsFixed(2)}%!",
+                                        " ${(aprValue + rewardApr * 100).toStringAsFixed(2)}%!",
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline4

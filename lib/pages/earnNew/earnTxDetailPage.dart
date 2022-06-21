@@ -9,6 +9,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnTxDetailPage extends StatelessWidget {
   EarnTxDetailPage(this.plugin, this.keyring);
@@ -21,7 +22,7 @@ class EarnTxDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final amountStyle = TextStyle(
-        fontSize: 16,
+        fontSize: UI.getTextSize(16, context),
         fontWeight: FontWeight.bold,
         color: PluginColorsDark.headline1);
 

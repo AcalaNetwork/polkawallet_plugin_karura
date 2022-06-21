@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +15,7 @@ import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnHistoryPage extends StatelessWidget {
   EarnHistoryPage(this.plugin, this.keyring);
@@ -126,10 +126,9 @@ class EarnHistoryPage extends StatelessWidget {
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
                             .parse(detail.time, true)),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5
-                            ?.copyWith(color: Colors.white, fontSize: 10)),
+                        style: Theme.of(context).textTheme.headline5?.copyWith(
+                            color: Colors.white,
+                            fontSize: UI.getTextSize(10, context))),
                     leading:
                         TransferIcon(type: icon, bgColor: Color(0x57FFFFFF)),
                     onTap: () {

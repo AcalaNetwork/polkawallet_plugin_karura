@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -272,7 +271,7 @@ class _TransferPageState extends State<TransferPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
       final args = TransferPageParams.fromJson(argsJson);
       setState(() {
@@ -433,8 +432,8 @@ class _TransferPageState extends State<TransferPage> {
 
                         final labelStyle =
                             Theme.of(context).textTheme.headline4;
-                        final subTitleStyle =
-                            TextStyle(fontSize: 12, height: 1);
+                        final subTitleStyle = TextStyle(
+                            fontSize: UI.getTextSize(12, context), height: 1);
                         final infoValueStyle = Theme.of(context)
                             .textTheme
                             .headline5!
@@ -475,7 +474,8 @@ class _TransferPageState extends State<TransferPage> {
                                         margin: EdgeInsets.only(top: 4),
                                         child: Text(_accountToError ?? "",
                                             style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize:
+                                                    UI.getTextSize(12, context),
                                                 color: Colors.red)),
                                       )),
                                   Container(height: 10.h),

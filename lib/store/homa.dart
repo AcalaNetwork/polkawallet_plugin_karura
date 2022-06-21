@@ -1,7 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaNewEnvData.dart';
 import 'package:polkawallet_plugin_karura/api/types/homaPendingRedeemData.dart';
-import 'package:polkawallet_plugin_karura/api/types/stakingPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 
 part 'homa.g.dart';

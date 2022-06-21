@@ -1,13 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/currencyWithIcon.dart';
 import 'package:polkawallet_ui/components/textTag.dart';
-import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginCurrencyWithIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -134,7 +131,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                               .headline3
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: 24,
+                                  fontSize: UI.getTextSize(24, context),
                                   fontWeight: FontWeight.bold),
                           errorStyle: TextStyle(height: 0.3),
                           contentPadding: EdgeInsets.all(0),
@@ -150,7 +147,7 @@ class _SwapTokenInputState extends State<SwapTokenInput> {
                         ),
                         style: Theme.of(context).textTheme.headline3?.copyWith(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: UI.getTextSize(24, context),
                             fontWeight: FontWeight.bold),
                         inputFormatters: [
                           UI.decimalInputFormatter(

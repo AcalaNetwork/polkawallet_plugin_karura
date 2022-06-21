@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,6 +26,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class MultiplyAdjustPanel extends StatefulWidget {
   MultiplyAdjustPanel(this.plugin, this.keyring, this.loanType, this.onRefresh);
@@ -173,7 +173,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final loan =
           widget.plugin.store!.loan.loans[widget.loanType.token?.tokenNameId];
       final ratioLeft =
@@ -310,7 +310,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                   .textTheme
                                   .headline3
                                   ?.copyWith(
-                                      color: Colors.black, fontSize: 14)),
+                                      color: Colors.black,
+                                      fontSize: UI.getTextSize(14, context))),
                           child: Slider(
                             min: 0,
                             max: ratioLeft - ratioRight,
@@ -343,14 +344,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                     .headline3
                                     ?.copyWith(
                                         color: PluginColorsDark.headline1,
-                                        fontSize: 14)),
+                                        fontSize: UI.getTextSize(14, context))),
                             child: Slider(
                               min: 0,
                               max: ratioLeft - ratioRight,
                               divisions: steps.toInt(),
                               value: _slider,
                               label:
-                                  '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
+                                  '${dic['loan.ratio']} ${(ratioLeft - _slider).toStringAsFixed(1)}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
                               onChanged: (value) {
                                 if (_slider != value) {
                                   if (value > _slider) {
@@ -370,7 +371,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '$ratioLeft%',
+                          '${ratioLeft.toStringAsFixed(1)}%',
                           style: Theme.of(context)
                               .textTheme
                               .headline4
@@ -379,7 +380,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                                   fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '$ratioRight%',
+                          '${ratioRight.toStringAsFixed(1)}%',
                           style: Theme.of(context)
                               .textTheme
                               .headline4

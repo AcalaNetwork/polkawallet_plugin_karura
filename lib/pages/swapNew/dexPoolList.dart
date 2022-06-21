@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,6 +19,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.da
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 class DexPoolList extends StatefulWidget {
   DexPoolList(this.plugin, this.keyring);
@@ -56,7 +56,7 @@ class _DexPoolListState extends State<DexPoolList> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshKey.currentState!.show();
     });
   }
@@ -170,7 +170,6 @@ class _DexPoolCard extends StatelessWidget {
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
-      borderRadius: const BorderRadius.all(const Radius.circular(14)),
       color: Color(0x19FFFFFF),
       child: Column(
         children: [
@@ -187,10 +186,9 @@ class _DexPoolCard extends StatelessWidget {
                   Expanded(
                       child: Text(
                     tokenPairView,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline3
-                        ?.copyWith(color: Colors.white, fontSize: 18),
+                    style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Colors.white,
+                        fontSize: UI.getTextSize(18, context)),
                   )),
                   Row(
                     children: [

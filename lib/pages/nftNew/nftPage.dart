@@ -17,6 +17,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
+import 'package:polkawallet_ui/utils/index.dart';
 
 const nft_filter_name_all = 'All';
 
@@ -106,7 +107,7 @@ class _NftPageState extends State<NftPage> {
                             child: Text(
                               'x${classes[item.classId]}',
                               style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: UI.getTextSize(20, context),
                                   color: PluginColorsDark.headline1,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -304,6 +305,8 @@ class _NftPageState extends State<NftPage> {
                                                           .textTheme
                                                           .headline5
                                                           ?.copyWith(
+                                                              color:
+                                                                  Colors.black,
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w600),
@@ -475,14 +478,14 @@ class _tabBarState extends State<_tabBar> {
                                     ? Colors.white
                                     : Colors.white.withAlpha(28),
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(6))),
+                                    BorderRadius.all(Radius.circular(8))),
                             child: Text(
                               "${widget.nfts[itemIndex].metadata!['name']} x${widget.datas[e]}",
                               style: Theme.of(context)
                                   .textTheme
                                   .headline5
                                   ?.copyWith(
-                                      fontSize: 12,
+                                      fontSize: UI.getTextSize(12, context),
                                       fontWeight: FontWeight.w600,
                                       color: _initIndex == itemIndex
                                           ? Colors.black
