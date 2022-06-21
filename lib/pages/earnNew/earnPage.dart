@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
@@ -51,7 +52,7 @@ class _EarnPageState extends State<EarnPage> {
         centerTitle: true,
         actions: [
           Container(
-            padding: EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: 12),
             child: PluginIconButton(
               icon: Icon(
                 Icons.history,
@@ -61,7 +62,8 @@ class _EarnPageState extends State<EarnPage> {
               onPressed: () =>
                   Navigator.of(context).pushNamed(EarnHistoryPage.route),
             ),
-          )
+          ),
+          PluginAccountInfoAction(widget.keyring)
         ],
       ),
       body: SafeArea(
