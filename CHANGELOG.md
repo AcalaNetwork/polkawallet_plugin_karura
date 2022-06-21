@@ -1,3 +1,7 @@
+## [0.4.8] - 20220621
+- bump polkawallet_sdk v0.4.8.
+- ui update.
+
 ## [0.4.7] - 20220606
 - bump polkawallet_sdk v0.4.7.
 - xcm transfer est. fee fix.
