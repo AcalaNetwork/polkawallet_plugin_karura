@@ -67,18 +67,7 @@ class _SwapPageState extends State<SwapPage> {
     return PluginScaffold(
       extendBodyBehindAppBar: true,
       appBar: PluginAppBar(
-        title: PluginPageTitleTaps(
-          names: [dic['dex.title']!, dic['dex.lp']!, dic['boot.title']!],
-          activeTab: _tab,
-          isSpaceBetween: true,
-          onTap: (i) {
-            if (i != _tab) {
-              setState(() {
-                _tab = i;
-              });
-            }
-          },
-        ),
+        title: Text(dic['dex.title']!),
         actions: [
           Container(
             margin: EdgeInsets.only(right: 8),
@@ -98,6 +87,20 @@ class _SwapPageState extends State<SwapPage> {
       body: SafeArea(
           child: Column(
         children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: PluginPageTitleTaps(
+                names: [dic['dex.title']!, dic['dex.lp']!, dic['boot.title']!],
+                activeTab: _tab,
+                isSpaceBetween: false,
+                onTap: (i) {
+                  if (i != _tab) {
+                    setState(() {
+                      _tab = i;
+                    });
+                  }
+                },
+              )),
           ConnectionChecker(widget.plugin, onConnected: _updateData),
           _loading
               ? SwapSkeleton()

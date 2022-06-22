@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
@@ -341,9 +342,9 @@ class _HomaPageState extends State<HomaPage> {
                       alignment: Alignment.topRight,
                       child: Container(
                           margin: EdgeInsets.only(
-                              top: riveTop + riveHeight * 0.17,
+                              top: riveTop + riveHeight * 0.185,
                               right: paddingHorizontal +
-                                  riveWidget * 0.195 -
+                                  riveWidget * 0.19 -
                                   PluginFmt.boundingTextSize(
                                               aprValue.toStringAsFixed(2) + '%',
                                               aprStyle)
@@ -452,11 +453,16 @@ class _HomaPageState extends State<HomaPage> {
                             Container(
                               width: double.infinity,
                               margin: EdgeInsets.only(bottom: 16),
-                              padding: EdgeInsets.only(
-                                  left: 11, top: 16, bottom: 20),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 19),
                               decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 2),
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(8),
+                                    bottomLeft: Radius.circular(8),
+                                    bottomRight: Radius.circular(8)),
+                                border: Border.all(
+                                    color: Colors.white.withAlpha(97),
+                                    width: 1.5),
                               ),
                               child: Row(
                                 children: [
@@ -466,15 +472,16 @@ class _HomaPageState extends State<HomaPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: 127,
-                                        height: 61,
-                                        padding:
-                                            EdgeInsets.only(left: 10, top: 6),
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: AssetImage(
-                                              'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
-                                        )),
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 10, top: 6, bottom: 6),
+                                        decoration: ShapeDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          shape: BeveledRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(10))),
+                                        ),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -489,30 +496,34 @@ class _HomaPageState extends State<HomaPage> {
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
-                                            Text(
-                                              Fmt.priceFloorFormatter(
-                                                  balanceLiquidToken,
-                                                  lengthMax: 4),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Colors.white),
-                                            )
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5),
+                                                child: Text(
+                                                  Fmt.priceFloorFormatter(
+                                                      balanceLiquidToken,
+                                                      lengthMax: 4),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline4
+                                                      ?.copyWith(
+                                                          color: Colors.white),
+                                                ))
                                           ],
                                         ),
                                       ),
                                       Container(
-                                        width: 127,
-                                        height: 61,
-                                        padding:
-                                            EdgeInsets.only(left: 10, top: 6),
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 10, top: 6, bottom: 6),
                                         margin: EdgeInsets.only(top: 15),
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: AssetImage(
-                                              'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
-                                        )),
+                                        decoration: ShapeDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          shape: BeveledRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(10))),
+                                        ),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -527,34 +538,40 @@ class _HomaPageState extends State<HomaPage> {
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
-                                            Text(
-                                              "${Fmt.priceFloorFormatter(unbonding, lengthMax: 4)} $stakeSymbol",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Colors.white),
-                                            )
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5),
+                                                child: Text(
+                                                  "${Fmt.priceFloorFormatter(unbonding, lengthMax: 4)} $stakeSymbol",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline4
+                                                      ?.copyWith(
+                                                          color: Colors.white),
+                                                ))
                                           ],
                                         ),
                                       )
                                     ],
                                   )),
+                                  Container(
+                                    width: 46,
+                                  ),
                                   Expanded(
                                       child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Container(
-                                        width: 127,
-                                        height: 61,
-                                        padding:
-                                            EdgeInsets.only(left: 10, top: 6),
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: AssetImage(
-                                              'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
-                                        )),
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 10, top: 6, bottom: 6),
+                                        decoration: ShapeDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          shape: BeveledRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(10))),
+                                        ),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -569,16 +586,19 @@ class _HomaPageState extends State<HomaPage> {
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
-                                            Text(
-                                              Fmt.priceFloorFormatter(
-                                                  balanceStakeToken,
-                                                  lengthMax: 4),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Colors.white),
-                                            )
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5),
+                                                child: Text(
+                                                  Fmt.priceFloorFormatter(
+                                                      balanceStakeToken,
+                                                      lengthMax: 4),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline4
+                                                      ?.copyWith(
+                                                          color: Colors.white),
+                                                ))
                                           ],
                                         ),
                                       ),
@@ -589,16 +609,19 @@ class _HomaPageState extends State<HomaPage> {
                                             }
                                           },
                                           child: Container(
-                                            width: 127,
-                                            height: 61,
+                                            width: double.infinity,
                                             padding: EdgeInsets.only(
-                                                left: 10, top: 6),
+                                                left: 10, top: 6, bottom: 6),
                                             margin: EdgeInsets.only(top: 15),
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                              image: AssetImage(
-                                                  'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item${claimable > 0 ? '_select' : ''}_bg.png'),
-                                            )),
+                                            decoration: ShapeDecoration(
+                                              color: PluginColorsDark.primary,
+                                              shape: BeveledRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  10))),
+                                            ),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -615,16 +638,21 @@ class _HomaPageState extends State<HomaPage> {
                                                           fontWeight:
                                                               FontWeight.w600),
                                                 ),
-                                                Text(
-                                                  "${Fmt.priceFloorFormatter(claimable, lengthMax: 4)} $stakeSymbol",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline4
-                                                      ?.copyWith(
-                                                          color: claimable > 0
-                                                              ? Colors.black
-                                                              : Colors.white),
-                                                )
+                                                Padding(
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
+                                                    child: Text(
+                                                      "${Fmt.priceFloorFormatter(claimable, lengthMax: 4)} $stakeSymbol",
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .headline4
+                                                          ?.copyWith(
+                                                              color: claimable >
+                                                                      0
+                                                                  ? Colors.black
+                                                                  : Colors
+                                                                      .white),
+                                                    ))
                                               ],
                                             ),
                                           ))
