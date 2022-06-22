@@ -306,7 +306,6 @@ const Map<String, String> zhDex = {
   'loan.multiply.message3': '您的质押率太低，可能面临被清算的风险，本次交易有可能失败。',
   'loan.multiply.shrinkPositionDebit': '调整债仓',
   'loan.multiply.expandPositionCollateral': '调整债仓',
-  'loan.multiply.indebt': '债务',
   'earn.dex.sort0': '默认',
   'earn.dex.sort1': '年利率最高',
   'earn.dex.sort2': '质押量最大',

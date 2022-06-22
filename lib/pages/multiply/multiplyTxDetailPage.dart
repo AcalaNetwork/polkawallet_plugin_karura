@@ -63,7 +63,7 @@ class MultiplyTxDetailPage extends StatelessWidget {
       ));
     }
     items.add(TxDetailInfoItem(
-      label: dic['loan.multiply.indebt'],
+      label: dic['loan.multiply.outstandingDebt'],
       content: Text('${tx.amountDebit} $karura_stable_coin_view',
           style: amountStyle),
     ));

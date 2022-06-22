@@ -25,7 +25,7 @@ class TxMultiplyData extends _TxMultiplyData {
             (jsonData['debitExchangeRate'] ?? '1000000000000').toString()) ~/
         BigInt.from(pow(10, acala_price_decimals));
     data.amountCollateral =
-        Fmt.priceFloorBigInt(data.collateral!, token.decimals ?? 12);
+        Fmt.priceFloorBigInt(data.collateral!.abs(), token.decimals ?? 12);
     data.amountDebit = Fmt.priceCeilBigInt(data.debit,
         plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!);
 

@@ -35,6 +35,7 @@ class MultiplyHistoryPage extends StatelessWidget {
       body: SafeArea(
         child: Query(
             options: QueryOptions(
+              fetchPolicy: FetchPolicy.noCache,
               document: gql(multiplyQuery),
               variables: <String, String?>{
                 'senderId': keyring.current.address,
