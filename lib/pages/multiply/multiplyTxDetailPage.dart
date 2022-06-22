@@ -35,7 +35,7 @@ class MultiplyTxDetailPage extends StatelessWidget {
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(dic['loan.multiply.${tx.action}']!,
+        content: Text('ExpandCollateral',
             style: tx.isSuccess == null
                 ? TextStyle(
                     fontFamily: "TitilliumWeb-SemiBold",
