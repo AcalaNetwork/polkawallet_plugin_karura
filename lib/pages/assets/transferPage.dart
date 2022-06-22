@@ -33,6 +33,7 @@ import 'package:polkawallet_ui/pages/scanPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class TransferPage extends StatefulWidget {
   TransferPage(this.plugin, this.keyring);
@@ -158,7 +159,7 @@ class _TransferPageState extends State<TransferPage> {
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
             title: Text(dic['note']!),
             content: Text(dic['transfer.note.msg1']!),
             actions: <Widget>[
@@ -177,7 +178,7 @@ class _TransferPageState extends State<TransferPage> {
                     showCupertinoDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
+                        return PolkawalletAlertDialog(
                           title: Text(dic['note']!),
                           content: Text(dic['transfer.note.msg2']!),
                           actions: <Widget>[

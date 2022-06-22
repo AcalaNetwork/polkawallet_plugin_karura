@@ -24,6 +24,7 @@ import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class HomaPage extends StatefulWidget {
   HomaPage(this.plugin, this.keyring);
@@ -59,7 +60,7 @@ class _HomaPageState extends State<HomaPage> {
       context: context,
       builder: (BuildContext context) {
         final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-        return CupertinoAlertDialog(
+        return PolkawalletAlertDialog(
           title: Text(dic['homa.confirm']!),
           content: Text(dic['homa.redeem.hint']!),
           actions: <Widget>[

@@ -23,6 +23,7 @@ import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class LoanAdjustPage extends StatefulWidget {
   LoanAdjustPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -757,7 +758,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       await showCupertinoDialog(
           context: context,
           builder: (_) {
-            return CupertinoAlertDialog(
+            return PolkawalletAlertDialog(
               content: Text(dic!['v3.loan.paybackMessage']!),
               actions: <Widget>[
                 CupertinoDialogAction(
@@ -785,7 +786,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         showCupertinoDialog(
             context: context,
             builder: (_) {
-              return CupertinoAlertDialog(
+              return PolkawalletAlertDialog(
                 content: Text(
                     "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min']} ${Fmt.priceFloorBigInt(Fmt.balanceInt(loan.token!.minBalance) * BigInt.from(100), loan.token!.decimals!, lengthFixed: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}"),
                 actions: <Widget>[
@@ -820,7 +821,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           showCupertinoDialog(
               context: context,
               builder: (_) {
-                return CupertinoAlertDialog(
+                return PolkawalletAlertDialog(
                   content: Text(
                       "${dic!['v3.loan.errorMessage5']}$minimumDebitValue${dic['v3.loan.errorMessage6']}"),
                   actions: <Widget>[
@@ -896,7 +897,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final bool? res = await showCupertinoDialog(
         context: context,
         builder: (_) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
             content: Text(message),
             actions: <Widget>[
               CupertinoDialogAction(

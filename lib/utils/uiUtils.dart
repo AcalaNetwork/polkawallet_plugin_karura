@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class UIUtils {
   static void showInvalidActionAlert(BuildContext context, String action) {
@@ -8,7 +9,7 @@ class UIUtils {
     showCupertinoDialog(
         context: context,
         builder: (_) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
             title: Text(action),
             content: Text(dic!['action.disable']!),
             actions: [

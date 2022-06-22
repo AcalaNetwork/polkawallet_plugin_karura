@@ -34,6 +34,7 @@ import 'package:polkawallet_ui/pages/v3/xcmTxConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class TransferFormXCM extends StatefulWidget {
   TransferFormXCM(this.plugin, this.keyring);
@@ -227,7 +228,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
             final dicCommon =
                 I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
-            return CupertinoAlertDialog(
+            return PolkawalletAlertDialog(
+              type: DialogType.warn,
               title: Text(dic['cross.warn']!),
               content: Text(dic['cross.warn.info']!),
               actions: [
@@ -262,7 +264,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
+            type: DialogType.warn,
             title: Text(dic['note']!),
             content: Text(dic['transfer.note.msg1']!),
             actions: <Widget>[
@@ -281,7 +284,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     showCupertinoDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
+                        return PolkawalletAlertDialog(
                           title: Text(dic['note']!),
                           content: Text(dic['transfer.note.msg2']!),
                           actions: <Widget>[

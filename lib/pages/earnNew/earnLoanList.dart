@@ -22,6 +22,7 @@ import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class EarnLoanList extends StatefulWidget {
   EarnLoanList(this.plugin, this.keyring);
@@ -145,7 +146,7 @@ class CollateralIncentiveList extends StatelessWidget {
       isClaim = await showCupertinoDialog(
           context: context,
           builder: (_) {
-            return CupertinoAlertDialog(
+            return PolkawalletAlertDialog(
               title: Text(dic['earn.claim']!),
               content: Text.rich(TextSpan(children: [
                 TextSpan(

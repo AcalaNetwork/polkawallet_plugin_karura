@@ -37,6 +37,7 @@ import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class LoanPage extends StatefulWidget {
   LoanPage(this.plugin, this.keyring);
@@ -79,7 +80,7 @@ class _LoanPageState extends State<LoanPage> {
     final bool? res = await showCupertinoDialog(
         context: context,
         builder: (_) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
             content: Text(message),
             actions: <Widget>[
               CupertinoDialogAction(
@@ -123,7 +124,7 @@ class _LoanPageState extends State<LoanPage> {
         ? await showCupertinoDialog(
             context: context,
             builder: (BuildContext ctx) {
-              return CupertinoAlertDialog(
+              return PolkawalletAlertDialog(
                 title: Text(dic!['loan.close']!),
                 content: Column(
                   children: [

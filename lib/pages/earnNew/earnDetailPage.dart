@@ -29,6 +29,7 @@ import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class EarnDetailPage extends StatelessWidget {
   EarnDetailPage(this.plugin, this.keyring);
@@ -499,7 +500,7 @@ class _UserCard extends StatelessWidget {
       showCupertinoDialog(
           context: context,
           builder: (_) {
-            return CupertinoAlertDialog(
+            return PolkawalletAlertDialog(
               title: Text(dic['earn.claim']!),
               content: Text.rich(TextSpan(children: [
                 TextSpan(
