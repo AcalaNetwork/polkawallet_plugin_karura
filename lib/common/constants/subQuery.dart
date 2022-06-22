@@ -120,3 +120,29 @@ const queryPoolDetail = r'''
     }
   }
 ''';
+
+const multiplyQuery = r'''
+query ($senderId: String) {
+    extrinsics(filter: {
+      section :{equalTo :"honzon"},
+      or:[{method:{equalTo:"expandPositionCollateral"}}, {method:{equalTo:"shrinkPositionDebit"}}],
+      senderId: {equalTo: $senderId}},
+      first: 20) {
+      nodes {
+        id
+        method
+        section
+        updatePositions {
+          nodes{
+            collateralId
+            collateralAdjustment
+            debitAdjustment
+            timestamp
+            extrinsicId
+            debitExchangeRate
+          }
+        }
+      }
+    }
+}
+''';

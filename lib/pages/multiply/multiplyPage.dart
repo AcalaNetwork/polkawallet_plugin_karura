@@ -16,12 +16,14 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
 
 class MultiplyPage extends StatefulWidget {
   MultiplyPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -91,7 +93,21 @@ class _MultiplyPageState extends State<MultiplyPage> {
       return PluginScaffold(
           appBar: PluginAppBar(
             title: Text(dicCommon!['multiply.title']!),
-            actions: [PluginAccountInfoAction(widget.keyring)],
+            actions: [
+              Container(
+                margin: EdgeInsets.only(right: 12),
+                child: PluginIconButton(
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed(MultiplyHistoryPage.route),
+                  icon: Icon(
+                    Icons.history,
+                    size: 22,
+                    color: Color(0xFF17161F),
+                  ),
+                ),
+              ),
+              PluginAccountInfoAction(widget.keyring)
+            ],
           ),
           body: Container(
               width: double.infinity,

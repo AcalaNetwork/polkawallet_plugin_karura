@@ -21,6 +21,8 @@ import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTxDetailPage.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
@@ -101,6 +103,16 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           //governanceNew
           GovernancePage.route: (_) => GovernancePage(plugin, keyring),
           ReferendumVotePage.route: (_) => ReferendumVotePage(plugin, keyring),
+
+          //multiply
+          MultiplyHistoryPage.route: (_) => ClientProvider(
+                child: Builder(
+                  builder: (_) => MultiplyHistoryPage(plugin, keyring),
+                ),
+                uri: GraphQLConfig['defiUri']!,
+              ),
+          MultiplyTxDetailPage.route: (_) =>
+              MultiplyTxDetailPage(plugin, keyring),
         }
       : {};
 }
