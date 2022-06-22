@@ -313,4 +313,5 @@ const Map<String, String> zhDex = {
   'earn.dex.sort3': '获利最多',
   'earn.dex.edError1': '由于需要',
   'earn.dex.edError2': '作为存活余额，您本次领取可能会失败',
+  'earn.dex.searchPools': '搜索池子'
 };

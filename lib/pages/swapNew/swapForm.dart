@@ -23,6 +23,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
 class SwapForm extends StatefulWidget {
@@ -362,36 +363,44 @@ class _SwapFormState extends State<SwapForm>
       ];
       final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
-            module: 'dex',
-            call:
-                _swapMode == 0 ? 'swapWithExactSupply' : 'swapWithExactTarget',
-            txTitle: dic['dex.title'],
-            txDisplayBold: {
-              dic['dex.pay']!: Text(
-                '$pay ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0]).symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-              dic['dex.receive']!: Text(
-                '$receive ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1]).symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-            },
-            params: params,
-            isPlugin: true,
-          ));
+              module: 'dex',
+              call: _swapMode == 0
+                  ? 'swapWithExactSupply'
+                  : 'swapWithExactTarget',
+              txTitle: dic['dex.title'],
+              txDisplayBold: {
+                dic['dex.pay']!: Text(
+                  '$pay ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[0]).symbol)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
+                ),
+                dic['dex.receive']!: Text(
+                  '$receive ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapPair[1]).symbol)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1
+                      ?.copyWith(color: Colors.white),
+                ),
+              },
+              params: params,
+              isPlugin: true,
+              onStatusChange: (status) {
+                if (status ==
+                    I18n.of(context)!
+                        .getDic(i18n_full_dic_ui, 'common')!['tx.Ready']) {
+                  setState(() {
+                    _amountReceiveCtrl.text = "";
+                    _amountPayCtrl.text = "";
+                    _detailShow = false;
+                    _error = null;
+                    _errorReceive = null;
+                  });
+                }
+              }));
       if (res != null) {
         widget.plugin.updateBalances(widget.keyring.current);
-        setState(() {
-          _amountReceiveCtrl.text = "";
-          _amountPayCtrl.text = "";
-          _detailShow = false;
-        });
       }
     }
   }

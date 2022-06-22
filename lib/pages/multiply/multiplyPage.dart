@@ -14,6 +14,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
@@ -94,7 +95,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
             title: Text(dicCommon!['multiply.title']!),
             actions: [
               Container(
-                margin: EdgeInsets.only(right: 16),
+                margin: EdgeInsets.only(right: 12),
                 child: PluginIconButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamed(MultiplyHistoryPage.route),
@@ -104,7 +105,8 @@ class _MultiplyPageState extends State<MultiplyPage> {
                     color: Color(0xFF17161F),
                   ),
                 ),
-              )
+              ),
+              PluginAccountInfoAction(widget.keyring)
             ],
           ),
           body: Container(

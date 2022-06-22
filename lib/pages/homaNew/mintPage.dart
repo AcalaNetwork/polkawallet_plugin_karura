@@ -238,12 +238,13 @@ class _MintPageState extends State<MintPage> {
         final minStake = widget.plugin.store!.homa.env?.mintThreshold;
 
         bool isRewardsOpen = false;
+        final baseApr = 22.44;
         double rewardApr = 0;
         final rewards =
             widget.plugin.store!.earn.incentives.loans?['L$stakeToken'];
         if ((rewards ?? []).length > 0) {
           rewards?.forEach((e) {
-            if (e.tokenNameId == karura_stable_coin && (e.amount ?? 0) > 0) {
+            if ((e.amount ?? 0) > 0) {
               isRewardsOpen = true;
               rewardApr = e.apr ?? 0;
             }
@@ -364,11 +365,11 @@ class _MintPageState extends State<MintPage> {
                                         UnStakeTypeItemWidget(
                                           title: dic['v3.homa.stake.more']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} ${(19.92 + rewardApr * 100).toStringAsFixed(2)}%",
+                                              "${dic['v3.homa.stake.apy.total']!} ${(baseApr + rewardApr * 100).toStringAsFixed(2)}%",
                                           subtitle: Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} 19.92% + ${dic['v3.homa.stake.apy.reward']} ${(rewardApr * 100).toStringAsFixed(2)}%)',
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}% + ${dic['v3.homa.stake.apy.reward']} ${(rewardApr * 100).toStringAsFixed(2)}%)',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6
@@ -390,11 +391,11 @@ class _MintPageState extends State<MintPage> {
                                         UnStakeTypeItemWidget(
                                           title: dic['v3.homa.stake']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} 19.92%",
+                                              "${dic['v3.homa.stake.apy.total']!} ${baseApr.toStringAsFixed(2)}%",
                                           subtitle: Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} 19.92%)',
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%)',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6

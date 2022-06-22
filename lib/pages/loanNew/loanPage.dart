@@ -23,6 +23,7 @@ import 'package:polkawallet_ui/components/circularProgressBar.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
@@ -240,7 +241,7 @@ class _LoanPageState extends State<LoanPage> {
             title: Text(dic!['loan.title']!),
             actions: [
               Container(
-                margin: EdgeInsets.only(right: 16),
+                margin: EdgeInsets.only(right: 12),
                 child: PluginIconButton(
                   onPressed: () =>
                       Navigator.of(context).pushNamed(LoanHistoryPage.route),
@@ -250,7 +251,8 @@ class _LoanPageState extends State<LoanPage> {
                     color: Color(0xFF17161F),
                   ),
                 ),
-              )
+              ),
+              PluginAccountInfoAction(widget.keyring)
             ],
           ),
           body: Container(
