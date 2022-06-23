@@ -89,7 +89,8 @@ class _RedeemPageState extends State<RedeemPage> {
       ]);
 
       setState(() {
-        _fastReceiveAmount = data[0]!['receive'];
+        _fastReceiveAmount =
+            data[0]!['canTryFastRedeem'] ? data[0]!['receive'] : 0;
         _receiveAmount = data[1]!['receive'];
         if (data[0]!['receive'] == 0) {
           _selectIndex = 1;
@@ -391,7 +392,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                 UnStakeTypeItemWidget(
                                   title: dic['homa.fast']!,
                                   value:
-                                      "$_fastReceiveAmount $relay_chain_token_symbol",
+                                      "${Fmt.priceFloor(_fastReceiveAmount.toDouble(), lengthMax: 4)} $relay_chain_token_symbol",
                                   describe: dic['homa.fast.describe']!,
                                   isSelect: _selectIndex == 0,
                                   ontap: () {
@@ -403,7 +404,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                 UnStakeTypeItemWidget(
                                   title: dic['dex.swap']!,
                                   value:
-                                      "$_swapAmount $relay_chain_token_symbol",
+                                      "${Fmt.priceFloor(_swapAmount.toDouble(), lengthMax: 4)} $relay_chain_token_symbol",
                                   margin: EdgeInsets.symmetric(vertical: 14),
                                   describe: dic['dex.swap.describe']!,
                                   isSelect: _selectIndex == 1,
@@ -416,7 +417,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                 UnStakeTypeItemWidget(
                                   title: dic['v3.homa.unbond']!,
                                   value:
-                                      "$_receiveAmount $relay_chain_token_symbol",
+                                      "${Fmt.priceFloor(_receiveAmount.toDouble(), lengthMax: 4)} $relay_chain_token_symbol",
                                   describe: dic['v3.homa.unbond.describe']!,
                                   isSelect: _selectIndex == 2,
                                   ontap: () {
