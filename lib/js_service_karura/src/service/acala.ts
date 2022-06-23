@@ -585,7 +585,7 @@ function _calcLoanAssets(api: ApiPromise, allTokens: any[], loanTypes: any[], lo
       karura_stable_coin,
       0 -
         FPNum(e.debit, _getTokenDecimal(allTokens, karura_stable_coin))
-          .times(FPNum(loanTypes.find((t) => t.currency == e.currency).debitExchangeRate))
+          .times(FPNum(loanTypes.find((t) => t.currency.toString() == e.currency.toString()).debitExchangeRate))
           .toNumber()
     );
 
@@ -767,7 +767,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
             if (ratio === "0") {
               loyalty.push({
                 blockNumber,
-                pool: api.createType("ModuleIncentivesPoolId", item[0]),
+                pool: item[0],
               });
             }
           });
@@ -785,7 +785,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
             if (amount === "0") {
               result.push({
                 blockNumber,
-                pool: api.createType("ModuleIncentivesPoolId", item[0]),
+                pool: item[0],
               });
             }
           });
