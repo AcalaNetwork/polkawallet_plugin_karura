@@ -342,7 +342,7 @@ class _HomaPageState extends State<HomaPage> {
                       alignment: Alignment.topRight,
                       child: Container(
                           margin: EdgeInsets.only(
-                              top: riveTop + riveHeight * 0.185,
+                              top: riveTop + riveHeight * 0.18,
                               right: paddingHorizontal +
                                   riveWidget * 0.19 -
                                   PluginFmt.boundingTextSize(
