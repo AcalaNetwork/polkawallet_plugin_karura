@@ -56,7 +56,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   TokenBalanceData? _token;
   String _chainFrom = plugin_name_karura;
   String? _chainTo;
-  bool _accountToEditable = false;
+  bool _accountToFocus = false;
   bool _keepAlive = true;
 
   Map _accountSysInfo = {};
@@ -216,45 +216,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
 
     setState(() {
       _connecting = false;
-    });
-  }
-
-  Future<void> _onSwitchEditable(bool v) async {
-    if (v) {
-      final confirm = await showCupertinoDialog(
-          context: context,
-          builder: (_) {
-            final dic =
-                I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-            final dicCommon =
-                I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
-            return PolkawalletAlertDialog(
-              type: DialogType.warn,
-              title: Text(dic['cross.warn']!),
-              content: Text(dic['cross.warn.info']!),
-              actions: [
-                PolkawalletActionSheetAction(
-                    child: Text(dicCommon['cancel']!),
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    }),
-                PolkawalletActionSheetAction(
-                    isDefaultAction: true,
-                    child: Text(dicCommon['ok']!),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    }),
-              ],
-            );
-          });
-      if (!confirm) return;
-    }
-    setState(() {
-      _accountToEditable = v;
-      if (!v) {
-        _accountTo = widget.keyring.current;
-        _accountToError = null;
-      }
     });
   }
 
@@ -425,6 +386,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   @override
   void initState() {
     super.initState();
+    _accountTo = widget.keyring.current;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
@@ -442,7 +404,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       setState(() {
         _token = token;
         _accountOptions = widget.keyring.allWithContacts.toList();
-        _accountTo = widget.keyring.current;
 
         if (args.chainTo == null) {
           _chainTo = tokenXcmConfig[0];
@@ -623,21 +584,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 padding: EdgeInsets.only(top: 3),
                 child: AddressFormItem(widget.keyring.current)),
             Container(height: 8.h),
-            Visibility(
-                visible: !_accountToEditable && !isToMoonRiver,
-                child: Text(dic['address'] ?? '', style: labelStyle)),
-            Visibility(
-                visible: !_accountToEditable && !isToMoonRiver,
-                child: Padding(
-                    padding: EdgeInsets.only(top: 3),
-                    child: AddressFormItem(widget.keyring.current))),
             Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Visibility(
-                    visible: _accountToEditable,
+                    visible: !isToMoonRiver,
                     child: AddressTextFormField(
                       widget.plugin.sdk.api,
                       _accountOptions,
@@ -653,62 +606,59 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                         });
                       },
                       key: ValueKey<KeyPairData?>(_accountTo),
+                      isClean: true,
+                      onFocusChange: (hasFocus) {
+                        setState(() {
+                          _accountToFocus = hasFocus;
+                        });
+                      },
                     ),
                   ),
                   Visibility(
-                      visible: _accountToError != null,
+                      visible: !isToMoonRiver &&
+                          (_accountToFocus ||
+                              _accountTo?.pubKey !=
+                                  widget.keyring.current.pubKey),
+                      child: Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Text(dicAcala['cross.warn.info']!,
+                            style: TextStyle(
+                                fontSize: UI.getTextSize(12, context),
+                                color: Theme.of(context).errorColor)),
+                      )),
+                  Visibility(
+                      visible: !isToMoonRiver && _accountToError != null,
                       child: Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Text(_accountToError ?? "",
                             style: TextStyle(
                                 fontSize: UI.getTextSize(12, context),
-                                color: Colors.red)),
+                                color: Theme.of(context).errorColor)),
                       )),
-                  isToMoonRiver
-                      ? v3.TextInputWidget(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: v3.InputDecorationV3(
-                            hintText: dic['address'],
-                            labelText: dic['address'],
-                            labelStyle: labelStyle,
-                            suffix: GestureDetector(
-                              child: Icon(
-                                Icons.cancel,
-                                size: 18,
-                                color: Theme.of(context).unselectedWidgetColor,
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _address20Ctrl.text = '';
-                                });
-                              },
+                  Visibility(
+                      visible: isToMoonRiver,
+                      child: v3.TextInputWidget(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: v3.InputDecorationV3(
+                          hintText: dic['address'],
+                          labelText: dic['address'],
+                          labelStyle: labelStyle,
+                          suffix: GestureDetector(
+                            child: Icon(
+                              Icons.cancel,
+                              size: 18,
+                              color: Theme.of(context).unselectedWidgetColor,
                             ),
+                            onTap: () {
+                              setState(() {
+                                _address20Ctrl.text = '';
+                              });
+                            },
                           ),
-                          controller: _address20Ctrl,
-                          validator: _validateAddress20,
-                        )
-                      : GestureDetector(
-                          child: Container(
-                            child: Row(
-                              children: [
-                                v3.Checkbox(
-                                  padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
-                                  value: _accountToEditable,
-                                  onChanged: _onSwitchEditable,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    dicAcala['cross.edit']!,
-                                    style: TextStyle(
-                                        fontSize: UI.getTextSize(14, context)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () => _onSwitchEditable(!_accountToEditable),
                         ),
+                        controller: _address20Ctrl,
+                        validator: _validateAddress20,
+                      )),
                   Container(height: 10.h),
                   v3.TextInputWidget(
                     autovalidateMode: AutovalidateMode.onUserInteraction,
