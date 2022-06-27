@@ -577,7 +577,9 @@ class _SwapFormState extends State<SwapForm>
                       inputCtrl: _amountPayCtrl,
                       tokenOptions: currencyOptionsLeft,
                       tokenSelectTitle: dic['v3.swap.selectToken']!,
-                      marketPrices: widget.plugin.store!.assets.marketPrices,
+                      getMarketPrice: (tokenSymbol) =>
+                          AssetsUtils.getMarketPrice(
+                              widget.plugin, tokenSymbol),
                       onInputChange: _onSupplyAmountChange,
                       onTokenChange: (token) {
                         setState(() {
@@ -606,7 +608,9 @@ class _SwapFormState extends State<SwapForm>
                       inputCtrl: _amountReceiveCtrl,
                       tokenOptions: currencyOptionsRight,
                       tokenSelectTitle: dic['v3.swap.selectToken']!,
-                      marketPrices: widget.plugin.store!.assets.marketPrices,
+                      getMarketPrice: (tokenSymbol) =>
+                          AssetsUtils.getMarketPrice(
+                              widget.plugin, tokenSymbol),
                       onInputChange: _onTargetAmountChange,
                       onTokenChange: (token) {
                         setState(() {

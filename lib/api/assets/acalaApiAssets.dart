@@ -1,6 +1,7 @@
 import 'package:polkawallet_plugin_karura/api/assets/acalaServiceAssets.dart';
 import 'package:polkawallet_plugin_karura/api/types/nftData.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/tokenDetailPage.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
@@ -85,7 +86,7 @@ class AcalaApiAssets {
           amount: e['balance']['free'].toString(),
           locked: e['balance']['frozen'].toString(),
           reserved: e['balance']['reserved'].toString(),
-          price: service.plugin.store!.assets.marketPrices[e['symbol']],
+          price: AssetsUtils.getMarketPrice(service.plugin, e['symbol']),
           detailPageRoute: TokenDetailPage.route,
         );
       }).toList());

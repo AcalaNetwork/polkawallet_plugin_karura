@@ -274,7 +274,8 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               titleTag: dic['loan.collateral'],
               balance: token,
               tokenIconsMap: widget.plugin.tokenIcons,
-              marketPrices: widget.plugin.store!.assets.marketPrices,
+              getMarketPrice: (tokenSymbol) =>
+                  AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
             ),
             PluginTextTag(
               title: dic['loan.multiply.adjustYourMultiply']!,

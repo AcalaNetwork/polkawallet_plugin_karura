@@ -482,8 +482,9 @@ class _LPStakePage extends State<LPStakePage> {
                           },
                           inputCtrl: _amountLeftCtrl,
                           onInputChange: (v) => _onSupplyAmountChange(v),
-                          marketPrices:
-                              widget.plugin.store!.assets.marketPrices,
+                          getMarketPrice: (tokenSymbol) =>
+                              AssetsUtils.getMarketPrice(
+                                  widget.plugin, tokenSymbol),
                           onSetMax: tokenPair[0]!.symbol == acala_token_ids[0]
                               ? null
                               : (v) => _onSetLeftMax(
@@ -509,8 +510,9 @@ class _LPStakePage extends State<LPStakePage> {
                           },
                           inputCtrl: _amountRightCtrl,
                           onInputChange: (v) => _onTargetAmountChange(v),
-                          marketPrices:
-                              widget.plugin.store!.assets.marketPrices,
+                          getMarketPrice: (tokenSymbol) =>
+                              AssetsUtils.getMarketPrice(
+                                  widget.plugin, tokenSymbol),
                           onSetMax: tokenPair[1]!.symbol == acala_token_ids[0]
                               ? null
                               : (v) => _onSetRightMax(

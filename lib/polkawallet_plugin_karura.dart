@@ -67,7 +67,7 @@ class PluginKarura extends PolkawalletPlugin {
           isTestNet: name != plugin_name_karura,
           isXCMSupport: name == plugin_name_karura,
           parachainId: '2000',
-          jsCodeVersion: 32901,
+          jsCodeVersion: 33001,
         );
 
   @override
@@ -155,13 +155,9 @@ class PluginKarura extends PolkawalletPlugin {
           onSwitchHideBalance,
           hideBalance: hideBalance,
         );
-      final Map<String?, double> marketPrices = Map<String?, double>();
-      store!.assets.marketPrices.forEach((key, value) {
-        marketPrices[key] = value * rate;
-      });
 
       final data = AssetsUtils.aggregatedAssetsDataFromJson(
-          store!.assets.aggregatedAssets!, balances, marketPrices);
+          this, store!.assets.aggregatedAssets!, balances);
       // // data.forEach((element) => print(element));
       // final total = data.map((e) => e.value).reduce((a, b) => a + b);
       // return Text('total: ${hideBalance ? '***' : total}');

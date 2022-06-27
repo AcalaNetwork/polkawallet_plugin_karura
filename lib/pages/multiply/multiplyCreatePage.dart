@@ -335,7 +335,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       _onAmount1Change(v, loanType, available, balancePair),
                   balance: token,
                   tokenIconsMap: widget.plugin.tokenIcons,
-                  marketPrices: widget.plugin.store!.assets.marketPrices,
+                  getMarketPrice: (tokenSymbol) =>
+                      AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
                   onClear: () {
                     setState(() {
                       _amountCtrl.text = '';
