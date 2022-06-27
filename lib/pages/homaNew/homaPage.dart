@@ -65,7 +65,7 @@ class _HomaPageState extends State<HomaPage> {
           title: Text(dic['homa.confirm']!),
           content: Text(dic['homa.redeem.hint']!),
           actions: <Widget>[
-            CupertinoButton(
+            PolkawalletActionSheetAction(
               child: Text(
                 dic['homa.redeem.cancel']!,
                 style: TextStyle(
@@ -76,7 +76,8 @@ class _HomaPageState extends State<HomaPage> {
                 Navigator.of(context).pop();
               },
             ),
-            CupertinoButton(
+            PolkawalletActionSheetAction(
+              isDefaultAction: true,
               child: Text(dic['homa.confirm']!),
               onPressed: () {
                 Navigator.of(context).pop();

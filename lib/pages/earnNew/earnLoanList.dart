@@ -183,11 +183,12 @@ class CollateralIncentiveList extends StatelessWidget {
                     : TextSpan(),
               ])),
               actions: <Widget>[
-                CupertinoDialogAction(
+                PolkawalletActionSheetAction(
                   child: Text(dic['homa.redeem.cancel']!),
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
-                CupertinoDialogAction(
+                PolkawalletActionSheetAction(
+                  isDefaultAction: true,
                   child: Text(dic['homa.confirm']!),
                   onPressed: () => Navigator.of(context).pop(true),
                 )

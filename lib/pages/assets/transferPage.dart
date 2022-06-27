@@ -163,12 +163,13 @@ class _TransferPageState extends State<TransferPage> {
             title: Text(dic['note']!),
             content: Text(dic['transfer.note.msg1']!),
             actions: <Widget>[
-              CupertinoButton(
+              PolkawalletActionSheetAction(
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['cancel']!),
                 onPressed: () => Navigator.of(context).pop(),
               ),
-              CupertinoButton(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                 onPressed: () {
@@ -182,7 +183,7 @@ class _TransferPageState extends State<TransferPage> {
                           title: Text(dic['note']!),
                           content: Text(dic['transfer.note.msg2']!),
                           actions: <Widget>[
-                            CupertinoButton(
+                            PolkawalletActionSheetAction(
                               child: Text(I18n.of(context)!
                                   .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                               onPressed: () => Navigator.of(context).pop(),

@@ -83,11 +83,12 @@ class _LoanPageState extends State<LoanPage> {
           return PolkawalletAlertDialog(
             content: Text(message),
             actions: <Widget>[
-              CupertinoDialogAction(
+              PolkawalletActionSheetAction(
                 child: Text(dic['loan.warn.back']!),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
-              CupertinoDialogAction(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_karura, 'common')!['ok']!),
                 onPressed: () => Navigator.of(context).pop(true),
@@ -147,11 +148,12 @@ class _LoanPageState extends State<LoanPage> {
                   ],
                 ),
                 actions: <Widget>[
-                  CupertinoButton(
+                  PolkawalletActionSheetAction(
                     child: Text(dicCommon!['cancel']!),
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
-                  CupertinoButton(
+                  PolkawalletActionSheetAction(
+                    isDefaultAction: true,
                     child: Text(dicCommon['ok']!),
                     onPressed: () => Navigator.of(context).pop(true),
                   ),

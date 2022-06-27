@@ -13,7 +13,7 @@ class UIUtils {
             title: Text(action),
             content: Text(dic!['action.disable']!),
             actions: [
-              CupertinoButton(
+              PolkawalletActionSheetAction(
                 child: Text(dic['cancel']!),
                 onPressed: () {
                   Navigator.of(context).pop();

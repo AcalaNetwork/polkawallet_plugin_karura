@@ -233,12 +233,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
               title: Text(dic['cross.warn']!),
               content: Text(dic['cross.warn.info']!),
               actions: [
-                CupertinoButton(
+                PolkawalletActionSheetAction(
                     child: Text(dicCommon['cancel']!),
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     }),
-                CupertinoButton(
+                PolkawalletActionSheetAction(
+                    isDefaultAction: true,
                     child: Text(dicCommon['ok']!),
                     onPressed: () {
                       Navigator.of(context).pop(true);
@@ -269,12 +270,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
             title: Text(dic['note']!),
             content: Text(dic['transfer.note.msg1']!),
             actions: <Widget>[
-              CupertinoButton(
+              PolkawalletActionSheetAction(
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['cancel']!),
                 onPressed: () => Navigator.of(context).pop(),
               ),
-              CupertinoButton(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                 onPressed: () {
@@ -288,7 +290,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                           title: Text(dic['note']!),
                           content: Text(dic['transfer.note.msg2']!),
                           actions: <Widget>[
-                            CupertinoButton(
+                            PolkawalletActionSheetAction(
                               child: Text(I18n.of(context)!
                                   .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                               onPressed: () => Navigator.of(context).pop(),

@@ -59,7 +59,7 @@ class DefiWidget extends StatelessWidget {
                       title: Text(dic['upgrading']!),
                       content: Text(dic['upgrading.context']!),
                       actions: <Widget>[
-                        CupertinoDialogAction(
+                        PolkawalletActionSheetAction(
                           child: Text(dic['upgrading.btn']!),
                           onPressed: () {
                             Navigator.of(context).pop();

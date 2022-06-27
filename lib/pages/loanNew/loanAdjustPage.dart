@@ -761,7 +761,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
             return PolkawalletAlertDialog(
               content: Text(dic!['v3.loan.paybackMessage']!),
               actions: <Widget>[
-                CupertinoDialogAction(
+                PolkawalletActionSheetAction(
                   child: Text(dic['v3.loan.iUnderstand']!),
                   onPressed: () => Navigator.of(context).pop(false),
                 )
@@ -790,7 +790,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 content: Text(
                     "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min']} ${Fmt.priceFloorBigInt(Fmt.balanceInt(loan.token!.minBalance) * BigInt.from(100), loan.token!.decimals!, lengthFixed: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}"),
                 actions: <Widget>[
-                  CupertinoDialogAction(
+                  PolkawalletActionSheetAction(
                     child: Text(I18n.of(context)!.getDic(
                         i18n_full_dic_karura, 'common')!['upgrading.btn']!),
                     onPressed: () => Navigator.of(context).pop(false),
@@ -825,7 +825,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                   content: Text(
                       "${dic!['v3.loan.errorMessage5']}$minimumDebitValue${dic['v3.loan.errorMessage6']}"),
                   actions: <Widget>[
-                    CupertinoDialogAction(
+                    PolkawalletActionSheetAction(
                       child: Text(I18n.of(context)!.getDic(
                           i18n_full_dic_karura, 'common')!['upgrading.btn']!),
                       onPressed: () => Navigator.of(context).pop(false),
@@ -900,11 +900,12 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           return PolkawalletAlertDialog(
             content: Text(message),
             actions: <Widget>[
-              CupertinoDialogAction(
+              PolkawalletActionSheetAction(
                 child: Text(dic['loan.warn.back']!),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
-              CupertinoDialogAction(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_karura, 'common')!['ok']!),
                 onPressed: () => Navigator.of(context).pop(true),

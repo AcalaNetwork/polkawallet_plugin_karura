@@ -537,11 +537,12 @@ class _UserCard extends StatelessWidget {
                     : TextSpan(),
               ])),
               actions: <Widget>[
-                CupertinoDialogAction(
+                PolkawalletActionSheetAction(
                   child: Text(dic['homa.redeem.cancel']!),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                CupertinoDialogAction(
+                PolkawalletActionSheetAction(
+                  isDefaultAction: true,
                   child: Text(dic['homa.confirm']!),
                   onPressed: () {
                     Navigator.of(context).pop();
