@@ -13,6 +13,7 @@ import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
@@ -53,15 +54,6 @@ class _EarnDexListState extends State<EarnDexList> {
         _fetchData();
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchData();
-    });
   }
 
   @override
@@ -254,6 +246,10 @@ class _EarnDexListState extends State<EarnDexList> {
       }
       return Column(
         children: [
+          ConnectionChecker(
+            widget.plugin,
+            onConnected: _fetchData,
+          ),
           Container(
               margin: EdgeInsets.only(left: 16, right: 16, bottom: 14, top: 5),
               padding: EdgeInsets.only(left: 8, top: 4, bottom: 5, right: 8),
