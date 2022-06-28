@@ -105,13 +105,8 @@ class _LoanPageState extends State<LoanPage> {
       null,
       debit.toStringAsFixed(2),
       [
-        {...collateral.currencyId!, 'decimals': collateral.decimals},
-        {
-          'Token': karura_stable_coin,
-          'decimals': AssetsUtils.getBalanceFromTokenNameId(
-                  widget.plugin, karura_stable_coin)
-              .decimals
-        }
+        collateral.tokenNameId!,
+        karura_stable_coin,
       ],
       '0.01',
     );

@@ -69,13 +69,10 @@ class ServiceAssets {
         (e?.symbol ?? '').toLowerCase().contains('tai'));
 
     final output = await plugin.sdk.webView?.evalJavascript(
-        'Promise.all([${tokens.map((e) => 'acala.calcTokenSwapAmount(api, 1, null, ${jsonEncode([
-              e?.tokenNameId,
-              karura_stable_coin
-            ].map((e) {
-              final token = AssetsUtils.getBalanceFromTokenNameId(plugin, e);
-              return {...token.currencyId!, 'decimals': token.decimals};
-            }).toList())}, "0.05")').join(',')}])');
+        'Promise.all([${tokens.map((e) => 'acala.calcTokenSwapAmount(apiRx, 1, null, ${jsonEncode([
+                  e?.tokenNameId,
+                  karura_stable_coin
+                ])}, "0.05")').join(',')}])');
 
     final Map<String, double> prices = {};
     output.asMap().forEach((k, v) {

@@ -105,8 +105,8 @@ class _RedeemPageState extends State<RedeemPage> {
           input.toString(),
           null,
           [
-            {...lToken.currencyId!, 'decimals': lToken.decimals},
-            {...token.currencyId!, 'decimals': token.decimals},
+            lToken.tokenNameId!,
+            token.tokenNameId!,
           ],
           '0.1');
       setState(() {

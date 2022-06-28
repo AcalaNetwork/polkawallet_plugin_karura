@@ -10,7 +10,7 @@ class AcalaApiSwap {
   Future<SwapOutputData> queryTokenSwapAmount(
     String? supplyAmount,
     String? targetAmount,
-    List<Map> swapPair,
+    List<String?> swapPair,
     String slippage,
   ) async {
     final output = await (service.queryTokenSwapAmount(

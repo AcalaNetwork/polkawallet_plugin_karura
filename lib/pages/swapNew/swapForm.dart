@@ -212,11 +212,7 @@ class _SwapFormState extends State<SwapForm>
         final output = await widget.plugin.api!.swap.queryTokenSwapAmount(
           supply,
           target.isEmpty ? '1' : target,
-          _swapPair.map((e) {
-            final token =
-                AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-            return {...token.currencyId!, 'decimals': token.decimals};
-          }).toList(),
+          _swapPair,
           _slippage.toString(),
         );
         if (mounted) {
@@ -240,11 +236,7 @@ class _SwapFormState extends State<SwapForm>
         final output = await widget.plugin.api!.swap.queryTokenSwapAmount(
           supply.isEmpty ? '1' : supply,
           target,
-          _swapPair.map((e) {
-            final token =
-                AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-            return {...token.currencyId!, 'decimals': token.decimals};
-          }).toList(),
+          _swapPair,
           _slippage.toString(),
         );
         if (mounted) {
@@ -352,11 +344,11 @@ class _SwapFormState extends State<SwapForm>
       }
 
       final params = [
-        _swapOutput.path!
-            .map((e) =>
-                AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e['name'])
-                    .currencyId)
-            .toList(),
+        // _swapOutput.path!
+        //     .map((e) =>
+        //         AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e['name'])
+        //             .currencyId)
+        //     .toList(),
         input.toString(),
         Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0]!)
             .toString(),
@@ -891,7 +883,8 @@ class _SwapFormState extends State<SwapForm>
                               child:
                                   Text(dic['dex.impact']!, style: labelStyle),
                             ),
-                            Text('<${Fmt.ratio(_swapOutput.priceImpact ?? 0)}',
+                            Text(
+                                '<${_swapOutput.priceImpact?.map((e) => Fmt.ratio(e)).toString()}',
                                 style: labelStyle),
                           ],
                         ),
@@ -921,13 +914,13 @@ class _SwapFormState extends State<SwapForm>
                                       Text(dic['dex.fee']!, style: labelStyle),
                                 ),
                                 Text(
-                                    '${_swapOutput.fee} ${PluginFmt.tokenView(swapPair.length > 1 ? balancePair[0].symbol : '')}',
+                                    '${_swapOutput.fee?.map((e) => e).toString()} ${_swapOutput.feeToken?.map((e) => PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e).symbol)).toString()}',
                                     style: labelStyle),
                               ],
                             ),
                           )),
                       Visibility(
-                          visible: (_swapOutput.path?.length ?? 0) > 2,
+                          visible: (_swapOutput.path?.length ?? 0) > 0,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -938,12 +931,13 @@ class _SwapFormState extends State<SwapForm>
                               Text(
                                   _swapOutput.path != null
                                       ? _swapOutput.path!
-                                          .map((i) => PluginFmt.tokenView(
-                                              AssetsUtils
-                                                      .getBalanceFromTokenNameId(
-                                                          widget.plugin,
-                                                          i['name'])
-                                                  .symbol))
+                                          .map((i) => i.path!
+                                              .map((e) => PluginFmt.tokenView(
+                                                  AssetsUtils
+                                                          .getBalanceFromTokenNameId(
+                                                              widget.plugin, e)
+                                                      .symbol))
+                                              .toString())
                                           .toList()
                                           .join(' > ')
                                       : "",

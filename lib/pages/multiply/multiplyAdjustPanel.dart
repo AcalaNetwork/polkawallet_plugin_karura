@@ -143,28 +143,16 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   }
 
   Future<void> _updateDexBuyingPrice() async {
-    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
-        null,
-        '1',
-        [karura_stable_coin, widget.loanType.token!.tokenNameId!].map((e) {
-          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-          return {...token.currencyId!, 'decimals': token.decimals};
-        }).toList(),
-        '0.05');
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(null, '1',
+        [karura_stable_coin, widget.loanType.token!.tokenNameId!], '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
   }
 
   Future<void> _updateDexSellingPrice() async {
-    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
-        '1',
-        null,
-        [widget.loanType.token!.tokenNameId!, karura_stable_coin].map((e) {
-          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-          return {...token.currencyId!, 'decimals': token.decimals};
-        }).toList(),
-        '0.05');
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount('1', null,
+        [widget.loanType.token!.tokenNameId!, karura_stable_coin], '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });

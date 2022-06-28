@@ -11,11 +11,11 @@ class AcalaServiceSwap {
   Future<Map?> queryTokenSwapAmount(
     String? supplyAmount,
     String? targetAmount,
-    List<Map> swapPair,
+    List<String?> swapPair,
     String slippage,
   ) async {
     final code =
-        'acala.calcTokenSwapAmount(api, $supplyAmount, $targetAmount, ${jsonEncode(swapPair)}, $slippage)';
+        'acala.calcTokenSwapAmount(apiRx, $supplyAmount, $targetAmount, ${jsonEncode(swapPair)}, $slippage)';
     final output = await plugin.sdk.webView!.evalJavascript(code);
     return output;
   }
