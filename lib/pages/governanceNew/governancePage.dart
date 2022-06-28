@@ -138,15 +138,6 @@ class _GovernancePageState extends State<GovernancePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState!.show();
-    });
-  }
-
-  @override
   void dispose() {
     widget.plugin.service!.gov.unsubscribeBestNumber();
 
