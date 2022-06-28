@@ -1,6 +1,5 @@
 import { createDexShareName, FixedPointNumber, forceToCurrencyId, forceToCurrencyName, Token } from "@acala-network/sdk-core";
 import { AcalaDex, AggregateDex, NutsDex } from "@acala-network/sdk/dex";
-import { AggregateDexSwapResult } from "@acala-network/sdk/dex/types";
 import { ApiPromise, ApiRx } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
 import { nft_image_config } from "../constants/acala";
@@ -21,14 +20,6 @@ const native_token_list = [native_token, "KSM", "LKSM", "KUSD"];
 let ACA_SYS_BLOCK_TIME = new BN(12000);
 
 let homa: Homa;
-
-function _computeExchangeFee(path: Token[], fee: FixedPointNumber) {
-  return ONE.minus(
-    path.slice(1).reduce((acc) => {
-      return acc.times(ONE.minus(fee));
-    }, ONE)
-  );
-}
 
 function _getTokenDecimal(allTokens: any[], tokenNameId: string): number {
   if (tokenNameId == native_token) return 12;
@@ -52,7 +43,6 @@ function _getTokenSymbol(allTokens: any[], tokenNameId: string): string {
 // _fetchBlockDuration();
 
 let swapper: AggregateDex;
-let swapResult: AggregateDexSwapResult;
 async function _initDexSDK(api: ApiRx) {
   const wallet = (<any>window).wallet;
   swapper = new AggregateDex({
@@ -91,16 +81,21 @@ async function calcTokenSwapAmount(apiRx: ApiRx, input: number, output: number, 
         .pipe(throttleTime(100))
     );
 
-    swapResult = result;
     const res = result.result;
     const path = result.tracker;
     if (res.input) {
+      const tx = swapper.getTradingTx(result);
       return {
         amount: output === null ? res.output.amount.toNumber(6) : res.input.amount.toNumber(6),
         priceImpact: path.map((e) => e.naturalPriceImpact.toNumber(6)),
         fee: path.map((e) => e.exchangeFee.toNumber(6)),
         feeToken: path.map((e) => (e.source === "acala" ? e.input.token.name : e.output.token.name)),
         path: res.path.map((e) => ({ dex: e[0], path: e[1].map((i) => i.name) })),
+        tx: {
+          section: tx.method.section,
+          method: tx.method.method,
+          params: tx.args.map((e) => e.toJSON()),
+        },
       };
     }
     return { error: "dex error" };
