@@ -19,7 +19,8 @@ SwapOutputData _$SwapOutputDataFromJson(Map<String, dynamic> json) {
         ?.map((e) => (e as num).toDouble())
         .toList()
     ..feeToken =
-        (json['feeToken'] as List<dynamic>?)?.map((e) => e as String).toList();
+        (json['feeToken'] as List<dynamic>?)?.map((e) => e as String).toList()
+    ..tx = json['tx'] as Map<String, dynamic>?;
 }
 
 Map<String, dynamic> _$SwapOutputDataToJson(SwapOutputData instance) =>
@@ -29,6 +30,7 @@ Map<String, dynamic> _$SwapOutputDataToJson(SwapOutputData instance) =>
       'priceImpact': instance.priceImpact,
       'fee': instance.fee,
       'feeToken': instance.feeToken,
+      'tx': instance.tx,
     };
 
 PathData _$PathDataFromJson(Map<String, dynamic> json) {

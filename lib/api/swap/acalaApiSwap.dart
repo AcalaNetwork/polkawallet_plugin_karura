@@ -16,6 +16,7 @@ class AcalaApiSwap {
     final output = await (service.queryTokenSwapAmount(
             supplyAmount, targetAmount, swapPair, slippage)
         as Future<Map<dynamic, dynamic>>);
+    print("output=======$output");
     if (output != null && output['error'] != null) {
       throw new Exception(output['error']['message']);
     }

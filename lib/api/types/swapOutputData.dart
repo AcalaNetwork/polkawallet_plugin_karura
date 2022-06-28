@@ -14,6 +14,8 @@ abstract class _SwapOutputData {
   List<double>? priceImpact;
   List<double>? fee;
   List<String>? feeToken;
+  Map? tx;
+  //tx:{section: aggregatedDex, method: swapWithExactSupply, params: [[{taiga: [0, 0, 1]}, {dex: [{token: LKSM}, {token: KUSD}, {foreignAsset: 2}]}], 1000000000000, 0x000000000000029248175b6cd4ca32e3]}
 }
 
 @JsonSerializable()
