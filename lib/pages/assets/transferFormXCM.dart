@@ -554,10 +554,11 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
             .textTheme
             .headline4
             ?.copyWith(fontWeight: FontWeight.bold);
-        final subTitleStyle = Theme.of(context)
-            .textTheme
-            .headline6
-            ?.copyWith(height: 1, fontWeight: FontWeight.w300);
+        final subTitleStyle = Theme.of(context).textTheme.headline5?.copyWith(
+            height: 1,
+            fontWeight: FontWeight.w300,
+            fontSize: 12,
+            color: Color(0xBF565554));
         final infoValueStyle = Theme.of(context)
             .textTheme
             .headline5!
