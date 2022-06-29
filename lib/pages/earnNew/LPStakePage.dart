@@ -171,8 +171,8 @@ class _LPStakePage extends State<LPStakePage> {
 
       final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
-            module: amount == BigInt.zero ? 'incentives' : 'utility',
-            call: amount == BigInt.zero ? 'depositDexShare' : 'batch',
+            module: amount == BigInt.zero ? 'dex' : 'utility',
+            call: amount == BigInt.zero ? 'addLiquidity' : 'batch',
             txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol LP',
             txDisplay: {
               dic['earn.pool']: poolTokenSymbol,

@@ -458,7 +458,7 @@ class _tabBarState extends State<_tabBar> {
         children: [
           Expanded(
               child: Container(
-                  constraints: BoxConstraints(maxHeight: _isOpen ? 1000 : 32),
+                  constraints: BoxConstraints(maxHeight: _isOpen ? 1000 : 22),
                   child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
@@ -506,7 +506,7 @@ class _tabBarState extends State<_tabBar> {
                 });
               },
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: EdgeInsets.symmetric(horizontal: 6),
                 child: Transform.rotate(
                     angle: _isOpen ? -pi : 0,
                     child: Icon(Icons.arrow_drop_down,
