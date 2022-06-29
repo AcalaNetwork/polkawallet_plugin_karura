@@ -223,6 +223,7 @@ const Map<String, String> zhDex = {
   'v3.loan.canMint': '可铸造',
   'v3.loan.loanRatio': '借贷率',
   'v3.loan.submit': '提交',
+  'v3.loan.unavailable': '生成 aUSD 暂不可用',
   'v3.homa.minStakingAmount': '质押最小值',
   'v3.homa.minUnstakingAmount': '提取最小值',
   'homa.fast.describe': '系统会尽快进行提取，但有可能因为某些原因导致提取失败。如果快速提取失败，系统将不会收取快速提取费。',
