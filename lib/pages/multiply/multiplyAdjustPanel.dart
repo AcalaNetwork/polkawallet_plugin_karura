@@ -272,7 +272,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               inputCtrl: TextEditingController()..text = collateralView,
               margin: EdgeInsets.only(bottom: 25, top: 10),
               titleTag: dic['loan.collateral'],
-              balance: token,
+              balance: balancePair[0],
               tokenIconsMap: widget.plugin.tokenIcons,
               getMarketPrice: (tokenSymbol) =>
                   AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),

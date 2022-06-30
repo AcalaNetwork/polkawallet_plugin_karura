@@ -333,7 +333,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                   titleTag: dic['loan.collateral'],
                   onInputChange: (v) =>
                       _onAmount1Change(v, loanType, available, balancePair),
-                  balance: token,
+                  balance: balancePair[0],
                   tokenIconsMap: widget.plugin.tokenIcons,
                   getMarketPrice: (tokenSymbol) =>
                       AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
