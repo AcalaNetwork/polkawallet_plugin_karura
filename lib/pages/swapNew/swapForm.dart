@@ -46,6 +46,7 @@ class _SwapFormState extends State<SwapForm>
 
   String? _error;
   String? _errorReceive;
+  String? _interfaceError;
   double _slippage = 0.005;
   bool _slippageSettingVisible = false;
   String? _slippageError;
@@ -98,7 +99,7 @@ class _SwapFormState extends State<SwapForm>
   }
 
   bool _onCheckBalance() {
-    if (_error != null || _errorReceive != null) {
+    if (_interfaceError != null) {
       return false;
     }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
@@ -204,6 +205,7 @@ class _SwapFormState extends State<SwapForm>
 
   Future<void> _calcSwapAmount(String? supply, String? target) async {
     if (_swapPair.length < 2) return;
+    _interfaceError = null;
 
     widget.plugin.service!.assets.queryMarketPrices();
 
@@ -267,7 +269,7 @@ class _SwapFormState extends State<SwapForm>
       }
     } on Exception catch (err) {
       setState(() {
-        _error = err.toString().split(':')[1];
+        _interfaceError = err.toString().split(':')[1];
       });
     }
   }
@@ -653,7 +655,7 @@ class _SwapFormState extends State<SwapForm>
               ],
             ),
             ErrorMessage(
-              _error ?? _errorReceive,
+              _error ?? _errorReceive ?? _interfaceError,
               margin: EdgeInsets.symmetric(vertical: 2),
             ),
             Visibility(
