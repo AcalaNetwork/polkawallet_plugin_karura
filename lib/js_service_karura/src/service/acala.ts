@@ -7,7 +7,7 @@ import { BN } from "@polkadot/util/bn/bn";
 import { Homa, Wallet } from "@acala-network/sdk";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
-import { firstValueFrom, throttleTime } from "rxjs";
+import { firstValueFrom, throttleTime, take } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 import { BalanceData } from "@acala-network/sdk/wallet/type";
 
@@ -52,6 +52,25 @@ async function _initDexSDK(api: ApiRx) {
   });
 
   await swapper.isReady;
+}
+async function getSwapTokens(apiRx: ApiRx) {
+  if (!swapper) {
+    await _initDexSDK(apiRx);
+  }
+
+  const tokens = await firstValueFrom(swapper.tradableTokens$.pipe(take(1)));
+  return tokens.map((e) => {
+    return {
+      type: _getTokenType(e),
+      tokenNameId: e.name,
+      symbol: e.symbol === "aUSD" ? e.name : e.symbol,
+      id: Object.values(e.toChainData())[0].toString(),
+      src: e.locations,
+      currencyId: e.toChainData(),
+      decimals: e.decimals,
+      minBalance: e.ed.toChainData().toString(),
+    };
+  });
 }
 /**
  * calc token swap amount
@@ -816,6 +835,7 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
 }
 
 export default {
+  getSwapTokens,
   calcTokenSwapAmount,
   getAllTokens,
   getTokenBalance,
