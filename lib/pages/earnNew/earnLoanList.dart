@@ -12,6 +12,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
@@ -52,15 +53,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchData();
-    });
-  }
-
-  @override
   void dispose() {
     super.dispose();
     widget.plugin.service!.loan.unsubscribeAccountLoans();
@@ -78,6 +70,10 @@ class _EarnLoanListState extends State<EarnLoanList> {
             ? ListView(
                 padding: EdgeInsets.all(16),
                 children: [
+                  ConnectionChecker(
+                    widget.plugin,
+                    onConnected: _fetchData,
+                  ),
                   Center(
                     child: Container(
                       height: MediaQuery.of(context).size.width,

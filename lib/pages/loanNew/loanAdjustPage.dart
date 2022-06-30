@@ -13,6 +13,7 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
@@ -23,7 +24,6 @@ import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class LoanAdjustPage extends StatefulWidget {
   LoanAdjustPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -185,7 +185,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   Widget buildLastInputView() {
-    if (_editorLoan == null) {
+    if (_editorLoan == null ||
+        _loan?.type.maximumTotalDebitValue == BigInt.zero) {
       return Container();
     }
     var titleTag = '';

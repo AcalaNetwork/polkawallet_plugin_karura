@@ -22,6 +22,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/circularProgressBar.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
@@ -37,7 +38,6 @@ import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
-import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class LoanPage extends StatefulWidget {
   LoanPage(this.plugin, this.keyring);
@@ -446,6 +446,31 @@ class _LoanPageState extends State<LoanPage> {
                                         ],
                                       ),
                                       onTap: () async {
+                                        if (loan.type.maximumTotalDebitValue ==
+                                            BigInt.zero) {
+                                          showCupertinoDialog(
+                                              context: context,
+                                              builder: (_) {
+                                                return PolkawalletAlertDialog(
+                                                  content: Text(
+                                                      '${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.unavailable']}'),
+                                                  actions: [
+                                                    CupertinoButton(
+                                                        child: Text(I18n.of(
+                                                                    context)!
+                                                                .getDic(
+                                                                    i18n_full_dic_karura,
+                                                                    'common')![
+                                                            'cancel']!),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop())
+                                                  ],
+                                                );
+                                              });
+                                          return;
+                                        }
                                         final res = await Navigator.of(context)
                                             .pushNamed(LoanAdjustPage.route,
                                                 arguments: {

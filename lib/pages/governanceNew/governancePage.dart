@@ -12,6 +12,7 @@ import 'package:polkawallet_sdk/api/types/gov/referendumInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/addressIcon.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
@@ -116,6 +117,11 @@ class _GovernancePageState extends State<GovernancePage> {
   }
 
   Future<void> _freshData() async {
+    if (widget.plugin.sdk.api.connectedNode != null) {
+      widget.plugin.service!.gov.unsubscribeBestNumber();
+      widget.plugin.service!.gov.subscribeBestNumber();
+    }
+
     await _queryDemocracyLocks();
     if (_tabIndex == 0) {
       await _fetchReferendums();
@@ -129,18 +135,6 @@ class _GovernancePageState extends State<GovernancePage> {
     }
 
     _fetchExternal();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.plugin.sdk.api.connectedNode != null) {
-      widget.plugin.service!.gov.subscribeBestNumber();
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState!.show();
-    });
   }
 
   @override
@@ -492,7 +486,9 @@ class _GovernancePageState extends State<GovernancePage> {
                                   },
                                   _tabIndex,
                                   margin: EdgeInsets.zero,
-                                )
+                                ),
+                                ConnectionChecker(widget.plugin,
+                                    onConnected: _freshData)
                               ],
                             )),
                         content: list?.length == 0

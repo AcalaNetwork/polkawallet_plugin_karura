@@ -69,7 +69,7 @@ class _RedeemPageState extends State<RedeemPage> {
     decimals = widget.plugin.networkState.tokenDecimals;
 
     karBalance = Fmt.balanceDouble(
-        widget.plugin.balances.native!.availableBalance.toString(),
+        widget.plugin.balances.native?.availableBalance.toString() ?? "",
         decimals![symbols!.indexOf("L$stakeToken")]);
 
     stakeDecimal = decimals![symbols!.indexOf("L$stakeToken")];

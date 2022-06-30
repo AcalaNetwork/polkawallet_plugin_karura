@@ -46,6 +46,7 @@ class _SwapFormState extends State<SwapForm>
 
   String? _error;
   String? _errorReceive;
+  String? _interfaceError;
   double _slippage = 0.005;
   bool _slippageSettingVisible = false;
   String? _slippageError;
@@ -98,6 +99,9 @@ class _SwapFormState extends State<SwapForm>
   }
 
   bool _onCheckBalance() {
+    if (_interfaceError != null) {
+      return false;
+    }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final v = _amountPayCtrl.text.trim();
     final balancePair =
@@ -201,6 +205,7 @@ class _SwapFormState extends State<SwapForm>
 
   Future<void> _calcSwapAmount(String? supply, String? target) async {
     if (_swapPair.length < 2) return;
+    _interfaceError = null;
 
     widget.plugin.service!.assets.queryMarketPrices();
 
@@ -256,7 +261,7 @@ class _SwapFormState extends State<SwapForm>
       }
     } on Exception catch (err) {
       setState(() {
-        _error = err.toString().split(':')[1];
+        _interfaceError = err.toString().split(':')[1];
       });
     }
   }
@@ -642,11 +647,11 @@ class _SwapFormState extends State<SwapForm>
               ],
             ),
             ErrorMessage(
-              _error ?? _errorReceive,
+              _error ?? _errorReceive ?? _interfaceError,
               margin: EdgeInsets.symmetric(vertical: 2),
             ),
             Visibility(
-                visible: showExchangeRate,
+                visible: showExchangeRate && _interfaceError == null,
                 child: Container(
                   margin: EdgeInsets.only(top: 7, right: 1, bottom: 7),
                   child: Row(
@@ -803,7 +808,9 @@ class _SwapFormState extends State<SwapForm>
                   ),
                 )),
             Visibility(
-                visible: showExchangeRate && _swapOutput.amount != null,
+                visible: showExchangeRate &&
+                    _swapOutput.amount != null &&
+                    _interfaceError == null,
                 child: Row(children: [
                   GestureDetector(
                     child: Container(
@@ -845,7 +852,7 @@ class _SwapFormState extends State<SwapForm>
                   )
                 ])),
             Visibility(
-                visible: _detailShow,
+                visible: _detailShow && _interfaceError == null,
                 child: Container(
                   decoration: BoxDecoration(
                       color: Color(0x24FFFFFF),

@@ -332,7 +332,7 @@ class _TransferPageState extends State<TransferPage> {
                   icon: SvgPicture.asset(
                     'assets/images/scan.svg',
                     color: Theme.of(context).cardColor,
-                    width: 23,
+                    width: 24,
                   ),
                   onPressed: () => _onScan(),
                   isBlueBg: true),
@@ -438,8 +438,12 @@ class _TransferPageState extends State<TransferPage> {
                             ?.copyWith(fontWeight: FontWeight.bold);
                         final subTitleStyle = Theme.of(context)
                             .textTheme
-                            .headline6
-                            ?.copyWith(height: 1, fontWeight: FontWeight.w300);
+                            .headline5
+                            ?.copyWith(
+                                height: 1,
+                                fontWeight: FontWeight.w300,
+                                fontSize: 12,
+                                color: Color(0xBF565554));
                         final infoValueStyle = Theme.of(context)
                             .textTheme
                             .headline5!

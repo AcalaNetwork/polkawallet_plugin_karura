@@ -236,6 +236,7 @@ const Map<String, String> enDex = {
   'v3.loan.canMint': 'Can Mint',
   'v3.loan.loanRatio': 'Loan Ratio',
   'v3.loan.submit': 'Submit',
+  'v3.loan.unavailable': 'mint aUSD unavailable',
   'v3.homa.minStakingAmount': 'Minimum Staking Amount',
   'v3.homa.minUnstakingAmount': 'Minimum Unstaking Amount',
   'homa.fast.describe':

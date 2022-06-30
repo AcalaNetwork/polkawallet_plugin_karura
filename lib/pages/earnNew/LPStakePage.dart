@@ -70,6 +70,9 @@ class _LPStakePage extends State<LPStakePage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
     String v = value.trim();
+    if (v.isEmpty) {
+      return null;
+    }
     final error = Fmt.validatePrice(value, context);
     if (error != null) {
       return error;
@@ -149,46 +152,56 @@ class _LPStakePage extends State<LPStakePage> {
         'api.tx.incentives.depositDexShare(...${jsonEncode(depositDexShareParams)})',
       ];
 
+      Map<String, Widget> txDisplayBold = {
+        "Token 1": Text(
+          '${_amountLeftCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[0].symbol)}',
+          style: Theme.of(context)
+              .textTheme
+              .headline1
+              ?.copyWith(color: Colors.white),
+        ),
+        "Token 2": Text(
+          '${_amountRightCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[1].symbol)}',
+          style: Theme.of(context)
+              .textTheme
+              .headline1
+              ?.copyWith(color: Colors.white),
+        ),
+      };
+
       final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
-            module: 'utility',
-            call: 'batch',
+            module: amount == BigInt.zero ? 'dex' : 'utility',
+            call: amount == BigInt.zero ? 'addLiquidity' : 'batch',
             txTitle: '${dic['earn.${params.action}']} $poolTokenSymbol LP',
             txDisplay: {
               dic['earn.pool']: poolTokenSymbol,
               "": dic['v3.earn.addLiquidityEarn']
             },
-            txDisplayBold: {
-              dic['loan.amount']!: Text(
-                '$input LP',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-              "Token 1": Text(
-                '${_amountLeftCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[0].symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-              "Token 2": Text(
-                '${_amountRightCtrl.text.trim()} ${PluginFmt.tokenView(tokenPair[1].symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              ),
-            },
-            params: [],
-            rawParams: '[[${batchTxs.join(',')}]]',
+            txDisplayBold: (amount == BigInt.zero
+                ? {}
+                : {
+                    dic['loan.amount']!: Text(
+                      '$input LP',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline1
+                          ?.copyWith(color: Colors.white),
+                    )
+                  })
+              ..addAll(txDisplayBold),
+            params: amount == BigInt.zero ? addLiquidityParams : [],
+            rawParams:
+                amount == BigInt.zero ? null : '[[${batchTxs.join(',')}]]',
             isPlugin: true,
           ))) as Map?;
       if (res != null) {
         Navigator.of(context).pop(res);
       }
     } else {
+      if (input.trim() == "0" || input.trim().isEmpty) {
+        return;
+      }
       final res = (await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
             module: 'incentives',
@@ -499,10 +512,7 @@ class _LPStakePage extends State<LPStakePage> {
                           tokenIconsMap: widget.plugin.tokenIcons,
                         ),
                         Container(
-                          height: tokenPair[0]!.symbol == acala_token_ids[0] &&
-                                  tokenPair[1]!.symbol == acala_token_ids[0]
-                              ? 10
-                              : 0,
+                          height: 40,
                         ),
                         PluginInputBalance(
                           tokenViewFunction: (value) {
@@ -546,7 +556,7 @@ class _LPStakePage extends State<LPStakePage> {
                   ],
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: 2),
+                  margin: EdgeInsets.only(top: 24),
                   child: _errorLeft == null && _errorRight == null
                       ? null
                       : Row(children: [
@@ -699,6 +709,13 @@ class _LPStakePage extends State<LPStakePage> {
                               v, balance, tokenPair[0].decimals);
                           setState(() {
                             _error1 = error;
+                            _isMax = false;
+                          });
+                        },
+                        onClear: () {
+                          setState(() {
+                            _error1 = null;
+                            _amountCtrl.text = "";
                             _isMax = false;
                           });
                         },

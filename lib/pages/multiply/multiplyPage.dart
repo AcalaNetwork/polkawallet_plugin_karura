@@ -75,21 +75,22 @@ class _MultiplyPageState extends State<MultiplyPage> {
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0));
 
-      int initialLoanTypeIndex = 0;
-      if (args.loanType != null) {
-        initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes
-            .indexWhere((e) => e.token?.tokenNameId == args.loanType);
-      } else if (loans.length > 0) {
-        initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes.indexWhere(
-            (e) => e.token?.tokenNameId == loans[0].token?.tokenNameId);
-      }
-
       final List<LoanType> loantypes = [];
       widget.plugin.store!.loan.loanTypes.forEach((element) {
         if (element.maximumTotalDebitValue != BigInt.zero) {
           loantypes.add(element);
         }
       });
+
+      int initialLoanTypeIndex = 0;
+      if (args.loanType != null) {
+        initialLoanTypeIndex =
+            loantypes.indexWhere((e) => e.token?.tokenNameId == args.loanType);
+      } else if (loans.length > 0) {
+        initialLoanTypeIndex = loantypes.indexWhere(
+            (e) => e.token?.tokenNameId == loans[0].token?.tokenNameId);
+      }
+
       return PluginScaffold(
           appBar: PluginAppBar(
             title: Text(dicCommon!['multiply.title']!),

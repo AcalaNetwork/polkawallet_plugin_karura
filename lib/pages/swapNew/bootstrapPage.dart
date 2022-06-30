@@ -113,7 +113,7 @@ class _BootstrapPageState extends State<BootstrapPage> {
         setState(() {
           _leftAmountError = error;
         });
-      } else if (_rightAmountError != error) {
+      } else if (index == 1 && _rightAmountError != error) {
         setState(() {
           _rightAmountError = error;
         });
