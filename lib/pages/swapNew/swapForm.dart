@@ -659,7 +659,7 @@ class _SwapFormState extends State<SwapForm>
               margin: EdgeInsets.symmetric(vertical: 2),
             ),
             Visibility(
-                visible: showExchangeRate,
+                visible: showExchangeRate && _interfaceError == null,
                 child: Container(
                   margin: EdgeInsets.only(top: 7, right: 1, bottom: 7),
                   child: Row(
@@ -816,7 +816,9 @@ class _SwapFormState extends State<SwapForm>
                   ),
                 )),
             Visibility(
-                visible: showExchangeRate && _swapOutput.amount != null,
+                visible: showExchangeRate &&
+                    _swapOutput.amount != null &&
+                    _interfaceError == null,
                 child: Row(children: [
                   GestureDetector(
                     child: Container(
@@ -858,7 +860,7 @@ class _SwapFormState extends State<SwapForm>
                   )
                 ])),
             Visibility(
-                visible: _detailShow,
+                visible: _detailShow && _interfaceError == null,
                 child: Container(
                   decoration: BoxDecoration(
                       color: Color(0x24FFFFFF),
