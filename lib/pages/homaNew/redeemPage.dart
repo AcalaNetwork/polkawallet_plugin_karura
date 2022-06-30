@@ -379,7 +379,6 @@ class _RedeemPageState extends State<RedeemPage> {
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 11, vertical: 14),
-                            margin: EdgeInsets.only(bottom: 20),
                             decoration: BoxDecoration(
                                 border: Border.all(
                                     color: Color(0xCCFFFFFF), width: 1),
@@ -433,20 +432,25 @@ class _RedeemPageState extends State<RedeemPage> {
                               visible: _fastReceiveAmount == 0 &&
                                   _selectIndex == 0 &&
                                   _amountPayCtrl.text.length > 0,
-                              child: Text(
-                                dic['v3.fastRedeemError']!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: Colors.white,
-                                        fontSize: UI.getTextSize(12, context),
-                                        fontWeight: FontWeight.w300),
+                              child: Container(
+                                width: double.infinity,
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.only(top: 2),
+                                child: Text(
+                                  dic['v3.fastRedeemError']!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                          color: Theme.of(context).errorColor,
+                                          fontSize: UI.getTextSize(12, context),
+                                          fontWeight: FontWeight.w300),
+                                ),
                               )),
                         ],
                       )),
                   Padding(
-                      padding: EdgeInsets.only(bottom: 24, top: 8),
+                      padding: EdgeInsets.only(bottom: 24, top: 28),
                       child: PluginButton(
                         title: dic['homa.redeem']!,
                         onPressed: _onSubmit,
