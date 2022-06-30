@@ -625,7 +625,7 @@ class _SwapFormState extends State<SwapForm>
                 ),
                 GestureDetector(
                   child: Padding(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(top: 16),
                       child: Image.asset(
                           'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
                           width: 39)),
