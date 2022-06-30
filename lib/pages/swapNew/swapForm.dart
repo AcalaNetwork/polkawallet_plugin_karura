@@ -98,6 +98,9 @@ class _SwapFormState extends State<SwapForm>
   }
 
   bool _onCheckBalance() {
+    if (_error != null || _errorReceive != null) {
+      return false;
+    }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final v = _amountPayCtrl.text.trim();
     final balancePair =
