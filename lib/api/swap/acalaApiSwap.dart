@@ -7,6 +7,12 @@ class AcalaApiSwap {
 
   final AcalaServiceSwap service;
 
+  Future<List?> getSwapTokens() async {
+    final data = await service.getSwapTokens();
+    print("getSwapTokens=======$data");
+    return data;
+  }
+
   Future<SwapOutputData> queryTokenSwapAmount(
     String? supplyAmount,
     String? targetAmount,

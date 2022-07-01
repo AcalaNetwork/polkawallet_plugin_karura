@@ -36,6 +36,7 @@ class PluginFmt {
 
   static List<TokenBalanceData?> getAllDexTokens(PluginKarura plugin) {
     final List<TokenBalanceData?> tokens = [];
+    plugin.api!.swap.getSwapTokens();
     plugin.store!.earn.dexPools.forEach((e) {
       e.tokens!.forEach((currencyId) {
         final token = AssetsUtils.tokenDataFromCurrencyId(plugin, currencyId);

@@ -8,6 +8,11 @@ class AcalaServiceSwap {
 
   final PluginKarura plugin;
 
+  Future<List?> getSwapTokens() async {
+    return await plugin.sdk.webView!
+        .evalJavascript('acala.getSwapTokens(apiRx)');
+  }
+
   Future<Map?> queryTokenSwapAmount(
     String? supplyAmount,
     String? targetAmount,
