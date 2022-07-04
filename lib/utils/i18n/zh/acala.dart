@@ -314,5 +314,12 @@ const Map<String, String> zhDex = {
   'earn.dex.sort3': '获利最多',
   'earn.dex.edError1': '由于需要',
   'earn.dex.edError2': '作为存活余额，您本次领取可能会失败',
-  'earn.dex.searchPools': '搜索池子'
+  'earn.dex.searchPools': '搜索池子',
+  'earn.dex.joinPool': '加入LKSM-KSM池子',
+  'earn.dex.joinPool.describe': '通过将流动性添加到 Taiga 的 KSM-LKSM 池中，您将获得大量奖励。',
+  'earn.dex.joinPool.completed': '完成',
+  'earn.dex.joinPool.back': '返回',
+  'earn.dex.joinPool.message1': '为',
+  'earn.dex.joinPool.message2': '池增加流动性，可获得高达',
+  'earn.dex.joinPool.message3': '年利率的奖励!'
 };

@@ -381,11 +381,11 @@ class _RedeemPageState extends State<RedeemPage> {
                                 horizontal: 11, vertical: 14),
                             decoration: BoxDecoration(
                                 border: Border.all(
-                                    color: Color(0xCCFFFFFF), width: 1),
+                                    color: Color(0x4AFFFFFF), width: 1),
                                 borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(8),
-                                    topRight: Radius.circular(8),
-                                    bottomRight: Radius.circular(8))),
+                                    bottomLeft: Radius.circular(17),
+                                    topRight: Radius.circular(17),
+                                    bottomRight: Radius.circular(17))),
                             child: Column(
                               children: [
                                 UnStakeTypeItemWidget(

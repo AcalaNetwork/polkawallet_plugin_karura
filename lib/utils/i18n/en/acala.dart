@@ -334,5 +334,13 @@ const Map<String, String> enDex = {
   'earn.dex.sort3': 'By earn',
   'earn.dex.edError1': 'The Claims may fail due to',
   'earn.dex.edError2': 'is required as ED',
-  'earn.dex.searchPools': 'Search Pools'
+  'earn.dex.searchPools': 'Search Pools',
+  'earn.dex.joinPool': 'Join LKSM-KSM Pool',
+  'earn.dex.joinPool.describe':
+      'By adding liquidity into the KSM-LKSM Pool of Taiga, you will get tons of rewards.',
+  'earn.dex.joinPool.completed': 'Completed',
+  'earn.dex.joinPool.back': 'Back',
+  'earn.dex.joinPool.message1': 'Add liquidity to the',
+  'earn.dex.joinPool.message2': 'pool can get rewards up to',
+  'earn.dex.joinPool.message3': 'APR!'
 };

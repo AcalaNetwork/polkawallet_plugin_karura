@@ -763,8 +763,9 @@ class _HomaPageState extends State<HomaPage> {
                                   // if (!(await _confirmMint())) return;
 
                                   Navigator.of(context)
-                                      .pushNamed(MintPage.route)
-                                      .then((value) {
+                                      .pushNamed(MintPage.route, arguments: {
+                                    "selectMethod": true
+                                  }).then((value) {
                                     if (value != null) {
                                       _refreshData();
                                     }

@@ -655,14 +655,19 @@ class _UserCard extends StatelessWidget {
             child: RoundedPluginCard(
               padding: EdgeInsets.only(top: 24, bottom: 16),
               margin: EdgeInsets.zero,
+              color: Color(0xFF37383A),
               child: Column(
                 children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(bottom: 12),
-                    child: Image.asset(
-                      "packages/polkawallet_plugin_karura/assets/images/lp_detail_rewards.png",
-                      width: 100,
-                    ),
+                  Stack(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(bottom: 12),
+                        child: Image.asset(
+                          "packages/polkawallet_plugin_karura/assets/images/lp_detail_reward.png",
+                          width: 150,
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
                     "\$ ${Fmt.doubleFormat(rewardPrice)}",

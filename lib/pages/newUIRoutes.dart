@@ -10,6 +10,7 @@ import 'package:polkawallet_plugin_karura/pages/earnNew/inviteFriendsPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/governancePage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/referendumVotePage.dart';
+import 'package:polkawallet_plugin_karura/pages/homaNew/completedPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaTxDetailPage.dart';
@@ -50,6 +51,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
                 uri: GraphQLConfig['httpUri']!,
               ),
           HomaTxDetailPage.route: (_) => HomaTxDetailPage(plugin, keyring),
+          CompletedPage.route: (_) => CompletedPage(),
 
           //loan
           LoanPage.route: (_) => LoanPage(plugin, keyring),
