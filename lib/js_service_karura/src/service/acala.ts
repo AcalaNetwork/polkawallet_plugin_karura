@@ -6,16 +6,18 @@ import { nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
 import { Homa, Wallet } from "@acala-network/sdk";
 import axios from "axios";
-import { IncentiveResult } from "../types/acalaTypes";
+import { IncentiveResult, TaigaUserReward } from "../types/acalaTypes";
 import { firstValueFrom, throttleTime, take } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 import { BalanceData } from "@acala-network/sdk/wallet/type";
+import { StableAssetRx } from "@nuts-finance/sdk-stable-asset";
 
 const ONE = FixedPointNumber.ONE;
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
 const KSM_DECIMAL = 12;
 const native_token = "KAR";
 const native_token_list = [native_token, "KSM", "LKSM", "KUSD"];
+const taigaPoolApy: Record<string, number> = {};
 
 let ACA_SYS_BLOCK_TIME = new BN(12000);
 
@@ -192,6 +194,60 @@ async function getTokenPairs(api: ApiPromise) {
       tokens: item.toJSON(),
       tokenNameId: createDexShareName(forceToCurrencyName(item[0]), forceToCurrencyName(item[1])),
     }));
+}
+async function getTaigaTokenPairs(apiRx: ApiRx) {
+  const stablePools = await firstValueFrom(new StableAssetRx(apiRx).subscribeAllPools().pipe(take(1)));
+  return stablePools.map(({ poolAsset, assets }) => ({
+    tokens: assets,
+    tokenNameId: forceToCurrencyName(poolAsset),
+  }));
+}
+
+async function _queryTaigaPoolApy(network: string, pool: number) {
+  const key = `${network}-${pool}`;
+
+  if (taigaPoolApy[key]) {
+    return taigaPoolApy[key];
+  }
+
+  const result = await axios.get(`https://api.taigaprotocol.io/rewards/apr?network=${network}&pool=${pool}`);
+
+  if (result.status === 200 && Object.keys(result.data).length > 0) {
+    taigaPoolApy[key] = result.data as number;
+  }
+
+  return taigaPoolApy[key];
+}
+
+async function _queryTaigaUserRewards(network: string, pool: number, user: string) {
+  const result = await axios.get(`https://api.taigaprotocol.io/rewards/user/${user}?network=${network}&pool=${pool}`);
+
+  if (result.status === 200 && Object.keys(result.data).length > 0) {
+    return result.data as TaigaUserReward;
+  }
+}
+
+async function getTaigaPoolInfo(api: ApiPromise, address: string) {
+  const [taiKSMApy, threeUSDApy] = await Promise.all([0, 1].map((i) => _queryTaigaPoolApy("karura", i)));
+  const [taiKSMReward, threeUSDReward] = await Promise.all([0, 1].map((i) => _queryTaigaUserRewards("karura", i, address)));
+  const taiKSMshares = await _fetchCollateralRewards(api, { StableAssetPoolToken: 0 }, address);
+  const threeUSDshares = await (<any>window).wallet.getIssuance("sa://1");
+  return {
+    "sa://0": {
+      apy: taiKSMApy,
+      reward: taiKSMReward.claimable,
+      rewardTokens: ["sa://0", "TAI"],
+      userShares: taiKSMshares.shares,
+      totalShares: taiKSMshares.sharesTotal,
+    },
+    "sa://1": {
+      apy: threeUSDApy,
+      reward: threeUSDReward.claimable,
+      rewardTokens: ["sa://1", "TAI", "sa://0", "LKSM", "KAR"],
+      userShares: "0",
+      totalShares: threeUSDshares.toChainData(),
+    },
+  };
 }
 
 /**
@@ -840,6 +896,8 @@ export default {
   getAllTokens,
   getTokenBalance,
   getTokenPairs,
+  getTaigaTokenPairs,
+  getTaigaPoolInfo,
   getBootstraps,
   fetchCollateralRewards,
   fetchDexPoolInfo,
