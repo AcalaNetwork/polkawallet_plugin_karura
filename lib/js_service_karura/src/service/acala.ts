@@ -197,8 +197,9 @@ async function getTokenPairs(api: ApiPromise) {
 }
 async function getTaigaTokenPairs(apiRx: ApiRx) {
   const stablePools = await firstValueFrom(new StableAssetRx(apiRx).subscribeAllPools().pipe(take(1)));
-  return stablePools.map(({ poolAsset, assets }) => ({
+  return stablePools.map(({ poolAsset, assets, balances }) => ({
     tokens: assets,
+    balances,
     tokenNameId: forceToCurrencyName(poolAsset),
   }));
 }
