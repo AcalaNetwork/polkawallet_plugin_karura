@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
@@ -65,6 +66,7 @@ class _SwapFormState extends State<SwapForm>
 
   bool rateReversed = false;
   bool _detailShow = false;
+  bool _detailRouteShow = false;
 
   AnimationController? _animationController;
   Animation<double>? _animation;
@@ -391,6 +393,7 @@ class _SwapFormState extends State<SwapForm>
                     _amountReceiveCtrl.text = "";
                     _amountPayCtrl.text = "";
                     _detailShow = false;
+                    _detailRouteShow = false;
                     _error = null;
                     _errorReceive = null;
                   });
@@ -432,8 +435,7 @@ class _SwapFormState extends State<SwapForm>
         final tokens = PluginFmt.getAllDexTokens(widget.plugin);
         if (tokens.length > 1) {
           setState(() {
-            _swapPair =
-                tokens.sublist(0, 2).map((e) => e!.tokenNameId).toList();
+            _swapPair = tokens.sublist(0, 2).map((e) => e.tokenNameId).toList();
           });
         } else {
           setState(() {
@@ -486,7 +488,7 @@ class _SwapFormState extends State<SwapForm>
             : currencyOptionsLeft.length > 2
                 ? currencyOptionsLeft
                     .sublist(0, 2)
-                    .map((e) => e!.tokenNameId)
+                    .map((e) => e.tokenNameId)
                     .toList()
                 : [];
 
@@ -498,9 +500,8 @@ class _SwapFormState extends State<SwapForm>
         }
 
         if (swapPair.length > 1) {
-          currencyOptionsLeft.retainWhere((i) => i!.tokenNameId != swapPair[0]);
-          currencyOptionsRight
-              .retainWhere((i) => i!.tokenNameId != swapPair[1]);
+          currencyOptionsLeft.retainWhere((i) => i.tokenNameId != swapPair[0]);
+          currencyOptionsRight.retainWhere((i) => i.tokenNameId != swapPair[1]);
         }
 
         final balancePair =
@@ -523,10 +524,9 @@ class _SwapFormState extends State<SwapForm>
             _amountPayCtrl.text.isNotEmpty &&
             _amountReceiveCtrl.text.isNotEmpty;
 
-        final grey = Theme.of(context).unselectedWidgetColor;
         final labelStyle = Theme.of(context)
             .textTheme
-            .headline4
+            .headline6
             ?.copyWith(color: Colors.white);
 
         return ListView(
@@ -536,37 +536,13 @@ class _SwapFormState extends State<SwapForm>
               visible: isNativeTokenLow,
               child: InsufficientKARWarn(),
             ),
-            Visibility(
-                visible: Fmt.balanceInt(balancePair[0].amount) > BigInt.zero &&
-                    balancePair[0].symbol != acala_token_ids[0],
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.only(bottom: 6),
-                        child: GestureDetector(
-                          child: Text(dic['v3.swap.max']!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(
-                                      color: Color(0x88ffffff),
-                                      fontSize: UI.getTextSize(12, context),
-                                      fontWeight: FontWeight.w600)),
-                          onTap: () {
-                            _onSetMax(Fmt.balanceInt(balancePair[0].amount),
-                                balancePair[0].decimals!,
-                                nativeKeepAlive: nativeKeepAlive);
-                          },
-                        ))
-                  ],
-                )),
             Stack(
-              alignment: Alignment.topCenter,
+              alignment: AlignmentDirectional.center,
               children: [
                 Column(
                   children: [
                     PluginInputBalance(
+                      titleTag: dic['dex.pay'],
                       tokenViewFunction: (value) {
                         return PluginFmt.tokenView(value);
                       },
@@ -597,8 +573,20 @@ class _SwapFormState extends State<SwapForm>
                       },
                       balance: balancePair[0],
                       tokenIconsMap: widget.plugin.tokenIcons,
+                      onSetMax:
+                          Fmt.balanceInt(balancePair[0].amount) > BigInt.zero &&
+                                  balancePair[0].symbol != acala_token_ids[0]
+                              ? (max) {
+                                  _onSetMax(
+                                      Fmt.balanceInt(balancePair[0].amount),
+                                      balancePair[0].decimals!,
+                                      nativeKeepAlive: nativeKeepAlive);
+                                }
+                              : null,
                     ),
                     PluginInputBalance(
+                      margin: EdgeInsets.only(top: 20),
+                      titleTag: dic['dex.receiveEstimate'],
                       tokenViewFunction: (value) {
                         return PluginFmt.tokenView(value);
                       },
@@ -637,11 +625,10 @@ class _SwapFormState extends State<SwapForm>
                 ),
                 GestureDetector(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 45),
-                    child: Image.asset(
-                        'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
-                        width: 39),
-                  ),
+                      padding: EdgeInsets.only(top: 10),
+                      child: Image.asset(
+                          'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
+                          width: 39)),
                   onTap: _swapPair.length > 1 ? () => _switchPair() : null,
                 ),
               ],
@@ -653,59 +640,55 @@ class _SwapFormState extends State<SwapForm>
             Visibility(
                 visible: showExchangeRate && _interfaceError == null,
                 child: Container(
-                  margin: EdgeInsets.only(top: 7, right: 1, bottom: 7),
+                  margin: EdgeInsets.only(top: 16, bottom: 7),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        '1 ${PluginFmt.tokenView(balancePair[rateReversed ? 1 : 0].symbol)} = ${(rateReversed ? 1 / _swapRatio! : _swapRatio)!.toStringAsFixed(6)} ${PluginFmt.tokenView(balancePair[rateReversed ? 0 : 1].symbol)}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5
-                            ?.copyWith(color: Colors.white),
-                      ),
-                      GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              rateReversed = !rateReversed;
-                            });
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(left: 4),
-                            child: Image.asset(
-                                'packages/polkawallet_plugin_karura/assets/images/swap_repeat.png',
-                                width: 20),
-                          )),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("${dic['collateral.price']}:", style: labelStyle),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Text(
+                            '1 ${PluginFmt.tokenView(balancePair[rateReversed ? 1 : 0].symbol)} = ${(rateReversed ? 1 / _swapRatio! : _swapRatio)!.toStringAsFixed(6)} ${PluginFmt.tokenView(balancePair[rateReversed ? 0 : 1].symbol)}',
+                            style: labelStyle,
+                          ),
+                          GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  rateReversed = !rateReversed;
+                                });
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(left: 4),
+                                child: Image.asset(
+                                    'packages/polkawallet_plugin_karura/assets/images/swap_repeat.png',
+                                    width: 14),
+                              )),
+                        ],
+                      )
                     ],
                   ),
                 )),
             Container(
               margin: EdgeInsets.only(right: 1, bottom: 7, top: 5),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text("${dic['dex.slippage']!}:",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline5
-                          ?.copyWith(color: Colors.white)),
+                  Text("${dic['dex.slippage']!}:", style: labelStyle),
                   GestureDetector(
-                      child: Container(
-                        margin: EdgeInsets.only(left: 3),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: _slippage == 0.01 ? 8 : 5),
-                        decoration: BoxDecoration(
-                            color: Color(0xFFFF7849),
-                            borderRadius: BorderRadius.circular(4)),
-                        child: Text(
-                          Fmt.ratio(_slippage),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4
-                              ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                        ),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 4),
+                            child: Text(
+                              Fmt.ratio(_slippage),
+                              style: labelStyle,
+                            ),
+                          ),
+                          Image.asset(
+                              "packages/polkawallet_plugin_karura/assets/images/swap_set.png",
+                              width: 14)
+                        ],
                       ),
                       onTap: _onSetSlippage),
                 ],
@@ -714,38 +697,40 @@ class _SwapFormState extends State<SwapForm>
             Visibility(
                 visible: _slippageSettingVisible,
                 child: Container(
-                  margin: EdgeInsets.only(left: 8, top: 3, bottom: 3),
+                  margin: EdgeInsets.only(left: 8, top: 24, bottom: 3),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       PluginOutlinedButtonSmall(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                            EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                         color: Color(0xFFFF7849),
                         unActiveTextcolor: Colors.white,
                         activeTextcolor: Colors.white,
                         content: '0.1 %',
                         active: _slippage == 0.001,
+                        minSize: 24,
                         onPressed: () => _updateSlippage(0.001),
                       ),
                       PluginOutlinedButtonSmall(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                            EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                         color: Color(0xFFFF7849),
                         unActiveTextcolor: Colors.white,
                         activeTextcolor: Colors.white,
                         content: '0.5 %',
+                        minSize: 24,
                         active: _slippage == 0.005,
                         onPressed: () => _updateSlippage(0.005),
                       ),
                       PluginOutlinedButtonSmall(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                         color: Color(0xFFFF7849),
                         unActiveTextcolor: Colors.white,
                         activeTextcolor: Colors.white,
                         content: '1 %',
+                        minSize: 24,
                         active: _slippage == 0.01,
                         onPressed: () => _updateSlippage(0.01),
                       ),
@@ -768,17 +753,17 @@ class _SwapFormState extends State<SwapForm>
                                   "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!['custom']}  ${Fmt.ratio(_slippage)}",
                               placeholderStyle: Theme.of(context)
                                   .textTheme
-                                  .headline4
+                                  .headline5
                                   ?.copyWith(
-                                      color: grey, fontWeight: FontWeight.w300),
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w400),
                               inputFormatters: [UI.decimalInputFormatter(6)!],
                               keyboardType: TextInputType.numberWithOptions(
                                   decimal: true),
                               decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
-                                border: Border.all(color: Color(0xFF979797)),
-                              ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4)),
+                                  color: Color(0x24FFFFFF)),
                               controller: _amountSlippageCtrl,
                               focusNode: _slippageFocusNode,
                               onChanged: _onSlippageChange,
@@ -811,59 +796,57 @@ class _SwapFormState extends State<SwapForm>
                 visible: showExchangeRate &&
                     _swapOutput.amount != null &&
                     _interfaceError == null,
-                child: Row(children: [
-                  GestureDetector(
-                    child: Container(
-                        color: Colors.transparent,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              dicGov['detail']!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline4
-                                  ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 6, top: 5, bottom: 5, right: 10),
-                              child: Transform.rotate(
-                                  angle: angle,
-                                  child: SvgPicture.asset(
-                                    "packages/polkawallet_ui/assets/images/triangle_bottom.svg",
-                                    color: Color(0xFFFF7849),
-                                  )),
-                            )
-                          ],
-                        )),
-                    onTap: () {
-                      if (!_detailShow) {
-                        _animationController!.forward();
-                      } else {
-                        _animationController!.reverse();
-                      }
-                      setState(() {
-                        _detailShow = !_detailShow;
-                      });
-                    },
-                  )
-                ])),
+                child: Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: Row(children: [
+                      GestureDetector(
+                        child: Container(
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  dicGov['detail']!,
+                                  style: labelStyle,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 6, top: 5, bottom: 5, right: 10),
+                                  child: Transform.rotate(
+                                      angle: angle,
+                                      child: SvgPicture.asset(
+                                        "packages/polkawallet_ui/assets/images/triangle_bottom.svg",
+                                        color: Color(0xFFFF7849),
+                                      )),
+                                )
+                              ],
+                            )),
+                        onTap: () {
+                          if (!_detailShow) {
+                            _animationController!.forward();
+                          } else {
+                            _animationController!.reverse();
+                          }
+                          setState(() {
+                            _detailShow = !_detailShow;
+                          });
+                        },
+                      )
+                    ]))),
             Visibility(
                 visible: _detailShow && _interfaceError == null,
                 child: Container(
-                  decoration: BoxDecoration(
-                      color: Color(0x24FFFFFF),
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(8),
-                          topRight: Radius.circular(8),
-                          bottomRight: Radius.circular(8))),
+                  // decoration: BoxDecoration(
+                  //     color: Color(0x24FFFFFF),
+                  //     borderRadius: BorderRadius.only(
+                  //         bottomLeft: Radius.circular(8),
+                  //         topRight: Radius.circular(8),
+                  //         bottomRight: Radius.circular(8))),
                   margin: EdgeInsets.only(top: 12),
-                  padding:
-                      EdgeInsets.only(left: 10, right: 10, bottom: 32, top: 12),
+                  // padding:
+                  //     EdgeInsets.only(left: 10, right: 10, bottom: 32, top: 12),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
                       Container(
                         margin: EdgeInsets.only(bottom: 8),
@@ -891,21 +874,8 @@ class _SwapFormState extends State<SwapForm>
                                   Text(dic['dex.impact']!, style: labelStyle),
                             ),
                             Text(
-                                '<${_swapOutput.priceImpact?.map((e) => Fmt.ratio(e)).toString()}',
+                                '<${_swapOutput.priceImpact?.map((e) => Fmt.ratio(e)).toList().join("~")}',
                                 style: labelStyle),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Expanded(
-                              child:
-                                  Text(dic['dex.slippage']!, style: labelStyle),
-                            ),
-                            Text(Fmt.ratio(_slippage), style: labelStyle),
                           ],
                         ),
                       ),
@@ -915,14 +885,21 @@ class _SwapFormState extends State<SwapForm>
                             margin: EdgeInsets.only(bottom: 8),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Expanded(
                                   child:
                                       Text(dic['dex.fee']!, style: labelStyle),
                                 ),
-                                Text(
-                                    '${_swapOutput.fee?.map((e) => e).toString()} ${_swapOutput.feeToken?.map((e) => PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e).symbol)).toString()}',
-                                    style: labelStyle),
+                                Column(
+                                  children: (_swapOutput.fee ?? []).map((e) {
+                                    final index = _swapOutput.fee!.indexOf(e);
+                                    return Text(
+                                        "$e ${PluginFmt.tokenView(AssetsUtils.getBalanceFromTokenNameId(widget.plugin, _swapOutput.feeToken?[index]).symbol).toString()}",
+                                        style:
+                                            labelStyle?.copyWith(height: 1.4));
+                                  }).toList(),
+                                )
                               ],
                             ),
                           )),
@@ -930,27 +907,51 @@ class _SwapFormState extends State<SwapForm>
                           visible: (_swapOutput.path?.length ?? 0) > 0,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
                                 child:
                                     Text(dic['dex.route']!, style: labelStyle),
                               ),
-                              Text(
-                                  _swapOutput.path != null
-                                      ? _swapOutput.path!
-                                          .map((i) => i.path!
-                                              .map((e) => PluginFmt.tokenView(
-                                                  AssetsUtils
-                                                          .getBalanceFromTokenNameId(
-                                                              widget.plugin, e)
-                                                      .symbol))
-                                              .toString())
-                                          .toList()
-                                          .join(' > ')
-                                      : "",
-                                  style: labelStyle),
+                              GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _detailRouteShow = !_detailRouteShow;
+                                    });
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Color(0x1AFFFFFF),
+                                        border: Border.all(
+                                            color: const Color(0x59FFFFFF),
+                                            width: 0.58),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.05))),
+                                    child: Row(
+                                      children: [
+                                        PluginTokenIcon(balancePair[0].symbol!,
+                                            widget.plugin.tokenIcons,
+                                            size: 21),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 3),
+                                          child: Image.asset(
+                                              "packages/polkawallet_plugin_karura/assets/images/swap_to.png",
+                                              width: 14),
+                                        ),
+                                        PluginTokenIcon(balancePair[1].symbol!,
+                                            widget.plugin.tokenIcons,
+                                            size: 21)
+                                      ],
+                                    ),
+                                  )),
                             ],
-                          ))
+                          )),
+                      Visibility(
+                          visible: (_swapOutput.path?.length ?? 0) > 0 &&
+                              _detailRouteShow,
+                          child: RouteWidget(widget.plugin,
+                              path: _swapOutput.path))
                     ],
                   ),
                 )),
@@ -966,6 +967,62 @@ class _SwapFormState extends State<SwapForm>
           ],
         );
       },
+    );
+  }
+}
+
+class RouteWidget extends StatelessWidget {
+  RouteWidget(this.plugin, {this.path, Key? key}) : super(key: key);
+
+  final PluginKarura plugin;
+  List<PathData>? path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 13),
+      height: 94,
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          color: Colors.white.withAlpha(36)),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: (path ?? []).length,
+        separatorBuilder: (context, index) => Container(width: 35),
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 5),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset(
+                    "packages/polkawallet_plugin_karura/assets/images/swapRoute/${path![index].dex == "acala" ? "karura" : "${path![index].dex}-taiga-icon"}.png",
+                    height: 18),
+                Padding(
+                    padding: EdgeInsets.only(top: 15),
+                    child: Stack(
+                      children: path![index].path!.map((i) {
+                        final indexI = path![index].path!.indexOf(i);
+                        final balancePair =
+                            AssetsUtils.getBalancePairFromTokenNameId(
+                                plugin, [i]);
+                        return Padding(
+                          child: PluginTokenIcon(
+                              balancePair[0].symbol!, plugin.tokenIcons,
+                              size: 27),
+                          padding: EdgeInsets.only(left: indexI == 0 ? 0 : 20),
+                        );
+                      }).toList(),
+                    ))
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

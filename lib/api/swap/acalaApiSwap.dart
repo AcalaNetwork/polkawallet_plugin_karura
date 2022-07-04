@@ -1,16 +1,37 @@
 import 'package:polkawallet_plugin_karura/api/swap/acalaServiceSwap.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
+import 'package:polkawallet_plugin_karura/pages/assets/tokenDetailPage.dart';
+import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
 class AcalaApiSwap {
   AcalaApiSwap(this.service);
 
   final AcalaServiceSwap service;
 
-  Future<List?> getSwapTokens() async {
+  Future<List<TokenBalanceData>?> getSwapTokens() async {
     final data = await service.getSwapTokens();
-    print("getSwapTokens=======$data");
-    return data;
+    final tokensConfig =
+        service.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+    return data
+        ?.map((e) => TokenBalanceData(
+              id: e['id'] ?? e['symbol'],
+              symbol: e['symbol'],
+              type: e['type'],
+              tokenNameId: e['tokenNameId'],
+              currencyId: e['currencyId'],
+              minBalance: e['minBalance'],
+              name: PluginFmt.tokenView(e['symbol']),
+              fullName: tokensConfig['tokenName'] != null
+                  ? tokensConfig['tokenName'][e['symbol']]
+                  : null,
+              decimals: e['decimals'],
+              price: AssetsUtils.getMarketPrice(service.plugin, e['symbol']),
+              detailPageRoute: TokenDetailPage.route,
+            ))
+        .toList();
   }
 
   Future<SwapOutputData> queryTokenSwapAmount(
@@ -22,7 +43,6 @@ class AcalaApiSwap {
     final output = await (service.queryTokenSwapAmount(
             supplyAmount, targetAmount, swapPair, slippage)
         as Future<Map<dynamic, dynamic>>);
-    print("output=======$output");
     if (output != null && output['error'] != null) {
       throw new Exception(output['error']['message']);
     }

@@ -6,6 +6,7 @@ const Map<String, String> zhDex = {
   'dex.title': '兑换',
   'dex.pay': '支付',
   'dex.receive': '收到',
+  'dex.receiveEstimate': '收到(预估)',
   'dex.rate': '价格',
   'dex.route': '兑换路径',
   'dex.slippage': '可接受滑点',

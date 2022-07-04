@@ -30,8 +30,7 @@ class ServiceAssets {
 
     queryDexPrices();
 
-    final all =
-        PluginFmt.getAllDexTokens(plugin).map((e) => e!.symbol).toList();
+    final all = PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList();
     all.removeWhere((e) =>
         e!.contains('USD') ||
         e.toLowerCase().contains('tai') ||
@@ -65,18 +64,18 @@ class ServiceAssets {
   Future<void> queryDexPrices() async {
     final tokens = PluginFmt.getAllDexTokens(plugin);
     tokens.removeWhere((e) =>
-        e?.tokenNameId == karura_stable_coin ||
-        (e?.symbol ?? '').toLowerCase().contains('tai'));
+        e.tokenNameId == karura_stable_coin ||
+        (e.symbol ?? '').toLowerCase().contains('tai'));
 
     final output = await plugin.sdk.webView?.evalJavascript(
         'Promise.all([${tokens.map((e) => 'acala.calcTokenSwapAmount(apiRx, 1, null, ${jsonEncode([
-                  e?.tokenNameId,
+                  e.tokenNameId,
                   karura_stable_coin
                 ])}, "0.05")').join(',')}])');
 
     final Map<String, double> prices = {};
     output.asMap().forEach((k, v) {
-      prices[tokens[k]!.symbol!] = v?['amount'] ?? 0;
+      prices[tokens[k].symbol!] = v?['amount'] ?? 0;
     });
 
     store?.assets.setDexPrices(prices);

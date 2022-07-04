@@ -222,14 +222,23 @@ class _LoanPageState extends State<LoanPage> {
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0));
 
+      final loanTypes = [], ortherType = [];
+      widget.plugin.store!.loan.loanTypes.forEach((element) {
+        loans.forEach((loan) {
+          if (loan.token?.tokenNameId == element.token?.tokenNameId) {
+            loanTypes.add(element);
+          } else {
+            ortherType.add(element);
+          }
+        });
+      });
+      loanTypes.addAll(ortherType);
+
       /// The initial tab index will be from arguments or user's vault.
       int initialLoanTypeIndex = 0;
       if (args.loanType != null) {
         initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes
             .indexWhere((e) => e.token?.tokenNameId == args.loanType);
-      } else if (loans.length > 0) {
-        initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes.indexWhere(
-            (e) => e.token?.tokenNameId == loans[0].token?.tokenNameId);
       }
 
       final headCardWidth = MediaQuery.of(context).size.width - 16 * 2 - 6 * 2;
@@ -273,7 +282,7 @@ class _LoanPageState extends State<LoanPage> {
                         initialTab: initialLoanTypeIndex > -1
                             ? initialLoanTypeIndex
                             : 0,
-                        data: widget.plugin.store!.loan.loanTypes.map((e) {
+                        data: loanTypes.map((e) {
                           final _loans = loans.where(
                               (data) => data.token!.symbol == e.token!.symbol);
                           LoanData? loan =
