@@ -343,6 +343,7 @@ const Map<String, String> enDex = {
   'earn.dex.joinPool.message1': 'Add liquidity to the',
   'earn.dex.joinPool.message2': 'pool can get rewards up to',
   'earn.dex.joinPool.message3': 'APR!',
+  'earn.taiga.claimAirdrop': 'Claim Airdrop',
   'earn.taiga.stakeNotRequired': 'Stake not Required',
   'earn.taiga.claimMessage':
       'Tap claim to see your LP detail and claim your rewards'
