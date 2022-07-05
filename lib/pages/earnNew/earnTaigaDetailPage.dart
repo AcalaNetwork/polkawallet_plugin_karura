@@ -125,7 +125,7 @@ class _EarnTaigaDetailPageState extends State<EarnTaigaDetailPage> {
                     padding: EdgeInsets.only(top: 10),
                     child: InfoItemRow(
                       dic['earn.staked']!,
-                      "${Fmt.balance(taigaPool!.userShares, balance.decimals!)} ${PluginFmt.tokenView(tokenSymbol)}",
+                      "${Fmt.balance(taigaPool.userShares, balance.decimals!)} ${PluginFmt.tokenView(tokenSymbol)}",
                       labelStyle: labelStyle,
                       contentStyle: valueStyle,
                     )),
