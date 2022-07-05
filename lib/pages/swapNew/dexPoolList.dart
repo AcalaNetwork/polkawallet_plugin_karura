@@ -45,11 +45,20 @@ class _DexPoolListState extends State<DexPoolList> {
     pools.asMap().forEach((i, e) {
       poolInfoMap[e.tokenNameId] = res![i];
     });
+    await _queryTaigaPoolInfo();
     if (mounted) {
       setState(() {
         _poolInfoMap = poolInfoMap;
       });
     }
+  }
+
+  Future<void> _queryTaigaPoolInfo() async {
+    final info = await widget.plugin.api!.earn
+        .getTaigaPoolInfo(widget.keyring.current.address!);
+    widget.plugin.store!.earn.setTaigaPoolInfo(info);
+    final data = await widget.plugin.api!.earn.getTaigaTokenPairs();
+    widget.plugin.store!.earn.setTaigaTokenPairs(data!);
   }
 
   @override
@@ -64,8 +73,9 @@ class _DexPoolListState extends State<DexPoolList> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final dexPools = widget.plugin.store!.earn.dexPools.toList();
+      final dexPools = widget.plugin.store!.earn.taigaTokenPairs;
       dexPools.retainWhere((e) => e.provisioning == null);
+      dexPools.addAll(widget.plugin.store!.earn.dexPools.toList());
       return RefreshIndicator(
         key: _refreshKey,
         onRefresh: _updateData,
@@ -89,6 +99,15 @@ class _DexPoolListState extends State<DexPoolList> {
                 padding: EdgeInsets.all(16),
                 itemCount: dexPools.length,
                 itemBuilder: (_, i) {
+                  //taiga
+                  if (dexPools[i].tokenNameId == "sa://0" ||
+                      dexPools[i].tokenNameId == "sa://1") {
+                    return _TaigaDexPoolCard(
+                      plugin: widget.plugin,
+                      pool: dexPools[i],
+                      tokenIcons: widget.plugin.tokenIcons,
+                    );
+                  }
                   final poolAmount =
                       _poolInfoMap[dexPools[i].tokenNameId] as List?;
                   return _DexPoolCard(
@@ -101,6 +120,167 @@ class _DexPoolListState extends State<DexPoolList> {
               ),
       );
     });
+  }
+}
+
+class _TaigaDexPoolCard extends StatelessWidget {
+  _TaigaDexPoolCard({this.plugin, this.pool, this.poolAmount, this.tokenIcons});
+
+  final PluginKarura? plugin;
+  final DexPoolData? pool;
+  final List? poolAmount;
+  final Map<String, Widget>? tokenIcons;
+
+  @override
+  Widget build(BuildContext context) {
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+
+    final balancePair = pool!.tokens!
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+        .toList();
+    final tokenPairView =
+        balancePair.map((e) => PluginFmt.tokenView(e.symbol)).join('-');
+
+    final taigaPoolInfo =
+        plugin!.store!.earn.taigaPoolInfoMap[pool!.tokenNameId]!;
+
+    var unstaked = false;
+    var staked = false;
+    var canClaim = false;
+    final balance =
+        AssetsUtils.getBalanceFromTokenNameId(plugin!, pool!.tokenNameId);
+    if (balance != null && Fmt.balanceInt(balance.amount) > BigInt.zero) {
+      unstaked = true;
+    }
+    if (BigInt.parse(taigaPoolInfo.userShares) > BigInt.zero) {
+      staked = true;
+    }
+
+    var claim = BigInt.zero;
+    taigaPoolInfo.reward.forEach((e) {
+      claim += BigInt.parse(e);
+    });
+    if (claim > BigInt.zero) {
+      canClaim = true;
+    }
+
+    var ratio = [];
+    for (int i = 1; i < balancePair.length; i++) {
+      if (Fmt.balanceDouble(pool!.balances![0], balancePair[0].decimals!) > 0) {
+        ratio.add((Fmt.balanceDouble(
+                    pool!.balances![i], balancePair[i].decimals!) /
+                Fmt.balanceDouble(pool!.balances![0], balancePair[0].decimals!))
+            .toStringAsFixed(2));
+      } else {
+        ratio.add("0.0");
+      }
+    }
+    return RoundedPluginCard(
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.symmetric(vertical: 16),
+      color: Color(0x19FFFFFF),
+      child: Column(
+        children: [
+          Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              child: Row(
+                children: [
+                  Container(
+                    child:
+                        PluginTokenIcon(balance.symbol!, tokenIcons!, size: 26),
+                    margin: EdgeInsets.only(right: 12),
+                  ),
+                  Expanded(
+                      child: Text(
+                    tokenPairView,
+                    style: Theme.of(context).textTheme.headline3?.copyWith(
+                        color: Colors.white,
+                        fontSize: UI.getTextSize(18, context)),
+                  )),
+                  Row(
+                    children: [
+                      Visibility(
+                          visible: unstaked,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Image.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
+                                width: 24,
+                              ))),
+                      Visibility(
+                          visible: staked,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: SvgPicture.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/staked.svg",
+                                color: Colors.white,
+                                width: 24,
+                              ))),
+                      Visibility(
+                          visible: canClaim,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Image.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/rewards.png",
+                                width: 24,
+                              ))),
+                    ],
+                  )
+                ],
+              )),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            color: Color(0xFF494b4e),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ...balancePair.map((e) {
+                  final index = balancePair.indexOf(e);
+                  return PluginInfoItem(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    title: PluginFmt.tokenView(e.symbol),
+                    content:
+                        "${Fmt.priceFloorFormatter(Fmt.balanceDouble(pool!.balances![index], e.decimals!))}",
+                  );
+                }).toList(),
+                PluginInfoItem(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  title: dic['boot.ratio'],
+                  content: '1 : ${ratio.join(" : ")}',
+                ),
+              ],
+            ),
+          ),
+          Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PluginOutlinedButtonSmall(
+                      content: dic['dex.removeLiquidity'],
+                      color: Color(0xFFcdcdce),
+                      active: true,
+                      onPressed: () => Navigator.of(context).pushNamed(
+                          WithdrawLiquidityPage.route,
+                          arguments: pool),
+                    ),
+                  ),
+                  Expanded(
+                    child: PluginOutlinedButtonSmall(
+                      margin: EdgeInsets.all(0),
+                      content: dic['dex.addLiquidity'],
+                      color: Color(0xFFFC8156),
+                      active: true,
+                      onPressed: () => Navigator.of(context).pushNamed(
+                          AddLiquidityPage.route,
+                          arguments: {'poolId': pool?.tokenNameId}),
+                    ),
+                  ),
+                ],
+              )),
+        ],
+      ),
+    );
   }
 }
 

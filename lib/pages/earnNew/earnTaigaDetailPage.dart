@@ -232,16 +232,18 @@ class _EarnTaigaDetailPageState extends State<EarnTaigaDetailPage> {
                                 .headline1
                                 ?.copyWith(color: Colors.white),
                           ),
-                          Text(
-                            claimString.join(" + "),
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5
-                                ?.copyWith(
-                                    color: Colors.white.withAlpha(191),
-                                    fontSize: 12),
-                          ),
+                          Padding(
+                              padding: EdgeInsets.only(top: 5),
+                              child: Text(
+                                claimString.join(" + "),
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(
+                                        color: Colors.white.withAlpha(191),
+                                        fontSize: 12),
+                              )),
                           GestureDetector(
                             onTap: () {
                               Navigator.of(context)

@@ -320,7 +320,13 @@ class _SwapFormState extends State<SwapForm>
         ? max - nativeKeepAlive
         : max;
 
-    final amount = Fmt.bigIntToDouble(input, decimals).toStringAsFixed(6);
+    var amount = Fmt.bigIntToDouble(input, decimals).toStringAsFixed(6);
+
+    final inputString =
+        Fmt.bigIntToDouble(input, decimals).toString().split(".");
+    if (inputString.length > 1 && inputString[1].length > 6) {
+      amount = "${inputString[0]}.${inputString[1].substring(0, 6)}";
+    }
     setState(() {
       _swapMode = 0;
       _amountPayCtrl.text = amount;

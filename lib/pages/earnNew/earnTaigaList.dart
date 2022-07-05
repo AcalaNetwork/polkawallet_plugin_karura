@@ -129,6 +129,10 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                           canClaim = true;
                         }
 
+                        final tokenPairView = tokenPair
+                            .map((e) => PluginFmt.tokenView(e.symbol))
+                            .join('-');
+
                         return GestureDetector(
                           child: RoundedPluginCard(
                               borderRadius: const BorderRadius.all(
@@ -146,15 +150,28 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                     padding: EdgeInsets.only(
                                         left: 12, top: 7, right: 8, bottom: 9),
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         PluginTokenIcon(
                                           tokenSymbol ?? "",
                                           widget.plugin.tokenIcons,
                                           size: 24,
                                         ),
-                                        Row(
+                                        Padding(
+                                            padding: EdgeInsets.only(left: 3),
+                                            child: Text(
+                                              PluginFmt.tokenView(tokenSymbol),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline4
+                                                  ?.copyWith(
+                                                      color: Color(0xBDFFFFFF),
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                            )),
+                                        Expanded(
+                                            child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
                                           children: [
                                             Visibility(
                                                 visible: unstaked,
@@ -185,7 +202,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                                       width: 24,
                                                     ))),
                                           ],
-                                        )
+                                        ))
                                       ],
                                     ),
                                   ),
@@ -204,7 +221,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          PluginFmt.tokenView(tokenSymbol),
+                                          tokenPairView,
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline4

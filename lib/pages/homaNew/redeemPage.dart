@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
+import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -44,6 +45,7 @@ class _RedeemPageState extends State<RedeemPage> {
   num _receiveAmount = 0;
   num _fastReceiveAmount = 0;
   num _swapAmount = 0;
+  SwapOutputData _swapOutput = SwapOutputData();
 
   List<String>? symbols;
   final stakeToken = relay_chain_token_symbol;
@@ -111,6 +113,7 @@ class _RedeemPageState extends State<RedeemPage> {
           '0.1');
       setState(() {
         _swapAmount = swapRes.amount!;
+        _swapOutput = swapRes;
         isLoading = false;
       });
     }
@@ -241,26 +244,12 @@ class _RedeemPageState extends State<RedeemPage> {
         params = [];
         paramsRaw = '[['
             'api.tx.homa.requestRedeem(...${jsonEncode([0, false])}),'
-            'api.tx.dex.swapWithExactSupply(...${jsonEncode([
-              [
-                {'Token': 'L$stakeToken'},
-                {'Token': stakeToken}
-              ],
-              (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
-              "0",
-            ])})'
+            'api.tx.${_swapOutput.tx!["section"]}.${_swapOutput.tx!["method"]}(...${jsonEncode(_swapOutput.tx!["params"])})'
             ']]';
       } else {
-        module = 'dex';
-        call = 'swapWithExactSupply';
-        params = [
-          [
-            {'Token': 'L$stakeToken'},
-            {'Token': stakeToken}
-          ],
-          (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
-          "0",
-        ];
+        module = _swapOutput.tx!["section"];
+        call = _swapOutput.tx!["method"];
+        params = _swapOutput.tx!["params"];
       }
     }
 

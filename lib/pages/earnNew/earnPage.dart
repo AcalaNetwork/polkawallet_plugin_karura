@@ -87,7 +87,7 @@ class _EarnPageState extends State<EarnPage> {
             Expanded(
               child: _tab == 0
                   ? EarnDexList(widget.plugin)
-                  : _tab == 0
+                  : _tab == 1
                       ? EarnLoanList(widget.plugin, widget.keyring)
                       : EarnTaigaList(widget.plugin, widget.keyring),
             )
