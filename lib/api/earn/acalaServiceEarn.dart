@@ -7,6 +7,18 @@ class AcalaServiceEarn {
 
   final PluginKarura plugin;
 
+  Future<List?> getTaigaTokenPairs() async {
+    final List? res = await plugin.sdk.webView!
+        .evalJavascript('acala.getTaigaTokenPairs(apiRx)');
+    return res;
+  }
+
+  Future<Map?> getTaigaPoolInfo(String address) async {
+    final Map? res = await plugin.sdk.webView!
+        .evalJavascript('acala.getTaigaPoolInfo(api, "$address")');
+    return res;
+  }
+
   Future<Map?> queryIncentives() async {
     final Map? res =
         await plugin.sdk.webView!.evalJavascript('acala.queryIncentives(api)');
