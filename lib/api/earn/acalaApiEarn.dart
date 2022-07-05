@@ -1,7 +1,7 @@
 import 'package:polkawallet_plugin_karura/api/earn/acalaServiceEarn.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/api/types/taigaPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/pages/types/taigaPoolInfoData.dart';
 
 class AcalaApiEarn {
   AcalaApiEarn(this.service);
@@ -10,7 +10,6 @@ class AcalaApiEarn {
 
   Future<List<DexPoolData>?> getTaigaTokenPairs() async {
     final List? res = await service.getTaigaTokenPairs();
-    print("getTaigaTokenPairs====$res");
     return res?.map((e) => DexPoolData.fromJson(e)).toList();
   }
 

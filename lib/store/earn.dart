@@ -1,7 +1,7 @@
 import 'package:mobx/mobx.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/api/types/taigaPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/pages/types/taigaPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 
 part 'earn.g.dart';

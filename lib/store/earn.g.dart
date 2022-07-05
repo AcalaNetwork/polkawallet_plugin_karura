@@ -166,6 +166,18 @@ mixin _$EarnStore on _EarnStore, Store {
   }
 
   @override
+  void setTaigaPoolInfo(Map<String?, TaigaPoolInfoData> data,
+      {bool reset = false}) {
+    final _$actionInfo = _$_EarnStoreActionController.startAction(
+        name: '_EarnStore.setTaigaPoolInfo');
+    try {
+      return super.setTaigaPoolInfo(data, reset: reset);
+    } finally {
+      _$_EarnStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setIncentives(IncentivesData data) {
     final _$actionInfo = _$_EarnStoreActionController.startAction(
         name: '_EarnStore.setIncentives');
