@@ -253,11 +253,7 @@ class _LoanPageState extends State<LoanPage> {
                 child: PluginIconButton(
                   onPressed: () =>
                       Navigator.of(context).pushNamed(LoanHistoryPage.route),
-                  icon: Icon(
-                    Icons.history,
-                    size: 22,
-                    color: Color(0xFF17161F),
-                  ),
+                  icon: Icon(Icons.history, size: 22, color: Colors.white),
                 ),
               ),
               PluginAccountInfoAction(widget.keyring)

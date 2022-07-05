@@ -35,6 +35,9 @@ abstract class _EarnStore with Store {
       ObservableMap<String?, TaigaPoolInfoData>();
 
   @observable
+  List<DexPoolData> taigaTokenPairs = [];
+
+  @observable
   List<dynamic> dexIncentiveEndBlock = [];
 
   @observable
@@ -72,13 +75,13 @@ abstract class _EarnStore with Store {
   }
 
   @action
-  void setTaigaPoolInfo(Map<String?, TaigaPoolInfoData> data,
-      {bool reset = false}) {
-    if (reset) {
-      taigaPoolInfoMap = ObservableMap<String?, TaigaPoolInfoData>();
-    } else {
-      taigaPoolInfoMap.addAll(data);
-    }
+  void setTaigaPoolInfo(Map<String?, TaigaPoolInfoData> data) {
+    taigaPoolInfoMap.addAll(data);
+  }
+
+  @action
+  void setTaigaTokenPairs(List<DexPoolData> data) {
+    taigaTokenPairs = data;
   }
 
   @action

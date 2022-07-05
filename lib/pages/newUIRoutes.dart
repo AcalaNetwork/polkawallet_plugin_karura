@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnTaigaDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/inviteFriendsPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
@@ -97,6 +98,8 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
           InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
           EarnTxDetailPage.route: (_) => EarnTxDetailPage(plugin, keyring),
+          EarnTaigaDetailPage.route: (_) =>
+              EarnTaigaDetailPage(plugin, keyring),
 
           //nft
           NftPage.route: (_) => NftPage(plugin, keyring),

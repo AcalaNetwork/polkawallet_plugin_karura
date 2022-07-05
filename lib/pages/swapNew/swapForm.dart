@@ -337,35 +337,10 @@ class _SwapFormState extends State<SwapForm>
 
       final pay = _amountPayCtrl.text.trim();
       final receive = _amountReceiveCtrl.text.trim();
-
-      BigInt? input = Fmt.tokenInt(_swapMode == 0 ? pay : receive,
-          pairDecimals[_swapMode == 0 ? 0 : 1]!);
-      if (_maxInput != null) {
-        input = _maxInput;
-        // keep tx fee for ACA swap
-        if (_swapMode == 0 &&
-            (_swapPair[0] == widget.plugin.networkState.tokenSymbol![0])) {
-          input =
-              input! - BigInt.two * Fmt.balanceInt(_fee!.partialFee.toString());
-        }
-      }
-
-      final params = [
-        // _swapOutput.path!
-        //     .map((e) =>
-        //         AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e['name'])
-        //             .currencyId)
-        //     .toList(),
-        input.toString(),
-        Fmt.tokenInt(minMax.toString(), pairDecimals[_swapMode == 0 ? 1 : 0]!)
-            .toString(),
-      ];
       final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
-              module: 'dex',
-              call: _swapMode == 0
-                  ? 'swapWithExactSupply'
-                  : 'swapWithExactTarget',
+              module: _swapOutput.tx!["section"],
+              call: _swapOutput.tx!["method"],
               txTitle: dic['dex.title'],
               txDisplayBold: {
                 dic['dex.pay']!: Text(
@@ -383,7 +358,7 @@ class _SwapFormState extends State<SwapForm>
                       ?.copyWith(color: Colors.white),
                 ),
               },
-              params: params,
+              params: _swapOutput.tx!["params"],
               isPlugin: true,
               onStatusChange: (status) {
                 if (status ==

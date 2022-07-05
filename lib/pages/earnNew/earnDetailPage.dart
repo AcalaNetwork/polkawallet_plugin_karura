@@ -257,25 +257,25 @@ class EarnDetailPage extends StatelessWidget {
                                         content: Fmt.ratio(
                                             rewardAPR + savingRewardAPR),
                                       ),
-                                      PluginInfoItem(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        title: dic['v3.earn.extraEarn'],
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    UI.getTextSize(12, context),
-                                                fontWeight: FontWeight.w600),
-                                        titleStyle: Theme.of(context)
-                                            .textTheme
-                                            .headline5
-                                            ?.copyWith(color: Colors.white),
-                                        content: Fmt.ratio(
-                                            plugin.service!.earn.getSwapFee()),
-                                      ),
+                                      // PluginInfoItem(
+                                      //   crossAxisAlignment:
+                                      //       CrossAxisAlignment.center,
+                                      //   title: dic['v3.earn.extraEarn'],
+                                      //   style: Theme.of(context)
+                                      //       .textTheme
+                                      //       .headline5
+                                      //       ?.copyWith(
+                                      //           color: Colors.white,
+                                      //           fontSize:
+                                      //               UI.getTextSize(12, context),
+                                      //           fontWeight: FontWeight.w600),
+                                      //   titleStyle: Theme.of(context)
+                                      //       .textTheme
+                                      //       .headline5
+                                      //       ?.copyWith(color: Colors.white),
+                                      //   content: Fmt.ratio(
+                                      //       plugin.service!.earn.getSwapFee()),
+                                      // ),
                                       PluginInfoItem(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,

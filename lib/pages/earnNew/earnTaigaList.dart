@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnTaigaDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -25,21 +26,24 @@ class EarnTaigaList extends StatefulWidget {
 }
 
 class _EarnTaigaListState extends State<EarnTaigaList> {
-  List<DexPoolData>? taigaPoolData;
-
+  bool _loading = true;
   Future<void> _queryTaigaPoolInfo() async {
     final info = await widget.plugin.api!.earn
         .getTaigaPoolInfo(widget.keyring.current.address!);
     widget.plugin.store!.earn.setTaigaPoolInfo(info);
-    taigaPoolData = await widget.plugin.api!.earn.getTaigaTokenPairs();
-    setState(() {});
+    final data = await widget.plugin.api!.earn.getTaigaTokenPairs();
+    widget.plugin.store!.earn.setTaigaTokenPairs(data!);
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     return Observer(builder: (_) {
-      var dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+      final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+      final taigaTokenPairs = widget.plugin.store!.earn.taigaTokenPairs;
       return Column(
         children: [
           ConnectionChecker(
@@ -47,7 +51,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
             onConnected: _queryTaigaPoolInfo,
           ),
           Expanded(
-              child: dexPools.length == 0
+              child: dexPools.length == 0 || taigaTokenPairs.length == 0
                   ? ListView(
                       padding: EdgeInsets.all(16),
                       children: [
@@ -56,7 +60,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                             height: MediaQuery.of(context).size.width,
                             child: ListTail(
                               isEmpty: true,
-                              isLoading: false,
+                              isLoading: _loading,
                               color: Colors.white,
                             ),
                           ),
@@ -81,6 +85,49 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                         taigaPoolInfo?.apy.forEach((key, value) {
                           apy += value;
                         });
+
+                        final taigaData = taigaTokenPairs.firstWhere(
+                            (element) =>
+                                element.tokenNameId ==
+                                dexPools.keys.toList()[i]);
+
+                        final tokenPair = taigaData.tokens!
+                            .map((e) => AssetsUtils.tokenDataFromCurrencyId(
+                                widget.plugin, e))
+                            .toList();
+
+                        var totalStaked = 0.0;
+                        if (tokenSymbol == "taiKSM") {
+                          totalStaked = Fmt.balanceDouble(
+                                  taigaPoolInfo?.totalShares ?? "",
+                                  balance.decimals!) *
+                              price;
+                        } else if (tokenSymbol == "3USD") {
+                          taigaData.balances!.forEach((element) {
+                            final index = taigaData.balances!.indexOf(element);
+                            totalStaked += Fmt.balanceDouble(
+                                element, tokenPair![index].decimals!);
+                          });
+                        }
+
+                        var unstaked = false;
+                        var staked = false;
+                        var canClaim = false;
+                        if (balance.amount != null &&
+                            Fmt.balanceInt(balance.amount) > BigInt.zero) {
+                          unstaked = true;
+                        }
+                        if (BigInt.parse(taigaPoolInfo!.userShares) >
+                            BigInt.zero) {
+                          staked = true;
+                        }
+                        var claim = BigInt.zero;
+                        taigaPoolInfo.reward.forEach((e) {
+                          claim += BigInt.parse(e);
+                        });
+                        if (claim > BigInt.zero) {
+                          canClaim = true;
+                        }
 
                         return GestureDetector(
                           child: RoundedPluginCard(
@@ -107,40 +154,38 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                           widget.plugin.tokenIcons,
                                           size: 24,
                                         ),
-                                        // Row(
-                                        //   children: [
-                                        //     Visibility(
-                                        //         visible: unstaked,
-                                        //         child: Padding(
-                                        //             padding: EdgeInsets.only(
-                                        //                 left: 4),
-                                        //             child: Image.asset(
-                                        //               "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
-                                        //               width: 24,
-                                        //             ))),
-                                        //     Visibility(
-                                        //         visible: (poolInfo?.shares ??
-                                        //                 BigInt.zero) !=
-                                        //             BigInt.zero,
-                                        //         child: Padding(
-                                        //             padding: EdgeInsets.only(
-                                        //                 left: 4),
-                                        //             child: SvgPicture.asset(
-                                        //               "packages/polkawallet_plugin_karura/assets/images/staked.svg",
-                                        //               color: Colors.white,
-                                        //               width: 24,
-                                        //             ))),
-                                        //     Visibility(
-                                        //         visible: canClaim,
-                                        //         child: Padding(
-                                        //             padding: EdgeInsets.only(
-                                        //                 left: 4),
-                                        //             child: Image.asset(
-                                        //               "packages/polkawallet_plugin_karura/assets/images/rewards.png",
-                                        //               width: 24,
-                                        //             ))),
-                                        //   ],
-                                        // )
+                                        Row(
+                                          children: [
+                                            Visibility(
+                                                visible: unstaked,
+                                                child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 4),
+                                                    child: Image.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
+                                                      width: 24,
+                                                    ))),
+                                            Visibility(
+                                                visible: staked,
+                                                child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 4),
+                                                    child: SvgPicture.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/staked.svg",
+                                                      color: Colors.white,
+                                                      width: 24,
+                                                    ))),
+                                            Visibility(
+                                                visible: canClaim,
+                                                child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 4),
+                                                    child: Image.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/rewards.png",
+                                                      width: 24,
+                                                    ))),
+                                          ],
+                                        )
                                       ],
                                     ),
                                   ),
@@ -194,24 +239,24 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                                   fontSize: UI.getTextSize(
                                                       24, context)),
                                         ),
-                                        Text(
-                                          '${dic['earn.staked']} \$${Fmt.priceFloorFormatter(Fmt.balanceDouble(taigaPoolInfo?.totalShares ?? "", balance.decimals!) * price)}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline5
-                                              ?.copyWith(
-                                                  color: Color(0xBDFFFFFF)),
-                                        ),
+                                        Padding(
+                                            padding: EdgeInsets.only(top: 6),
+                                            child: Text(
+                                              '${dic['earn.staked']} \$${Fmt.priceFloor(totalStaked)}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline5
+                                                  ?.copyWith(
+                                                      color: Color(0xBDFFFFFF)),
+                                            )),
                                       ],
                                     ),
                                   )),
                                 ],
                               )),
-                          onTap: () {
-                            // => Navigator.of(context).pushNamed(
-                            //   EarnDetailPage.route,
-                            //   arguments: {'poolId': dexPools[i].tokenNameId})
-                          },
+                          onTap: () => Navigator.of(context).pushNamed(
+                              EarnTaigaDetailPage.route,
+                              arguments: {'poolId': taigaData.tokenNameId}),
                         );
                       },
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

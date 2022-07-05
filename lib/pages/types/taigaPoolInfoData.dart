@@ -7,12 +7,11 @@ class TaigaPoolInfoData {
   Map<String, double> apy;
   List<String> reward;
   List<String> rewardTokens;
-  List<String> balances;
   String userShares;
   String totalShares;
 
   TaigaPoolInfoData(this.apy, this.reward, this.rewardTokens, this.totalShares,
-      this.userShares, this.balances);
+      this.userShares);
 
   factory TaigaPoolInfoData.fromJson(Map<String, dynamic> json) =>
       _$TaigaPoolInfoDataFromJson(json);

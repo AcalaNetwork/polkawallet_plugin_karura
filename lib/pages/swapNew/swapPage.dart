@@ -74,11 +74,7 @@ class _SwapPageState extends State<SwapPage> {
             child: PluginIconButton(
               onPressed: () =>
                   Navigator.of(context).pushNamed(SwapHistoryPage.route),
-              icon: Icon(
-                Icons.history,
-                size: 22,
-                color: Color(0xFF17161F),
-              ),
+              icon: Icon(Icons.history, size: 22, color: Colors.white),
             ),
           ),
           PluginAccountInfoAction(widget.keyring)
