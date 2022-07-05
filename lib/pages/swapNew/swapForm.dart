@@ -536,100 +536,90 @@ class _SwapFormState extends State<SwapForm>
               visible: isNativeTokenLow,
               child: InsufficientKARWarn(),
             ),
-            Stack(
-              alignment: AlignmentDirectional.center,
+            Column(
               children: [
-                Column(
-                  children: [
-                    PluginInputBalance(
-                      titleTag: dic['dex.pay'],
-                      tokenViewFunction: (value) {
-                        return PluginFmt.tokenView(value);
-                      },
-                      margin: EdgeInsets.only(bottom: 7),
-                      inputCtrl: _amountPayCtrl,
-                      tokenOptions: currencyOptionsLeft,
-                      tokenSelectTitle: dic['v3.swap.selectToken']!,
-                      getMarketPrice: (tokenSymbol) =>
-                          AssetsUtils.getMarketPrice(
-                              widget.plugin, tokenSymbol),
-                      onInputChange: _onSupplyAmountChange,
-                      onTokenChange: (token) {
-                        setState(() {
-                          _swapPair = token.tokenNameId == swapPair[1]
-                              ? [token.tokenNameId, swapPair[0]]
-                              : [token.tokenNameId, swapPair[1]];
-                          _maxInput = null;
-                        });
-                        widget.plugin.store!.swap.setSwapPair(
-                            _swapPair, widget.keyring.current.pubKey);
-                        _updateSwapAmount();
-                      },
-                      onClear: () {
-                        setState(() {
-                          _maxInput = null;
-                          _amountPayCtrl.text = '';
-                        });
-                      },
-                      balance: balancePair[0],
-                      tokenIconsMap: widget.plugin.tokenIcons,
-                      onSetMax:
-                          Fmt.balanceInt(balancePair[0].amount) > BigInt.zero &&
-                                  balancePair[0].symbol != acala_token_ids[0]
-                              ? (max) {
-                                  _onSetMax(
-                                      Fmt.balanceInt(balancePair[0].amount),
-                                      balancePair[0].decimals!,
-                                      nativeKeepAlive: nativeKeepAlive);
-                                }
-                              : null,
-                    ),
-                    PluginInputBalance(
-                      margin: EdgeInsets.only(top: 20),
-                      titleTag: dic['dex.receiveEstimate'],
-                      tokenViewFunction: (value) {
-                        return PluginFmt.tokenView(value);
-                      },
-                      inputCtrl: _amountReceiveCtrl,
-                      tokenOptions: currencyOptionsRight,
-                      tokenSelectTitle: dic['v3.swap.selectToken']!,
-                      getMarketPrice: (tokenSymbol) =>
-                          AssetsUtils.getMarketPrice(
-                              widget.plugin, tokenSymbol),
-                      onInputChange: _onTargetAmountChange,
-                      onTokenChange: (token) {
-                        setState(() {
-                          _swapPair = token.tokenNameId == swapPair[0]
-                              ? [swapPair[1], token.tokenNameId]
-                              : [swapPair[0], token.tokenNameId];
-                          _maxInput = null;
-                        });
-                        widget.plugin.store!.swap.setSwapPair(
-                            _swapPair, widget.keyring.current.pubKey);
-                        _updateSwapAmount();
-                      },
-                      // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
-                      //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
-                      //         nativeKeepAlive: nativeKeepAlive)
-                      //     : null,
-                      onClear: () {
-                        setState(() {
-                          _maxInput = null;
-                          _amountReceiveCtrl.text = '';
-                        });
-                      },
-                      balance: balancePair[1],
-                      tokenIconsMap: widget.plugin.tokenIcons,
-                    ),
-                  ],
+                PluginInputBalance(
+                  titleTag: dic['dex.pay'],
+                  tokenViewFunction: (value) {
+                    return PluginFmt.tokenView(value);
+                  },
+                  margin: EdgeInsets.only(bottom: 7),
+                  inputCtrl: _amountPayCtrl,
+                  tokenOptions: currencyOptionsLeft,
+                  tokenSelectTitle: dic['v3.swap.selectToken']!,
+                  getMarketPrice: (tokenSymbol) =>
+                      AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
+                  onInputChange: _onSupplyAmountChange,
+                  onTokenChange: (token) {
+                    setState(() {
+                      _swapPair = token.tokenNameId == swapPair[1]
+                          ? [token.tokenNameId, swapPair[0]]
+                          : [token.tokenNameId, swapPair[1]];
+                      _maxInput = null;
+                    });
+                    widget.plugin.store!.swap
+                        .setSwapPair(_swapPair, widget.keyring.current.pubKey);
+                    _updateSwapAmount();
+                  },
+                  onClear: () {
+                    setState(() {
+                      _maxInput = null;
+                      _amountPayCtrl.text = '';
+                    });
+                  },
+                  balance: balancePair[0],
+                  tokenIconsMap: widget.plugin.tokenIcons,
+                  onSetMax:
+                      Fmt.balanceInt(balancePair[0].amount) > BigInt.zero &&
+                              balancePair[0].symbol != acala_token_ids[0]
+                          ? (max) {
+                              _onSetMax(Fmt.balanceInt(balancePair[0].amount),
+                                  balancePair[0].decimals!,
+                                  nativeKeepAlive: nativeKeepAlive);
+                            }
+                          : null,
                 ),
                 GestureDetector(
-                  child: Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Image.asset(
-                          'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
-                          width: 39)),
+                  child: Image.asset(
+                      'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
+                      width: 39),
                   onTap: _swapPair.length > 1 ? () => _switchPair() : null,
+                ),
+                PluginInputBalance(
+                  margin: EdgeInsets.zero,
+                  titleTag: dic['dex.receiveEstimate'],
+                  tokenViewFunction: (value) {
+                    return PluginFmt.tokenView(value);
+                  },
+                  inputCtrl: _amountReceiveCtrl,
+                  tokenOptions: currencyOptionsRight,
+                  tokenSelectTitle: dic['v3.swap.selectToken']!,
+                  getMarketPrice: (tokenSymbol) =>
+                      AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
+                  onInputChange: _onTargetAmountChange,
+                  onTokenChange: (token) {
+                    setState(() {
+                      _swapPair = token.tokenNameId == swapPair[0]
+                          ? [swapPair[1], token.tokenNameId]
+                          : [swapPair[0], token.tokenNameId];
+                      _maxInput = null;
+                    });
+                    widget.plugin.store!.swap
+                        .setSwapPair(_swapPair, widget.keyring.current.pubKey);
+                    _updateSwapAmount();
+                  },
+                  // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
+                  //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
+                  //         nativeKeepAlive: nativeKeepAlive)
+                  //     : null,
+                  onClear: () {
+                    setState(() {
+                      _maxInput = null;
+                      _amountReceiveCtrl.text = '';
+                    });
+                  },
+                  balance: balancePair[1],
+                  tokenIconsMap: widget.plugin.tokenIcons,
                 ),
               ],
             ),
