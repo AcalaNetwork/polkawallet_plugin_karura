@@ -147,6 +147,14 @@ async function getAllTokens(api: ApiPromise) {
     .filter((e) => e.tokenNameId !== native_token && e.type !== "DexShare");
 }
 
+/**
+ * getTokensPrices
+ */
+async function getTokenPrices(tokens: string[]) {
+  const prices = await Promise.all(tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e)));
+  return prices.reduce((res, e, i) => ({ ...res, [tokens[i]]: e.toNumber(6) }), {});
+}
+
 function _getTokenType(token: Token) {
   return native_token_list.includes(token.name)
     ? "Token"
@@ -324,16 +332,16 @@ async function _fetchCollateralRewards(api: ApiPromise, pool: any, address: stri
   const incentives = Array.from(res[0].rewards.entries()).map((e: any) => {
     const currencyId = forceToCurrencyId(api, e[0]);
     const tokenNameId = forceToCurrencyName(currencyId);
+
     return {
       tokenNameId,
       currencyId,
-      amount: (
+      amount:
         FPNum(e[1][0], _getTokenDecimal(res[2], tokenNameId))
           .times(proportion)
           .minus(withdrawns.find((i) => i.tokenNameId === tokenNameId)?.amount || new FixedPointNumber(0))
           .plus(pendings.find((i) => i.tokenNameId === tokenNameId)?.amount || new FixedPointNumber(0))
-          .toNumber() || 0
-      ).toString(),
+          .toNumber() || 0,
     };
   });
   pendings.forEach((e) => {
@@ -341,7 +349,7 @@ async function _fetchCollateralRewards(api: ApiPromise, pool: any, address: stri
       incentives.push({
         tokenNameId: e.tokenNameId,
         currencyId: e.currencyId,
-        amount: e.amount.toNumber().toString(),
+        amount: e.amount.toNumber(),
       });
     }
   });
@@ -351,7 +359,7 @@ async function _fetchCollateralRewards(api: ApiPromise, pool: any, address: stri
     sharesTotal: res[0].totalShares,
     shares: res[1][0],
     proportion: proportion.toNumber() || 0,
-    reward: incentives,
+    reward: incentives.filter((e) => !!e.amount),
   };
 }
 
@@ -907,6 +915,7 @@ export default {
   getSwapTokens,
   calcTokenSwapAmount,
   getAllTokens,
+  getTokenPrices,
   getTokenBalance,
   getTokenPairs,
   getTaigaTokenPairs,

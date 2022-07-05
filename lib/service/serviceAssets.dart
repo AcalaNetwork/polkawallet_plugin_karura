@@ -30,33 +30,8 @@ class ServiceAssets {
 
     queryDexPrices();
 
-    final all = PluginFmt.getAllDexTokens(plugin).map((e) => e.symbol).toList();
-    all.removeWhere((e) =>
-        e!.contains('USD') ||
-        e.toLowerCase().contains('tai') ||
-        (e != relay_chain_token_symbol &&
-            e.contains(relay_chain_token_symbol)));
-    if (all.length == 0) return;
-
-    final Map? res = await WalletApi.getTokenPrice(all);
-    final Map<String, double> prices = {
-      karura_stable_coin: 1.0,
-      'USDT': 1.0,
-      ...(res ?? {})
-    };
-
-    try {
-      if (prices[relay_chain_token_symbol] != null) {
-        prices['taiKSM'] = prices[relay_chain_token_symbol]!;
-
-        final homaEnv = await plugin.service!.homa.queryHomaEnv();
-        prices['L$relay_chain_token_symbol'] =
-            prices[relay_chain_token_symbol]! * homaEnv.exchangeRate;
-      }
-    } catch (err) {
-      print(err);
-      // ignore
-    }
+    final prices = await plugin.api!.assets.getTokenPrices(
+        plugin.store!.assets.allTokens.map((e) => e.symbol ?? '').toList());
 
     store!.assets.setMarketPrices(prices);
   }

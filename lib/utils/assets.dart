@@ -116,7 +116,8 @@ class AssetsUtils {
   }
 
   static double getMarketPrice(PluginKarura plugin, String tokenSymbol) {
-    final market = plugin.store!.assets.marketPrices[tokenSymbol] ?? 0;
+    final market =
+        plugin.store!.assets.marketPrices[tokenSymbol]?.toDouble() ?? 0;
     return market == 0
         ? plugin.store!.assets.dexPrices[tokenSymbol] ?? 0
         : market;

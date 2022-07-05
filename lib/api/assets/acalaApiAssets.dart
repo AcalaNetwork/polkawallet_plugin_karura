@@ -33,6 +33,11 @@ class AcalaApiAssets {
     return res;
   }
 
+  Future<Map<String, num>> getTokenPrices(List<String> tokens) async {
+    final res = await service.getTokenPrices(tokens);
+    return Map<String, num>.from(res);
+  }
+
   void unsubscribeTokenBalances(String? address) {
     service.unsubscribeTokenBalances(address);
   }
