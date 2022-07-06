@@ -40,6 +40,14 @@ class _MintPageState extends State<MintPage> {
   bool isLoading = false;
   int _selectIndex = 1;
 
+  Future<void> _queryTaigaPoolInfo() async {
+    final info = await widget.plugin.api!.earn
+        .getTaigaPoolInfo(widget.keyring.current.address!);
+    widget.plugin.store!.earn.setTaigaPoolInfo(info);
+    final data = await widget.plugin.api!.earn.getTaigaTokenPairs();
+    widget.plugin.store!.earn.setTaigaTokenPairs(data!);
+  }
+
   Future<void> _updateReceiveAmount(double input) async {
     if (input == 0) {
       return null;
@@ -225,6 +233,18 @@ class _MintPageState extends State<MintPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final data = ModalRoute.of(context)!.settings.arguments as Map;
+      if (data != null && data["selectMethod"] != null) {
+        _queryTaigaPoolInfo();
+      }
+    });
+  }
+
+  @override
   Widget build(_) {
     return Observer(
       builder: (BuildContext context) {
@@ -268,12 +288,19 @@ class _MintPageState extends State<MintPage> {
           });
         }
 
+        final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+        double taigaApr = 0;
+        dexPools["sa://0"]?.apy.forEach((key, value) {
+          taigaApr += value;
+        });
+
         return PluginScaffold(
           appBar: PluginAppBar(
               title: Text('${dic['homa.mint']} L$stakeToken'),
               centerTitle: true),
           body: SafeArea(
-              child: isDataLoading
+              child: isDataLoading ||
+                      (isRewardsOpen && isSelectMethod && dexPools.length == 0)
                   ? Container(
                       height: double.infinity,
                       width: double.infinity,
@@ -382,11 +409,11 @@ class _MintPageState extends State<MintPage> {
                                         UnStakeTypeItemWidget(
                                           title: dic['earn.dex.joinPool']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} ${baseApr.toStringAsFixed(2)}%",
+                                              "${dic['v3.homa.stake.apy.total']!} ${(baseApr + taigaApr * 100).toStringAsFixed(2)}%",
                                           subtitle: Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}% + ${dic['v3.homa.stake.apy.reward']} XX%)',
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}% + ${dic['v3.homa.stake.apy.reward']} ${(taigaApr * 100).toStringAsFixed(2)}%)',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6

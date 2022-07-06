@@ -6,11 +6,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/taigaAddLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
@@ -170,11 +172,22 @@ class _TaigaDexPoolCard extends StatelessWidget {
         ratio.add((Fmt.balanceDouble(
                     pool!.balances![i], balancePair[i].decimals!) /
                 Fmt.balanceDouble(pool!.balances![0], balancePair[0].decimals!))
-            .toStringAsFixed(2));
+            .toStringAsFixed(3));
       } else {
         ratio.add("0.0");
       }
     }
+
+    List<List<TokenBalanceData>> balancePairLine = [];
+    for (int i = 0; i < balancePair.length; i++) {
+      if (i + 1 >= balancePair.length) {
+        balancePairLine.add([balancePair[i]]);
+      } else {
+        balancePairLine.add([balancePair[i], balancePair[i + 1]]);
+      }
+      i++;
+    }
+    balancePair.forEach((element) {});
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(vertical: 16),
@@ -231,24 +244,34 @@ class _TaigaDexPoolCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             color: Color(0xFF494b4e),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ...balancePair.map((e) {
-                  final index = balancePair.indexOf(e);
-                  return PluginInfoItem(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    title: PluginFmt.tokenView(e.symbol),
-                    content:
-                        "${Fmt.priceFloorFormatter(Fmt.balanceDouble(pool!.balances![index], e.decimals!))}",
-                  );
-                }).toList(),
-                PluginInfoItem(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  title: dic['boot.ratio'],
-                  content: '1 : ${ratio.join(" : ")}',
-                ),
-              ],
+            child: Column(
+              children: balancePairLine.map((i) {
+                final indexI = balancePairLine.indexOf(i);
+                return Padding(
+                    padding: EdgeInsets.only(
+                        bottom: indexI + 1 >= balancePairLine.length ? 0 : 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ...i.map((e) {
+                          final index = i.indexOf(e);
+                          return PluginInfoItem(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            title: PluginFmt.tokenView(e.symbol),
+                            content:
+                                "${Fmt.priceFloorFormatter(Fmt.balanceDouble(pool!.balances![indexI * 2 + index], e.decimals!))}",
+                          );
+                        }).toList(),
+                        Visibility(
+                            visible: indexI + 1 >= balancePairLine.length,
+                            child: PluginInfoItem(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              title: dic['boot.ratio'],
+                              content: '1 : ${ratio.join(" : ")}',
+                            )),
+                      ],
+                    ));
+              }).toList(),
             ),
           ),
           Padding(
@@ -272,7 +295,7 @@ class _TaigaDexPoolCard extends StatelessWidget {
                       color: Color(0xFFFC8156),
                       active: true,
                       onPressed: () => Navigator.of(context).pushNamed(
-                          AddLiquidityPage.route,
+                          TaigaAddLiquidityPage.route,
                           arguments: {'poolId': pool?.tokenNameId}),
                     ),
                   ),

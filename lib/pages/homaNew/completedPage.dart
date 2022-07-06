@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
-import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/taigaAddLiquidityPage.dart';
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
 class CompletedPage extends StatefulWidget {
-  CompletedPage({Key? key}) : super(key: key);
+  CompletedPage(this.plugin, {Key? key}) : super(key: key);
+  final PluginKarura plugin;
 
   static final String route = '/homa/completed';
   @override
@@ -36,6 +38,12 @@ class _CompletedPageState extends State<CompletedPage> {
     final data = ModalRoute.of(context)!.settings.arguments as Map;
 
     final stakeToken = relay_chain_token_symbol;
+
+    final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+    double taigaApr = 0;
+    dexPools["sa://0"]?.apy.forEach((key, value) {
+      taigaApr += value;
+    });
 
     return PluginScaffold(
         appBar: PluginAppBar(
@@ -67,7 +75,7 @@ class _CompletedPageState extends State<CompletedPage> {
               Padding(
                 padding: EdgeInsets.only(left: 45, right: 45, top: 16),
                 child: Text(
-                  "${dic['earn.dex.joinPool.message1']} $relay_chain_token_symbol-L$relay_chain_token_symbol ${dic['earn.dex.joinPool.message2']} xx% ${dic['earn.dex.joinPool.message3']}",
+                  "${dic['earn.dex.joinPool.message1']} $relay_chain_token_symbol-L$relay_chain_token_symbol ${dic['earn.dex.joinPool.message2']} ${Fmt.ratio(taigaApr)} ${dic['earn.dex.joinPool.message3']}",
                   style: Theme.of(context)
                       .textTheme
                       .headline5
@@ -94,8 +102,8 @@ class _CompletedPageState extends State<CompletedPage> {
                         title: dic['earn.add']!,
                         //toDo: poolId
                         onPressed: () => Navigator.of(context).popAndPushNamed(
-                            AddLiquidityPage.route,
-                            arguments: {'poolId': "poolId"}),
+                            TaigaAddLiquidityPage.route,
+                            arguments: {'poolId': "sa://0"}),
                       ),
                     )
                   ],
