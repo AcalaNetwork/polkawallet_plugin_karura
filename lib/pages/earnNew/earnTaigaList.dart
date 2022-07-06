@@ -152,22 +152,13 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                     child: Row(
                                       children: [
                                         PluginTokenIcon(
-                                          tokenSymbol ?? "",
+                                          tokenPairView.split("-").length > 2
+                                              ? tokenSymbol ?? ""
+                                              : tokenPairView,
                                           widget.plugin.tokenIcons,
                                           size: 24,
+                                          bgColor: Color(0xFF9E98E7),
                                         ),
-                                        Padding(
-                                            padding: EdgeInsets.only(left: 3),
-                                            child: Text(
-                                              PluginFmt.tokenView(tokenSymbol),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Color(0xBDFFFFFF),
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                            )),
                                         Expanded(
                                             child: Row(
                                           mainAxisAlignment:
@@ -221,7 +212,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          tokenPairView,
+                                          PluginFmt.tokenView(tokenSymbol),
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline4

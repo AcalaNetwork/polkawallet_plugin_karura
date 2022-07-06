@@ -346,5 +346,7 @@ const Map<String, String> enDex = {
   'earn.taiga.claimAirdrop': 'Claim Airdrop',
   'earn.taiga.stakeNotRequired': 'Stake not Required',
   'earn.taiga.claimMessage':
-      'Tap claim to see your LP detail and claim your rewards'
+      'Tap claim to see your LP detail and claim your rewards',
+  'earn.taiga.addLiquidity': 'Add all assets in a balanced proportion',
+  'earn.taiga.poolSize': 'Pool Size'
 };

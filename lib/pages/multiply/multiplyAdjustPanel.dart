@@ -12,7 +12,6 @@ import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTh
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTickMarkShape.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTrackShape.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
-import 'package:polkawallet_plugin_karura/pages/types/loanPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';

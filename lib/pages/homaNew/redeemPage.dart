@@ -103,6 +103,7 @@ class _RedeemPageState extends State<RedeemPage> {
           AssetsUtils.getBalanceFromTokenNameId(widget.plugin, 'L$stakeToken');
       final token =
           AssetsUtils.getBalanceFromTokenNameId(widget.plugin, stakeToken);
+      const slippage = 0.005;
       final swapRes = await widget.plugin.api!.swap.queryTokenSwapAmount(
           input.toString(),
           null,
@@ -110,9 +111,9 @@ class _RedeemPageState extends State<RedeemPage> {
             lToken.tokenNameId!,
             token.tokenNameId!,
           ],
-          '0.1');
+          slippage.toString());
       setState(() {
-        _swapAmount = swapRes.amount!;
+        _swapAmount = swapRes.amount! * (1 - slippage);
         _swapOutput = swapRes;
         isLoading = false;
       });

@@ -26,6 +26,7 @@ import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 
 class SwapForm extends StatefulWidget {
   SwapForm(this.plugin, this.keyring, {this.initialSwapPair});
@@ -884,6 +885,54 @@ class _SwapFormState extends State<SwapForm>
                                 child:
                                     Text(dic['dex.route']!, style: labelStyle),
                               ),
+                              // v3.PopupMenuButton(
+                              //     offset: Offset(-12, 52),
+                              //     color: Theme.of(context).cardColor,
+                              //     padding: EdgeInsets.zero,
+                              //     elevation: 3,
+                              //     itemWidth: 500,
+                              //     shape: RoundedRectangleBorder(
+                              //       borderRadius: BorderRadius.only(
+                              //           topLeft: Radius.circular(10),
+                              //           bottomLeft: Radius.circular(10),
+                              //           bottomRight: Radius.circular(10)),
+                              //     ),
+                              //     itemBuilder: (BuildContext context) {
+                              //       return <v3.PopupMenuEntry<String>>[
+                              //         v3.PopupMenuItem(
+                              //           height: 94,
+                              //           child: RouteWidget(widget.plugin,
+                              //               path: _swapOutput.path),
+                              //           value: '0',
+                              //         ),
+                              //       ];
+                              //     },
+                              //     child: Container(
+                              //       decoration: BoxDecoration(
+                              //           color: Color(0x1AFFFFFF),
+                              //           border: Border.all(
+                              //               color: const Color(0x59FFFFFF),
+                              //               width: 0.58),
+                              //           borderRadius: BorderRadius.all(
+                              //               Radius.circular(15.05))),
+                              //       child: Row(
+                              //         children: [
+                              //           PluginTokenIcon(balancePair[0].symbol!,
+                              //               widget.plugin.tokenIcons,
+                              //               size: 21),
+                              //           Padding(
+                              //             padding: EdgeInsets.symmetric(
+                              //                 horizontal: 3),
+                              //             child: Image.asset(
+                              //                 "packages/polkawallet_plugin_karura/assets/images/swap_to.png",
+                              //                 width: 14),
+                              //           ),
+                              //           PluginTokenIcon(balancePair[1].symbol!,
+                              //               widget.plugin.tokenIcons,
+                              //               size: 21)
+                              //         ],
+                              //       ),
+                              //     )),
                               GestureDetector(
                                   onTap: () {
                                     setState(() {
@@ -956,7 +1005,7 @@ class RouteWidget extends StatelessWidget {
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          color: Colors.white.withAlpha(36)),
+          color: Color(0xFF404142)),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,

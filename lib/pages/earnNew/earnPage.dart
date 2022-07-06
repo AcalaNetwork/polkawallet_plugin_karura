@@ -71,12 +71,13 @@ class _EarnPageState extends State<EarnPage> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.fromLTRB(16, 8, 0, 8),
+              margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: PluginPageTitleTaps(
                 names: [dic['earn.dex']!, dic['earn.loan']!, dic['airdrop']!],
                 activeTab: _tab,
                 // fontSize: 20,
                 // lineWidth: 6,
+                isSpaceBetween: true,
                 onTap: (i) {
                   setState(() {
                     _tab = i;

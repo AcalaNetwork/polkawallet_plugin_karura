@@ -324,5 +324,7 @@ const Map<String, String> zhDex = {
   'earn.dex.joinPool.message3': '年利率的奖励!',
   'earn.taiga.claimAirdrop': '领取空投',
   'earn.taiga.stakeNotRequired': '无需质押',
-  'earn.taiga.claimMessage': '点击认领查看您的LP详细信息并认领您的奖励'
+  'earn.taiga.claimMessage': '点击认领查看您的LP详细信息并认领您的奖励',
+  'earn.taiga.addLiquidity': '以平衡的比例添加所有资产',
+  'earn.taiga.poolSize': '池子大小'
 };

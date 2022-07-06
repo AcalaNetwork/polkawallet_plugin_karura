@@ -7,6 +7,7 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/taigaAddLiquidityPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/taigaWithdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -199,8 +200,14 @@ class _TaigaDexPoolCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    child:
-                        PluginTokenIcon(balance.symbol!, tokenIcons!, size: 26),
+                    child: PluginTokenIcon(
+                      tokenPairView.split("-").length > 2
+                          ? balance.symbol!
+                          : tokenPairView,
+                      tokenIcons!,
+                      size: 26,
+                      bgColor: Color(0xFF9E98E7),
+                    ),
                     margin: EdgeInsets.only(right: 12),
                   ),
                   Expanded(
@@ -284,8 +291,8 @@ class _TaigaDexPoolCard extends StatelessWidget {
                       color: Color(0xFFcdcdce),
                       active: true,
                       onPressed: () => Navigator.of(context).pushNamed(
-                          WithdrawLiquidityPage.route,
-                          arguments: pool),
+                          TaigaWithdrawLiquidityPage.route,
+                          arguments: {'poolId': pool?.tokenNameId}),
                     ),
                   ),
                   Expanded(

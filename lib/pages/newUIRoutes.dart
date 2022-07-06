@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/pages/earnNew/earnTaigaDetailPage.dart
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/inviteFriendsPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/taigaAddLiquidityPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/taigaWithdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/withdrawLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/governancePage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/referendumVotePage.dart';
@@ -103,6 +104,8 @@ Map<String, WidgetBuilder> getNewUiRoutes(
               EarnTaigaDetailPage(plugin, keyring),
           TaigaAddLiquidityPage.route: (_) =>
               TaigaAddLiquidityPage(plugin, keyring),
+          TaigaWithdrawLiquidityPage.route: (_) =>
+              TaigaWithdrawLiquidityPage(plugin, keyring),
 
           //nft
           NftPage.route: (_) => NftPage(plugin, keyring),

@@ -238,8 +238,8 @@ class _LoanPageState extends State<LoanPage> {
       /// The initial tab index will be from arguments or user's vault.
       int initialLoanTypeIndex = 0;
       if (args.loanType != null) {
-        initialLoanTypeIndex = widget.plugin.store!.loan.loanTypes
-            .indexWhere((e) => e.token?.tokenNameId == args.loanType);
+        initialLoanTypeIndex =
+            loanTypes.indexWhere((e) => e.token?.tokenNameId == args.loanType);
       }
 
       final headCardWidth = MediaQuery.of(context).size.width - 16 * 2 - 6 * 2;

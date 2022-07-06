@@ -100,7 +100,6 @@ class _CompletedPageState extends State<CompletedPage> {
                       child: PluginButton(
                         backgroundColor: PluginColorsDark.headline1,
                         title: dic['earn.add']!,
-                        //toDo: poolId
                         onPressed: () => Navigator.of(context).popAndPushNamed(
                             TaigaAddLiquidityPage.route,
                             arguments: {'poolId': "sa://0"}),
