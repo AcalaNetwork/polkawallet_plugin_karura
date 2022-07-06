@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 
@@ -6,6 +7,20 @@ class AcalaServiceEarn {
   AcalaServiceEarn(this.plugin);
 
   final PluginKarura plugin;
+
+  Future<Map?> getTaigaMintAmount(
+      String poolId, List<String> input, double slippage) async {
+    final Map? res = await plugin.sdk.webView!.evalJavascript(
+        'acala.getTaigaMintAmount(apiRx,"$poolId",${jsonEncode(input)},$slippage)');
+    return res;
+  }
+
+  Future<List?> getTaigaRedeemAmount(
+      String poolId, String input, double slippage) async {
+    final List? res = await plugin.sdk.webView!.evalJavascript(
+        'acala.getTaigaRedeemAmount(apiRx,"$poolId","$input",$slippage)');
+    return res;
+  }
 
   Future<List?> getTaigaTokenPairs() async {
     final List? res = await plugin.sdk.webView!

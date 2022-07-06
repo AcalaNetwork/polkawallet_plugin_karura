@@ -8,6 +8,20 @@ class AcalaApiEarn {
 
   final AcalaServiceEarn service;
 
+  Future<Map?> getTaigaMintAmount(
+      String poolId, List<String> input, double slippage) async {
+    final Map? res = await service.getTaigaMintAmount(poolId, input, slippage);
+    //{"minAmount":"99215063014","params":[0,["98963000000","0"],"99215063014"]}
+    return res;
+  }
+
+  Future<List?> getTaigaRedeemAmount(
+      String poolId, String input, double slippage) async {
+    final List? res =
+        await service.getTaigaRedeemAmount(poolId, input, slippage);
+    return res;
+  }
+
   Future<List<DexPoolData>?> getTaigaTokenPairs() async {
     final List? res = await service.getTaigaTokenPairs();
     return res?.map((e) => DexPoolData.fromJson(e)).toList();

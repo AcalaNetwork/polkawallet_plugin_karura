@@ -36,6 +36,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
   List<TextEditingController> _textControllers = [];
   List<dynamic> _error = [];
   bool _balancedProportion = false;
+  Map<dynamic, dynamic>? _mintAmount;
 
   bool _loading = true;
   Future<void> _queryTaigaPoolInfo() async {
@@ -46,6 +47,31 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
     widget.plugin.store!.earn.setTaigaTokenPairs(data!);
     setState(() {
       _loading = false;
+    });
+  }
+
+  Future<void> _getTaigaMintAmount() async {
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    final pool = widget.plugin.store!.earn.taigaTokenPairs
+        .firstWhere((e) => e.tokenNameId == args?['poolId']);
+    final tokenPair = pool.tokens!
+        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+        .toList();
+
+    final List<String> input = [];
+    _textControllers.forEach((element) {
+      final index = _textControllers.indexOf(element);
+      if (element.text.trim().isNotEmpty) {
+        input.add(Fmt.tokenInt(element.text.trim(), tokenPair[index].decimals!)
+            .toString());
+      } else {
+        input.add("0");
+      }
+    });
+    final info = await widget.plugin.api!.earn
+        .getTaigaMintAmount(args?['poolId'], input, 0.005);
+    setState(() {
+      _mintAmount = info;
     });
   }
 
@@ -78,7 +104,10 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
     } else {
       _textControllers[index].text = target;
     }
-    _onValidate(tokenPair, index);
+    final res = _onValidate(tokenPair, index);
+    if (res) {
+      _getTaigaMintAmount();
+    }
   }
 
   Future<void> _onAmountChange(DexPoolData taigaToken,
@@ -105,7 +134,9 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
         }
       });
     }
-    _onValidate(tokenPair, index);
+    if (_onValidate(tokenPair, index)) {
+      _getTaigaMintAmount();
+    }
   }
 
   bool _onValidate(List<TokenBalanceData> tokenPair, int index) {
@@ -127,7 +158,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
       }
     });
     setState(() {});
-    return _error.indexWhere((element) => element != null) > 0;
+    return _error.indexWhere((element) => element != null) < 0;
   }
 
   Future<void> _onSubmit(int? decimalsLeft, int? decimalsRight) async {
@@ -138,33 +169,33 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
           .firstWhere((e) => e.tokenNameId == args?['poolId']);
 
       Map<String, Widget> txDisplayBold = {};
-      final params = [
-        args?['poolId'],
-        _textControllers.map((e) {
-          final taigaTokenPairs = widget.plugin.store!.earn.taigaTokenPairs;
-          final taigaToken = taigaTokenPairs
-              .where((e) => e.tokenNameId == args?['poolId'])
-              .first;
-          final tokenPair = taigaToken.tokens!
-              .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
-              .toList();
-          final index = _textControllers.indexOf(e);
-          if (e.text.trim().isNotEmpty) {
-            txDisplayBold.addAll({
-              "Token ${index + 1}": Text(
-                '${e.text.trim()} ${PluginFmt.tokenView(tokenPair[index].symbol)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1
-                    ?.copyWith(color: Colors.white),
-              )
-            });
-          }
-          return Fmt.tokenInt(e.text.trim(), tokenPair[index].decimals!)
-              .toString();
-        }).toList(),
-        '0',
-      ];
+      // final params = [
+      //   args?['poolId'],
+      //   _textControllers.map((e) {
+      //     final taigaTokenPairs = widget.plugin.store!.earn.taigaTokenPairs;
+      //     final taigaToken = taigaTokenPairs
+      //         .where((e) => e.tokenNameId == args?['poolId'])
+      //         .first;
+      //     final tokenPair = taigaToken.tokens!
+      //         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+      //         .toList();
+      //     final index = _textControllers.indexOf(e);
+      //     if (e.text.trim().isNotEmpty) {
+      //       txDisplayBold.addAll({
+      //         "Token ${index + 1}": Text(
+      //           '${e.text.trim()} ${PluginFmt.tokenView(tokenPair[index].symbol)}',
+      //           style: Theme.of(context)
+      //               .textTheme
+      //               .headline1
+      //               ?.copyWith(color: Colors.white),
+      //         )
+      //       });
+      //     }
+      //     return Fmt.tokenInt(e.text.trim(), tokenPair[index].decimals!)
+      //         .toString();
+      //   }).toList(),
+      //   '0',
+      // ];
 
       final tokenPair = pool.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
@@ -180,7 +211,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                 .getDic(i18n_full_dic_karura, 'acala')!['earn.add'],
             txDisplay: txDisplay,
             txDisplayBold: txDisplayBold,
-            params: params,
+            params: _mintAmount!["params"],
             isPlugin: true,
           ))) as Map?;
       if (res != null) {
@@ -310,7 +341,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                   ));
                             }).toList(),
                             Padding(
-                                padding: EdgeInsets.only(top: 10),
+                                padding: EdgeInsets.only(top: 10, bottom: 24),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   mainAxisSize: MainAxisSize.max,
@@ -348,8 +379,8 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                     )
                                   ],
                                 )),
-                            Padding(
-                                padding: EdgeInsets.only(top: 24),
+                            Visibility(
+                                visible: _mintAmount != null,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -367,7 +398,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                       ),
                                     ),
                                     Text(
-                                        '≈ ${PluginFmt.tokenView(balance.symbol)}',
+                                        '≈ ${Fmt.priceFloorBigInt(BigInt.parse(_mintAmount?["minAmount"] ?? "0"), balance.decimals!)} ${PluginFmt.tokenView(balance.symbol)}',
                                         textAlign: TextAlign.right,
                                         style: Theme.of(context)
                                             .textTheme
