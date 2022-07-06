@@ -204,7 +204,7 @@ async function getTokenPairs(api: ApiPromise) {
       tokenNameId: createDexShareName(forceToCurrencyName(item[0]), forceToCurrencyName(item[1])),
     }));
 }
-async function getTaigaTokenPairs(apiRx: ApiRx) {
+async function getTaigaTokenPairs() {
   _ensureTaigaEnv();
 
   const [stablePools, homaEnv] = await Promise.all([firstValueFrom(stableAssetApi.subscribeAllPools().pipe(take(1))), homa.getEnv()]);
@@ -269,7 +269,7 @@ async function getTaigaPoolInfo(api: ApiPromise, address: string) {
   };
 }
 
-async function getTaigaMintAmount(apiRx: ApiRx, poolNameId: string, input: string[], slippage: number) {
+async function getTaigaMintAmount(poolNameId: string, input: string[], slippage: number) {
   _ensureTaigaEnv();
 
   const [stablePools, homaEnv] = await Promise.all([firstValueFrom(stableAssetApi.subscribeAllPools().pipe(take(1))), homa.getEnv()]);
@@ -292,12 +292,11 @@ async function getTaigaMintAmount(apiRx: ApiRx, poolNameId: string, input: strin
   };
 }
 
-async function getTaigaRedeemAmount(apiRx: ApiRx, poolNameId: string, input: string, slippage: number) {
+async function getTaigaRedeemAmount(poolNameId: string, input: string, slippage: number) {
   _ensureTaigaEnv();
 
   const [stablePools, homaEnv] = await Promise.all([firstValueFrom(stableAssetApi.subscribeAllPools().pipe(take(1))), homa.getEnv()]);
   const pool = stablePools.find((e) => forceToCurrencyName(e.poolAsset) === poolNameId);
-  const poolTokens = pool.assets.map((e) => (<any>window).wallet.__getToken(e));
   const adjustedExchangeRate = homaEnv.exchangeRate.times(new FixedPointNumber(0.999));
   const res = await firstValueFrom(
     stableAssetApi
