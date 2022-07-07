@@ -15,6 +15,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
@@ -25,7 +26,6 @@ import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
-import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class HomaPage extends StatefulWidget {
   HomaPage(this.plugin, this.keyring);
@@ -197,10 +197,7 @@ class _HomaPageState extends State<HomaPage> {
           MediaQuery.of(context).size.width - paddingHorizontal * 2;
       final riveHeight = riveWidget / 360 * 292;
 
-      // todo: use dead coded 19.92% now.
-      final aprValue = 22.44;
-      // final aprValue =
-      //     "${Fmt.priceFloor((env?.apy ?? 0) * 100, lengthFixed: 0)}%";
+      final aprValue = (env?.apy ?? 0) * 100;
       bool isRewardsOpen = false;
       double rewardApr = 0;
       final rewards =

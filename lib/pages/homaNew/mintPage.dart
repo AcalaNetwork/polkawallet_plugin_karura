@@ -275,7 +275,7 @@ class _MintPageState extends State<MintPage> {
         }
 
         bool isRewardsOpen = false;
-        final baseApr = 22.44;
+        final baseApr = (widget.plugin.store!.homa.env?.apy ?? 0) * 100;
         double rewardApr = 0;
         final rewards =
             widget.plugin.store!.earn.incentives.loans?['L$stakeToken'];
