@@ -16,6 +16,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/dialog.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
@@ -341,23 +342,13 @@ class _EarnDexListState extends State<EarnDexList> {
                       });
                     },
                   ),
-                  GestureDetector(
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          border: Border.all(
-                              width: 1, color: PluginColorsDark.headline1)),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          'assets/images/icon_screening.svg',
-                          color: PluginColorsDark.headline1,
-                          width: 22,
-                        ),
-                      ),
+                  PluginIconButton(
+                    icon: SvgPicture.asset(
+                      'assets/images/icon_screening.svg',
+                      color: PluginColorsDark.headline1,
+                      width: 22,
                     ),
-                    onTap: () {
+                    onPressed: () {
                       showCupertinoModalPopup(
                         context: context,
                         builder: (context) {
@@ -389,7 +380,7 @@ class _EarnDexListState extends State<EarnDexList> {
                         },
                       );
                     },
-                  )
+                  ),
                 ],
               )),
           Expanded(
@@ -529,7 +520,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                                         left: 4),
                                                     child: Image.asset(
                                                       "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
-                                                      width: 24,
+                                                      width: 22,
                                                     ))),
                                             Visibility(
                                                 visible: (poolInfo?.shares ??
@@ -538,10 +529,9 @@ class _EarnDexListState extends State<EarnDexList> {
                                                 child: Padding(
                                                     padding: EdgeInsets.only(
                                                         left: 4),
-                                                    child: SvgPicture.asset(
-                                                      "packages/polkawallet_plugin_karura/assets/images/staked.svg",
-                                                      color: Colors.white,
-                                                      width: 24,
+                                                    child: Image.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/staked_1.png",
+                                                      width: 22,
                                                     ))),
                                             Visibility(
                                                 visible: canClaim,
@@ -550,7 +540,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                                         left: 4),
                                                     child: Image.asset(
                                                       "packages/polkawallet_plugin_karura/assets/images/rewards.png",
-                                                      width: 24,
+                                                      width: 22,
                                                     ))),
                                           ],
                                         )

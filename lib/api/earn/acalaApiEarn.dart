@@ -15,10 +15,11 @@ class AcalaApiEarn {
     return res;
   }
 
-  Future<List?> getTaigaRedeemAmount(
+  Future<Map?> getTaigaRedeemAmount(
       String poolId, String input, double slippage) async {
-    final List? res =
+    final Map? res =
         await service.getTaigaRedeemAmount(poolId, input, slippage);
+    // {"minAmount":["23693477297","384434880258"],"params":[0,"69679144669",["23693477297","45491610738"]]}
     return res;
   }
 

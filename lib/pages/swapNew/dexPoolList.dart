@@ -48,7 +48,7 @@ class _DexPoolListState extends State<DexPoolList> {
     pools.asMap().forEach((i, e) {
       poolInfoMap[e.tokenNameId] = res![i];
     });
-    await _queryTaigaPoolInfo();
+    _queryTaigaPoolInfo();
     if (mounted) {
       setState(() {
         _poolInfoMap = poolInfoMap;
@@ -225,16 +225,15 @@ class _TaigaDexPoolCard extends StatelessWidget {
                               padding: EdgeInsets.only(left: 4),
                               child: Image.asset(
                                 "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
-                                width: 24,
+                                width: 22,
                               ))),
                       Visibility(
                           visible: staked,
                           child: Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: SvgPicture.asset(
-                                "packages/polkawallet_plugin_karura/assets/images/staked.svg",
-                                color: Colors.white,
-                                width: 24,
+                              child: Image.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/staked_1.png",
+                                width: 22,
                               ))),
                       Visibility(
                           visible: canClaim,
@@ -242,7 +241,7 @@ class _TaigaDexPoolCard extends StatelessWidget {
                               padding: EdgeInsets.only(left: 4),
                               child: Image.asset(
                                 "packages/polkawallet_plugin_karura/assets/images/rewards.png",
-                                width: 24,
+                                width: 22,
                               ))),
                     ],
                   )

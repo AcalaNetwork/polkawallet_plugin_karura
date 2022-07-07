@@ -67,7 +67,6 @@ class _SwapFormState extends State<SwapForm>
 
   bool rateReversed = false;
   bool _detailShow = false;
-  bool _detailRouteShow = false;
 
   AnimationController? _animationController;
   Animation<double>? _animation;
@@ -375,7 +374,6 @@ class _SwapFormState extends State<SwapForm>
                     _amountReceiveCtrl.text = "";
                     _amountPayCtrl.text = "";
                     _detailShow = false;
-                    _detailRouteShow = false;
                     _error = null;
                     _errorReceive = null;
                   });
@@ -518,90 +516,104 @@ class _SwapFormState extends State<SwapForm>
               visible: isNativeTokenLow,
               child: InsufficientKARWarn(),
             ),
-            Column(
+            Stack(
+              alignment: Alignment.center,
               children: [
-                PluginInputBalance(
-                  titleTag: dic['dex.pay'],
-                  tokenViewFunction: (value) {
-                    return PluginFmt.tokenView(value);
-                  },
-                  margin: EdgeInsets.only(bottom: 7),
-                  inputCtrl: _amountPayCtrl,
-                  tokenOptions: currencyOptionsLeft,
-                  tokenSelectTitle: dic['v3.swap.selectToken']!,
-                  getMarketPrice: (tokenSymbol) =>
-                      AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
-                  onInputChange: _onSupplyAmountChange,
-                  onTokenChange: (token) {
-                    setState(() {
-                      _swapPair = token.tokenNameId == swapPair[1]
-                          ? [token.tokenNameId, swapPair[0]]
-                          : [token.tokenNameId, swapPair[1]];
-                      _maxInput = null;
-                    });
-                    widget.plugin.store!.swap
-                        .setSwapPair(_swapPair, widget.keyring.current.pubKey);
-                    _updateSwapAmount();
-                  },
-                  onClear: () {
-                    setState(() {
-                      _maxInput = null;
-                      _amountPayCtrl.text = '';
-                    });
-                  },
-                  balance: balancePair[0],
-                  tokenIconsMap: widget.plugin.tokenIcons,
-                  onSetMax:
-                      Fmt.balanceInt(balancePair[0].amount) > BigInt.zero &&
-                              balancePair[0].symbol != acala_token_ids[0]
-                          ? (max) {
-                              _onSetMax(Fmt.balanceInt(balancePair[0].amount),
-                                  balancePair[0].decimals!,
-                                  nativeKeepAlive: nativeKeepAlive);
-                            }
-                          : null,
+                Column(
+                  children: [
+                    PluginInputBalance(
+                        titleTag: dic['dex.pay'],
+                        tokenViewFunction: (value) {
+                          return PluginFmt.tokenView(value);
+                        },
+                        margin: EdgeInsets.only(bottom: 7),
+                        inputCtrl: _amountPayCtrl,
+                        tokenOptions: currencyOptionsLeft,
+                        tokenSelectTitle: dic['v3.swap.selectToken']!,
+                        getMarketPrice: (tokenSymbol) =>
+                            AssetsUtils.getMarketPrice(
+                                widget.plugin, tokenSymbol),
+                        onInputChange: _onSupplyAmountChange,
+                        onTokenChange: (token) {
+                          setState(() {
+                            _swapPair = token.tokenNameId == swapPair[1]
+                                ? [token.tokenNameId, swapPair[0]]
+                                : [token.tokenNameId, swapPair[1]];
+                            _maxInput = null;
+                          });
+                          widget.plugin.store!.swap.setSwapPair(
+                              _swapPair, widget.keyring.current.pubKey);
+                          _updateSwapAmount();
+                        },
+                        onClear: () {
+                          setState(() {
+                            _maxInput = null;
+                            _amountPayCtrl.text = '';
+                          });
+                        },
+                        balance: balancePair[0],
+                        tokenIconsMap: widget.plugin.tokenIcons,
+                        onSetMax: Fmt.balanceInt(balancePair[0].amount) >
+                                    BigInt.zero &&
+                                balancePair[0].symbol != acala_token_ids[0]
+                            ? (max) {
+                                _onSetMax(Fmt.balanceInt(balancePair[0].amount),
+                                    balancePair[0].decimals!,
+                                    nativeKeepAlive: nativeKeepAlive);
+                              }
+                            : null,
+                        type: InputBalanceType.swapType,
+                        bgBorderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4))),
+                    PluginInputBalance(
+                      margin: EdgeInsets.zero,
+                      titleTag: dic['dex.receiveEstimate'],
+                      tokenViewFunction: (value) {
+                        return PluginFmt.tokenView(value);
+                      },
+                      inputCtrl: _amountReceiveCtrl,
+                      tokenOptions: currencyOptionsRight,
+                      tokenSelectTitle: dic['v3.swap.selectToken']!,
+                      getMarketPrice: (tokenSymbol) =>
+                          AssetsUtils.getMarketPrice(
+                              widget.plugin, tokenSymbol),
+                      onInputChange: _onTargetAmountChange,
+                      onTokenChange: (token) {
+                        setState(() {
+                          _swapPair = token.tokenNameId == swapPair[0]
+                              ? [swapPair[1], token.tokenNameId]
+                              : [swapPair[0], token.tokenNameId];
+                          _maxInput = null;
+                        });
+                        widget.plugin.store!.swap.setSwapPair(
+                            _swapPair, widget.keyring.current.pubKey);
+                        _updateSwapAmount();
+                      },
+                      // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
+                      //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
+                      //         nativeKeepAlive: nativeKeepAlive)
+                      //     : null,
+                      onClear: () {
+                        setState(() {
+                          _maxInput = null;
+                          _amountReceiveCtrl.text = '';
+                        });
+                      },
+                      balance: balancePair[1],
+                      tokenIconsMap: widget.plugin.tokenIcons,
+                      type: InputBalanceType.swapType,
+                      bgBorderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(4),
+                          bottomRight: Radius.circular(4)),
+                    ),
+                  ],
                 ),
                 GestureDetector(
                   child: Image.asset(
                       'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
                       width: 39),
                   onTap: _swapPair.length > 1 ? () => _switchPair() : null,
-                ),
-                PluginInputBalance(
-                  margin: EdgeInsets.zero,
-                  titleTag: dic['dex.receiveEstimate'],
-                  tokenViewFunction: (value) {
-                    return PluginFmt.tokenView(value);
-                  },
-                  inputCtrl: _amountReceiveCtrl,
-                  tokenOptions: currencyOptionsRight,
-                  tokenSelectTitle: dic['v3.swap.selectToken']!,
-                  getMarketPrice: (tokenSymbol) =>
-                      AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
-                  onInputChange: _onTargetAmountChange,
-                  onTokenChange: (token) {
-                    setState(() {
-                      _swapPair = token.tokenNameId == swapPair[0]
-                          ? [swapPair[1], token.tokenNameId]
-                          : [swapPair[0], token.tokenNameId];
-                      _maxInput = null;
-                    });
-                    widget.plugin.store!.swap
-                        .setSwapPair(_swapPair, widget.keyring.current.pubKey);
-                    _updateSwapAmount();
-                  },
-                  // onSetMax: Fmt.balanceInt(balancePair[0]!.amount) > BigInt.zero
-                  //     ? (v) => _onSetMax(v, balancePair[0]!.decimals!,
-                  //         nativeKeepAlive: nativeKeepAlive)
-                  //     : null,
-                  onClear: () {
-                    setState(() {
-                      _maxInput = null;
-                      _amountReceiveCtrl.text = '';
-                    });
-                  },
-                  balance: balancePair[1],
-                  tokenIconsMap: widget.plugin.tokenIcons,
                 ),
               ],
             ),
@@ -885,59 +897,27 @@ class _SwapFormState extends State<SwapForm>
                                 child:
                                     Text(dic['dex.route']!, style: labelStyle),
                               ),
-                              // v3.PopupMenuButton(
-                              //     offset: Offset(-12, 52),
-                              //     color: Theme.of(context).cardColor,
-                              //     padding: EdgeInsets.zero,
-                              //     elevation: 3,
-                              //     itemWidth: 500,
-                              //     shape: RoundedRectangleBorder(
-                              //       borderRadius: BorderRadius.only(
-                              //           topLeft: Radius.circular(10),
-                              //           bottomLeft: Radius.circular(10),
-                              //           bottomRight: Radius.circular(10)),
-                              //     ),
-                              //     itemBuilder: (BuildContext context) {
-                              //       return <v3.PopupMenuEntry<String>>[
-                              //         v3.PopupMenuItem(
-                              //           height: 94,
-                              //           child: RouteWidget(widget.plugin,
-                              //               path: _swapOutput.path),
-                              //           value: '0',
-                              //         ),
-                              //       ];
-                              //     },
-                              //     child: Container(
-                              //       decoration: BoxDecoration(
-                              //           color: Color(0x1AFFFFFF),
-                              //           border: Border.all(
-                              //               color: const Color(0x59FFFFFF),
-                              //               width: 0.58),
-                              //           borderRadius: BorderRadius.all(
-                              //               Radius.circular(15.05))),
-                              //       child: Row(
-                              //         children: [
-                              //           PluginTokenIcon(balancePair[0].symbol!,
-                              //               widget.plugin.tokenIcons,
-                              //               size: 21),
-                              //           Padding(
-                              //             padding: EdgeInsets.symmetric(
-                              //                 horizontal: 3),
-                              //             child: Image.asset(
-                              //                 "packages/polkawallet_plugin_karura/assets/images/swap_to.png",
-                              //                 width: 14),
-                              //           ),
-                              //           PluginTokenIcon(balancePair[1].symbol!,
-                              //               widget.plugin.tokenIcons,
-                              //               size: 21)
-                              //         ],
-                              //       ),
-                              //     )),
-                              GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _detailRouteShow = !_detailRouteShow;
-                                    });
+                              v3.PopupMenuButton(
+                                  offset: Offset(0, 35),
+                                  color: Color(0xFF404142),
+                                  padding: EdgeInsets.zero,
+                                  elevation: 3,
+                                  itemWidth:
+                                      _getRouteWidth(_swapOutput.path ?? []),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  itemBuilder: (BuildContext context) {
+                                    return <v3.PopupMenuEntry<String>>[
+                                      v3.PopupMenuItem(
+                                        padding: EdgeInsets.all(12),
+                                        child: RouteWidget(widget.plugin,
+                                            path: _swapOutput.path),
+                                        value: '0',
+                                      ),
+                                    ];
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
@@ -967,16 +947,11 @@ class _SwapFormState extends State<SwapForm>
                                   )),
                             ],
                           )),
-                      Visibility(
-                          visible: (_swapOutput.path?.length ?? 0) > 0 &&
-                              _detailRouteShow,
-                          child: RouteWidget(widget.plugin,
-                              path: _swapOutput.path))
                     ],
                   ),
                 )),
             Padding(
-                padding: EdgeInsets.only(bottom: 38, top: 100),
+                padding: EdgeInsets.only(bottom: 18, top: 130),
                 child: PluginButton(
                   title: dic['dex.title']!,
                   onPressed: _swapRatio == 0
@@ -989,6 +964,19 @@ class _SwapFormState extends State<SwapForm>
       },
     );
   }
+
+  double _getRouteWidth(List<PathData> path) {
+    double width = 0;
+    path.forEach((element) {
+      final iconsWidth = element.path!.length * 20 + 7;
+      var networkWidth = 18 / 29.0 * 163; //acala
+      if (element.dex == "nuts") {
+        networkWidth = 18 / 44.0 * 180;
+      }
+      width += iconsWidth > networkWidth ? iconsWidth : networkWidth;
+    });
+    return width + (path.length - 1) * 35 + 24;
+  }
 }
 
 class RouteWidget extends StatelessWidget {
@@ -1000,12 +988,7 @@ class RouteWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 13),
-      height: 94,
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          color: Color(0xFF404142)),
+      height: 70,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,

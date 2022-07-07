@@ -171,17 +171,16 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                                         left: 4),
                                                     child: Image.asset(
                                                       "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
-                                                      width: 24,
+                                                      width: 22,
                                                     ))),
                                             Visibility(
                                                 visible: staked,
                                                 child: Padding(
                                                     padding: EdgeInsets.only(
                                                         left: 4),
-                                                    child: SvgPicture.asset(
-                                                      "packages/polkawallet_plugin_karura/assets/images/staked.svg",
-                                                      color: Colors.white,
-                                                      width: 24,
+                                                    child: Image.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/staked_1.png",
+                                                      width: 22,
                                                     ))),
                                             Visibility(
                                                 visible: canClaim,
@@ -190,7 +189,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                                         left: 4),
                                                     child: Image.asset(
                                                       "packages/polkawallet_plugin_karura/assets/images/rewards.png",
-                                                      width: 24,
+                                                      width: 22,
                                                     ))),
                                           ],
                                         ))

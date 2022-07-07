@@ -348,5 +348,7 @@ const Map<String, String> enDex = {
   'earn.taiga.claimMessage':
       'Tap claim to see your LP detail and claim your rewards',
   'earn.taiga.addLiquidity': 'Add all assets in a balanced proportion',
-  'earn.taiga.poolSize': 'Pool Size'
+  'earn.taiga.poolSize': 'Pool Size',
+  'earn.taiga.edMessage':
+      'This transaction may fail due to insufficient existing deposit in the current address '
 };

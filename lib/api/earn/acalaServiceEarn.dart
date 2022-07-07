@@ -11,20 +11,20 @@ class AcalaServiceEarn {
   Future<Map?> getTaigaMintAmount(
       String poolId, List<String> input, double slippage) async {
     final Map? res = await plugin.sdk.webView!.evalJavascript(
-        'acala.getTaigaMintAmount(apiRx,"$poolId",${jsonEncode(input)},$slippage)');
+        'acala.getTaigaMintAmount("$poolId",${jsonEncode(input)},$slippage)');
     return res;
   }
 
-  Future<List?> getTaigaRedeemAmount(
+  Future<Map?> getTaigaRedeemAmount(
       String poolId, String input, double slippage) async {
-    final List? res = await plugin.sdk.webView!.evalJavascript(
-        'acala.getTaigaRedeemAmount(apiRx,"$poolId","$input",$slippage)');
+    final Map? res = await plugin.sdk.webView!.evalJavascript(
+        'acala.getTaigaRedeemAmount("$poolId","$input",$slippage)');
     return res;
   }
 
   Future<List?> getTaigaTokenPairs() async {
-    final List? res = await plugin.sdk.webView!
-        .evalJavascript('acala.getTaigaTokenPairs(apiRx)');
+    final List? res =
+        await plugin.sdk.webView!.evalJavascript('acala.getTaigaTokenPairs()');
     return res;
   }
 

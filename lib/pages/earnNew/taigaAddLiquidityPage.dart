@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/index.dart' as v3;
+import 'package:polkawallet_ui/pages/dAppWrapperPage.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
@@ -169,33 +170,31 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
           .firstWhere((e) => e.tokenNameId == args?['poolId']);
 
       Map<String, Widget> txDisplayBold = {};
-      // final params = [
-      //   args?['poolId'],
-      //   _textControllers.map((e) {
-      //     final taigaTokenPairs = widget.plugin.store!.earn.taigaTokenPairs;
-      //     final taigaToken = taigaTokenPairs
-      //         .where((e) => e.tokenNameId == args?['poolId'])
-      //         .first;
-      //     final tokenPair = taigaToken.tokens!
-      //         .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
-      //         .toList();
-      //     final index = _textControllers.indexOf(e);
-      //     if (e.text.trim().isNotEmpty) {
-      //       txDisplayBold.addAll({
-      //         "Token ${index + 1}": Text(
-      //           '${e.text.trim()} ${PluginFmt.tokenView(tokenPair[index].symbol)}',
-      //           style: Theme.of(context)
-      //               .textTheme
-      //               .headline1
-      //               ?.copyWith(color: Colors.white),
-      //         )
-      //       });
-      //     }
-      //     return Fmt.tokenInt(e.text.trim(), tokenPair[index].decimals!)
-      //         .toString();
-      //   }).toList(),
-      //   '0',
-      // ];
+      _textControllers.forEach((e) {
+        final taigaTokenPairs = widget.plugin.store!.earn.taigaTokenPairs;
+        final taigaToken = taigaTokenPairs
+            .where((e) => e.tokenNameId == args?['poolId'])
+            .first;
+        final tokenPair = taigaToken.tokens!
+            .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
+            .toList();
+        final index = _textControllers.indexOf(e);
+        if (e.text.trim().isNotEmpty) {
+          txDisplayBold.addAll({
+            "Token ${index + 1}": Text(
+              '${e.text.trim()} ${PluginFmt.tokenView(tokenPair[index].symbol)}',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline1
+                  ?.copyWith(color: Colors.white),
+            )
+          });
+        }
+      });
+
+      if (txDisplayBold.length == 0) {
+        return;
+      }
 
       final tokenPair = pool.tokens!
           .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
@@ -263,182 +262,224 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
               "${index == 0 ? '' : '+ '}${Fmt.balance(element, tokenPair[index].decimals!)} ${PluginFmt.tokenView(tokenPair[index].symbol)}");
         });
 
+        var apy = 0.0;
+        taigaPool?.apy.forEach((key, value) {
+          apy += value;
+        });
+
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.all(16),
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ConnectionChecker(
-                    widget.plugin,
-                    onConnected: _queryTaigaPoolInfo,
-                  ),
-                  dexPools.length == 0 || taigaTokenPairs.length == 0
-                      ? ListView(
-                          padding: EdgeInsets.all(16),
-                          children: [
-                            Center(
-                              child: Container(
-                                height: MediaQuery.of(context).size.width,
-                                child: ListTail(
-                                  isEmpty: true,
-                                  isLoading: _loading,
-                                  color: Colors.white,
-                                ),
+                child: Column(
+              children: [
+                ConnectionChecker(
+                  widget.plugin,
+                  onConnected: _queryTaigaPoolInfo,
+                ),
+                dexPools.length == 0 || taigaTokenPairs.length == 0
+                    ? ListView(
+                        padding: EdgeInsets.all(16),
+                        children: [
+                          Center(
+                            child: Container(
+                              height: MediaQuery.of(context).size.width,
+                              child: ListTail(
+                                isEmpty: true,
+                                isLoading: _loading,
+                                color: Colors.white,
                               ),
-                            )
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            ...tokenPair.map((e) {
-                              final index = tokenPair.indexOf(e);
-                              return Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: index + 1 >= tokenPair.length
-                                          ? 0
-                                          : 24),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      PluginInputBalance(
-                                        titleTag: "Token${index + 1}",
-                                        margin: EdgeInsets.zero,
-                                        balance: e,
-                                        tokenIconsMap: widget.plugin.tokenIcons,
-                                        inputCtrl: _textControllers[index],
-                                        onInputChange: (value) {
-                                          _onAmountChange(
-                                              taigaToken,
-                                              tokenPair,
-                                              _textControllers[index].text,
-                                              index);
-                                        },
-                                        onSetMax: (max) {
-                                          var amount = Fmt.bigIntToDouble(
-                                                  max, e.decimals!)
-                                              .toStringAsFixed(6);
-                                          final inputString =
-                                              Fmt.bigIntToDouble(
-                                                      max, e.decimals!)
-                                                  .toString()
-                                                  .split(".");
-                                          if (inputString.length > 1 &&
-                                              inputString[1].length > 6) {
-                                            amount =
-                                                "${inputString[0]}.${inputString[1].substring(0, 6)}";
-                                          }
-                                          _onMaxAmountChange(taigaToken,
-                                              tokenPair, amount, index);
-                                        },
-                                      ),
-                                      ErrorMessage(
-                                        _error[index],
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 2),
-                                      ),
-                                    ],
-                                  ));
-                            }).toList(),
-                            Padding(
-                                padding: EdgeInsets.only(top: 10, bottom: 24),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  mainAxisSize: MainAxisSize.max,
+                            ),
+                          )
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          ...tokenPair.map((e) {
+                            final index = tokenPair.indexOf(e);
+                            return Padding(
+                                padding: EdgeInsets.only(
+                                    bottom:
+                                        index + 1 >= tokenPair.length ? 0 : 24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      dic['earn.taiga.addLiquidity']!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline5
-                                          ?.copyWith(color: Color(0xFFFFFAF9)),
+                                    PluginInputBalance(
+                                      titleTag: "Token${index + 1}",
+                                      margin: EdgeInsets.zero,
+                                      balance: e,
+                                      tokenIconsMap: widget.plugin.tokenIcons,
+                                      inputCtrl: _textControllers[index],
+                                      onInputChange: (value) {
+                                        _onAmountChange(
+                                            taigaToken,
+                                            tokenPair,
+                                            _textControllers[index].text,
+                                            index);
+                                      },
+                                      onSetMax: (max) {
+                                        var amount =
+                                            Fmt.bigIntToDouble(max, e.decimals!)
+                                                .toStringAsFixed(6);
+                                        final inputString =
+                                            Fmt.bigIntToDouble(max, e.decimals!)
+                                                .toString()
+                                                .split(".");
+                                        if (inputString.length > 1 &&
+                                            inputString[1].length > 6) {
+                                          amount =
+                                              "${inputString[0]}.${inputString[1].substring(0, 6)}";
+                                        }
+                                        _onMaxAmountChange(taigaToken,
+                                            tokenPair, amount, index);
+                                      },
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 8),
-                                      child: SizedBox(
-                                        width: 28,
-                                        child: v3.CupertinoSwitch(
-                                          value: _balancedProportion,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _balancedProportion = value;
-                                              for (int i = 0;
-                                                  i < _error.length;
-                                                  i++) {
-                                                _error[i] = null;
-                                              }
-                                              _textControllers
-                                                  .forEach((element) {
-                                                element.text = "";
-                                              });
-                                            });
-                                          },
-                                          isPlugin: true,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )),
-                            Visibility(
-                                visible: _mintAmount != null,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Text(
-                                        dic['v3.earn.lpTokenReceived']!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w600),
-                                      ),
+                                    ErrorMessage(
+                                      _error[index],
+                                      margin: EdgeInsets.symmetric(vertical: 2),
                                     ),
-                                    Text(
-                                        '≈ ${Fmt.priceFloorBigInt(BigInt.parse(_mintAmount?["minAmount"] ?? "0"), balance.decimals!)} ${PluginFmt.tokenView(balance.symbol)}',
-                                        textAlign: TextAlign.right,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                            )),
                                   ],
-                                )),
-                            Padding(
-                              padding: EdgeInsets.only(top: 10),
+                                ));
+                          }).toList(),
+                          Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 24),
                               child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.max,
                                 children: [
                                   Text(
-                                    dic['earn.taiga.poolSize']!,
-                                    style: lableStyle,
+                                    dic['earn.taiga.addLiquidity']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(color: Color(0xFFFFFAF9)),
                                   ),
-                                  Text(
-                                    poolSize.join("\n"),
-                                    textAlign: TextAlign.end,
-                                    style: valueStyle?.copyWith(height: 1.7),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 8),
+                                    child: SizedBox(
+                                      width: 28,
+                                      child: v3.CupertinoSwitch(
+                                        value: _balancedProportion,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _balancedProportion = value;
+                                            for (int i = 0;
+                                                i < _error.length;
+                                                i++) {
+                                              _error[i] = null;
+                                            }
+                                            _textControllers.forEach((element) {
+                                              element.text = "";
+                                            });
+                                          });
+                                        },
+                                        isPlugin: true,
+                                      ),
+                                    ),
                                   )
                                 ],
-                              ),
-                            )
-                          ],
-                        ),
-                  Padding(
-                      padding: EdgeInsets.only(top: 37, bottom: 38),
-                      child: PluginButton(
-                        title: dic['earn.add']!,
-                        onPressed: () => _onSubmit(
-                            tokenPair[0].decimals, tokenPair[1].decimals),
-                      )),
-                ],
-              ),
-            ),
+                              )),
+                          Visibility(
+                              visible: _mintAmount != null,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Text(
+                                      dic['v3.earn.lpTokenReceived']!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4
+                                          ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                  Text(
+                                      '≈ ${Fmt.priceFloorBigInt(BigInt.parse(_mintAmount?["minAmount"] ?? "0"), balance.decimals!)} ${PluginFmt.tokenView(balance.symbol)}',
+                                      textAlign: TextAlign.right,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                          )),
+                                ],
+                              )),
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  dic['earn.taiga.poolSize']!,
+                                  style: lableStyle,
+                                ),
+                                Text(
+                                  poolSize.join("\n"),
+                                  textAlign: TextAlign.end,
+                                  style: valueStyle?.copyWith(height: 1.7),
+                                )
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(
+                                    DAppWrapperPage.route,
+                                    arguments: {
+                                      'url': "https://app.taigaprotocol.io/"
+                                    });
+                              },
+                              child: Container(
+                                  margin: EdgeInsets.only(top: 62),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Image.asset(
+                                          "packages/polkawallet_plugin_karura/assets/images/taiga_addliquidity.png",
+                                          width: double.infinity),
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 32),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Add Liquidity to get reward of ${Fmt.ratio(apy)} APY !",
+                                              textAlign: TextAlign.center,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline2
+                                                  ?.copyWith(
+                                                      color: Colors.white),
+                                            ),
+                                            Text(
+                                              "For reward detail description, tap here",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline5
+                                                  ?.copyWith(
+                                                      color: Color(0xFFD5BDFF)),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  )))
+                        ],
+                      ),
+                Padding(
+                    padding: EdgeInsets.only(top: 60, bottom: 38),
+                    child: PluginButton(
+                      title: dic['earn.add']!,
+                      onPressed: () => _onSubmit(
+                          tokenPair[0].decimals, tokenPair[1].decimals),
+                    )),
+              ],
+            )),
           ),
         );
       }),
