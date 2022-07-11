@@ -20,24 +20,10 @@ class CompletedPage extends StatefulWidget {
 }
 
 class _CompletedPageState extends State<CompletedPage> {
-  bool _connecting = false;
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final data = ModalRoute.of(context)!.settings.arguments as Map;
-      final fromNetwork = data["fromNetwork"];
-      // _getBalance([fromNetwork]);
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final data = ModalRoute.of(context)!.settings.arguments as Map;
-
-    final stakeToken = relay_chain_token_symbol;
 
     final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
     double taigaApr = 0;
@@ -47,7 +33,7 @@ class _CompletedPageState extends State<CompletedPage> {
 
     return PluginScaffold(
         appBar: PluginAppBar(
-          title: Text('${dic['homa.mint']} L$stakeToken'),
+          title: Text('${dic['homa.mint']} L$relay_chain_token_symbol'),
           centerTitle: true,
         ),
         body: SafeArea(

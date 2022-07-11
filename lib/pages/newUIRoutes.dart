@@ -71,12 +71,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
 
           //swap
           SwapPage.route: (_) => SwapPage(plugin, keyring),
-          SwapHistoryPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => SwapHistoryPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['httpUri']!,
-              ),
+          SwapHistoryPage.route: (_) => SwapHistoryPage(plugin, keyring),
           BootstrapPage.route: (_) => BootstrapPage(plugin, keyring),
           SwapDetailPage.route: (_) => SwapDetailPage(plugin, keyring),
 

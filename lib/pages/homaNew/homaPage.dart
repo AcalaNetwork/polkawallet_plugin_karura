@@ -49,10 +49,22 @@ class _HomaPageState extends State<HomaPage> {
     await widget.plugin.service!.homa.queryHomaEnv();
     widget.plugin.service!.homa.queryHomaPendingRedeem();
 
+    _queryTaigaPoolInfo();
+
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
         _refreshData();
       });
+    }
+  }
+
+  Future<void> _queryTaigaPoolInfo() async {
+    if (widget.plugin.store!.earn.taigaPoolInfoMap.length == 0) {
+      final info = await widget.plugin.api!.earn
+          .getTaigaPoolInfo(widget.keyring.current.address!);
+      widget.plugin.store!.earn.setTaigaPoolInfo(info);
+      final data = await widget.plugin.api!.earn.getTaigaTokenPairs();
+      widget.plugin.store!.earn.setTaigaTokenPairs(data!);
     }
   }
 
@@ -210,6 +222,12 @@ class _HomaPageState extends State<HomaPage> {
           }
         });
       }
+
+      final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+      double taigaApr = 0;
+      dexPools["sa://0"]?.apy.forEach((key, value) {
+        taigaApr += value;
+      });
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
           fontSize: UI.getTextSize(20, context),
           fontWeight: FontWeight.bold,
@@ -692,28 +710,27 @@ class _HomaPageState extends State<HomaPage> {
                                 visible: isRewardsOpen,
                                 child: Container(
                                   margin: EdgeInsets.only(bottom: 16),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        dic['event.vault.rewards']!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w400),
-                                      ),
-                                      Text(
-                                        " ${(aprValue + rewardApr * 100).toStringAsFixed(2)}%!",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Color(0xFFFC8156),
-                                                fontWeight: FontWeight.w400),
-                                      )
-                                    ],
-                                  ),
+                                  child: RichText(
+                                      text: TextSpan(
+                                          text: dic['event.vault.rewards']!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w400),
+                                          children: [
+                                        TextSpan(
+                                            text:
+                                                " ${(aprValue + (rewardApr > taigaApr ? rewardApr : taigaApr) * 100).toStringAsFixed(2)}%!",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                    color: Color(0xFFFC8156),
+                                                    fontWeight:
+                                                        FontWeight.w400)),
+                                      ])),
                                 )),
                           ],
                         ),
@@ -745,7 +762,7 @@ class _HomaPageState extends State<HomaPage> {
                           backgroundColor: (env?.totalStaking ?? 0) <
                                   (env?.stakingSoftCap ?? 0)
                               ? null
-                              : Color(0x54FFFFFF),
+                              : Color(0xFFD4D4D4),
                           onPressed: (env?.totalStaking ?? 0) <
                                   (env?.stakingSoftCap ?? 0)
                               ? () async {

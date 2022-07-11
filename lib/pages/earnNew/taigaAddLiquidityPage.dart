@@ -38,6 +38,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
   List<dynamic> _error = [];
   bool _balancedProportion = false;
   Map<dynamic, dynamic>? _mintAmount;
+  List<BigInt> _amount = [];
 
   bool _loading = true;
   Future<void> _queryTaigaPoolInfo() async {
@@ -53,21 +54,10 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
 
   Future<void> _getTaigaMintAmount() async {
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
-    final pool = widget.plugin.store!.earn.taigaTokenPairs
-        .firstWhere((e) => e.tokenNameId == args?['poolId']);
-    final tokenPair = pool.tokens!
-        .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
-        .toList();
 
     final List<String> input = [];
-    _textControllers.forEach((element) {
-      final index = _textControllers.indexOf(element);
-      if (element.text.trim().isNotEmpty) {
-        input.add(Fmt.tokenInt(element.text.trim(), tokenPair[index].decimals!)
-            .toString());
-      } else {
-        input.add("0");
-      }
+    _amount.forEach((element) {
+      input.add(element.toString());
     });
     final info = await widget.plugin.api!.earn
         .getTaigaMintAmount(args?['poolId'], input, 0.005);
@@ -77,12 +67,8 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
   }
 
   Future<void> _onMaxAmountChange(DexPoolData taigaToken,
-      List<TokenBalanceData> tokenPair, String target, int index) async {
-    final value = target.trim();
-    double v = 0;
-    try {
-      v = value.isEmpty ? 0 : double.parse(value);
-    } catch (e) {}
+      List<TokenBalanceData> tokenPair, BigInt target, int index) async {
+    double v = Fmt.balanceDouble(target.toString(), tokenPair[index].decimals!);
     if (_balancedProportion) {
       tokenPair.forEach((element) {
         final eIndex = tokenPair.indexOf(element);
@@ -98,12 +84,16 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
           }
 
           _textControllers[eIndex].text = (ratio * v).toStringAsFixed(6);
+          _amount[eIndex] = Fmt.tokenInt(
+              (ratio * v).toStringAsFixed(6), tokenPair[eIndex].decimals!);
         } else {
-          _textControllers[eIndex].text = target;
+          _textControllers[eIndex].text = v.toStringAsFixed(6);
+          _amount[eIndex] = target;
         }
       });
     } else {
-      _textControllers[index].text = target;
+      _textControllers[index].text = v.toStringAsFixed(6);
+      _amount[index] = target;
     }
     final res = _onValidate(tokenPair, index);
     if (res) {
@@ -132,8 +122,16 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                     taigaToken.balances![index], tokenPair[index].decimals!);
           }
           _textControllers[eIndex].text = (ratio * v).toStringAsFixed(6);
+          _amount[eIndex] = Fmt.tokenInt(_textControllers[eIndex].text.trim(),
+              tokenPair[eIndex].decimals!);
+        } else {
+          _amount[eIndex] = Fmt.tokenInt(_textControllers[eIndex].text.trim(),
+              tokenPair[eIndex].decimals!);
         }
       });
+    } else {
+      _amount[index] = Fmt.tokenInt(
+          _textControllers[index].text.trim(), tokenPair[index].decimals!);
     }
     if (_onValidate(tokenPair, index)) {
       _getTaigaMintAmount();
@@ -144,14 +142,11 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     tokenPair.forEach((element) {
       final eIndex = tokenPair.indexOf(element);
-      final v = _textControllers[eIndex].text.trim();
-      if (v.isNotEmpty || eIndex == index) {
-        String? error = Fmt.validatePrice(v, context);
-        if (error == null) {
-          if (double.parse(v) >
-              Fmt.balanceDouble(element.amount!, element.decimals ?? 12)) {
-            error = dic!['amount.low'];
-          }
+      final v = _amount[eIndex];
+      if (v != BigInt.zero) {
+        String? error;
+        if (v > BigInt.parse(element.amount!)) {
+          error = dic!['amount.low'];
         }
         _error[eIndex] = error;
       } else {
@@ -179,7 +174,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
             .map((e) => AssetsUtils.tokenDataFromCurrencyId(widget.plugin, e))
             .toList();
         final index = _textControllers.indexOf(e);
-        if (e.text.trim().isNotEmpty) {
+        if (e.text.trim().isNotEmpty && double.parse(e.text.trim()) > 0) {
           txDisplayBold.addAll({
             "Token ${index + 1}": Text(
               '${e.text.trim()} ${PluginFmt.tokenView(tokenPair[index].symbol)}',
@@ -248,6 +243,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
         if (_textControllers.length == 0) {
           taigaToken.tokens!.forEach((element) {
             _error.add(null);
+            _amount.add(BigInt.zero);
             _textControllers.add(TextEditingController());
           });
         }
@@ -318,20 +314,8 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                             index);
                                       },
                                       onSetMax: (max) {
-                                        var amount =
-                                            Fmt.bigIntToDouble(max, e.decimals!)
-                                                .toStringAsFixed(6);
-                                        final inputString =
-                                            Fmt.bigIntToDouble(max, e.decimals!)
-                                                .toString()
-                                                .split(".");
-                                        if (inputString.length > 1 &&
-                                            inputString[1].length > 6) {
-                                          amount =
-                                              "${inputString[0]}.${inputString[1].substring(0, 6)}";
-                                        }
-                                        _onMaxAmountChange(taigaToken,
-                                            tokenPair, amount, index);
+                                        _onMaxAmountChange(
+                                            taigaToken, tokenPair, max, index);
                                       },
                                     ),
                                     ErrorMessage(
@@ -367,6 +351,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                                 i < _error.length;
                                                 i++) {
                                               _error[i] = null;
+                                              _amount[i] = BigInt.zero;
                                             }
                                             _textControllers.forEach((element) {
                                               element.text = "";
@@ -448,7 +433,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              "Add Liquidity to get reward of ${Fmt.ratio(apy)} APY !",
+                                              "Add Liquidity to get reward of ${Fmt.ratio(apy)} APR!",
                                               textAlign: TextAlign.center,
                                               style: Theme.of(context)
                                                   .textTheme

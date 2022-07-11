@@ -414,8 +414,8 @@ class _DexPoolCard extends StatelessWidget {
                               (poolInfo?.shares ?? BigInt.zero) != BigInt.zero,
                           child: Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: SvgPicture.asset(
-                                "packages/polkawallet_plugin_karura/assets/images/staked.svg",
+                              child: Image.asset(
+                                "packages/polkawallet_plugin_karura/assets/images/staked_1.png",
                                 color: Colors.white,
                                 width: 24,
                               ))),

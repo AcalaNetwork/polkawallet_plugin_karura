@@ -39,6 +39,18 @@ class SwapDetailPage extends StatelessWidget {
     if (plugin.basic.isTestNet) {
       networkName = '${networkName!.split('-')[0]}-testnet';
     }
+    String action = tx.action ?? "";
+    switch (tx.action) {
+      //taiga
+      case "mint":
+        action = "addLiquidity";
+        break;
+      case "proportionredeem":
+      case "singleredeem":
+      case "multiredeem":
+        action = "removeLiquidity";
+        break;
+    }
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
@@ -46,7 +58,7 @@ class SwapDetailPage extends StatelessWidget {
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(dic['dex.${tx.action}']!, style: amountStyle),
+        content: Text(dic['dex.$action']!, style: amountStyle),
       )
     ];
     switch (tx.action) {
@@ -103,6 +115,27 @@ class SwapDetailPage extends StatelessWidget {
                 style: amountStyle),
           )
         ]);
+        break;
+      //taiga
+      case "mint":
+        items.addAll([
+          TxDetailInfoItem(
+            label: dic['dex.pay'],
+            content: Text(tx.amounts.map((e) => e.toTokenString()).join("\n+"),
+                textAlign: TextAlign.right, style: amountStyle),
+          ),
+        ]);
+        break;
+      case "proportionredeem":
+      case "singleredeem":
+      case "multiredeem":
+        items.addAll([
+          TxDetailInfoItem(
+            label: dic['dex.pay'],
+            content: Text('${tx.amountPay} ${tx.tokenPay}', style: amountStyle),
+          ),
+        ]);
+        break;
     }
 
     return PluginTxDetail(

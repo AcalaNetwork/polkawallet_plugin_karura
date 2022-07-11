@@ -312,8 +312,6 @@ const Map<String, String> zhDex = {
   'earn.dex.sort1': '年利率最高',
   'earn.dex.sort2': '质押量最大',
   'earn.dex.sort3': '获利最多',
-  'earn.dex.edError1': '由于需要',
-  'earn.dex.edError2': '作为存活余额，您本次领取可能会失败',
   'earn.dex.searchPools': '搜索池子',
   'earn.dex.joinPool': '加入LKSM-KSM池子',
   'earn.dex.joinPool.describe': '通过将流动性添加到 Taiga 的 KSM-LKSM 池中，您将获得大量奖励。',
@@ -325,7 +323,7 @@ const Map<String, String> zhDex = {
   'earn.taiga.claimAirdrop': '领取空投',
   'earn.taiga.stakeNotRequired': '无需质押',
   'earn.taiga.claimMessage': '点击认领查看您的LP详细信息并认领您的奖励',
-  'earn.taiga.addLiquidity': '以平衡的比例添加所有资产',
+  'earn.taiga.addLiquidity': '按代币占比添加所有资产',
   'earn.taiga.poolSize': '池子大小',
   'earn.taiga.edMessage': '由于当前地址中存活余额不足，本次交易可能失败'
 };

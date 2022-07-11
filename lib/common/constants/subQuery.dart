@@ -146,3 +146,55 @@ query ($senderId: String) {
     }
 }
 ''';
+
+const swapTaigaQuery = r'''
+    query ($address: String) {
+      swaps(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          inputAmount
+          inputAsset
+          outputAmount
+          outputAsset
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+      mints(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          inputAmounts
+          poolId
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+      proportionRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          inputAmount
+          poolId
+          timestamp
+          extrinsicId
+          blockId
+        }
+      }
+      singleRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          inputAmount
+          poolId
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+      multiRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          inputAmount
+          poolId
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+    }
+''';
