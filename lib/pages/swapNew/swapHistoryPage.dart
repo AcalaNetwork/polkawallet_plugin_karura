@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -104,118 +101,107 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-                child: ListView.builder(
-              itemCount: _list.length + 1,
-              itemBuilder: (BuildContext context, int i) {
-                if (i == _list.length) {
-                  return ListTail(
-                    isEmpty: _list.length == 0,
-                    isLoading: _isLoading,
-                    color: Colors.white,
-                  );
-                }
+          child: ListView.builder(
+        itemCount: _list.length + 1,
+        itemBuilder: (BuildContext context, int i) {
+          if (i == _list.length) {
+            return ListTail(
+              isEmpty: _list.length == 0,
+              isLoading: _isLoading,
+              color: Colors.white,
+            );
+          }
 
-                final TxSwapData detail = _list[i];
-                TransferIconType type = TransferIconType.swap;
-                String describe = "";
-                String action = detail.action ?? "";
-                switch (detail.action) {
-                  case "removeLiquidity":
-                    type = TransferIconType.remove_liquidity;
-                    describe =
-                        "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                  case "addProvision":
-                    type = TransferIconType.add_provision;
-                    describe =
-                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
-                    break;
-                  case "addLiquidity":
-                    type = TransferIconType.add_liquidity;
-                    describe =
-                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                  case "swap":
-                    type = TransferIconType.swap;
-                    describe =
-                        "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                  //taiga
-                  case "mint":
-                    type = TransferIconType.add_liquidity;
-                    action = "addLiquidity";
-                    describe =
-                        "add ${detail.amounts.map((e) => e.toTokenString()).join(" and ")}";
-                    break;
-                  case "proportionredeem":
-                  case "singleredeem":
-                  case "multiredeem":
-                    type = TransferIconType.remove_liquidity;
-                    action = "removeLiquidity";
-                    describe =
-                        "remove ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                }
+          final TxSwapData detail = _list[i];
+          TransferIconType type = TransferIconType.swap;
+          String describe = "";
+          String action = detail.action ?? "";
+          switch (detail.action) {
+            case "removeLiquidity":
+              type = TransferIconType.remove_liquidity;
+              describe =
+                  "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+              break;
+            case "addProvision":
+              type = TransferIconType.add_provision;
+              describe =
+                  "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
+              break;
+            case "addLiquidity":
+              type = TransferIconType.add_liquidity;
+              describe =
+                  "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+              break;
+            case "swap":
+              type = TransferIconType.swap;
+              describe =
+                  "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+              break;
+            //taiga
+            case "mint":
+              type = TransferIconType.add_liquidity;
+              action = "addLiquidity";
+              describe =
+                  "add ${detail.amounts.map((e) => e.toTokenString()).join(" and ")}";
+              break;
+            case "proportionredeem":
+            case "singleredeem":
+            case "multiredeem":
+              type = TransferIconType.remove_liquidity;
+              action = "removeLiquidity";
+              describe =
+                  "remove ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+              break;
+          }
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Color(0x14ffffff),
-                    border: Border(
-                        bottom:
-                            BorderSide(width: 0.5, color: Color(0x24ffffff))),
+          return Container(
+            decoration: BoxDecoration(
+              color: Color(0x14ffffff),
+              border: Border(
+                  bottom: BorderSide(width: 0.5, color: Color(0x24ffffff))),
+            ),
+            child: ListTile(
+              dense: true,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dic['dex.$action']!,
+                    style: Theme.of(context).textTheme.headline5?.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.w600),
                   ),
-                  child: ListTile(
-                    dense: true,
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dic['dex.$action']!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                        ),
-                        Text(describe,
-                            textAlign: TextAlign.start,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5
-                                ?.copyWith(color: Colors.white))
-                      ],
-                    ),
-                    subtitle: Text(
-                        Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.time, true)),
-                        style: Theme.of(context).textTheme.headline5?.copyWith(
-                            color: Colors.white,
-                            fontSize: UI.getTextSize(10, context))),
-                    leading: TransferIcon(
-                        type: (detail.isSuccess ?? true)
-                            ? type
-                            : TransferIconType.failure,
-                        bgColor: (detail.isSuccess ?? true)
-                            ? Color(0x57FFFFFF)
-                            : Color(0xFFD7D7D7)),
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        SwapDetailPage.route,
-                        arguments: detail,
-                      );
-                    },
-                  ),
+                  Text(describe,
+                      textAlign: TextAlign.start,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          ?.copyWith(color: Colors.white))
+                ],
+              ),
+              subtitle: Text(
+                  Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
+                      .parse(detail.time, true)),
+                  style: Theme.of(context).textTheme.headline5?.copyWith(
+                      color: Colors.white,
+                      fontSize: UI.getTextSize(10, context))),
+              leading: TransferIcon(
+                  type: detail.isSuccess == false
+                      ? TransferIconType.failure
+                      : type,
+                  bgColor: detail.isSuccess == false
+                      ? Color(0xFFD7D7D7)
+                      : Color(0x57FFFFFF)),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  SwapDetailPage.route,
+                  arguments: detail,
                 );
               },
-            ))
-          ],
-        ),
-      ),
+            ),
+          );
+        },
+      )),
     );
   }
 }
