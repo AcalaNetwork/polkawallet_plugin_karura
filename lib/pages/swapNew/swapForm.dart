@@ -334,7 +334,7 @@ class _SwapFormState extends State<SwapForm>
       _error = null;
       _errorReceive = null;
     });
-    _onInputChange(amount);
+    _onInputChange(Fmt.bigIntToDouble(input, decimals).toStringAsFixed(20));
   }
 
   Future<void> _onSubmit(List<int?> pairDecimals, double minMax) async {
@@ -522,6 +522,7 @@ class _SwapFormState extends State<SwapForm>
                 Column(
                   children: [
                     PluginInputBalance(
+                        key: Key("1"),
                         titleTag: dic['dex.pay'],
                         tokenViewFunction: (value) {
                           return PluginFmt.tokenView(value);
@@ -567,6 +568,7 @@ class _SwapFormState extends State<SwapForm>
                             topLeft: Radius.circular(4),
                             topRight: Radius.circular(4))),
                     PluginInputBalance(
+                      key: Key("2"),
                       margin: EdgeInsets.zero,
                       titleTag: dic['dex.receiveEstimate'],
                       tokenViewFunction: (value) {

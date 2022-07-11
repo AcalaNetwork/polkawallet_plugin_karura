@@ -52,20 +52,23 @@ class _CompletedPageState extends State<CompletedPage> {
                     fontWeight: FontWeight.bold,
                     color: PluginColorsDark.headline1),
               ),
-              Text(
-                "${data["receive"]} L$relay_chain_token_symbol ${dic['v3.loan.minted']}",
-                style: Theme.of(context).textTheme.headline4?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: PluginColorsDark.primary),
-              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text(
+                    "${data["receive"]} L$relay_chain_token_symbol ${dic['v3.loan.minted']}",
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: PluginColorsDark.primary),
+                  )),
               Padding(
                 padding: EdgeInsets.only(left: 45, right: 45, top: 16),
                 child: Text(
                   "${dic['earn.dex.joinPool.message1']} $relay_chain_token_symbol-L$relay_chain_token_symbol ${dic['earn.dex.joinPool.message2']} ${Fmt.ratio(taigaApr)} ${dic['earn.dex.joinPool.message3']}",
+                  textAlign: TextAlign.center,
                   style: Theme.of(context)
                       .textTheme
                       .headline5
-                      ?.copyWith(color: Colors.white),
+                      ?.copyWith(color: Colors.white, height: 1.8),
                 ),
               ),
               Container(

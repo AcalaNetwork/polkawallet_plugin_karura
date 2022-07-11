@@ -40,21 +40,30 @@ class SwapDetailPage extends StatelessWidget {
       networkName = '${networkName!.split('-')[0]}-testnet';
     }
     String action = tx.action ?? "";
+    String event = tx.action ?? "";
     switch (tx.action) {
       //taiga
       case "mint":
         action = "addLiquidity";
+        event = "Mint";
         break;
       case "proportionredeem":
+        event = "ProportionRedeem";
+        action = "removeLiquidity";
+        break;
       case "singleredeem":
+        event = "SingleRedeem";
+        action = "removeLiquidity";
+        break;
       case "multiredeem":
+        event = "MultiRedeem";
         action = "removeLiquidity";
         break;
     }
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.action!, style: amountStyle),
+        content: Text(event, style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],

@@ -151,6 +151,7 @@ const swapTaigaQuery = r'''
     query ($address: String) {
       swaps(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
         nodes {
+          id
           inputAmount
           inputAsset
           outputAmount
@@ -162,6 +163,7 @@ const swapTaigaQuery = r'''
       }
       mints(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
         nodes {
+          id
           inputAmounts
           poolId
           extrinsicId
@@ -171,6 +173,7 @@ const swapTaigaQuery = r'''
       }
       proportionRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
         nodes {
+          id
           inputAmount
           poolId
           timestamp
@@ -180,6 +183,7 @@ const swapTaigaQuery = r'''
       }
       singleRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
         nodes {
+          id
           inputAmount
           poolId
           extrinsicId
@@ -189,6 +193,7 @@ const swapTaigaQuery = r'''
       }
       multiRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
         nodes {
+          id
           inputAmount
           poolId
           extrinsicId
