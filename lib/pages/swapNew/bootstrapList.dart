@@ -234,7 +234,8 @@ class _BootstrapListState extends State<BootstrapList> {
                         bestNumber: _bestNumber,
                         tokenIcons: widget.plugin.tokenIcons,
                         relayChainTokenPrice: widget.plugin.store!.assets
-                            .marketPrices[relay_chain_token_symbol],
+                            .marketPrices[relay_chain_token_symbol]
+                            ?.toDouble(),
                         onRefresh: _updateData);
                   }).toList(),
                 ],

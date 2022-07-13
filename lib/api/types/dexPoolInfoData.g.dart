@@ -15,7 +15,8 @@ DexPoolData _$DexPoolDataFromJson(Map<String, dynamic> json) {
         : ProvisioningData.fromJson(
             json['provisioning'] as Map<String, dynamic>)
     ..rewards = (json['rewards'] as num?)?.toDouble()
-    ..rewardsLoyalty = (json['rewardsLoyalty'] as num?)?.toDouble();
+    ..rewardsLoyalty = (json['rewardsLoyalty'] as num?)?.toDouble()
+    ..balances = json['balances'] as List<dynamic>?;
 }
 
 Map<String, dynamic> _$DexPoolDataToJson(DexPoolData instance) =>
@@ -25,6 +26,7 @@ Map<String, dynamic> _$DexPoolDataToJson(DexPoolData instance) =>
       'provisioning': instance.provisioning,
       'rewards': instance.rewards,
       'rewardsLoyalty': instance.rewardsLoyalty,
+      'balances': instance.balances,
     };
 
 ProvisioningData _$ProvisioningDataFromJson(Map<String, dynamic> json) {

@@ -34,15 +34,14 @@ class PluginFmt {
     return LiquidityShareInfo(userShare, userShare / totalShare);
   }
 
-  static List<TokenBalanceData?> getAllDexTokens(PluginKarura plugin) {
-    final List<TokenBalanceData?> tokens = [];
-    plugin.store!.earn.dexPools.forEach((e) {
-      e.tokens!.forEach((currencyId) {
-        final token = AssetsUtils.tokenDataFromCurrencyId(plugin, currencyId);
-        if (tokens.indexWhere((i) => i!.tokenNameId == token.tokenNameId) < 0) {
-          tokens.add(token);
-        }
-      });
+  static List<TokenBalanceData> getAllDexTokens(PluginKarura plugin) {
+    final List<TokenBalanceData> tokens = [];
+
+    plugin.store!.swap.dexTokens.forEach((e) {
+      final token = AssetsUtils.tokenDataFromCurrencyId(plugin, e.currencyId!);
+      if (tokens.indexWhere((i) => i.tokenNameId == token.tokenNameId) < 0) {
+        tokens.add(token);
+      }
     });
     return tokens;
   }

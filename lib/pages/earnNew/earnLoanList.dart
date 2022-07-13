@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
@@ -15,6 +14,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/tapTooltip.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
@@ -23,7 +23,6 @@ import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class EarnLoanList extends StatefulWidget {
   EarnLoanList(this.plugin, this.keyring);
@@ -40,6 +39,8 @@ class _EarnLoanListState extends State<EarnLoanList> {
   Future<void> _fetchData() async {
     await widget.plugin.service!.loan
         .queryLoanTypes(widget.keyring.current.address);
+
+    widget.plugin.service!.earn.queryIncentives();
 
     widget.plugin.service!.assets.queryMarketPrices();
 
@@ -61,42 +62,35 @@ class _EarnLoanListState extends State<EarnLoanList> {
   @override
   Widget build(BuildContext context) {
     final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol![0];
-    return Observer(
-      builder: (_) {
-        final loans = widget.plugin.store!.loan.loans.values.toList();
-        loans.retainWhere((loan) =>
-            loan.debits > BigInt.zero || loan.collaterals > BigInt.zero);
-        return _loading
-            ? ListView(
-                padding: EdgeInsets.all(16),
-                children: [
-                  ConnectionChecker(
-                    widget.plugin,
-                    onConnected: _fetchData,
+    return _loading
+        ? ListView(
+            padding: EdgeInsets.all(16),
+            children: [
+              ConnectionChecker(
+                widget.plugin,
+                onConnected: _fetchData,
+              ),
+              Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.width,
+                  child: ListTail(
+                    isEmpty: true,
+                    isLoading: true,
+                    color: Colors.white,
                   ),
-                  Center(
-                    child: Container(
-                      height: MediaQuery.of(context).size.width,
-                      child: ListTail(
-                        isEmpty: true,
-                        isLoading: true,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                ],
+                ),
               )
-            : CollateralIncentiveList(
-                plugin: widget.plugin,
-                tokenIcons: widget.plugin.tokenIcons,
-                incentives: widget.plugin.store!.earn.incentives.loans,
-                rewards: widget.plugin.store!.loan.collateralRewards,
-                incentiveTokenSymbol: incentiveTokenSymbol,
-                dexIncentiveLoyaltyEndBlock:
-                    widget.plugin.store!.earn.dexIncentiveLoyaltyEndBlock,
-              );
-      },
-    );
+            ],
+          )
+        : CollateralIncentiveList(
+            plugin: widget.plugin,
+            tokenIcons: widget.plugin.tokenIcons,
+            incentives: widget.plugin.store!.earn.incentives.loans,
+            rewards: widget.plugin.store!.loan.collateralRewards,
+            incentiveTokenSymbol: incentiveTokenSymbol,
+            dexIncentiveLoyaltyEndBlock:
+                widget.plugin.store!.earn.dexIncentiveLoyaltyEndBlock,
+          );
   }
 }
 
@@ -248,10 +242,9 @@ class CollateralIncentiveList extends StatelessWidget {
 
           bool canClaim = false;
           final reward = rewards![token.tokenNameId];
-          TokenBalanceData? edErrorToken;
           final rewardView = reward != null && reward.reward!.length > 0
               ? reward.reward!.map((e) {
-                  double amount = double.parse(e['amount']);
+                  num amount = e['amount'];
                   if (amount < 0) {
                     amount = 0;
                   }
@@ -260,13 +253,7 @@ class CollateralIncentiveList extends StatelessWidget {
                   }
                   final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
                       plugin, e['tokenNameId']);
-                  if (rewardToken.amount == BigInt.zero.toString() &&
-                      BigInt.parse(rewardToken.minBalance!) >
-                          Fmt.tokenInt(
-                              amount.toString(), rewardToken.decimals!)) {
-                    edErrorToken = rewardToken;
-                  }
-                  return '${Fmt.priceFloor(amount)} ${PluginFmt.tokenView(rewardToken.symbol)}';
+                  return '${Fmt.priceFloor(amount.toDouble())} ${PluginFmt.tokenView(rewardToken.symbol)}';
                 }).join(' + ')
               : '0.00';
 
@@ -447,17 +434,6 @@ class CollateralIncentiveList extends StatelessWidget {
                                 ),
                               ],
                             )),
-                        edErrorToken != null
-                            ? Text(
-                                "${dic['earn.dex.edError1']} ${Fmt.priceFloorBigIntFormatter(BigInt.parse(edErrorToken!.minBalance!), edErrorToken!.decimals!, lengthMax: 6)} ${PluginFmt.tokenView(edErrorToken!.symbol)} ${dic['earn.dex.edError2']}",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: Colors.white,
-                                        fontSize: UI.getTextSize(10, context)),
-                              )
-                            : Container()
                       ],
                     )),
                 Container(

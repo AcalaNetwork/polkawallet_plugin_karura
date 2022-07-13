@@ -53,6 +53,7 @@ abstract class _DexPoolData {
   ProvisioningData? provisioning;
   double? rewards;
   double? rewardsLoyalty;
+  List? balances;
 }
 
 @JsonSerializable()

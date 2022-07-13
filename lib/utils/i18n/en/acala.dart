@@ -6,6 +6,7 @@ const Map<String, String> enDex = {
   'dex.title': 'Swap',
   'dex.pay': 'Pay',
   'dex.receive': 'Receive',
+  'dex.receiveEstimate': 'Receive(estimate)',
   'dex.rate': 'Price',
   'dex.route': 'Route',
   'dex.slippage': 'Slippage Tolerance',
@@ -14,7 +15,7 @@ const Map<String, String> enDex = {
   'dex.tx.receive': 'Receive',
   'dex.min': 'Minimum received',
   'dex.max': 'Maximum sold',
-  'dex.fee': 'Liquidity provider fee',
+  'dex.fee': 'Trading fee',
   'dex.impact': 'Price impact',
   'dex.lp': 'Liquidity',
   'dex.swap': 'Swap',
@@ -331,7 +332,21 @@ const Map<String, String> enDex = {
   'earn.dex.sort1': 'By apy',
   'earn.dex.sort2': 'By staked LP',
   'earn.dex.sort3': 'By earn',
-  'earn.dex.edError1': 'The Claims may fail due to',
-  'earn.dex.edError2': 'is required as ED',
-  'earn.dex.searchPools': 'Search Pools'
+  'earn.dex.searchPools': 'Search Pools',
+  'earn.dex.joinPool': 'Join LKSM-KSM Pool',
+  'earn.dex.joinPool.describe':
+      'By adding liquidity into the KSM-LKSM Pool of Taiga, you will get tons of rewards.',
+  'earn.dex.joinPool.completed': 'Completed',
+  'earn.dex.joinPool.back': 'Back',
+  'earn.dex.joinPool.message1': 'Add liquidity to the',
+  'earn.dex.joinPool.message2': 'pool can get rewards up to',
+  'earn.dex.joinPool.message3': 'APR!',
+  'earn.taiga.claimAirdrop': 'Claim Airdrop',
+  'earn.taiga.stakeNotRequired': 'Stake not Required',
+  'earn.taiga.claimMessage':
+      'Tap claim to see your LP detail and claim your rewards',
+  'earn.taiga.addLiquidity': 'Add all assets in a balanced proportion',
+  'earn.taiga.poolSize': 'Pool Size',
+  'earn.taiga.edMessage':
+      'This transaction may fail due to insufficient existing deposit in the current address '
 };

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 
 class SwapStore {
   SwapStore(this.cache);
@@ -8,6 +10,12 @@ class SwapStore {
   final StoreCache? cache;
 
   Map<String?, List<String?>> _swapPair = Map<String?, List<String>>();
+
+  List<TokenBalanceData> dexTokens = [];
+
+  initDexTokens(PluginKarura plugin) async {
+    dexTokens = (await plugin.api!.swap.getSwapTokens()) ?? [];
+  }
 
   void setSwapPair(List<String?> value, String? pubKey) {
     _swapPair[pubKey] = value;

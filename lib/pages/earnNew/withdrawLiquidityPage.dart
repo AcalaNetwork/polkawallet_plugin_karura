@@ -14,11 +14,11 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -372,9 +372,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                   )),
               PluginTagCard(
                 titleTag: dic['v3.earn.amount'],
-                padding:
-                    EdgeInsets.only(top: 14, bottom: 16, right: 14, left: 23),
+                padding: EdgeInsets.only(top: 14, left: 20),
                 margin: EdgeInsets.only(top: 16),
+                radius: Radius.circular(4),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -387,9 +387,9 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                               .headline3
                               ?.copyWith(
                                   color: Colors.white,
-                                  fontSize: UI.getTextSize(40, context)),
+                                  fontSize: UI.getTextSize(36, context)),
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.zero,
+                            contentPadding: EdgeInsets.only(right: 10),
                             border: InputBorder.none,
                             hintText:
                                 '${dicAssets['balance']}: ${Fmt.priceFloorBigInt(shareFromInt, balancePair[0].decimals!, lengthMax: 4)}',
@@ -429,71 +429,136 @@ class _WithdrawLiquidityPageState extends State<WithdrawLiquidityPage> {
                           },
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          PluginOutlinedButtonSmall(
-                            color: Color(0xFFFC8156),
-                            activeTextcolor: Colors.white,
-                            unActiveTextcolor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 5),
-                            content: '10%',
-                            active: !shareEmpty && shareInputInt == shareInt10,
-                            onPressed: shareEmpty
-                                ? null
-                                : () => _onAmountSelect(
-                                    shareInt10, balancePair[0].decimals),
-                          ),
-                          PluginOutlinedButtonSmall(
-                            color: Color(0xFFFC8156),
-                            activeTextcolor: Colors.white,
-                            unActiveTextcolor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 5),
-                            content: '25%',
-                            active: !shareEmpty && shareInputInt == shareInt25,
-                            onPressed: shareEmpty
-                                ? null
-                                : () => _onAmountSelect(
-                                    shareInt25, balancePair[0].decimals),
-                          ),
-                          PluginOutlinedButtonSmall(
-                            color: Color(0xFFFC8156),
-                            activeTextcolor: Colors.white,
-                            unActiveTextcolor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 5),
-                            content: '50%',
-                            active: !shareEmpty && shareInputInt == shareInt50,
-                            onPressed: shareEmpty
-                                ? null
-                                : () => _onAmountSelect(
-                                    shareInt50, balancePair[0].decimals),
-                          ),
-                          PluginOutlinedButtonSmall(
-                            color: Color(0xFFFC8156),
-                            activeTextcolor: Colors.white,
-                            unActiveTextcolor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 5),
-                            content: '100%',
-                            active:
-                                !shareEmpty && shareInputInt == shareFromInt,
-                            onPressed: shareEmpty
-                                ? null
-                                : () => _onAmountSelect(
-                                    shareFromInt, balancePair[0].decimals,
-                                    isMax: true),
-                          )
-                        ],
-                      ),
+                      Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              CupertinoButton(
+                                  onPressed: shareEmpty
+                                      ? null
+                                      : () => _onAmountSelect(
+                                          shareInt10, balancePair[0].decimals),
+                                  color:
+                                      !shareEmpty && shareInputInt == shareInt10
+                                          ? PluginColorsDark.primary
+                                          : Color(0xFF505151),
+                                  disabledColor: const Color(0xFF505151),
+                                  minSize: 26,
+                                  borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(9)),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 2, horizontal: 5),
+                                  child: Text(
+                                    '10%',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            color: !shareEmpty &&
+                                                    shareInputInt == shareInt10
+                                                ? Color(0xFF212123)
+                                                : Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              CupertinoButton(
+                                  onPressed: shareEmpty
+                                      ? null
+                                      : () => _onAmountSelect(
+                                          shareInt25, balancePair[0].decimals),
+                                  color:
+                                      !shareEmpty && shareInputInt == shareInt25
+                                          ? PluginColorsDark.primary
+                                          : Color(0xFF505151),
+                                  disabledColor: const Color(0xFF505151),
+                                  minSize: 26,
+                                  borderRadius: null,
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 2, horizontal: 5),
+                                  child: Text(
+                                    '25%',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            color: !shareEmpty &&
+                                                    shareInputInt == shareInt25
+                                                ? Color(0xFF212123)
+                                                : Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              CupertinoButton(
+                                  onPressed: shareEmpty
+                                      ? null
+                                      : () => _onAmountSelect(
+                                          shareInt50, balancePair[0].decimals),
+                                  color:
+                                      !shareEmpty && shareInputInt == shareInt50
+                                          ? PluginColorsDark.primary
+                                          : Color(0xFF505151),
+                                  disabledColor: const Color(0xFF505151),
+                                  minSize: 26,
+                                  borderRadius: null,
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 2, horizontal: 5),
+                                  child: Text(
+                                    '50%',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            color: !shareEmpty &&
+                                                    shareInputInt == shareInt50
+                                                ? Color(0xFF212123)
+                                                : Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              CupertinoButton(
+                                  onPressed: shareEmpty
+                                      ? null
+                                      : () => _onAmountSelect(
+                                          shareFromInt, balancePair[0].decimals,
+                                          isMax: true),
+                                  color: !shareEmpty &&
+                                          shareInputInt == shareFromInt
+                                      ? PluginColorsDark.primary
+                                      : Color(0xFF505151),
+                                  disabledColor: const Color(0xFF505151),
+                                  minSize: 26,
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(4)),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 2, horizontal: 5),
+                                  child: Text(
+                                    '100%',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            color: !shareEmpty &&
+                                                    shareInputInt ==
+                                                        shareFromInt
+                                                ? Color(0xFF212123)
+                                                : Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ))
+                            ],
+                          )),
                     ]),
               ),
               PluginTagCard(
                 titleTag: dic['v3.earn.tokenReceived']!,
                 padding: EdgeInsets.symmetric(vertical: 19),
                 margin: EdgeInsets.only(top: 16),
+                radius: Radius.circular(4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
