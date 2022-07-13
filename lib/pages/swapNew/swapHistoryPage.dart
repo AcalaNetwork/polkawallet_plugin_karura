@@ -142,7 +142,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
               type = TransferIconType.add_liquidity;
               action = "addLiquidity";
               describe =
-                  "add ${detail.amounts.map((e) => e.toTokenString()).join(" and ")}";
+                  "add ${detail.amounts.map((e) => e.toTokenString()).join(" + ")} to pool";
               break;
             case "proportionredeem":
             case "singleredeem":
@@ -150,7 +150,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
               type = TransferIconType.remove_liquidity;
               action = "removeLiquidity";
               describe =
-                  "remove ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                  "remove ${detail.amountPay} shares from ${PluginFmt.tokenView(detail.tokenPay)} pool";
               break;
           }
 
