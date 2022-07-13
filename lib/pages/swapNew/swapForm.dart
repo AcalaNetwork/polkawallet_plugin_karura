@@ -612,12 +612,9 @@ class _SwapFormState extends State<SwapForm>
                   ],
                 ),
                 GestureDetector(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Image.asset(
-                        'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
-                        width: 39),
-                  ),
+                  child: Image.asset(
+                      'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
+                      width: 39),
                   onTap: _swapPair.length > 1 ? () => _switchPair() : null,
                 ),
               ],

@@ -249,7 +249,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                         Padding(
                                             padding: EdgeInsets.only(top: 6),
                                             child: Text(
-                                              '${dic['earn.staked']} \$${Fmt.priceFloor(totalStaked)}',
+                                              '${dic['dex.lp']} \$${Fmt.priceFloor(totalStaked)}',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline5
