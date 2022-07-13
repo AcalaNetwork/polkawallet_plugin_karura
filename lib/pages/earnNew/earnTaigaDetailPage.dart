@@ -110,7 +110,10 @@ class _EarnTaigaDetailPageState extends State<EarnTaigaDetailPage> {
         var claim = 0.0;
         List<String> claimString = [];
         taigaPool!.reward.forEach((e) {
-          final index = taigaPool.reward.indexOf(e);
+          var index = taigaPool.reward.indexOf(e);
+          if (tokenSymbol == "taiKSM") {
+            index = taigaPool.reward.length - index - 1;
+          }
           final rewardBalance = AssetsUtils.getBalanceFromTokenNameId(
               widget.plugin, taigaPool.rewardTokens[index]);
           final rewardPrice =
