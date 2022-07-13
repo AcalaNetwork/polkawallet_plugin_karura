@@ -315,9 +315,13 @@ Widget priceItemBuild(Widget icon, String title, String price, Color color,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-              height: 16.w,
-              width: 16.w,
+              height: 18.w,
+              width: 18.w,
+              padding: EdgeInsets.all(2),
               margin: EdgeInsets.only(right: 8.w),
+              decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(27),
+                  borderRadius: BorderRadius.all(Radius.circular(4))),
               child: icon),
           Text(
             title,
