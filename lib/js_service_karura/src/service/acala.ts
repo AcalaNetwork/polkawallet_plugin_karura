@@ -4,12 +4,15 @@ import { ApiPromise } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
 import { nft_image_config } from "../constants/acala";
 import { BN } from "@polkadot/util/bn/bn";
-import { Homa, Wallet } from "@acala-network/sdk";
+import { Homa, Wallet, History } from "@acala-network/sdk";
 import axios from "axios";
 import { IncentiveResult } from "../types/acalaTypes";
 import { firstValueFrom } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 import { BalanceData } from "@acala-network/sdk/wallet/type";
+import { data } from "@acala-network/sdk/cross-chain/configs/chains";
+import subscan from "../utils/config/links/subscan";
+import { HistoryRecord } from "@acala-network/sdk/history/types";
 
 const ONE = FixedPointNumber.ONE;
 const SECONDS_OF_YEAR = new BN(365 * 24 * 3600);
@@ -119,12 +122,12 @@ function _getTokenType(token: Token) {
   return native_token_list.includes(token.name)
     ? "Token"
     : token.name.startsWith("lp")
-    ? "DexShare"
-    : token.name.startsWith("erc20")
-    ? "Erc20"
-    : token.name.startsWith("sa") || token.name === "TAI"
-    ? "TaigaAsset"
-    : "ForeignAsset";
+      ? "DexShare"
+      : token.name.startsWith("erc20")
+        ? "Erc20"
+        : token.name.startsWith("sa") || token.name === "TAI"
+          ? "TaigaAsset"
+          : "ForeignAsset";
 }
 
 /**
@@ -474,9 +477,9 @@ async function queryIncentives(api: ApiPromise) {
     const idString =
       incentiveType === "Dex"
         ? createDexShareName(
-            forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][0])),
-            forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][1]))
-          )
+          forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][0])),
+          forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][1]))
+        )
         : forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id));
 
     return { incentiveType, idString, value: FPNum(e[1], 18).toString() };
@@ -488,9 +491,9 @@ async function queryIncentives(api: ApiPromise) {
     const idString =
       incentiveType === "Dex"
         ? createDexShareName(
-            forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][0])),
-            forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][1]))
-          )
+          forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][0])),
+          forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id["DexShare"][1]))
+        )
         : forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id));
     const incentiveToken = e[0].args[1];
     const incentiveTokenNameId = forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, incentiveToken));
@@ -584,9 +587,9 @@ function _calcLoanAssets(api: ApiPromise, allTokens: any[], loanTypes: any[], lo
       res,
       karura_stable_coin,
       0 -
-        FPNum(e.debit, _getTokenDecimal(allTokens, karura_stable_coin))
-          .times(FPNum(loanTypes.find((t) => t.currency.toString() == e.currency.toString()).debitExchangeRate))
-          .toNumber()
+      FPNum(e.debit, _getTokenDecimal(allTokens, karura_stable_coin))
+        .times(FPNum(loanTypes.find((t) => t.currency.toString() == e.currency.toString()).debitExchangeRate))
+        .toNumber()
     );
 
     const reward = loanRewards.find((e) => e.tokenNameId === tokenNameId);
@@ -651,11 +654,11 @@ function _calcLPAssets(api: ApiPromise, allTokens: any[], poolInfos: any[], lpTo
             _getTokenSymbol(allTokens, tokenNameId),
             index === 0
               ? FPNum(e.pool[0], decimalPair[0])
-                  .times(proportion)
-                  .toNumber()
+                .times(proportion)
+                .toNumber()
               : FPNum(e.pool[1], decimalPair[1])
-                  .times(proportion)
-                  .toNumber()
+                .times(proportion)
+                .toNumber()
           );
         });
       }
@@ -804,6 +807,67 @@ async function queryDexIncentiveLoyaltyEndBlock(api: ApiPromise) {
   return { result, loyalty };
 }
 
+
+async function getHistory(api: ApiPromise, type: string, address: string, params: Object) {
+
+  const history = new History({
+    fetchEndpoints: {
+      transfer: "https://api.subquery.network/sq/AcalaNetwork/karura-transfer",
+      swap: "https://api.subquery.network/sq/AcalaNetwork/karura-dex",
+      earn: "https://api.subquery.network/sq/AcalaNetwork/karura-incentives",
+      loan: "https://api.subquery.network/sq/AcalaNetwork/karura-loan",
+      homa: "https://api.subquery.network/sq/AcalaNetwork/karura-homa"
+    },
+    wallet: (<any>window).wallet as Wallet,
+    poolInterval: 5 * 60 * 1000
+  });
+
+  var record: HistoryRecord[];
+  switch (type) {
+    case 'transfer':
+
+      record = await history.transfer.getHistories({
+        address: address,
+        token: params.token ?? ''
+      });
+      break;
+    case 'swap':
+      record = await history.swap.getHistories({
+        address: address
+      });
+      break;
+    case 'earn':
+      record = await history.earn.getHistories({
+        address: address
+      });
+      break;
+    case 'loan':
+      record = await history.loan.getHistories({
+        address: address
+      });
+      break;
+    case 'homa':
+      record = await history.homa.getHistories({
+        address: address
+      });
+      break;
+    default:
+      record = null;
+      break;
+  }
+  return record.map((e) => {
+    return {
+      message: e.message,
+      data: e.data,
+      hash: e.extrinsicHash,
+      resolveLinks: e.resolveLinks.subscan,
+      event: e.method
+    }
+  });
+
+}
+
+
 export default {
   calcTokenSwapAmount,
   getAllTokens,
@@ -826,4 +890,6 @@ export default {
   queryDexIncentiveLoyaltyEndBlock,
 
   getBlockDuration: async () => ACA_SYS_BLOCK_TIME.toNumber(),
+  //history
+  getHistory,
 };

@@ -43,35 +43,20 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           HomaPage.route: (_) => HomaPage(plugin, keyring),
           MintPage.route: (_) => MintPage(plugin, keyring),
           RedeemPage.route: (_) => RedeemPage(plugin, keyring),
-          HomaHistoryPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => HomaHistoryPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['httpUri']!,
-              ),
+          HomaHistoryPage.route: (_) => HomaHistoryPage(plugin, keyring),
           HomaTxDetailPage.route: (_) => HomaTxDetailPage(plugin, keyring),
 
           //loan
           LoanPage.route: (_) => LoanPage(plugin, keyring),
           LoanCreatePage.route: (_) => LoanCreatePage(plugin, keyring),
-          LoanHistoryPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => LoanHistoryPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['httpUri']!,
-              ),
+          LoanHistoryPage.route: (_) => LoanHistoryPage(plugin, keyring),
           LoanDepositPage.route: (_) => LoanDepositPage(plugin, keyring),
           LoanTxDetailPage.route: (_) => LoanTxDetailPage(plugin, keyring),
           LoanAdjustPage.route: (_) => LoanAdjustPage(plugin, keyring),
 
           //swap
           SwapPage.route: (_) => SwapPage(plugin, keyring),
-          SwapHistoryPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => SwapHistoryPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['httpUri']!,
-              ),
+          SwapHistoryPage.route: (_) => SwapHistoryPage(plugin, keyring),
           BootstrapPage.route: (_) => BootstrapPage(plugin, keyring),
           SwapDetailPage.route: (_) => SwapDetailPage(plugin, keyring),
 
@@ -80,18 +65,8 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           AddLiquidityPage.route: (_) => AddLiquidityPage(plugin, keyring),
           WithdrawLiquidityPage.route: (_) =>
               WithdrawLiquidityPage(plugin, keyring),
-          EarnHistoryPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => EarnHistoryPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['httpUri']!,
-              ),
-          EarnDetailPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => EarnDetailPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['httpUri']!,
-              ),
+          EarnHistoryPage.route: (_) => EarnHistoryPage(plugin, keyring),
+          EarnDetailPage.route: (_) => EarnDetailPage(plugin, keyring),
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
           InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
           EarnTxDetailPage.route: (_) => EarnTxDetailPage(plugin, keyring),

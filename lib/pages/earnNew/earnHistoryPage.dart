@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
@@ -17,12 +18,25 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
-class EarnHistoryPage extends StatelessWidget {
+class EarnHistoryPage extends StatefulWidget {
   EarnHistoryPage(this.plugin, this.keyring);
   final PluginKarura plugin;
   final Keyring keyring;
 
   static const String route = '/karura/earn/txs';
+
+  @override
+  State<EarnHistoryPage> createState() => _EarnHistoryPageState();
+}
+
+class _EarnHistoryPageState extends State<EarnHistoryPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      widget.plugin.service?.history.getEarns();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +48,10 @@ class EarnHistoryPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Query(
-          options: QueryOptions(
-            document: gql(dexStakeQuery),
-            variables: <String, String?>{
-              'account': keyring.current.address,
-            },
-          ),
-          builder: (
-            QueryResult result, {
-            Future<QueryResult?> Function()? refetch,
-            FetchMore? fetchMore,
-          }) {
-            if (result.data == null) {
+        child: Observer(
+          builder: (_) {
+            final list = widget.plugin.store?.history.earns;
+            if (list == null) {
               return Container(
                 height: MediaQuery.of(context).size.height / 3,
                 child: Row(
@@ -55,15 +60,6 @@ class EarnHistoryPage extends StatelessWidget {
                 ),
               );
             }
-
-            final nodes =
-                List.of(result.data!['incentiveActions']['nodes']).toList();
-            nodes.removeWhere(
-                (e) => jsonDecode(e['data'][1]['value'])['loans'] != null);
-            final list = nodes
-                .map((i) => TxDexIncentiveData.fromJson(
-                    (i as Map) as Map<String, dynamic>, plugin))
-                .toList();
 
             return ListView.builder(
               itemCount: list.length + 1,
@@ -77,20 +73,16 @@ class EarnHistoryPage extends StatelessWidget {
                 }
 
                 final detail = list[i];
-                String? amount = '';
                 TransferIconType icon = TransferIconType.unstake;
                 switch (detail.event) {
                   case TxDexIncentiveData.actionStake:
-                    amount = detail.amountShare;
                     icon = TransferIconType.stake;
                     break;
                   case TxDexIncentiveData.actionClaimRewards:
                   case TxDexIncentiveData.actionPayoutRewards:
-                    amount = detail.amountShare;
                     icon = TransferIconType.claim_rewards;
                     break;
                   case TxDexIncentiveData.actionUnStake:
-                    amount = detail.amountShare;
                     break;
                 }
 
@@ -107,7 +99,7 @@ class EarnHistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          dic['earn.${detail.event}']!,
+                          dic[earn_actions_map[detail.event]] ?? "",
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -115,7 +107,7 @@ class EarnHistoryPage extends StatelessWidget {
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                         ),
-                        Text(amount!,
+                        Text(detail.message ?? "",
                             textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme
@@ -125,7 +117,7 @@ class EarnHistoryPage extends StatelessWidget {
                     ),
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.time, true)),
+                            .parse(detail.data!['timestamp'], true)),
                         style: Theme.of(context).textTheme.headline5?.copyWith(
                             color: Colors.white,
                             fontSize: UI.getTextSize(10, context))),
@@ -148,11 +140,3 @@ class EarnHistoryPage extends StatelessWidget {
     );
   }
 }
-
-const earn_actions_map = {
-  'addLiquidity': 'earn.add',
-  'removeLiquidity': 'earn.remove',
-  'depositDexShare': 'earn.stake',
-  'withdrawDexShare': 'earn.unStake',
-  'claimRewards': 'earn.claim',
-};

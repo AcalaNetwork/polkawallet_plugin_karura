@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
-import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
+import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
+
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -16,12 +15,25 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
-class SwapHistoryPage extends StatelessWidget {
+class SwapHistoryPage extends StatefulWidget {
   SwapHistoryPage(this.plugin, this.keyring);
   final PluginKarura plugin;
   final Keyring keyring;
 
   static const String route = '/karura/swap/txs';
+
+  @override
+  State<SwapHistoryPage> createState() => _SwapHistoryPageState();
+}
+
+class _SwapHistoryPageState extends State<SwapHistoryPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      widget.plugin.service!.history.getSwaps();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,19 +44,11 @@ class SwapHistoryPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Query(
-          options: QueryOptions(
-            document: gql(swapQuery),
-            variables: <String, String?>{
-              'account': keyring.current.address,
-            },
-          ),
-          builder: (
-            QueryResult result, {
-            Future<QueryResult?> Function()? refetch,
-            FetchMore? fetchMore,
-          }) {
-            if (result.data == null) {
+        child: Observer(
+          builder: (_) {
+            final list = widget.plugin.store?.history.swaps;
+
+            if (list == null) {
               return Container(
                 height: MediaQuery.of(context).size.height / 3,
                 child: Row(
@@ -53,10 +57,6 @@ class SwapHistoryPage extends StatelessWidget {
                 ),
               );
             }
-            final list = List.of(result.data!['dexActions']['nodes'])
-                .map((i) => TxSwapData.fromJson(i as Map, plugin))
-                .toList();
-
             return ListView.builder(
               itemCount: list.length + 1,
               itemBuilder: (BuildContext context, int i) {
@@ -68,29 +68,21 @@ class SwapHistoryPage extends StatelessWidget {
                   );
                 }
 
-                final TxSwapData detail = list[i];
+                final HistoryData detail = list[i];
                 TransferIconType type = TransferIconType.swap;
-                String describe = "";
-                switch (detail.action) {
-                  case "removeLiquidity":
+                String describe = detail.message ?? "";
+                switch (detail.event) {
+                  case "dex.RemoveLiquidity":
                     type = TransferIconType.remove_liquidity;
-                    describe =
-                        "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
                     break;
-                  case "addProvision":
+                  case "dex.AddProvision":
                     type = TransferIconType.add_provision;
-                    describe =
-                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
                     break;
-                  case "addLiquidity":
+                  case "dex.AddLiquidity":
                     type = TransferIconType.add_liquidity;
-                    describe =
-                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
                     break;
-                  case "swap":
+                  case "dex.Swap":
                     type = TransferIconType.swap;
-                    describe =
-                        "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
                     break;
                 }
                 return Container(
@@ -106,7 +98,7 @@ class SwapHistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          dic['dex.${detail.action}']!,
+                          dic['${detail.event}'] ?? "",
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -124,16 +116,12 @@ class SwapHistoryPage extends StatelessWidget {
                     ),
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.time, true)),
+                            .parse(detail.data!['timestamp'], true)),
                         style: Theme.of(context).textTheme.headline5?.copyWith(
                             color: Colors.white,
                             fontSize: UI.getTextSize(10, context))),
-                    leading: TransferIcon(
-                        type:
-                            detail.isSuccess! ? type : TransferIconType.failure,
-                        bgColor: detail.isSuccess!
-                            ? Color(0x57FFFFFF)
-                            : Color(0xFFD7D7D7)),
+                    leading:
+                        TransferIcon(type: type, bgColor: Color(0x57FFFFFF)),
                     onTap: () {
                       Navigator.pushNamed(
                         context,

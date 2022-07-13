@@ -4,6 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/api/types/transferData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
@@ -56,6 +57,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
       final TokenBalanceData token =
           ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
       widget.plugin.service!.assets.updateTokenBalances(token);
+      widget.plugin.service!.history.getTransfers(token.tokenNameId ?? '');
     });
   }
 
@@ -89,6 +91,16 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
           if (disabledTokens != null) {
             transferDisabled = List.of(disabledTokens).contains(tokenSymbol);
           }
+
+          final list =
+              widget.plugin.store?.history.transfersMap[token.tokenNameId];
+          final txs = list?.toList();
+          if (_txFilterIndex > 0) {
+            txs?.retainWhere((e) =>
+                (_txFilterIndex == 1 ? e.data!['to'] : e.data?['from']) ==
+                widget.keyring.current.address);
+          }
+
           return RefreshIndicator(
             key: _refreshKey,
             onRefresh: () =>
@@ -228,42 +240,14 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                 Expanded(
                   child: Container(
                     color: titleColor,
-                    child: Query(
-                        options: QueryOptions(
-                          document: gql(transferQuery),
-                          variables: <String, String?>{
-                            'account': widget.keyring.current.address,
-                            'token': token.tokenNameId,
-                          },
-                        ),
-                        builder: (
-                          QueryResult result, {
-                          Future<QueryResult?> Function()? refetch,
-                          FetchMore? fetchMore,
-                        }) {
-                          if (result.data == null) {
-                            return Container(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [PluginLoadingWidget()],
-                              ),
-                            );
-                          }
-                          final txs =
-                              List.of(result.data!['transfers']['nodes'])
-                                  .map((i) =>
-                                      TransferData.fromJson(i as Map, token))
-                                  .toList();
-                          txs.removeWhere((e) =>
-                              e.to == widget.keyring.current.address &&
-                              e.isSuccess == false);
-
-                          if (_txFilterIndex > 0) {
-                            txs.retainWhere((e) =>
-                                (_txFilterIndex == 1 ? e.to : e.from) ==
-                                widget.keyring.current.address);
-                          }
-                          return ListView.builder(
+                    child: txs == null
+                        ? Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [PluginLoadingWidget()],
+                            ),
+                          )
+                        : ListView.builder(
                             itemCount: txs.length + 1,
                             itemBuilder: (_, i) {
                               if (i == txs.length) {
@@ -273,12 +257,11 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               return TransferListItem(
                                 data: txs[i],
                                 token: tokenSymbol,
-                                isOut: txs[i].from ==
+                                isOut: txs[i].data!['from'] ==
                                     widget.keyring.current.address,
                               );
                             },
-                          );
-                        }),
+                          ),
                   ),
                 ),
               ],
@@ -482,47 +465,26 @@ class TransferListItem extends StatelessWidget {
     this.crossChain,
   });
 
-  final TransferData? data;
+  final HistoryData? data;
   final String? token;
   final String? crossChain;
   final bool? isOut;
 
   @override
   Widget build(BuildContext context) {
-    final address = isOut! ? data!.to : data!.from;
+    final address = isOut! ? data!.data!['to'] : data!.data!['from'];
     final title = Fmt.address(address);
     return ListTile(
       dense: true,
-      leading: data!.isSuccess!
-          ? isOut!
-              ? TransferIcon(
-                  type: TransferIconType.rollOut,
-                  bgColor: Theme.of(context).cardColor)
-              : TransferIcon(
-                  type: TransferIconType.rollIn,
-                  bgColor: Theme.of(context).cardColor)
+      leading: isOut!
+          ? TransferIcon(
+              type: TransferIconType.rollOut,
+              bgColor: Theme.of(context).cardColor)
           : TransferIcon(
-              type: TransferIconType.failure, bgColor: Color(0xFFD7D7D7)),
-      title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
-      subtitle: Text(Fmt.dateTime(DateTime.parse(data!.timestamp))),
-      trailing: Container(
-        width: 110,
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                '${isOut! ? '-' : '+'} ${data!.amount}',
-                style: Theme.of(context).textTheme.headline5!.copyWith(
-                    color: data!.isSuccess!
-                        ? Theme.of(context).toggleableActiveColor
-                        : Theme.of(context).unselectedWidgetColor,
-                    fontWeight: FontWeight.w600),
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ],
-        ),
-      ),
+              type: TransferIconType.rollIn,
+              bgColor: Theme.of(context).cardColor),
+      title: Text(data?.message ?? title),
+      subtitle: Text(Fmt.dateTime(DateTime.parse(data!.data!['timestamp']))),
       onTap: () {
         Navigator.pushNamed(
           context,

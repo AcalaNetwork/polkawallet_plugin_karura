@@ -1,13 +1,15 @@
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxHomaData extends _TxHomaData {
-  static const String actionMint = 'Minted';
-  static const String actionRedeemed = 'Redeemed';
-  static const String actionRedeem = 'RedeemRequest';
-  static const String actionRedeemCancel = 'RedeemRequestCancelled';
-  static const String actionRedeemedByFastMatch = 'RedeemedByFastMatch';
-  static const String actionWithdrawRedemption = 'WithdrawRedemption';
-  static const String actionRedeemedByUnbond = 'RedeemedByUnbond';
+  static const String actionMint = 'homa.Minted';
+  static const String actionRedeemed = 'homa.Redeemed';
+  static const String actionLiteRedeemed = 'homaLite.Redeemed';
+  static const String actionRedeem = 'homa.RequestedRedeem';
+  static const String actionLiteRedeem = 'homaLite.RedeemRequested';
+  static const String actionRedeemCancel = 'homa.RedeemRequestCancelled';
+  static const String actionRedeemedByFastMatch = 'homa.RedeemedByFastMatch';
+  static const String actionWithdrawRedemption = 'homa.WithdrawRedemption';
+  static const String actionRedeemedByUnbond = 'homa.RedeemedByUnbond';
 
   static TxHomaData fromJson(Map<String, dynamic> json) {
     TxHomaData data = TxHomaData();

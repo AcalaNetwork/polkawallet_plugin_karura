@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -26,8 +27,8 @@ class HomaTxDetailPage extends StatelessWidget {
     final decimals = plugin.networkState.tokenDecimals!;
     final symbols = plugin.networkState.tokenSymbol!;
 
-    final TxHomaData tx =
-        ModalRoute.of(context)!.settings.arguments as TxHomaData;
+    final HistoryData tx =
+        ModalRoute.of(context)!.settings.arguments as HistoryData;
 
     final symbol = relay_chain_token_symbol;
     final nativeDecimal = decimals[symbols.indexOf(symbol)];
@@ -41,27 +42,27 @@ class HomaTxDetailPage extends StatelessWidget {
     final infoItems = <TxDetailInfoItem>[
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.action!, style: amountStyle),
+        content: Text(tx.event!.replaceAll('homa.', ''), style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(dic['homa.${tx.action}']!, style: amountStyle),
+        content: Text(dic['${tx.event}']!, style: amountStyle),
       )
     ];
 
-    switch (tx.action) {
+    switch (tx.event) {
       case TxHomaData.actionMint:
         infoItems.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
-                '${Fmt.priceFloorBigInt(tx.amountPay, nativeDecimal)} $symbol',
+                '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['stakingCurrencyAmount']), nativeDecimal)} $symbol',
                 style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
             content: Text(
-                '${Fmt.priceFloorBigInt(tx.amountReceive, liquidDecimal)} L$symbol',
+                '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['liquidAmountReceived']), liquidDecimal)} L$symbol',
                 style: amountStyle),
           )
         ]);
@@ -71,32 +72,49 @@ class HomaTxDetailPage extends StatelessWidget {
           TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
-                '${Fmt.priceFloorBigInt(tx.amountPay, liquidDecimal)} L$symbol',
+                '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['matchedLiquidAmount']), liquidDecimal)} L$symbol',
                 style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
             content: Text(
-                '${Fmt.priceFloorBigInt(tx.amountReceive, nativeDecimal)} $symbol',
+                '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['redeemedStakingAmount']), nativeDecimal)} $symbol',
                 style: amountStyle),
           )
         ]);
         break;
       case TxHomaData.actionRedeem:
+      case TxHomaData.actionLiteRedeem:
         infoItems.add(TxDetailInfoItem(
           label: dic['dex.pay'],
           content: Text(
-              '${Fmt.priceFloorBigInt(tx.amountPay, liquidDecimal)} L$symbol',
+              '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['amount']), liquidDecimal)} L$symbol',
+              style: amountStyle),
+        ));
+        break;
+
+      case TxHomaData.actionRedeemedByUnbond:
+        infoItems.add(TxDetailInfoItem(
+          label: dic['dex.receive'],
+          content: Text(
+              '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['unbondingStakingAmount']), nativeDecimal)} $symbol',
+              style: amountStyle),
+        ));
+        break;
+      case TxHomaData.actionLiteRedeemed:
+        infoItems.add(TxDetailInfoItem(
+          label: dic['dex.receive'],
+          content: Text(
+              '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['stakingAmountRedeemed']), nativeDecimal)} $symbol',
               style: amountStyle),
         ));
         break;
       case TxHomaData.actionRedeemed:
-      case TxHomaData.actionRedeemedByUnbond:
       case TxHomaData.actionWithdrawRedemption:
         infoItems.add(TxDetailInfoItem(
           label: dic['dex.receive'],
           content: Text(
-              '${Fmt.priceFloorBigInt(tx.amountReceive, nativeDecimal)} $symbol',
+              '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['amount']), nativeDecimal)} $symbol',
               style: amountStyle),
         ));
         break;
@@ -104,19 +122,19 @@ class HomaTxDetailPage extends StatelessWidget {
         infoItems.add(TxDetailInfoItem(
           label: dic['dex.receive'],
           content: Text(
-              '${Fmt.priceFloorBigInt(tx.amountReceive, liquidDecimal)} L$symbol',
+              '${Fmt.priceFloorBigInt(BigInt.tryParse(tx.data!['amount']), liquidDecimal)} L$symbol',
               style: amountStyle),
         ));
     }
 
     return PluginTxDetail(
       current: keyring.current,
-      success: tx.isSuccess,
-      action: dic['homa.${tx.action}'],
+      success: true,
+      action: dic['${tx.event}'],
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
-      blockTime:
-          Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.time, true)),
+      blockTime: Fmt.dateTime(
+          DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.data!['timestamp'], true)),
       networkName: plugin.basic.name,
       infoItems: infoItems,
     );

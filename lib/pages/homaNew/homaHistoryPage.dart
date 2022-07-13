@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
@@ -16,7 +17,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
-class HomaHistoryPage extends StatelessWidget {
+class HomaHistoryPage extends StatefulWidget {
   HomaHistoryPage(this.plugin, this.keyring);
   final PluginKarura plugin;
   final Keyring keyring;
@@ -24,10 +25,23 @@ class HomaHistoryPage extends StatelessWidget {
   static const String route = '/karura/homa/txs';
 
   @override
+  State<HomaHistoryPage> createState() => _HomaHistoryPageState();
+}
+
+class _HomaHistoryPageState extends State<HomaHistoryPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      widget.plugin.service!.history.getHomas();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final symbols = plugin.networkState.tokenSymbol;
-    final decimals = plugin.networkState.tokenDecimals;
+    final symbols = widget.plugin.networkState.tokenSymbol;
+    final decimals = widget.plugin.networkState.tokenDecimals;
     final symbol = relay_chain_token_symbol;
     return PluginScaffold(
       appBar: PluginAppBar(
@@ -35,19 +49,11 @@ class HomaHistoryPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Query(
-          options: QueryOptions(
-            document: gql(homaQuery),
-            variables: <String, String?>{
-              'account': keyring.current.address,
-            },
-          ),
-          builder: (
-            QueryResult result, {
-            Future<QueryResult?> Function()? refetch,
-            FetchMore? fetchMore,
-          }) {
-            if (result.data == null) {
+        child: Observer(
+          builder: (_) {
+            final list = widget.plugin.store?.history.homas;
+
+            if (list == null) {
               return Container(
                 height: MediaQuery.of(context).size.height / 3,
                 child: Row(
@@ -56,14 +62,6 @@ class HomaHistoryPage extends StatelessWidget {
                 ),
               );
             }
-
-            final list = List.of(result.data!['homaActions']['nodes'])
-                .map((i) =>
-                    TxHomaData.fromJson((i as Map) as Map<String, dynamic>))
-                .toList();
-            list.removeWhere((e) =>
-                e.action == TxHomaData.actionRedeemed &&
-                e.amountReceive == BigInt.zero);
 
             final nativeDecimal = decimals![symbols!.indexOf(symbol)];
             final liquidDecimal = decimals[symbols.indexOf('L$symbol')];
@@ -81,38 +79,27 @@ class HomaHistoryPage extends StatelessWidget {
 
                 final detail = list[i];
 
-                String amountTail = '';
+                String amountTail = detail.message ?? "";
                 TransferIconType type = TransferIconType.redeem;
 
-                switch (detail.action) {
+                switch (detail.event) {
                   case TxHomaData.actionMint:
                     type = TransferIconType.mint;
-                    amountTail =
-                        'mint ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol by ${Fmt.priceFloorBigInt(detail.amountPay, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeem:
-                    amountTail =
-                        '${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
+                  case TxHomaData.actionLiteRedeem:
                     break;
                   case TxHomaData.actionRedeemedByUnbond:
-                    amountTail =
-                        'redeem ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol by unbond';
                     break;
                   case TxHomaData.actionRedeemedByFastMatch:
-                    amountTail =
-                        'fast redeemed ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol for ${Fmt.priceFloorBigInt(detail.amountPay, liquidDecimal)} L$symbol';
                     break;
                   case TxHomaData.actionRedeemed:
-                    amountTail =
-                        'redeem ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
+                  case TxHomaData.actionLiteRedeemed:
                     break;
                   case TxHomaData.actionWithdrawRedemption:
-                    amountTail =
-                        'claim ${Fmt.priceFloorBigInt(detail.amountReceive, nativeDecimal)} $symbol';
                     break;
                   case TxHomaData.actionRedeemCancel:
-                    amountTail =
-                        'cancel redeem with ${Fmt.priceFloorBigInt(detail.amountReceive, liquidDecimal)} L$symbol';
+                    break;
                 }
 
                 return Container(
@@ -128,7 +115,7 @@ class HomaHistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${dic['homa.${detail.action}']}',
+                          '${dic[detail.event]}',
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -146,7 +133,7 @@ class HomaHistoryPage extends StatelessWidget {
                     ),
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.time, true)),
+                            .parse(detail.data!['timestamp'], true)),
                         style: Theme.of(context).textTheme.headline5?.copyWith(
                             color: Colors.white,
                             fontSize: UI.getTextSize(10, context))),

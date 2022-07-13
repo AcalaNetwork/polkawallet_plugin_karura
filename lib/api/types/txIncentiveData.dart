@@ -5,11 +5,19 @@ import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
+const earn_actions_map = {
+  'incentives.AddLiquidity': 'earn.add',
+  'incentives.RemoveLiquidity': 'earn.remove',
+  'incentives.DepositDexShare': 'earn.stake',
+  'incentives.WithdrawDexShare': 'earn.unStake',
+  'incentives.ClaimRewards': 'earn.claim',
+};
+
 class TxDexIncentiveData extends _TxDexIncentiveData {
-  static const String actionStake = 'DepositDexShare';
-  static const String actionUnStake = 'WithdrawDexShare';
-  static const String actionClaimRewards = 'ClaimRewards';
-  static const String actionPayoutRewards = 'PayoutRewards';
+  static const String actionStake = 'incentives.DepositDexShare';
+  static const String actionUnStake = 'incentives.WithdrawDexShare';
+  static const String actionClaimRewards = 'incentives.ClaimRewards';
+  static const String actionPayoutRewards = 'incentives.PayoutRewards';
   static TxDexIncentiveData fromJson(
       Map<String, dynamic> json, PluginKarura plugin) {
     final data = TxDexIncentiveData();
