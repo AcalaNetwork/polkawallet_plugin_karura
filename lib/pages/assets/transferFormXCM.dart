@@ -28,13 +28,13 @@ import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
 import 'package:polkawallet_ui/components/v3/addressIcon.dart';
 import 'package:polkawallet_ui/components/v3/addressTextFormField.dart';
 import 'package:polkawallet_ui/components/v3/button.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/pages/v3/xcmTxConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class TransferFormXCM extends StatefulWidget {
   TransferFormXCM(this.plugin, this.keyring);
@@ -85,28 +85,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     return null;
   }
 
-  Future<String?> _checkBlackList(KeyPairData acc) async {
-    final addresses =
-        await widget.plugin.sdk.api.account.decodeAddress([acc.address!]);
-    if (addresses != null) {
-      final pubKey = addresses.keys.toList()[0];
-      if (widget.plugin.sdk.blackList.indexOf(pubKey) > -1) {
-        return I18n.of(context)!
-            .getDic(i18n_full_dic_karura, 'common')!['transfer.scam'];
-      }
-    }
-    return null;
-  }
-
   Future<String?> _checkAccountTo(KeyPairData acc, int chainToSS58) async {
-    final blackListCheck = await _checkBlackList(acc);
-    if (blackListCheck != null) return blackListCheck;
-
-    if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc.pubKey) >=
-        0) {
-      return null;
-    }
-
     final addressCheckValid = await widget.plugin.sdk.webView!.evalJavascript(
         '(account.checkAddressFormat != undefined ? {}:null)',
         wrapPromise: false);
@@ -608,6 +587,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                       },
                       key: ValueKey<KeyPairData?>(_accountTo),
                       isClean: true,
+                      sdk: widget.plugin.sdk,
                       onFocusChange: (hasFocus) {
                         setState(() {
                           _accountToFocus = hasFocus;
