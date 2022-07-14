@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
+import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
 
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -68,10 +69,12 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
                   );
                 }
 
-                final HistoryData detail = list[i];
+                final HistoryData history = list[i];
+                final detail = TxSwapData.fromHistory(history, widget.plugin);
+
                 TransferIconType type = TransferIconType.swap;
-                String describe = detail.message ?? "";
-                switch (detail.event) {
+                String describe = history.message ?? "";
+                switch (detail.action) {
                   case "dex.RemoveLiquidity":
                     type = TransferIconType.remove_liquidity;
                     break;
@@ -98,7 +101,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          dic['${detail.event}'] ?? "",
+                          dic['${detail.action}'] ?? "",
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -116,7 +119,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
                     ),
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.data!['timestamp'], true)),
+                            .parse(detail.time, true)),
                         style: Theme.of(context).textTheme.headline5?.copyWith(
                             color: Colors.white,
                             fontSize: UI.getTextSize(10, context))),

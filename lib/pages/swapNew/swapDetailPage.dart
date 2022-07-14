@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
+import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
@@ -25,27 +25,12 @@ class SwapDetailPage extends StatelessWidget {
     final Map<String, String> dic =
         I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-    final HistoryData tx =
-        ModalRoute.of(context)!.settings.arguments as HistoryData;
+    final TxSwapData tx =
+        ModalRoute.of(context)!.settings.arguments as TxSwapData;
+    final token0 = PluginFmt.tokenView(tx.tokenPay);
+    final token1 = PluginFmt.tokenView(tx.tokenReceive);
 
-    final tokenPay = AssetsUtils.tokenDataFromCurrencyId(
-        plugin, {'token': tx.data!['token0Id']});
-    final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
-        plugin, {'token': tx.data!['token1Id']});
-
-    final token0 = PluginFmt.tokenView(tokenPay.symbol);
-    final token1 = PluginFmt.tokenView(tokenReceive.symbol);
     final tokenLP = '$token0-$token1 LP';
-
-    final amountPay = Fmt.priceFloorBigInt(
-        Fmt.balanceInt(tx.data!['token0Amount']), tokenPay.decimals ?? 12,
-        lengthMax: 6);
-    final amountReceive = Fmt.priceFloorBigInt(
-        Fmt.balanceInt(tx.data!['token1Amount']), tokenReceive.decimals ?? 12,
-        lengthMax: 6);
-    final amountShare = Fmt.priceFloorBigInt(
-        Fmt.balanceInt(tx.data!['shareAmount']), tokenPay.decimals ?? 12,
-        lengthMax: 6);
 
     final amountStyle = TextStyle(
         fontSize: UI.getTextSize(16, context),
@@ -59,23 +44,23 @@ class SwapDetailPage extends StatelessWidget {
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.event!.replaceAll('dex.', ''), style: amountStyle),
+        content: Text(tx.action!.replaceAll('dex.', ''), style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(dic['${tx.event}']!, style: amountStyle),
+        content: Text(dic['${tx.action}']!, style: amountStyle),
       )
     ];
-    switch (tx.event) {
+    switch (tx.action) {
       case "dex.Swap":
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
-            content: Text('$amountPay $token0', style: amountStyle),
+            content: Text('${tx.amountPay} $token0', style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
-            content: Text('$amountReceive $token1', style: amountStyle),
+            content: Text('${tx.amountReceive} $token1', style: amountStyle),
           )
         ]);
         break;
@@ -83,8 +68,8 @@ class SwapDetailPage extends StatelessWidget {
         items.add(TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
-              '$amountPay $token0\n'
-              '+ $amountReceive $token1',
+              '${tx.amountPay} $token0\n'
+              '+ ${tx.amountReceive} $token1',
               style: amountStyle,
               textAlign: TextAlign.right,
             )));
@@ -94,29 +79,24 @@ class SwapDetailPage extends StatelessWidget {
           TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
-                '$amountPay $token0\n'
-                '+ $amountReceive $token1',
+                '${tx.amountPay} $token0\n'
+                '+ ${tx.amountReceive} $token1',
                 textAlign: TextAlign.right,
                 style: amountStyle),
           ),
-          TxDetailInfoItem(
-            label: dic['dex.receive'],
-            content:
-                Text('${tx.data!['shareAmount']} $tokenLP', style: amountStyle),
-          )
         ]);
         break;
       case "dex.RemoveLiquidity":
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
-            content: Text('$amountShare $tokenLP', style: amountStyle),
+            content: Text('${tx.amountShare} $tokenLP', style: amountStyle),
           ),
           TxDetailInfoItem(
             label: dic['dex.receive'],
             content: Text(
-                '$amountPay $token0\n'
-                '+ $amountReceive $token1',
+                '${tx.amountPay} $token0\n'
+                '+ ${tx.amountReceive} $token1',
                 textAlign: TextAlign.right,
                 style: amountStyle),
           )
@@ -125,11 +105,11 @@ class SwapDetailPage extends StatelessWidget {
 
     return PluginTxDetail(
       success: true,
-      action: dic['${tx.event}'],
+      action: dic['${tx.action}'],
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
-      blockTime: Fmt.dateTime(
-          DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.data!['timestamp'], true)),
+      blockTime:
+          Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.time, true)),
       networkName: networkName,
       infoItems: items,
       current: keyring.current,

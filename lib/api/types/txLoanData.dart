@@ -20,11 +20,22 @@ class TxLoanData extends _TxLoanData {
         plugin, {'token': history.data!['collateralId']});
     data.token = token.symbol;
 
-    data.collateral = Fmt.balanceInt(history.data!["collateralAdjustment"]);
-    data.debit = Fmt.balanceInt(history.data!["debitAdjustment"]);
+    switch (history.event) {
+      case 'loans.PositionUpdated':
+        data.collateral = Fmt.balanceInt(history.data!["collateralAdjustment"]);
+        data.debit = Fmt.balanceInt(history.data!["debitAdjustment"]);
+        break;
+      case 'cdpEngine.LiquidateUnsafeCDP':
+        data.collateral = Fmt.balanceInt(history.data!["collateralAmount"]);
+        data.debit = Fmt.balanceInt(history.data!["badDebitVolumeUSD"]);
+        break;
+      case 'loans.CloseCDPInDebitByDEX':
+        data.collateral = Fmt.balanceInt(history.data!["refundAmount"]);
+        data.debit = Fmt.balanceInt(history.data!["soldAmount"]);
+    }
 
-    data.amountCollateral = Fmt.priceFloorBigInt(
-        BigInt.zero - data.collateral!, token.decimals ?? 12);
+    data.amountCollateral =
+        Fmt.priceFloorBigInt(data.collateral!, token.decimals ?? 12);
     data.amountDebit = Fmt.priceCeilBigInt(data.debit,
         plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!);
     if (data.event == 'ConfiscateCollateralAndDebit') {

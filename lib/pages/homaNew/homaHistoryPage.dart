@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txHomaData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -40,9 +38,6 @@ class _HomaHistoryPageState extends State<HomaHistoryPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final symbols = widget.plugin.networkState.tokenSymbol;
-    final decimals = widget.plugin.networkState.tokenDecimals;
-    final symbol = relay_chain_token_symbol;
     return PluginScaffold(
       appBar: PluginAppBar(
         title: Text(dic['loan.txs']!),
@@ -63,9 +58,6 @@ class _HomaHistoryPageState extends State<HomaHistoryPage> {
               );
             }
 
-            final nativeDecimal = decimals![symbols!.indexOf(symbol)];
-            final liquidDecimal = decimals[symbols.indexOf('L$symbol')];
-
             return ListView.builder(
               itemCount: list.length + 1,
               itemBuilder: (BuildContext context, int i) {
@@ -77,29 +69,29 @@ class _HomaHistoryPageState extends State<HomaHistoryPage> {
                   );
                 }
 
-                final detail = list[i];
-
-                String amountTail = detail.message ?? "";
+                final history = list[i];
+                final detail = TxHomaData.fromHistory(history);
+                String amountTail = history.message ?? "";
                 TransferIconType type = TransferIconType.redeem;
 
-                switch (detail.event) {
+                switch (detail.action) {
                   case TxHomaData.actionMint:
                     type = TransferIconType.mint;
                     break;
-                  case TxHomaData.actionRedeem:
-                  case TxHomaData.actionLiteRedeem:
-                    break;
-                  case TxHomaData.actionRedeemedByUnbond:
-                    break;
-                  case TxHomaData.actionRedeemedByFastMatch:
-                    break;
-                  case TxHomaData.actionRedeemed:
-                  case TxHomaData.actionLiteRedeemed:
-                    break;
-                  case TxHomaData.actionWithdrawRedemption:
-                    break;
-                  case TxHomaData.actionRedeemCancel:
-                    break;
+                  // case TxHomaData.actionRedeem:
+                  // case TxHomaData.actionLiteRedeem:
+                  //   break;
+                  // case TxHomaData.actionRedeemedByUnbond:
+                  //   break;
+                  // case TxHomaData.actionRedeemedByFastMatch:
+                  //   break;
+                  // case TxHomaData.actionRedeemed:
+                  // case TxHomaData.actionLiteRedeemed:
+                  //   break;
+                  // case TxHomaData.actionWithdrawRedemption:
+                  //   break;
+                  // case TxHomaData.actionRedeemCancel:
+                  //   break;
                 }
 
                 return Container(
@@ -115,7 +107,7 @@ class _HomaHistoryPageState extends State<HomaHistoryPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${dic[detail.event]}',
+                          '${dic[detail.action]}',
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -133,7 +125,7 @@ class _HomaHistoryPageState extends State<HomaHistoryPage> {
                     ),
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.data!['timestamp'], true)),
+                            .parse(detail.time, true)),
                         style: Theme.of(context).textTheme.headline5?.copyWith(
                             color: Colors.white,
                             fontSize: UI.getTextSize(10, context))),

@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -72,7 +68,10 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                   );
                 }
 
-                final detail = list[i];
+                final history = list[i];
+                final detail =
+                    TxDexIncentiveData.fromHistory(history, widget.plugin);
+
                 TransferIconType icon = TransferIconType.unstake;
                 switch (detail.event) {
                   case TxDexIncentiveData.actionStake:
@@ -107,7 +106,7 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                         ),
-                        Text(detail.message ?? "",
+                        Text(history.message ?? "",
                             textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme
@@ -117,7 +116,7 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                     ),
                     subtitle: Text(
                         Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.data!['timestamp'], true)),
+                            .parse(detail.time, true)),
                         style: Theme.of(context).textTheme.headline5?.copyWith(
                             color: Colors.white,
                             fontSize: UI.getTextSize(10, context))),

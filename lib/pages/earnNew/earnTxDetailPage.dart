@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/assets.dart';
-import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
@@ -29,23 +26,20 @@ class EarnTxDetailPage extends StatelessWidget {
         fontWeight: FontWeight.bold,
         color: PluginColorsDark.headline1);
 
-    final HistoryData tx =
-        ModalRoute.of(context)!.settings.arguments as HistoryData;
+    final TxDexIncentiveData tx =
+        ModalRoute.of(context)!.settings.arguments as TxDexIncentiveData;
 
     String? networkName = plugin.basic.name;
     if (plugin.basic.isTestNet) {
       networkName = '${networkName!.split('-')[0]}-testnet';
     }
-
-    final token = AssetsUtils.tokenDataFromCurrencyId(
-        plugin, {'token': tx.data!['tokenId']});
     return PluginTxDetail(
       current: keyring.current,
       success: true,
       action: dic[earn_actions_map[tx.event]] ?? "",
       hash: tx.hash,
-      blockTime: Fmt.dateTime(
-          DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.data!['timestamp'], true)),
+      blockTime:
+          Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.time, true)),
       networkName: networkName,
       infoItems: [
         TxDetailInfoItem(
@@ -60,14 +54,12 @@ class EarnTxDetailPage extends StatelessWidget {
         ),
         TxDetailInfoItem(
           label: dic['earn.stake.pool'],
-          content: Text(token.symbol ?? "", style: amountStyle),
+          content: Text(tx.poolId, style: amountStyle),
         ),
         TxDetailInfoItem(
           label: I18n.of(context)!
               .getDic(i18n_full_dic_karura, 'common')!['amount'],
-          content: Text(
-              '${Fmt.balance(tx.data!['amount'], token.decimals!)} ${PluginFmt.tokenView(token.symbol)}',
-              style: amountStyle),
+          content: Text(tx.amountShare ?? "", style: amountStyle),
         )
       ],
     );
