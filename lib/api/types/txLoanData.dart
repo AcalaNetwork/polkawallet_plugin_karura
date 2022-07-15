@@ -34,10 +34,12 @@ class TxLoanData extends _TxLoanData {
         data.debit = Fmt.balanceInt(history.data!["soldAmount"]);
     }
 
-    data.amountCollateral =
-        Fmt.priceFloorBigInt(data.collateral!, token.decimals ?? 12);
+    data.amountCollateral = Fmt.priceFloorBigInt(
+        data.collateral!, token.decimals ?? 12,
+        lengthMax: 6);
     data.amountDebit = Fmt.priceCeilBigInt(data.debit,
-        plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!);
+        plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!,
+        lengthMax: 6);
     if (data.event == 'ConfiscateCollateralAndDebit') {
       data.actionType = TxLoanData.actionLiquidate;
     } else if (data.collateral == BigInt.zero) {

@@ -31,15 +31,15 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
     switch (data.event) {
       case TxDexIncentiveData.actionClaimRewards:
         data.amountShare =
-            '${Fmt.balance(history.data!['actualAmount'], token.decimals!)} $shareTokenView';
+            '${Fmt.balance(history.data!['actualAmount'], token.decimals!, length: 6)} $shareTokenView';
         break;
       case TxDexIncentiveData.actionPayoutRewards:
         data.amountShare =
-            '${Fmt.balance(history.data!['actualPayout'], token.decimals!)} $shareTokenView';
+            '${Fmt.balance(history.data!['actualPayout'], token.decimals!, length: 6)} $shareTokenView';
         break;
       default:
         data.amountShare =
-            '${Fmt.balance(history.data!['amount'], token.decimals!)} $shareTokenView';
+            '${Fmt.balance(history.data!['amount'], token.decimals!, length: 6)} $shareTokenView';
     }
 
     data.time = (history.data!['timestamp'] as String).replaceAll(' ', '');
