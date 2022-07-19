@@ -383,7 +383,7 @@ class _TaigaAddLiquidityPageState extends State<TaigaAddLiquidityPage> {
                                     ),
                                   ),
                                   Text(
-                                      '≈ ${Fmt.priceFloorBigInt(BigInt.parse(_mintAmount?["minAmount"] ?? "0"), balance.decimals!)} ${PluginFmt.tokenView(balance.symbol)}',
+                                      '≈ ${Fmt.priceFloorBigInt(BigInt.parse(_mintAmount?["output"] ?? "0"), balance.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(balance.symbol)}',
                                       textAlign: TextAlign.right,
                                       style: Theme.of(context)
                                           .textTheme

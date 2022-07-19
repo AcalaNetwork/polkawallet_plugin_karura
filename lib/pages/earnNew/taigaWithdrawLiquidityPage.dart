@@ -81,7 +81,7 @@ class _TaigaWithdrawLiquidityPageState
       final index = tokenPair.indexOf(element);
       if (Fmt.balanceInt(element.amount) == BigInt.zero) {
         if (Fmt.balanceInt(element.minBalance) >
-            Fmt.balanceInt(info!["minAmount"][index])) {
+            Fmt.balanceInt(info!["output"][index])) {
           _error = I18n.of(context)!
               .getDic(i18n_full_dic_karura, 'acala')!['earn.taiga.edMessage'];
           return;
@@ -227,7 +227,7 @@ class _TaigaWithdrawLiquidityPageState
             tokenPair.forEach((element) {
               final index = tokenPair.indexOf(element);
               tokenReceived.add(
-                  "${Fmt.priceFloorBigInt(BigInt.parse(_redeemAmount!["minAmount"][index]), element.decimals!)} ${PluginFmt.tokenView(element.symbol)}");
+                  "${Fmt.priceFloorBigInt(BigInt.parse(_redeemAmount!["output"][index]), element.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(element.symbol)}");
             });
           }
           return SafeArea(
