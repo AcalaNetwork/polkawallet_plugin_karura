@@ -152,9 +152,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                                     child: Row(
                                       children: [
                                         PluginTokenIcon(
-                                          tokenPairView.split("-").length > 2
-                                              ? tokenSymbol ?? ""
-                                              : tokenPairView,
+                                          tokenSymbol ?? "",
                                           widget.plugin.tokenIcons,
                                           size: 24,
                                           bgColor: Color(0xFF9E98E7),
