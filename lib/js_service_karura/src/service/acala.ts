@@ -275,7 +275,7 @@ async function getTaigaMintAmount(poolNameId: string, input: string[], slippage:
   const [stablePools, homaEnv] = await Promise.all([firstValueFrom(stableAssetApi.subscribeAllPools().pipe(take(1))), homa.getEnv()]);
   const pool = stablePools.find((e) => forceToCurrencyName(e.poolAsset) === poolNameId);
   const poolTokens = pool.assets.map((e) => (<any>window).wallet.__getToken(e));
-  const adjustedExchangeRate = homaEnv.exchangeRate.times(new FixedPointNumber(0.999));
+  const adjustedExchangeRate = homaEnv.exchangeRate.times(new FixedPointNumber(0.9999));
   const res = await firstValueFrom(
     stableAssetApi
       .getMintAmount(
@@ -298,7 +298,7 @@ async function getTaigaRedeemAmount(poolNameId: string, input: string, slippage:
 
   const [stablePools, homaEnv] = await Promise.all([firstValueFrom(stableAssetApi.subscribeAllPools().pipe(take(1))), homa.getEnv()]);
   const pool = stablePools.find((e) => forceToCurrencyName(e.poolAsset) === poolNameId);
-  const adjustedExchangeRate = homaEnv.exchangeRate.times(new FixedPointNumber(0.999));
+  const adjustedExchangeRate = homaEnv.exchangeRate.times(new FixedPointNumber(0.9999));
   const res = await firstValueFrom(
     stableAssetApi
       .getRedeemProportionAmount(
