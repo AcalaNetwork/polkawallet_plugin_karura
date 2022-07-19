@@ -43,12 +43,7 @@ const acala_token_ids = [
   'KINT',
   'TAI',
   'RMRK',
-  'ARIS',
   'QTZ',
-  // 'MOVR',
-  // 'RENBTC',
-  // 'XBTC',
-  // 'POLKABTC',
 ];
 const default_tokens = [
   karura_stable_coin,
