@@ -80,6 +80,8 @@ class _DexPoolListState extends State<DexPoolList> {
       dexPools.retainWhere((e) => e.provisioning == null);
       dexPools.addAll(widget.plugin.store!.earn.dexPools.toList());
       return RefreshIndicator(
+        color: Colors.black,
+        backgroundColor: Colors.white,
         key: _refreshKey,
         onRefresh: _updateData,
         child: dexPools.length == 0

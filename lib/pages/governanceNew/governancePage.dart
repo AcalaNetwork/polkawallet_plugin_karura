@@ -455,6 +455,8 @@ class _GovernancePageState extends State<GovernancePage> {
         final decimals = widget.plugin.networkState.tokenDecimals![0];
         final symbol = widget.plugin.networkState.tokenSymbol![0];
         return RefreshIndicator(
+            color: Colors.black,
+            backgroundColor: Colors.white,
             key: _refreshKey,
             onRefresh: _freshData,
             child: ListView.builder(

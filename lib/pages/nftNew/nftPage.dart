@@ -265,6 +265,8 @@ class _NftPageState extends State<NftPage> {
                   children: [
                     ConnectionChecker(widget.plugin, onConnected: _queryNFTs),
                     RefreshIndicator(
+                        color: Colors.black,
+                        backgroundColor: Colors.white,
                         key: _refreshKey,
                         onRefresh: _queryNFTs,
                         child: SingleChildScrollView(

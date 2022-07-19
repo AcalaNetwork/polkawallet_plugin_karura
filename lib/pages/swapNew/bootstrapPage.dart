@@ -270,6 +270,8 @@ class _BootstrapPageState extends State<BootstrapPage> {
             children: [
               Expanded(
                 child: RefreshIndicator(
+                  color: Colors.black,
+                  backgroundColor: Colors.white,
                   key: _refreshKey,
                   onRefresh: _queryData,
                   child: ListView(

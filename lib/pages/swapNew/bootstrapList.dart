@@ -179,6 +179,8 @@ class _BootstrapListState extends State<BootstrapList> {
       final dexPools = widget.plugin.store!.earn.dexPools.toList();
       dexPools.retainWhere((e) => _userProvisions.keys.contains(e.tokenNameId));
       return RefreshIndicator(
+        color: Colors.black,
+        backgroundColor: Colors.white,
         key: _refreshKey,
         onRefresh: _updateData,
         child: ListView(
