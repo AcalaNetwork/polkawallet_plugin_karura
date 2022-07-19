@@ -614,7 +614,7 @@ class _LoanPageState extends State<LoanPage> {
                                           loan.token?.tokenNameId == 'sa://0'),
                                       child: GestureDetector(
                                         child: Padding(
-                                            padding: EdgeInsets.only(bottom: 5),
+                                            padding: EdgeInsets.only(top: 12),
                                             child: Text(dic['loan.close.dex']!,
                                                 style: Theme.of(context)
                                                     .textTheme
