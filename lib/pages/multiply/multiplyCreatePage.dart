@@ -440,7 +440,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       children: [
                         MultiplyInfoItemRow(
                           dic['loan.ratio']!,
-                          "${ratioLeft - _slider}%",
+                          "${(ratioLeft - _slider).toStringAsFixed(2)}%",
                         ),
                         MultiplyInfoItemRow(
                           dic['liquid.price']!,

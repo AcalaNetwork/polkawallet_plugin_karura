@@ -25,7 +25,6 @@ dependencies:
   flutter_screenutil: ^5.0.0+2
   skeleton_loader: ^2.0.0+4
   rive: ^0.9.0
-  wave: ^0.2.0
   toast: ^0.1.5
   fl_chart: ^0.40.2
   qr_flutter_fork: ^4.0.0
