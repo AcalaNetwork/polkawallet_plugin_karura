@@ -121,7 +121,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                 padding: EdgeInsets.only(left: 3),
                                 child: Image.asset(
                                   "packages/polkawallet_plugin_karura/assets/images/send${UI.isDarkTheme(context) ? "_dark" : ""}.png",
-                                  width: 37,
+                                  width: 32,
                                 ),
                               ),
                               text: dic['send']!,
@@ -145,7 +145,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                             child: CardButton(
                               icon: Image.asset(
                                 "packages/polkawallet_plugin_karura/assets/images/qr${UI.isDarkTheme(context) ? "_dark" : ""}.png",
-                                width: 37,
+                                width: 32,
                               ),
                               text: dic['receive']!,
                               onPressed: () {
