@@ -61,7 +61,7 @@ class _NativeTokenTransfersState extends State<NativeTokenTransfers> {
                 }
                 return TransferListItem(
                   data: txs[i],
-                  token: nativeToken.symbol,
+                  token: nativeToken,
                   isOut: txs[i].data!['from'] == widget.account,
                 );
               },

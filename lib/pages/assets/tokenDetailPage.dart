@@ -253,7 +253,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               }
                               return TransferListItem(
                                 data: txs[i],
-                                token: tokenSymbol,
+                                token: token,
                                 isOut: txs[i].data!['from'] ==
                                     widget.keyring.current.address,
                               );
@@ -463,16 +463,24 @@ class TransferListItem extends StatelessWidget {
   });
 
   final HistoryData? data;
-  final String? token;
+  final TokenBalanceData? token;
   final String? crossChain;
   final bool? isOut;
 
   @override
   Widget build(BuildContext context) {
     final address = isOut! ? data!.data!['to'] : data!.data!['from'];
-    final title = Fmt.address(address);
+    final title = isOut!
+        ? 'Send to ${Fmt.address(address)}'
+        : 'Receive from ${Fmt.address(address)}';
+    final amount = Fmt.priceFloorBigInt(
+        BigInt.parse(data!.data!['amount']), token?.decimals ?? 12,
+        lengthMax: 6);
+
     return ListTile(
       dense: true,
+      minLeadingWidth: 32,
+      horizontalTitleGap: 8,
       leading: isOut!
           ? TransferIcon(
               type: TransferIconType.rollOut,
@@ -480,8 +488,24 @@ class TransferListItem extends StatelessWidget {
           : TransferIcon(
               type: TransferIconType.rollIn,
               bgColor: Theme.of(context).cardColor),
-      title: Text(data?.message ?? title),
+      title: Text(title),
       subtitle: Text(Fmt.dateTime(DateTime.parse(data!.data!['timestamp']))),
+      trailing: Container(
+        width: 110,
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                '${isOut! ? '-' : '+'} $amount',
+                style: Theme.of(context).textTheme.headline5!.copyWith(
+                    color: Theme.of(context).toggleableActiveColor,
+                    fontWeight: FontWeight.w600),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+      ),
       onTap: () {
         Navigator.pushNamed(
           context,
