@@ -1,4 +1,5 @@
 import { WsProvider, ApiPromise, ApiRx } from "@polkadot/api";
+import { firstValueFrom } from "rxjs";
 import { subscribeMessage, getNetworkConst, getNetworkProperties } from "./service/setting";
 import keyring from "./service/keyring";
 import { options } from "@acala-network/api";
@@ -27,10 +28,12 @@ async function connect(nodes: string[]) {
     const wsProvider = new WsProvider(nodes);
     try {
       const res = new ApiPromise(options({ provider: wsProvider }));
+      const resRx = new ApiRx(options({ provider: wsProvider }));
       await res.isReady;
+      await firstValueFrom(resRx.isReady);
       if (!(<any>window).api) {
         (<any>window).api = res;
-        (<any>window).apiRx = new ApiRx(options({ provider: wsProvider }));
+        (<any>window).apiRx = resRx;
         // console.log(res);
         const url = nodes[(<any>res)._options.provider.__private_40_endpointIndex];
         send("log", `${url} wss connected success`);
