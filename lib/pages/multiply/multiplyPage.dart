@@ -665,7 +665,7 @@ class CreateVaultWidget extends StatelessWidget {
                           fontWeight: FontWeight.w300),
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 16),
+                        padding: EdgeInsets.only(top: 12),
                         child: Text(
                           "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
                           style: Theme.of(context)
