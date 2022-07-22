@@ -203,3 +203,17 @@ const swapTaigaQuery = r'''
       }
     }
 ''';
+
+const queryCollaterals = r'''
+query {
+      collaterals {
+        nodes{
+          id
+          name
+          decimals
+          depositAmount
+          debitAmount
+        }
+      }
+    }
+''';

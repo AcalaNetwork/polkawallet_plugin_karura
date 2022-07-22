@@ -348,5 +348,9 @@ const Map<String, String> enDex = {
   'earn.taiga.addLiquidity': 'Add all assets in a balanced proportion',
   'earn.taiga.poolSize': 'Pool Size',
   'earn.taiga.edMessage':
-      'This transaction may fail due to insufficient existing deposit in the current address '
+      'This transaction may fail due to insufficient existing deposit in the current address ',
+  'v3.loan.message1': 'Mint up to',
+  'v3.loan.totalMinted': 'Total minted',
+  'v3.loan.needAdjust': 'Need Adjust',
+  'v3.loan.ableWithdraw': 'Able to withdraw'
 };

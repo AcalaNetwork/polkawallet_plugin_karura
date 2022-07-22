@@ -325,5 +325,9 @@ const Map<String, String> zhDex = {
   'earn.taiga.claimMessage': '点击认领查看您的LP详细信息并认领您的奖励',
   'earn.taiga.addLiquidity': '按代币占比添加所有资产',
   'earn.taiga.poolSize': '池子大小',
-  'earn.taiga.edMessage': '由于当前地址中存活余额不足，本次交易可能失败'
+  'earn.taiga.edMessage': '由于当前地址中存活余额不足，本次交易可能失败',
+  'v3.loan.message1': '最多可生成',
+  'v3.loan.totalMinted': '总铸造',
+  'v3.loan.needAdjust': '需要调整',
+  'v3.loan.ableWithdraw': '能取回'
 };
