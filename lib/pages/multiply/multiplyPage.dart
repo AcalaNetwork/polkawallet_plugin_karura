@@ -104,7 +104,10 @@ class _MultiplyPageState extends State<MultiplyPage> {
                 child: PluginIconButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamed(MultiplyHistoryPage.route),
-                  icon: Icon(Icons.history, size: 22, color: Colors.white),
+                  icon: Image.asset(
+                    'packages/polkawallet_plugin_karura/assets/images/history.png',
+                    width: 16,
+                  ),
                 ),
               ),
               PluginAccountInfoAction(widget.keyring)

@@ -55,10 +55,9 @@ class _EarnPageState extends State<EarnPage> {
           Container(
             padding: EdgeInsets.only(right: 12),
             child: PluginIconButton(
-              icon: Icon(
-                Icons.history,
-                size: 22,
-                color: Colors.white,
+              icon: Image.asset(
+                'packages/polkawallet_plugin_karura/assets/images/history.png',
+                width: 16,
               ),
               onPressed: () =>
                   Navigator.of(context).pushNamed(EarnHistoryPage.route),
