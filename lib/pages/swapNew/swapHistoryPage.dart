@@ -37,7 +37,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final client = clientFor(uri: GraphQLConfig['httpUri']!);
+      final client = clientFor(uri: GraphQLConfig['defiUri']!);
 
       final result = await client.value.query(QueryOptions(
         document: gql(swapQuery),
