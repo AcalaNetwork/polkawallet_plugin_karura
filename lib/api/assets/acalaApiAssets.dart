@@ -93,6 +93,9 @@ class AcalaApiAssets {
           locked: e['balance']['frozen'].toString(),
           reserved: e['balance']['reserved'].toString(),
           price: AssetsUtils.getMarketPrice(service.plugin, e['symbol']),
+          getPrice: () {
+            return AssetsUtils.getMarketPrice(service.plugin, e['symbol']);
+          },
           detailPageRoute: TokenDetailPage.route,
         );
       }).toList());
