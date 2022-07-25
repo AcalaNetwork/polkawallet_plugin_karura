@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class InstrumentItemWidget extends StatefulWidget {
@@ -106,9 +108,9 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
                       child: Align(
                           widthFactor: 0.5,
                           alignment: Alignment.centerLeft,
-                          child: buildItem(
-                              angleValue, widget.datas[j].items[i].iconName)))
-                  : buildItem(angleValue, widget.datas[j].items[i].iconName));
+                          child:
+                              buildItem(angleValue, widget.datas[j].items[i])))
+                  : buildItem(angleValue, widget.datas[j].items[i]));
         }
       }
     }
@@ -116,7 +118,7 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
     return currentWidgets.length > 0 ? currentWidgets : [Container()];
   }
 
-  Widget buildItem(double angleValue, String iconName) {
+  Widget buildItem(double angleValue, InstrumentItemData data) {
     return ClipRect(
         child: Align(
             widthFactor: 1,
@@ -124,17 +126,38 @@ class _InstrumentItemWidgetState extends State<InstrumentItemWidget>
             child: Transform.rotate(
               angle: angleValue,
               alignment: Alignment.bottomCenter,
-              origin: Offset(0, -(44 / 167) * widget.size.height),
-              child: Container(
-                child: Image.asset(
-                  iconName,
-                  fit: BoxFit.fill,
-                ),
+              origin: Offset(0, -(43 / 167) * widget.size.height),
+              child: SizedBox(
                 width: widget.size.width,
                 height: widget.size.height,
+                child: CustomPaint(
+                  painter: MyPainter(data),
+                ),
               ),
             )));
   }
+}
+
+class MyPainter extends CustomPainter {
+  MyPainter(this.data);
+  InstrumentItemData data;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = data.color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 17;
+    Rect rect = Rect.fromCircle(
+        center: Offset(size.width / 2, size.height * 0.743),
+        radius: size.height * 0.69);
+
+    canvas.drawArc(rect, pi * (1 - 0.08), pi * 1.16, false, paint);
+  }
+
+  @override
+  bool shouldRepaint(MyPainter oldDelegate) => oldDelegate.data != data;
 }
 
 class InstrumentItemWidgetController {
@@ -147,11 +170,10 @@ class InstrumentItemWidgetController {
 
 class InstrumentItemData {
   final Color color;
-  final String iconName;
   final String? name;
   final double? value;
 
-  InstrumentItemData(this.color, this.name, this.value, this.iconName);
+  InstrumentItemData(this.color, this.name, this.value);
 }
 
 class InstrumentData {

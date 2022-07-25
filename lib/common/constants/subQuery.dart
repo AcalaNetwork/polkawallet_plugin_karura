@@ -146,3 +146,74 @@ query ($senderId: String) {
     }
 }
 ''';
+
+const swapTaigaQuery = r'''
+    query ($address: String) {
+      swaps(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          id
+          inputAmount
+          inputAsset
+          outputAmount
+          outputAsset
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+      mints(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          id
+          inputAmounts
+          poolId
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+      proportionRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          id
+          inputAmount
+          poolId
+          timestamp
+          extrinsicId
+          blockId
+        }
+      }
+      singleRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          id
+          inputAmount
+          poolId
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+      multiRedeems(filter: {addressId: {equalTo: $address}}, first: 20, orderBy: TIMESTAMP_DESC){
+        nodes {
+          id
+          inputAmount
+          poolId
+          extrinsicId
+          blockId
+          timestamp
+        }
+      }
+    }
+''';
+
+const queryCollaterals = r'''
+query {
+      collaterals {
+        nodes{
+          id
+          name
+          decimals
+          depositAmount
+          debitAmount
+        }
+      }
+    }
+''';

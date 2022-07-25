@@ -14,6 +14,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
+import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
@@ -24,6 +25,7 @@ import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
+import 'package:rive/rive.dart';
 
 class MultiplyPage extends StatefulWidget {
   MultiplyPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -75,20 +77,24 @@ class _MultiplyPageState extends State<MultiplyPage> {
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0));
 
-      final List<LoanType> loantypes = [];
+      final List<LoanType> loantypes = [], ortherType = [];
       widget.plugin.store!.loan.loanTypes.forEach((element) {
         if (element.maximumTotalDebitValue != BigInt.zero) {
-          loantypes.add(element);
+          if (loans.indexWhere((loan) =>
+                  loan.token?.tokenNameId == element.token?.tokenNameId) >=
+              0) {
+            loantypes.add(element);
+          } else {
+            ortherType.add(element);
+          }
         }
       });
+      loantypes.addAll(ortherType);
 
       int initialLoanTypeIndex = 0;
       if (args.loanType != null) {
         initialLoanTypeIndex =
             loantypes.indexWhere((e) => e.token?.tokenNameId == args.loanType);
-      } else if (loans.length > 0) {
-        initialLoanTypeIndex = loantypes.indexWhere(
-            (e) => e.token?.tokenNameId == loans[0].token?.tokenNameId);
       }
 
       return PluginScaffold(
@@ -100,10 +106,9 @@ class _MultiplyPageState extends State<MultiplyPage> {
                 child: PluginIconButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamed(MultiplyHistoryPage.route),
-                  icon: Icon(
-                    Icons.history,
-                    size: 22,
-                    color: Color(0xFF17161F),
+                  icon: Image.asset(
+                    'packages/polkawallet_plugin_karura/assets/images/history.png',
+                    width: 16,
                   ),
                 ),
               ),
@@ -588,150 +593,143 @@ class CreateVaultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dicCommon = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final loanType = plugin.store!.loan.loanTypes
         .firstWhere((i) => i.token!.symbol == symbol);
     final ratioRight = Fmt.bigIntToDouble(loanType.liquidationRatio, 18) * 100;
 
     final maxMultiple = ratioRight / (ratioRight - 100);
-    final _amountCollateral = 54.0;
+    final _amountCollateral = 100.0;
     final buyingCollateral = _amountCollateral * (maxMultiple - 1);
+
+    final style = Theme.of(context)
+        .textTheme
+        .headline5
+        ?.copyWith(color: PluginColorsDark.headline1);
     return Container(
       width: double.infinity,
       height: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-                color: Color(0x1AFFFFFF),
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(8),
-                    topRight: Radius.circular(8),
-                    bottomRight: Radius.circular(8))),
-            child: Column(
-              children: [
-                Padding(
-                    padding: EdgeInsets.only(top: 54, bottom: 42),
-                    child: Image.asset(
-                      "packages/polkawallet_plugin_karura/assets/images/create_vault_logo.png",
-                      width: 116,
-                    )),
-                Container(
-                  width: double.infinity,
-                  height: 96,
-                  color: Color(0x33FFFFFF),
+      child: Stack(alignment: AlignmentDirectional.topCenter, children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(children: [
+              Container(
+                  margin: EdgeInsets.only(top: 17, bottom: 12),
+                  width: 120,
+                  height: 120,
                   child: Stack(
                     children: [
+                      RiveAnimation.asset(
+                          'packages/polkawallet_plugin_karura/assets/images/cdp_multiply.riv'),
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                        margin: EdgeInsets.only(left: 6, top: 6),
-                        decoration: BoxDecoration(
-                            color: Color(0xFF727272),
-                            borderRadius: BorderRadius.circular(2)),
-                        child: Text(
-                          dic!['loan.multiply.example']!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  fontSize: UI.getTextSize(12, context),
-                                  fontWeight: FontWeight.bold,
-                                  color: PluginColorsDark.headline1),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "${dic['loan.multiply.with']} ${Fmt.priceFloor(_amountCollateral)} ${PluginFmt.tokenView(symbol)}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline3
-                                  ?.copyWith(color: PluginColorsDark.headline1),
-                            ),
-                            Text(
-                              "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline3
-                                  ?.copyWith(color: PluginColorsDark.headline1),
-                            ),
-                          ],
-                        ),
+                        width: double.infinity,
+                        height: double.infinity,
+                        margin: EdgeInsets.all(10),
+                        child: FittedBox(
+                            fit: BoxFit.fill,
+                            child: plugin.tokenIcons[symbol.toUpperCase()]),
                       )
                     ],
-                  ),
+                  )),
+              Text(
+                "Vault ${PluginFmt.tokenView(symbol)}",
+                style: Theme.of(context).textTheme.headline1?.copyWith(
+                    fontSize: UI.getTextSize(26, context),
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFF6D37),
+                    height: 1.1),
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: Text(
+                  I18n.of(context)!.locale.toString().contains('zh')
+                      ? "最高倍率化 ${PluginFmt.tokenView(symbol)} 的选择"
+                      : "Highest ${PluginFmt.tokenView(symbol)} multiple option",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5
+                      ?.copyWith(color: Colors.white, height: 1.1),
                 ),
-                Container(
-                  height: 104,
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                              padding: EdgeInsets.only(bottom: 10),
-                              child: Text(
-                                dic['loan.multiply.maxMultiple']!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: PluginColorsDark.headline1),
-                              )),
-                          Text(
-                            maxMultiple.toStringAsFixed(2) + 'x',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5
-                                ?.copyWith(color: PluginColorsDark.headline1),
-                          )
-                        ],
-                      )),
-                      Expanded(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                              padding: EdgeInsets.only(bottom: 10),
-                              child: Text(
-                                dic['loan.multiply.variableAnnualFee']!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: PluginColorsDark.headline1),
-                              )),
-                          Text(
-                            "${Fmt.ratio(loanType.stableFeeYear)}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5
-                                ?.copyWith(color: PluginColorsDark.headline1),
-                          )
-                        ],
-                      ))
-                    ],
-                  ),
-                )
-              ],
-            ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 29),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(20),
+                    borderRadius: BorderRadius.all(Radius.circular(8))),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${dic['loan.multiply.with']} ${Fmt.priceFloor(_amountCollateral)} ${PluginFmt.tokenView(symbol)}",
+                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                          color: PluginColorsDark.headline1,
+                          fontSize: UI.getTextSize(18, context),
+                          fontWeight: FontWeight.w300),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(top: 6),
+                        child: Text(
+                          "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline3
+                              ?.copyWith(
+                                  color: PluginColorsDark.headline1,
+                                  fontSize: UI.getTextSize(18, context),
+                                  fontWeight: FontWeight.w600),
+                        )),
+                  ],
+                ),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: InfoItemRow(
+                    dic['loan.multiply.maxMultiple']!,
+                    maxMultiple.toStringAsFixed(2) + 'x',
+                    labelStyle: style,
+                    contentStyle: style,
+                  )),
+              InfoItemRow(
+                dic['liquid.ratio']!,
+                "${Fmt.ratio(Fmt.bigIntToDouble(loanType.liquidationRatio, 18))}",
+                labelStyle: style,
+                contentStyle: style,
+              ),
+              InfoItemRow(
+                dic['loan.multiply.variableAnnualFee']!,
+                "${Fmt.ratio(loanType.stableFeeYear)}",
+                labelStyle: style,
+                contentStyle: style,
+              ),
+            ]),
+            Container(
+                margin: EdgeInsets.only(bottom: 38),
+                child: PluginButton(
+                  title: dicCommon!['multiply.title']!,
+                  onPressed: onPressed,
+                ))
+          ],
+        ),
+        Container(
+          margin: EdgeInsets.only(left: 150),
+          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: Color(0xFF3F4042),
+            borderRadius: BorderRadius.all(Radius.circular(4)),
           ),
-          Container(
-              margin: EdgeInsets.only(bottom: 38),
-              child: PluginButton(
-                title: dicCommon!['multiply.title']!,
-                onPressed: onPressed,
-              ))
-        ],
-      ),
+          child: Text(
+            I18n.of(context)!.locale.toString().contains('zh')
+                ? "最大化 ${PluginFmt.tokenView(symbol)} 敞口"
+                : "Max ${PluginFmt.tokenView(symbol)} exposure",
+            style: Theme.of(context).textTheme.headline5?.copyWith(
+                fontSize: UI.getTextSize(12, context),
+                color: PluginColorsDark.headline1,
+                fontWeight: FontWeight.w600),
+          ),
+        )
+      ]),
     );
   }
 }

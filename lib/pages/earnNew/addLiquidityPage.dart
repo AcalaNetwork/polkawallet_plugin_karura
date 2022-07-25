@@ -462,6 +462,11 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
           }
         }
 
+        const slippage = 0.005;
+        if (userShare > 0) {
+          userShare = userShare * (1 - slippage);
+        }
+
         return PluginScaffold(
           appBar: PluginAppBar(
             title: Text(dic['earn.add']!),
@@ -572,7 +577,7 @@ class _AddLiquidityPageState extends State<AddLiquidityPage> {
                         ),
                       ),
                       Text(
-                          '≈ ${Fmt.doubleFormat(issuance * userShare, length: 4)}',
+                          '${Fmt.doubleFormat(issuance * userShare, length: 4)} LP Token',
                           textAlign: TextAlign.right,
                           style:
                               Theme.of(context).textTheme.headline4?.copyWith(

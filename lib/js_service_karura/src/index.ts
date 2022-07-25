@@ -1,11 +1,12 @@
-import { WsProvider, ApiPromise } from "@polkadot/api";
+import { WsProvider, ApiPromise, ApiRx } from "@polkadot/api";
+import { firstValueFrom } from "rxjs";
 import { subscribeMessage, getNetworkConst, getNetworkProperties } from "./service/setting";
 import keyring from "./service/keyring";
 import { options } from "@acala-network/api";
 import { Wallet } from "@acala-network/sdk";
-import account from "./service/account";
+// import account from "./service/account";
 import acala from "./service/acala";
-import gov from "./service/gov";
+// import gov from "./service/gov";
 import xcm from "./service/xcm";
 import { genLinks } from "./utils/config/config";
 
@@ -26,14 +27,13 @@ async function connect(nodes: string[]) {
   return new Promise(async (resolve, reject) => {
     const wsProvider = new WsProvider(nodes);
     try {
-      const res = new ApiPromise(
-        options({
-          provider: wsProvider,
-        })
-      );
+      const res = new ApiPromise(options({ provider: wsProvider }));
+      const resRx = new ApiRx(options({ provider: wsProvider }));
       await res.isReady;
+      await firstValueFrom(resRx.isReady);
       if (!(<any>window).api) {
         (<any>window).api = res;
+        (<any>window).apiRx = resRx;
         // console.log(res);
         const url = nodes[(<any>res)._options.provider.__private_40_endpointIndex];
         send("log", `${url} wss connected success`);
@@ -64,7 +64,7 @@ async function connect(nodes: string[]) {
   genLinks,
 };
 (<any>window).keyring = keyring;
-(<any>window).account = account;
+// (<any>window).account = account;
 (<any>window).acala = acala;
-(<any>window).gov = gov;
+// (<any>window).gov = gov;
 (<any>window).xcm = xcm;

@@ -179,6 +179,8 @@ class _BootstrapListState extends State<BootstrapList> {
       final dexPools = widget.plugin.store!.earn.dexPools.toList();
       dexPools.retainWhere((e) => _userProvisions.keys.contains(e.tokenNameId));
       return RefreshIndicator(
+        color: Colors.black,
+        backgroundColor: Colors.white,
         key: _refreshKey,
         onRefresh: _updateData,
         child: ListView(
@@ -234,7 +236,8 @@ class _BootstrapListState extends State<BootstrapList> {
                         bestNumber: _bestNumber,
                         tokenIcons: widget.plugin.tokenIcons,
                         relayChainTokenPrice: widget.plugin.store!.assets
-                            .marketPrices[relay_chain_token_symbol],
+                            .marketPrices[relay_chain_token_symbol]
+                            ?.toDouble(),
                         onRefresh: _updateData);
                   }).toList(),
                 ],

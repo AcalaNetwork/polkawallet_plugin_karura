@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/nftData.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -174,12 +175,11 @@ class _NftPageState extends State<NftPage> {
             Padding(
                 padding: EdgeInsets.only(right: 12),
                 child: PluginIconButton(
-                  icon: Center(
-                      child: Image.asset(
-                    'packages/polkawallet_plugin_karura/assets/images/screening.png',
-                    color: Colors.black,
-                    width: 25,
-                  )),
+                  icon: SvgPicture.asset(
+                    'assets/images/icon_screening.svg',
+                    color: PluginColorsDark.headline1,
+                    width: 22,
+                  ),
                   onPressed: () {
                     showCupertinoModalPopup(
                       context: context,
@@ -265,6 +265,8 @@ class _NftPageState extends State<NftPage> {
                   children: [
                     ConnectionChecker(widget.plugin, onConnected: _queryNFTs),
                     RefreshIndicator(
+                        color: Colors.black,
+                        backgroundColor: Colors.white,
                         key: _refreshKey,
                         onRefresh: _queryNFTs,
                         child: SingleChildScrollView(
@@ -448,6 +450,15 @@ class _tabBarState extends State<_tabBar> {
 
   @override
   Widget build(BuildContext context) {
+    final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(
+            text: widget.nfts[0].metadata!['name'],
+            style: Theme.of(context).textTheme.headline5?.copyWith(
+                fontSize: UI.getTextSize(12, context),
+                fontWeight: FontWeight.w600,
+                color: PluginColorsDark.headline1)))
+      ..layout();
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 7),
       decoration: BoxDecoration(
@@ -458,7 +469,8 @@ class _tabBarState extends State<_tabBar> {
         children: [
           Expanded(
               child: Container(
-                  constraints: BoxConstraints(maxHeight: _isOpen ? 1000 : 22),
+                  constraints: BoxConstraints(
+                      maxHeight: _isOpen ? 1000 : textPainter.size.height + 10),
                   child: Wrap(
                       spacing: 10,
                       runSpacing: 10,

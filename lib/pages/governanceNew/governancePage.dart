@@ -262,7 +262,7 @@ class _GovernancePageState extends State<GovernancePage> {
                     child: Swiper(
                       itemCount: locks.length,
                       itemWidth: double.infinity,
-                      loop: locks.length == 1 ? false : true,
+                      loop: false,
                       itemBuilder: (BuildContext context, int index) {
                         var unlockAt = locks[index]['unlockAt'];
                         final int blockDuration =
@@ -455,6 +455,8 @@ class _GovernancePageState extends State<GovernancePage> {
         final decimals = widget.plugin.networkState.tokenDecimals![0];
         final symbol = widget.plugin.networkState.tokenSymbol![0];
         return RefreshIndicator(
+            color: Colors.black,
+            backgroundColor: Colors.white,
             key: _refreshKey,
             onRefresh: _freshData,
             child: ListView.builder(

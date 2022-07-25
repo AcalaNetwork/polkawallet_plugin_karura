@@ -53,13 +53,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     final token =
         ModalRoute.of(context)?.settings.arguments as TokenBalanceData;
     final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
-        null,
-        '1',
-        [karura_stable_coin, token.tokenNameId!].map((e) {
-          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-          return {...token.currencyId!, 'decimals': token.decimals};
-        }).toList(),
-        '0.05');
+        null, '1', [karura_stable_coin, token.tokenNameId!], '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
@@ -446,7 +440,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       children: [
                         MultiplyInfoItemRow(
                           dic['loan.ratio']!,
-                          "${ratioLeft - _slider}%",
+                          "${(ratioLeft - _slider).toStringAsFixed(2)}%",
                         ),
                         MultiplyInfoItemRow(
                           dic['liquid.price']!,

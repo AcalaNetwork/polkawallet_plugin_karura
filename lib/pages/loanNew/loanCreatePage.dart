@@ -313,7 +313,6 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
 
       final token = _token ?? widget.plugin.store!.loan.loanTypes[0].token!;
-      print(token.amount);
 
       final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
           widget.plugin, [token.tokenNameId, karura_stable_coin]);

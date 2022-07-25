@@ -17,7 +17,6 @@ import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
@@ -229,18 +228,29 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                     _selectRadio = !_selectRadio;
                   });
                 },
-                child: Padding(
-                    padding: EdgeInsets.only(top: 3),
+                child: Container(
+                    margin: EdgeInsets.only(top: 16),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                        color: _selectRadio
+                            ? Color(0xA6D8D8D8)
+                            : Color(0xFFD8D8D8),
+                        borderRadius: BorderRadius.circular(4)),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        PluginRadioButton(
-                          value: _selectRadio,
+                        Icon(
+                          _selectRadio ? Icons.remove_circle : Icons.add_circle,
+                          color: Color(0xFF616161),
+                          size: 12,
                         ),
                         Padding(
-                            padding: EdgeInsets.only(left: 5),
+                            padding: EdgeInsets.only(left: 2),
                             child: Text(
                               "$seleteRadioTest (${PluginFmt.tokenView(banlance.symbol)})",
-                              style: textStyle,
+                              style: textStyle?.copyWith(
+                                  color: Color(0xFF24262A), height: 1.3),
                             )),
                       ],
                     ))),
@@ -249,7 +259,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 child: Column(
                   children: [
                     Padding(
-                        padding: EdgeInsets.only(top: 30),
+                        padding: EdgeInsets.only(top: 16),
                         child: PluginInputBalance(
                           key: Key("2"),
                           tokenViewFunction: (value) {
@@ -373,6 +383,39 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                         )),
                     ErrorMessage(_error2,
                         margin: EdgeInsets.symmetric(vertical: 2)),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(2)),
+                                color: Color(0x73D8D8D8)),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 6, right: 6),
+                            width: 83,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(2)),
+                                color: Color(0x73D8D8D8)),
+                          ),
+                          Container(
+                            width: 20,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(2)),
+                                color: Color(0x73D8D8D8)),
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 ))
           ],
@@ -610,6 +653,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   void _inputChage(String titleTag, String v, {bool isMax = false}) {
+    if (v.trim().isEmpty) {
+      return;
+    }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         widget.plugin, [_editorLoan!.token!.tokenNameId, karura_stable_coin]);

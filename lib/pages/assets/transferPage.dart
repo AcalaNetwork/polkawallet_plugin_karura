@@ -26,6 +26,7 @@ import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
 import 'package:polkawallet_ui/components/v3/addressIcon.dart';
 import 'package:polkawallet_ui/components/v3/addressTextFormField.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
@@ -33,7 +34,6 @@ import 'package:polkawallet_ui/pages/scanPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class TransferPage extends StatefulWidget {
   TransferPage(this.plugin, this.keyring);
@@ -67,26 +67,6 @@ class _TransferPageState extends State<TransferPage> {
   BigInt? _amountMax;
 
   bool _submitting = false;
-
-  Future<String?> _checkBlackList(KeyPairData acc) async {
-    final addresses =
-        await widget.plugin.sdk.api.account.decodeAddress([acc.address!]);
-    if (addresses != null) {
-      final pubKey = addresses.keys.toList()[0];
-      if (widget.plugin.sdk.blackList.indexOf(pubKey) > -1) {
-        return I18n.of(context)!
-            .getDic(i18n_full_dic_karura, 'common')!['transfer.scam'];
-      }
-    }
-    return null;
-  }
-
-  Future<String?> _checkAccountTo(KeyPairData acc) async {
-    final blackListCheck = await _checkBlackList(acc);
-    if (blackListCheck != null) return blackListCheck;
-
-    return null;
-  }
 
   Future<void> _getAccountSysInfo() async {
     final info = await widget.plugin.sdk.webView?.evalJavascript(
@@ -125,17 +105,13 @@ class _TransferPageState extends State<TransferPage> {
     final acc = KeyPairData();
     acc.address = (to as QRCodeResult).address!.address;
     acc.name = to.address!.name;
-    final res = await Future.wait([
-      widget.plugin.sdk.api.account.getAddressIcons([acc.address]),
-      _checkAccountTo(acc),
-    ]);
-    if (res[0] != null) {
-      final List icon = res[0] as List<dynamic>;
-      acc.icon = icon[0][1];
+    final res =
+        await widget.plugin.sdk.api.account.getAddressIcons([acc.address]);
+    if (res != null) {
+      acc.icon = res[0][1];
     }
     setState(() {
       _accountTo = acc;
-      _accountToError = res[1] as String?;
     });
     print(_accountTo!.address);
   }
@@ -443,7 +419,9 @@ class _TransferPageState extends State<TransferPage> {
                                 height: 1,
                                 fontWeight: FontWeight.w300,
                                 fontSize: 12,
-                                color: Color(0xBF565554));
+                                color: UI.isDarkTheme(context)
+                                    ? Colors.white
+                                    : Color(0xBF565554));
                         final infoValueStyle = Theme.of(context)
                             .textTheme
                             .headline5!
@@ -472,13 +450,12 @@ class _TransferPageState extends State<TransferPage> {
                                     hintText: dic['address'],
                                     initialValue: _accountTo,
                                     onChanged: (KeyPairData acc) async {
-                                      final error = await _checkAccountTo(acc);
                                       setState(() {
                                         _accountTo = acc;
-                                        _accountToError = error;
                                       });
                                     },
                                     key: ValueKey<KeyPairData?>(_accountTo),
+                                    sdk: widget.plugin.sdk,
                                   ),
                                   Visibility(
                                       visible: _accountToError != null,

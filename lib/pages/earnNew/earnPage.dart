@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDexList.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnLoanList.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnTaigaList.dart';
 import 'package:polkawallet_plugin_karura/pages/types/earnPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
@@ -54,10 +55,9 @@ class _EarnPageState extends State<EarnPage> {
           Container(
             padding: EdgeInsets.only(right: 12),
             child: PluginIconButton(
-              icon: Icon(
-                Icons.history,
-                size: 22,
-                color: Color(0xFF17161F),
+              icon: Image.asset(
+                'packages/polkawallet_plugin_karura/assets/images/history.png',
+                width: 16,
               ),
               onPressed: () =>
                   Navigator.of(context).pushNamed(EarnHistoryPage.route),
@@ -70,12 +70,13 @@ class _EarnPageState extends State<EarnPage> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.fromLTRB(16, 8, 0, 8),
+              margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: PluginPageTitleTaps(
-                names: [dic['earn.dex']!, dic['earn.loan']!],
+                names: [dic['earn.dex']!, dic['earn.loan']!, dic['airdrop']!],
                 activeTab: _tab,
                 // fontSize: 20,
                 // lineWidth: 6,
+                isSpaceBetween: true,
                 onTap: (i) {
                   setState(() {
                     _tab = i;
@@ -86,7 +87,9 @@ class _EarnPageState extends State<EarnPage> {
             Expanded(
               child: _tab == 0
                   ? EarnDexList(widget.plugin)
-                  : EarnLoanList(widget.plugin, widget.keyring),
+                  : _tab == 1
+                      ? EarnLoanList(widget.plugin, widget.keyring)
+                      : EarnTaigaList(widget.plugin, widget.keyring),
             )
           ],
         ),

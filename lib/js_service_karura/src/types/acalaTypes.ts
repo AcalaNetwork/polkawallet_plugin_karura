@@ -3,3 +3,9 @@ export type IncentiveResult = {
   DexSaving: any;
   Loans: any;
 };
+
+export interface TaigaUserReward {
+  tokens?: string[];
+  cumulative?: string[];
+  claimable?: string[];
+}

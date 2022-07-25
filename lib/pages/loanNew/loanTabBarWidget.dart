@@ -95,66 +95,81 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
             },
           ),
           Container(
-            height: 48,
-            width: double.infinity,
-            margin: EdgeInsets.only(
-              right: 96,
-              bottom: 12,
-              left: 16,
-            ),
-            decoration: BoxDecoration(
-                color: Color(0x66FFFFFF),
-                borderRadius: BorderRadius.circular(6)),
-            child: ScrollablePositionedList.builder(
-                scrollDirection: Axis.horizontal,
-                itemScrollController: _scrollController,
-                itemPositionsListener: _itemPositionsListener,
-                itemCount: widget.data.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                      onTap: () {
-                        onChange(index);
-                        _isTabBarOnClick = true;
-                      },
-                      child: Center(
-                        child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: 18),
-                          decoration: _index == index
-                              ? BoxDecoration(
-                                  color: Color(0xCCFFFFFF),
-                                  borderRadius: const BorderRadius.all(
-                                      const Radius.circular(10)))
-                              : null,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                  width: 48,
-                                  height: 48,
-                                  child: Center(
-                                    child: widget.data[index].icon,
-                                  )),
-                              Container(
-                                  width: 34,
-                                  height: 34,
-                                  decoration: BoxDecoration(
-                                      color: _index == index
-                                          ? Colors.transparent
-                                          : Color(0x33000000),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(34))))
-                            ],
-                          ),
-                        ),
-                      ));
-                }),
-          ),
+              margin: EdgeInsets.only(
+                left: 16,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                      child: Container(
+                    height: 48,
+                    width: double.infinity,
+                    margin: EdgeInsets.only(
+                      right: 8,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Color(0xFFFFFFFF).withAlpha(25),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: ScrollablePositionedList.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemScrollController: _scrollController,
+                        itemPositionsListener: _itemPositionsListener,
+                        itemCount: widget.data.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                              onTap: () {
+                                onChange(index);
+                                _isTabBarOnClick = true;
+                              },
+                              child: Center(
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 18),
+                                  decoration: _index == index
+                                      ? BoxDecoration(
+                                          color: Color(0x5CFFFFFF),
+                                          borderRadius: const BorderRadius.all(
+                                              const Radius.circular(10)))
+                                      : null,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                          width: 48,
+                                          height: 48,
+                                          child: Center(
+                                            child: widget.data[index].icon,
+                                          )),
+                                      Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                              color: _index == index
+                                                  ? Colors.transparent
+                                                  : Color(0x33000000),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(34))))
+                                    ],
+                                  ),
+                                ),
+                              ));
+                        }),
+                  )),
+                  Padding(
+                      padding: EdgeInsets.only(right: 71),
+                      child: Image.asset(
+                          "packages/polkawallet_plugin_acala/assets/images/cdp_right.png",
+                          width: 20))
+                ],
+              )),
           Expanded(
               child: PageView(
             physics: BouncingScrollPhysics(),
             children: widget.data
                 .map((e) => Container(
-                      padding: EdgeInsets.all(16),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: e.context,
                     ))
                 .toList(),
