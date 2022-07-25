@@ -1,48 +1,59 @@
+import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxHomaData extends _TxHomaData {
-  static const String actionMint = 'Minted';
-  static const String actionRedeemed = 'Redeemed';
-  static const String actionRedeem = 'RedeemRequest';
-  static const String actionRedeemCancel = 'RedeemRequestCancelled';
-  static const String actionRedeemedByFastMatch = 'RedeemedByFastMatch';
-  static const String actionWithdrawRedemption = 'WithdrawRedemption';
-  static const String actionRedeemedByUnbond = 'RedeemedByUnbond';
+  static const String actionMint = 'homa.Minted';
+  static const String actionRedeemed = 'homa.Redeemed';
+  static const String actionLiteRedeemed = 'homaLite.Redeemed';
+  static const String actionRedeem = 'homa.RequestedRedeem';
+  static const String actionLiteRedeem = 'homaLite.RedeemRequested';
+  static const String actionRedeemCancel = 'homa.RedeemRequestCancelled';
+  static const String actionRedeemedByFastMatch = 'homa.RedeemedByFastMatch';
+  static const String actionWithdrawRedemption = 'homa.WithdrawRedemption';
+  static const String actionRedeemedByUnbond = 'homa.RedeemedByUnbond';
 
-  static TxHomaData fromJson(Map<String, dynamic> json) {
+  static TxHomaData fromHistory(HistoryData history) {
     TxHomaData data = TxHomaData();
-    data.action = json['type'];
-    if (json['extrinsic'] != null) {
-      data.hash = json['extrinsic']['id'];
-      data.isSuccess = json['extrinsic']['isSuccess'];
-    }
+    data.action = history.event;
+
+    data.hash = history.hash;
+    data.isSuccess = true;
 
     switch (data.action) {
       case actionMint:
-        data.amountPay = Fmt.balanceInt(json['data'][1]['value'].toString());
-        data.amountReceive =
-            Fmt.balanceInt(json['data'][2]['value'].toString());
+        final staked = history.data!['amountStaked'] == '0'
+            ? history.data!['stakingCurrencyAmount']
+            : history.data!['amountStaked'];
+        final minted = history.data!['amountMinted'] == '0'
+            ? history.data!['liquidAmountReceived']
+            : history.data!['amountMinted'];
+
+        data.amountPay = Fmt.balanceInt(staked);
+        data.amountReceive = Fmt.balanceInt(minted);
         break;
       case actionRedeem:
-        data.amountPay = Fmt.balanceInt(json['data'][1]['value'].toString());
+      case actionLiteRedeem:
+        data.amountPay = Fmt.balanceInt(history.data!['amount']);
+        break;
+      case actionLiteRedeemed:
+        data.amountReceive =
+            Fmt.balanceInt(history.data!['stakingAmountRedeemed']);
         break;
       case actionRedeemed:
       case actionRedeemCancel:
       case actionWithdrawRedemption:
-        data.amountReceive =
-            Fmt.balanceInt(json['data'][1]['value'].toString());
+        data.amountReceive = Fmt.balanceInt(history.data!['amount']);
         break;
       case actionRedeemedByFastMatch:
-        data.amountPay = Fmt.balanceInt(json['data'][1]['value'].toString());
+        data.amountPay = Fmt.balanceInt(history.data!['matchedLiquidAmount']);
         data.amountReceive =
-            Fmt.balanceInt(json['data'][3]['value'].toString());
+            Fmt.balanceInt(history.data!['redeemedStakingAmount']);
         break;
       case actionRedeemedByUnbond:
-        data.amountReceive =
-            Fmt.balanceInt(json['data'][3]['value'].toString());
+        data.amountReceive = Fmt.balanceInt(history.data!['liquidAmount']);
     }
 
-    data.time = (json['timestamp'] as String).replaceAll(' ', '');
+    data.time = (history.data!['timestamp'] as String).replaceAll(' ', '');
     return data;
   }
 }

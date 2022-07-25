@@ -35,17 +35,11 @@ class LoanTxDetailPage extends StatelessWidget {
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.event!, style: amountStyle),
+        content: Text(tx.event!.replaceAll('loans.', ''), style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(
-            dic['loan.${tx.actionType}']! +
-                (tx.actionType == TxLoanData.actionTypeBorrow ||
-                        tx.actionType == TxLoanData.actionTypePayback
-                    ? ' $karura_stable_coin_view'
-                    : ' ${PluginFmt.tokenView(tx.token)}'),
-            style: amountStyle),
+        content: Text(dic['loan.${tx.actionType}']!, style: amountStyle),
       )
     ];
     if (tx.collateral != BigInt.zero) {

@@ -3,6 +3,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/serviceAssets.dart';
 import 'package:polkawallet_plugin_karura/service/serviceEarn.dart';
 import 'package:polkawallet_plugin_karura/service/serviceGov.dart';
+import 'package:polkawallet_plugin_karura/service/serviceHistory.dart';
 import 'package:polkawallet_plugin_karura/service/serviceHoma.dart';
 import 'package:polkawallet_plugin_karura/service/serviceLoan.dart';
 import 'package:polkawallet_plugin_karura/service/walletApi.dart';
@@ -19,12 +20,14 @@ class PluginService {
         earn = ServiceEarn(plugin, keyring),
         homa = ServiceHoma(plugin, keyring),
         gov = ServiceGov(plugin, keyring),
+        history = ServiceHistory(plugin, keyring),
         plugin = plugin;
   final ServiceAssets assets;
   final ServiceLoan loan;
   final ServiceEarn earn;
   final ServiceHoma homa;
   final ServiceGov gov;
+  final ServiceHistory history;
 
   final PluginKarura plugin;
 
