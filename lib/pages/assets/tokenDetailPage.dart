@@ -517,7 +517,7 @@ class TransferListItem extends StatelessWidget {
               type: TransferIconType.rollOut,
               bgColor: Theme.of(context).cardColor)
           : TransferIcon(
-              type: TransferIconType.failure, bgColor: Color(0xFFD7D7D7)),
+              type: TransferIconType.rollIn, bgColor: Color(0xFFD7D7D7)),
       title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}',
           style: Theme.of(context).textTheme.headline4),
       subtitle: Text(Fmt.dateTime(DateTime.parse(data!.data!['timestamp']))),
