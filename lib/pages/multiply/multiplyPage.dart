@@ -637,10 +637,11 @@ class CreateVaultWidget extends StatelessWidget {
                 style: Theme.of(context).textTheme.headline1?.copyWith(
                     fontSize: UI.getTextSize(26, context),
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF6D37)),
+                    color: Color(0xFFFF6D37),
+                    height: 1.1),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 6, bottom: 16),
+                padding: EdgeInsets.only(bottom: 16),
                 child: Text(
                   I18n.of(context)!.locale.toString().contains('zh')
                       ? "最高倍率化 ${PluginFmt.tokenView(symbol)} 的选择"
@@ -648,7 +649,7 @@ class CreateVaultWidget extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .headline5
-                      ?.copyWith(color: Colors.white),
+                      ?.copyWith(color: Colors.white, height: 1.1),
                 ),
               ),
               Container(
@@ -668,7 +669,7 @@ class CreateVaultWidget extends StatelessWidget {
                           fontWeight: FontWeight.w300),
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 12),
+                        padding: EdgeInsets.only(top: 6),
                         child: Text(
                           "${dic['loan.multiply.message1']} ${Fmt.priceFloor(_amountCollateral + buyingCollateral)} ${PluginFmt.tokenView(symbol)} ${dic['loan.multiply.message2']}",
                           style: Theme.of(context)
