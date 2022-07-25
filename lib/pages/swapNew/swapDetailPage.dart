@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txSwapData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
@@ -29,7 +28,6 @@ class SwapDetailPage extends StatelessWidget {
         ModalRoute.of(context)!.settings.arguments as TxSwapData;
     final token0 = PluginFmt.tokenView(tx.tokenPay);
     final token1 = PluginFmt.tokenView(tx.tokenReceive);
-
     final tokenLP = '$token0-$token1 LP';
 
     final amountStyle = TextStyle(
@@ -44,15 +42,15 @@ class SwapDetailPage extends StatelessWidget {
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.action!.replaceAll('dex.', ''), style: amountStyle),
+        content: Text(tx.action!, style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
-        content: Text(dic['${tx.action}']!, style: amountStyle),
+        content: Text(dic['dex.${tx.action}']!, style: amountStyle),
       )
     ];
     switch (tx.action) {
-      case "dex.Swap":
+      case "swap":
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
@@ -64,7 +62,7 @@ class SwapDetailPage extends StatelessWidget {
           )
         ]);
         break;
-      case "dex.AddProvision":
+      case "addProvision":
         items.add(TxDetailInfoItem(
             label: dic['dex.pay'],
             content: Text(
@@ -74,7 +72,7 @@ class SwapDetailPage extends StatelessWidget {
               textAlign: TextAlign.right,
             )));
         break;
-      case "dex.AddLiquidity":
+      case "addLiquidity":
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
@@ -84,9 +82,13 @@ class SwapDetailPage extends StatelessWidget {
                 textAlign: TextAlign.right,
                 style: amountStyle),
           ),
+          TxDetailInfoItem(
+            label: dic['dex.receive'],
+            content: Text('${tx.amountShare} $tokenLP', style: amountStyle),
+          )
         ]);
         break;
-      case "dex.RemoveLiquidity":
+      case "removeLiquidity":
         items.addAll([
           TxDetailInfoItem(
             label: dic['dex.pay'],
@@ -104,8 +106,8 @@ class SwapDetailPage extends StatelessWidget {
     }
 
     return PluginTxDetail(
-      success: true,
-      action: dic['${tx.action}'],
+      success: tx.isSuccess,
+      action: dic['dex.${tx.action}'],
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
       blockTime:

@@ -1,33 +1,74 @@
-import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
+import 'dart:convert';
+
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxSwapData extends _TxSwapData {
-  static TxSwapData fromHistory(HistoryData history, PluginKarura plugin) {
+  static TxSwapData fromJson(Map json, PluginKarura plugin) {
     final data = TxSwapData();
-    data.action = history.event;
-    data.hash = history.hash;
+    data.action = json['type'];
+    data.hash = json['extrinsic']['id'];
 
-    final tokenPay = AssetsUtils.tokenDataFromCurrencyId(
-        plugin, {'token': history.data!['token0Id']});
-    final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
-        plugin, {'token': history.data!['token1Id']});
-    data.tokenPay = tokenPay.symbol;
-    data.tokenReceive = tokenReceive.symbol;
-    data.amountPay = Fmt.priceFloorBigInt(
-        Fmt.balanceInt(history.data!['token0Amount']), tokenPay.decimals ?? 12,
-        lengthMax: 6);
-    data.amountReceive = Fmt.priceFloorBigInt(
-        Fmt.balanceInt(history.data!['token1Amount']),
-        tokenReceive.decimals ?? 12,
-        lengthMax: 6);
-    data.amountShare = Fmt.priceFloorBigInt(
-        Fmt.balanceInt(history.data!['shareAmount']), tokenPay.decimals ?? 12,
-        lengthMax: 6);
+    switch (data.action) {
+      case "swap":
+        final List path = jsonDecode(json['data'][1]['value']);
+        final tokenPay = AssetsUtils.tokenDataFromCurrencyId(plugin, path[0]);
+        final tokenReceive =
+            AssetsUtils.tokenDataFromCurrencyId(plugin, path[path.length - 1]);
+        data.tokenPay = tokenPay.symbol;
+        data.tokenReceive = tokenReceive.symbol;
+        if (json['data'][2]['type'] == 'Balance') {
+          data.amountPay = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(json['data'][2]['value'].toString()),
+              tokenPay.decimals ?? 12,
+              lengthMax: 6);
+          data.amountReceive = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(json['data'][3]['value'].toString()),
+              tokenReceive.decimals ?? 12,
+              lengthMax: 6);
+        } else {
+          data.amountPay = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(
+                  jsonDecode(json['data'][2]['value'])[0].toString()),
+              tokenPay.decimals ?? 12,
+              lengthMax: 6);
+          data.amountReceive = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(
+                  jsonDecode(json['data'][2]['value'])[path.length - 1]
+                      .toString()),
+              tokenReceive.decimals ?? 12,
+              lengthMax: 6);
+        }
+        break;
+      case "addProvision":
+      case "addLiquidity":
+      case "removeLiquidity":
+        final tokenPay = AssetsUtils.tokenDataFromCurrencyId(
+            plugin, jsonDecode(json['data'][1]['value']));
+        final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
+            plugin, jsonDecode(json['data'][3]['value']));
+        data.tokenPay = tokenPay.symbol;
+        data.tokenReceive = tokenReceive.symbol;
+        data.amountPay = Fmt.priceFloorBigInt(
+            Fmt.balanceInt(json['data'][2]['value'].toString()),
+            tokenPay.decimals ?? 12,
+            lengthMax: 6);
+        data.amountReceive = Fmt.priceFloorBigInt(
+            Fmt.balanceInt(json['data'][4]['value'].toString()),
+            tokenReceive.decimals ?? 12,
+            lengthMax: 6);
+        data.amountShare = (json['data'] as List).length > 5
+            ? Fmt.priceFloorBigInt(
+                Fmt.balanceInt(json['data'][5]['value'].toString()),
+                tokenPay.decimals ?? 12,
+                lengthMax: 6)
+            : '';
+        break;
+    }
 
-    data.time = (history.data!['timestamp'] as String).replaceAll(' ', '');
-    data.isSuccess = true;
+    data.time = (json['timestamp'] as String).replaceAll(' ', '');
+    data.isSuccess = json['extrinsic']['isSuccess'];
     return data;
   }
 }
