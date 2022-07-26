@@ -26,6 +26,7 @@ import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:intl/intl.dart';
 
 class TokenDetailPage extends StatefulWidget {
   TokenDetailPage(this.plugin, this.keyring);
@@ -520,7 +521,8 @@ class TransferListItem extends StatelessWidget {
               type: TransferIconType.rollIn, bgColor: Color(0xFFD7D7D7)),
       title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}',
           style: Theme.of(context).textTheme.headline4),
-      subtitle: Text(Fmt.dateTime(DateTime.parse(data!.data!['timestamp']))),
+      subtitle: Text(Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
+          .parse(data!.data!['timestamp'], true))),
       trailing: Container(
         width: 110,
         child: Row(

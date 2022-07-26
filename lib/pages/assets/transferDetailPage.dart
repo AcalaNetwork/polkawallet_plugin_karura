@@ -8,6 +8,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/txDetail.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:intl/intl.dart';
 
 class TransferDetailPage extends StatelessWidget {
   TransferDetailPage(this.plugin, this.keyring);
@@ -42,7 +43,8 @@ class TransferDetailPage extends StatelessWidget {
       action: txType,
       // blockNum: int.parse(tx.block),
       hash: tx.hash,
-      blockTime: Fmt.dateTime(DateTime.parse(tx.data!['timestamp'])),
+      blockTime: Fmt.dateTime(
+          DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.data!['timestamp'], true)),
       networkName: networkName,
       infoItems: <TxDetailInfoItem>[
         TxDetailInfoItem(
