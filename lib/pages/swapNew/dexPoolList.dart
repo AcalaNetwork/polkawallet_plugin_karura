@@ -193,12 +193,12 @@ class _TaigaDexPoolCard extends StatelessWidget {
     balancePair.forEach((element) {});
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: EdgeInsets.symmetric(vertical: 11),
       color: Color(0x19FFFFFF),
       child: Column(
         children: [
           Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              padding: EdgeInsets.only(left: 11, right: 13, bottom: 11),
               child: Row(
                 children: [
                   Container(
@@ -281,7 +281,7 @@ class _TaigaDexPoolCard extends StatelessWidget {
             ),
           ),
           Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+              padding: EdgeInsets.only(left: 11, right: 13, top: 11),
               child: Row(
                 children: [
                   Expanded(
@@ -378,12 +378,12 @@ class _DexPoolCard extends StatelessWidget {
 
     return RoundedPluginCard(
       margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: EdgeInsets.symmetric(vertical: 11),
       color: Color(0x19FFFFFF),
       child: Column(
         children: [
           Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              padding: EdgeInsets.only(left: 11, right: 13, bottom: 11),
               child: Row(
                 children: [
                   Container(
@@ -458,7 +458,7 @@ class _DexPoolCard extends StatelessWidget {
             ),
           ),
           Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+              padding: EdgeInsets.only(left: 11, right: 13, top: 11),
               child: Row(
                 children: [
                   Expanded(

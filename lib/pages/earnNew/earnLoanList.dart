@@ -289,7 +289,7 @@ class CollateralIncentiveList extends StatelessWidget {
                         topLeft: Radius.circular(8),
                         topRight: Radius.circular(8)),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
