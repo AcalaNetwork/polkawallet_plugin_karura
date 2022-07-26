@@ -82,16 +82,16 @@ class TxSwapData extends _TxSwapData {
     switch (data.action) {
       case "swap":
         final tokenPay = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['inputAsset']));
-        final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
             plugin, jsonDecode(json['outputAsset']));
+        final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
+            plugin, jsonDecode(json['inputAsset']));
         data.tokenPay = tokenPay.symbol;
         data.tokenReceive = tokenReceive.symbol;
         data.amountPay = Fmt.priceFloorBigInt(
-            Fmt.balanceInt(json['inputAmount']), tokenPay.decimals ?? 12,
+            Fmt.balanceInt(json['outputAmount']), tokenPay.decimals ?? 12,
             lengthMax: 6);
         data.amountReceive = Fmt.priceFloorBigInt(
-            Fmt.balanceInt(json['outputAmount']), tokenReceive.decimals ?? 12,
+            Fmt.balanceInt(json['inputAmount']), tokenReceive.decimals ?? 12,
             lengthMax: 6);
         break;
       case "mint":

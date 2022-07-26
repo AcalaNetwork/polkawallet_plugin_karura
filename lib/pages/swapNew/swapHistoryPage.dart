@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -63,6 +66,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
           'address': widget.keyring.current.address,
         },
       ));
+      log(jsonEncode(resultTaiga.data));
       if (resultTaiga.data != null) {
         resultTaiga.data!.forEach((key, value) {
           if (value is Map && value['nodes'] != null) {
