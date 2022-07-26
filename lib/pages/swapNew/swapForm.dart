@@ -509,6 +509,8 @@ class _SwapFormState extends State<SwapForm>
             .headline5
             ?.copyWith(color: Colors.white);
 
+        final tokensAll = ['ACA', 'KAR', 'DOT', 'KSM', 'AUSD'];
+
         return ListView(
           padding: EdgeInsets.all(16),
           children: <Widget>[
@@ -530,6 +532,12 @@ class _SwapFormState extends State<SwapForm>
                         margin: EdgeInsets.only(bottom: 7),
                         inputCtrl: _amountPayCtrl,
                         tokenOptions: currencyOptionsLeft,
+                        quickTokenOptions: currencyOptionsLeft
+                            .where((element) => (tokensAll
+                                    .contains(element.symbol?.toUpperCase()) ||
+                                tokensAll
+                                    .contains(element.name?.toUpperCase())))
+                            .toList(),
                         tokenSelectTitle: dic['v3.swap.selectToken']!,
                         getMarketPrice: (tokenSymbol) =>
                             AssetsUtils.getMarketPrice(
@@ -576,6 +584,11 @@ class _SwapFormState extends State<SwapForm>
                       },
                       inputCtrl: _amountReceiveCtrl,
                       tokenOptions: currencyOptionsRight,
+                      quickTokenOptions: currencyOptionsRight
+                          .where((element) => (tokensAll
+                                  .contains(element.symbol?.toUpperCase()) ||
+                              tokensAll.contains(element.name?.toUpperCase())))
+                          .toList(),
                       tokenSelectTitle: dic['v3.swap.selectToken']!,
                       getMarketPrice: (tokenSymbol) =>
                           AssetsUtils.getMarketPrice(
