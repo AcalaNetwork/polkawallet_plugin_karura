@@ -331,337 +331,317 @@ class _LoanPageState extends State<LoanPage> {
             width: double.infinity,
             height: double.infinity,
             margin: EdgeInsets.only(top: 16),
-            child: SafeArea(
-                child: isDataLoading
-                    ? Column(
-                        children: [
-                          ConnectionChecker(widget.plugin,
-                              onConnected: _fetchData),
-                          Container(
-                            height: MediaQuery.of(context).size.height / 2,
-                            child: PluginLoadingWidget(),
-                          )
-                        ],
+            child: isDataLoading
+                ? Column(
+                    children: [
+                      ConnectionChecker(widget.plugin, onConnected: _fetchData),
+                      Container(
+                        height: MediaQuery.of(context).size.height / 2,
+                        child: PluginLoadingWidget(),
                       )
-                    : LoanTabBarWidget(
-                        initialTab: initialLoanTypeIndex > -1
-                            ? initialLoanTypeIndex
-                            : 0,
-                        data: loanTypes.map((e) {
-                          final _loans = loans.where(
-                              (data) => data.token!.symbol == e.token!.symbol);
-                          LoanData? loan =
-                              _loans.length > 0 ? _loans.first : null;
-                          Widget child = CreateVaultWidget(
-                              e.token!.symbol!,
-                              widget.plugin,
-                              _isQueryCollateraling,
-                              _totalMinted, onPressed: () async {
-                            final res = await Navigator.of(context).pushNamed(
-                                LoanCreatePage.route,
-                                arguments: e.token);
-                            if (res != null) {
-                              Future.delayed(Duration(milliseconds: 500), () {
-                                _fetchData();
-                              });
-                            }
+                    ],
+                  )
+                : LoanTabBarWidget(
+                    initialTab:
+                        initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
+                    data: loanTypes.map((e) {
+                      final _loans = loans.where(
+                          (data) => data.token!.symbol == e.token!.symbol);
+                      LoanData? loan = _loans.length > 0 ? _loans.first : null;
+                      Widget child = CreateVaultWidget(
+                          e.token!.symbol!,
+                          widget.plugin,
+                          _isQueryCollateraling,
+                          _totalMinted, onPressed: () async {
+                        final res = await Navigator.of(context).pushNamed(
+                            LoanCreatePage.route,
+                            arguments: e.token);
+                        if (res != null) {
+                          Future.delayed(Duration(milliseconds: 500), () {
+                            _fetchData();
                           });
-                          if (loan != null) {
-                            final balancePair =
-                                AssetsUtils.getBalancePairFromTokenNameId(
-                                    widget.plugin, [
-                              loan.token!.tokenNameId,
-                              karura_stable_coin
-                            ]);
-                            final canMint =
-                                loan.maxToBorrow - loan.debits > BigInt.zero
-                                    ? loan.maxToBorrow - loan.debits
-                                    : BigInt.zero;
+                        }
+                      });
+                      if (loan != null) {
+                        final balancePair =
+                            AssetsUtils.getBalancePairFromTokenNameId(
+                                widget.plugin,
+                                [loan.token!.tokenNameId, karura_stable_coin]);
+                        final canMint =
+                            loan.maxToBorrow - loan.debits > BigInt.zero
+                                ? loan.maxToBorrow - loan.debits
+                                : BigInt.zero;
 
-                            var requiredCollateral = BigInt.zero;
-                            if (loan.price > BigInt.zero &&
-                                loan.debitInUSD > BigInt.zero) {
-                              final stableCoinDecimals = widget
-                                  .plugin
-                                  .store!
-                                  .assets
-                                  .tokenBalanceMap[karura_stable_coin]!
-                                  .decimals!;
-                              final collateralDecimals = loan.token!.decimals!;
-                              requiredCollateral = BigInt.from(loan.debitInUSD *
-                                  (loan.type.requiredCollateralRatio +
-                                      Fmt.tokenInt("0.01", 18)) /
-                                  loan.price /
-                                  pow(10,
-                                      stableCoinDecimals - collateralDecimals));
-                            }
+                        var requiredCollateral = BigInt.zero;
+                        if (loan.price > BigInt.zero &&
+                            loan.debitInUSD > BigInt.zero) {
+                          final stableCoinDecimals = widget.plugin.store!.assets
+                              .tokenBalanceMap[karura_stable_coin]!.decimals!;
+                          final collateralDecimals = loan.token!.decimals!;
+                          requiredCollateral = BigInt.from(loan.debitInUSD *
+                              (loan.type.requiredCollateralRatio +
+                                  Fmt.tokenInt("0.01", 18)) /
+                              loan.price /
+                              pow(10, stableCoinDecimals - collateralDecimals));
+                        }
 
-                            final _withdrawAmount = (loan.requiredCollateral ==
-                                    BigInt.zero
+                        final _withdrawAmount =
+                            (loan.requiredCollateral == BigInt.zero
                                 ? loan.collaterals
                                 : loan.collaterals - loan.requiredCollateral >
                                         BigInt.zero
                                     ? loan.collaterals - requiredCollateral
                                     : BigInt.zero);
 
-                            child = SingleChildScrollView(
-                                physics: BouncingScrollPhysics(),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    headView(
+                        child = SingleChildScrollView(
+                            physics: BouncingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                headView(
+                                    loan,
+                                    double.parse(Fmt.token(
+                                        loan.type.requiredCollateralRatio,
+                                        18))),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 20),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                          child: LoanItemView(
+                                              title: dic['loan.ratio']!,
+                                              child: RichText(
+                                                  text: TextSpan(
+                                                      text:
+                                                          "${(loan.collateralRatio * 100).toStringAsFixed(1)}%",
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .headline2
+                                                          ?.copyWith(
+                                                              color:
+                                                                  PluginColorsDark
+                                                                      .green,
+                                                              fontSize: UI
+                                                                  .getTextSize(
+                                                                      18,
+                                                                      context),
+                                                              letterSpacing:
+                                                                  -1),
+                                                      children: [
+                                                    TextSpan(
+                                                        text:
+                                                            " /${Fmt.ratio(Fmt.bigIntToDouble(e.liquidationRatio, 18))}",
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .headline2
+                                                            ?.copyWith(
+                                                                color: PluginColorsDark
+                                                                    .headline1,
+                                                                fontSize: UI
+                                                                    .getTextSize(
+                                                                        18,
+                                                                        context),
+                                                                letterSpacing:
+                                                                    -1)),
+                                                  ])))),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                          child: LoanItemView(
+                                              title:
+                                                  "${dic['loan.liquidate']} (${PluginFmt.tokenView(loan.token!.symbol)})",
+                                              child: RichText(
+                                                  text: TextSpan(
+                                                      text:
+                                                          '\$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId] ?? BigInt.zero, acala_price_decimals, lengthMax: 2)}',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .headline2
+                                                          ?.copyWith(
+                                                              color:
+                                                                  PluginColorsDark
+                                                                      .green,
+                                                              fontSize: UI
+                                                                  .getTextSize(
+                                                                      18,
+                                                                      context),
+                                                              letterSpacing:
+                                                                  -1),
+                                                      children: [
+                                                    TextSpan(
+                                                        text:
+                                                            " /\$${Fmt.priceFloorBigInt(loan.liquidationPrice, acala_price_decimals)}",
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .headline2
+                                                            ?.copyWith(
+                                                                color: PluginColorsDark
+                                                                    .headline1,
+                                                                fontSize: UI
+                                                                    .getTextSize(
+                                                                        18,
+                                                                        context),
+                                                                letterSpacing:
+                                                                    -1)),
+                                                  ]))))
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 14),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                          child: LoanItemView(
+                                              title:
+                                                  '${dic['v3.loan.canMint']!} (${PluginFmt.tokenView(karura_stable_coin_view)})',
+                                              child: Text(
+                                                  '${Fmt.priceFloorBigIntFormatter(canMint, balancePair[1].decimals!, lengthMax: 4)}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline2
+                                                      ?.copyWith(
+                                                          color:
+                                                              PluginColorsDark
+                                                                  .green,
+                                                          fontSize:
+                                                              UI.getTextSize(
+                                                                  18, context),
+                                                          letterSpacing: -1)))),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                          child: LoanItemView(
+                                              title:
+                                                  "${dic['v3.loan.ableWithdraw']} (${PluginFmt.tokenView(loan.token!.symbol)})",
+                                              child: Text(
+                                                  '${Fmt.priceFloorBigIntFormatter(_withdrawAmount, loan.token!.decimals!, lengthMax: 4)}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline2
+                                                      ?.copyWith(
+                                                          color:
+                                                              PluginColorsDark
+                                                                  .green,
+                                                          fontSize:
+                                                              UI.getTextSize(
+                                                                  18, context),
+                                                          letterSpacing: -1))))
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 60),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                          child: PluginButton(
+                                        title:
+                                            "${dic['loan.mint']}/${dic['loan.payback']}",
+                                        onPressed: () async {
+                                          if (loan.type
+                                                  .maximumTotalDebitValue ==
+                                              BigInt.zero) {
+                                            showCupertinoDialog(
+                                                context: context,
+                                                builder: (_) {
+                                                  return PolkawalletAlertDialog(
+                                                    content: Text(
+                                                        '${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.unavailable']}'),
+                                                    actions: [
+                                                      CupertinoButton(
+                                                          child: Text(I18n.of(
+                                                                      context)!
+                                                                  .getDic(
+                                                                      i18n_full_dic_karura,
+                                                                      'common')![
+                                                              'cancel']!),
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop())
+                                                    ],
+                                                  );
+                                                });
+                                            return;
+                                          }
+                                          final res =
+                                              await Navigator.of(context)
+                                                  .pushNamed(
+                                                      LoanAdjustPage.route,
+                                                      arguments: {
+                                                "type": "debits",
+                                                "loan": loan
+                                              });
+                                          if (res != null) {
+                                            Future.delayed(
+                                                Duration(milliseconds: 500),
+                                                () {
+                                              _fetchData();
+                                            });
+                                          }
+                                        },
+                                      )),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                          child: PluginButton(
+                                        title:
+                                            "${dic['loan.deposit']}/${dic['loan.withdraw']}",
+                                        onPressed: () async {
+                                          final res =
+                                              await Navigator.of(context)
+                                                  .pushNamed(
+                                                      LoanAdjustPage.route,
+                                                      arguments: {
+                                                "type": "collateral",
+                                                "loan": loan
+                                              });
+                                          if (res != null) {
+                                            Future.delayed(
+                                                Duration(milliseconds: 500),
+                                                () {
+                                              _fetchData();
+                                            });
+                                          }
+                                        },
+                                      ))
+                                    ],
+                                  ),
+                                ),
+                                // todo: remove this visibility if 'sa://0' can do 'closeLoanHasDebitByDex'
+                                Visibility(
+                                  visible: !(loan.debits > BigInt.zero &&
+                                      loan.token?.tokenNameId == 'sa://0'),
+                                  child: GestureDetector(
+                                    child: Padding(
+                                        padding: EdgeInsets.only(top: 12),
+                                        child: Text(dic['loan.close.dex']!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline6
+                                                ?.copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: UI.getTextSize(
+                                                        10, context)))),
+                                    onTap: () => _closeVault(
                                         loan,
-                                        double.parse(Fmt.token(
-                                            loan.type.requiredCollateralRatio,
-                                            18))),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 20),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                              child: LoanItemView(
-                                                  title: dic['loan.ratio']!,
-                                                  child: RichText(
-                                                      text: TextSpan(
-                                                          text:
-                                                              "${(loan.collateralRatio * 100).toStringAsFixed(1)}%",
-                                                          style: Theme.of(
-                                                                  context)
-                                                              .textTheme
-                                                              .headline2
-                                                              ?.copyWith(
-                                                                  color:
-                                                                      PluginColorsDark
-                                                                          .green,
-                                                                  fontSize: UI
-                                                                      .getTextSize(
-                                                                          18,
-                                                                          context),
-                                                                  letterSpacing:
-                                                                      -1),
-                                                          children: [
-                                                        TextSpan(
-                                                            text:
-                                                                " /${Fmt.ratio(Fmt.bigIntToDouble(e.liquidationRatio, 18))}",
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .headline2
-                                                                ?.copyWith(
-                                                                    color: PluginColorsDark
-                                                                        .headline1,
-                                                                    fontSize: UI
-                                                                        .getTextSize(
-                                                                            18,
-                                                                            context),
-                                                                    letterSpacing:
-                                                                        -1)),
-                                                      ])))),
-                                          SizedBox(width: 14),
-                                          Expanded(
-                                              child: LoanItemView(
-                                                  title:
-                                                      "${dic['loan.liquidate']} (${PluginFmt.tokenView(loan.token!.symbol)})",
-                                                  child: RichText(
-                                                      text: TextSpan(
-                                                          text:
-                                                              '\$${Fmt.priceFloorBigInt(widget.plugin.store!.assets.prices[loan.token!.tokenNameId] ?? BigInt.zero, acala_price_decimals, lengthMax: 2)}',
-                                                          style: Theme.of(
-                                                                  context)
-                                                              .textTheme
-                                                              .headline2
-                                                              ?.copyWith(
-                                                                  color:
-                                                                      PluginColorsDark
-                                                                          .green,
-                                                                  fontSize: UI
-                                                                      .getTextSize(
-                                                                          18,
-                                                                          context),
-                                                                  letterSpacing:
-                                                                      -1),
-                                                          children: [
-                                                        TextSpan(
-                                                            text:
-                                                                " /\$${Fmt.priceFloorBigInt(loan.liquidationPrice, acala_price_decimals)}",
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .headline2
-                                                                ?.copyWith(
-                                                                    color: PluginColorsDark
-                                                                        .headline1,
-                                                                    fontSize: UI
-                                                                        .getTextSize(
-                                                                            18,
-                                                                            context),
-                                                                    letterSpacing:
-                                                                        -1)),
-                                                      ]))))
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 14),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                              child: LoanItemView(
-                                                  title:
-                                                      '${dic['v3.loan.canMint']!} (${PluginFmt.tokenView(karura_stable_coin_view)})',
-                                                  child: Text(
-                                                      '${Fmt.priceFloorBigIntFormatter(canMint, balancePair[1].decimals!, lengthMax: 4)}',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline2
-                                                          ?.copyWith(
-                                                              color:
-                                                                  PluginColorsDark
-                                                                      .green,
-                                                              fontSize: UI
-                                                                  .getTextSize(
-                                                                      18,
-                                                                      context),
-                                                              letterSpacing:
-                                                                  -1)))),
-                                          SizedBox(width: 14),
-                                          Expanded(
-                                              child: LoanItemView(
-                                                  title:
-                                                      "${dic['v3.loan.ableWithdraw']} (${PluginFmt.tokenView(loan.token!.symbol)})",
-                                                  child: Text(
-                                                      '${Fmt.priceFloorBigIntFormatter(_withdrawAmount, loan.token!.decimals!, lengthMax: 4)}',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline2
-                                                          ?.copyWith(
-                                                              color:
-                                                                  PluginColorsDark
-                                                                      .green,
-                                                              fontSize: UI
-                                                                  .getTextSize(
-                                                                      18,
-                                                                      context),
-                                                              letterSpacing:
-                                                                  -1))))
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 68),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                              child: PluginButton(
-                                            title:
-                                                "${dic['loan.mint']}/${dic['loan.payback']}",
-                                            onPressed: () async {
-                                              if (loan.type
-                                                      .maximumTotalDebitValue ==
-                                                  BigInt.zero) {
-                                                showCupertinoDialog(
-                                                    context: context,
-                                                    builder: (_) {
-                                                      return PolkawalletAlertDialog(
-                                                        content: Text(
-                                                            '${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.unavailable']}'),
-                                                        actions: [
-                                                          CupertinoButton(
-                                                              child: Text(I18n.of(
-                                                                          context)!
-                                                                      .getDic(
-                                                                          i18n_full_dic_karura,
-                                                                          'common')![
-                                                                  'cancel']!),
-                                                              onPressed: () =>
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop())
-                                                        ],
-                                                      );
-                                                    });
-                                                return;
-                                              }
-                                              final res =
-                                                  await Navigator.of(context)
-                                                      .pushNamed(
-                                                          LoanAdjustPage.route,
-                                                          arguments: {
-                                                    "type": "debits",
-                                                    "loan": loan
-                                                  });
-                                              if (res != null) {
-                                                Future.delayed(
-                                                    Duration(milliseconds: 500),
-                                                    () {
-                                                  _fetchData();
-                                                });
-                                              }
-                                            },
-                                          )),
-                                          SizedBox(width: 14),
-                                          Expanded(
-                                              child: PluginButton(
-                                            title:
-                                                "${dic['loan.deposit']}/${dic['loan.withdraw']}",
-                                            onPressed: () async {
-                                              final res =
-                                                  await Navigator.of(context)
-                                                      .pushNamed(
-                                                          LoanAdjustPage.route,
-                                                          arguments: {
-                                                    "type": "collateral",
-                                                    "loan": loan
-                                                  });
-                                              if (res != null) {
-                                                Future.delayed(
-                                                    Duration(milliseconds: 500),
-                                                    () {
-                                                  _fetchData();
-                                                });
-                                              }
-                                            },
-                                          ))
-                                        ],
-                                      ),
-                                    ),
-                                    // todo: remove this visibility if 'sa://0' can do 'closeLoanHasDebitByDex'
-                                    Visibility(
-                                      visible: !(loan.debits > BigInt.zero &&
-                                          loan.token?.tokenNameId == 'sa://0'),
-                                      child: GestureDetector(
-                                        child: Padding(
-                                            padding: EdgeInsets.only(top: 12),
-                                            child: Text(dic['loan.close.dex']!,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline6
-                                                    ?.copyWith(
-                                                        color: Colors.white,
-                                                        fontSize:
-                                                            UI.getTextSize(
-                                                                10, context)))),
-                                        onTap: () => _closeVault(
-                                            loan,
-                                            balancePair[0].decimals,
-                                            Fmt.bigIntToDouble(loan.debits,
-                                                balancePair[1].decimals!)),
-                                      ),
-                                    ),
-                                  ],
-                                ));
-                          }
-                          return LoanTabBarWidgetData(
-                            PluginTokenIcon(
-                              e.token?.symbol ?? "",
-                              widget.plugin.tokenIcons,
-                              size: 34,
-                            ),
-                            child,
-                          );
-                        }).toList(),
-                      )),
+                                        balancePair[0].decimals,
+                                        Fmt.bigIntToDouble(loan.debits,
+                                            balancePair[1].decimals!)),
+                                  ),
+                                ),
+                              ],
+                            ));
+                      }
+                      return LoanTabBarWidgetData(
+                        PluginTokenIcon(
+                          e.token?.symbol ?? "",
+                          widget.plugin.tokenIcons,
+                          size: 34,
+                        ),
+                        child,
+                      );
+                    }).toList(),
+                  ),
           ));
     });
   }

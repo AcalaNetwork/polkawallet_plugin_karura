@@ -76,7 +76,19 @@ class _RedeemPageState extends State<RedeemPage> {
 
     stakeDecimal = decimals![symbols!.indexOf("L$stakeToken")];
 
-    minRedeem = widget.plugin.store!.homa.env?.redeemThreshold ?? 0;
+    initMinRedeem();
+  }
+
+  Future<void> initMinRedeem() async {
+    if (widget.plugin.store!.homa.env == null) {
+      await widget.plugin.service!.homa.queryHomaEnv();
+    }
+    if (widget.plugin.store!.homa.userInfo == null) {
+      widget.plugin.service!.homa.queryHomaPendingRedeem();
+    }
+    setState(() {
+      minRedeem = widget.plugin.store!.homa.env?.redeemThreshold ?? 0;
+    });
   }
 
   Future<void> _updateReceiveAmount(double? input) async {
