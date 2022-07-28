@@ -8,6 +8,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
@@ -27,9 +28,12 @@ class EarnPage extends StatefulWidget {
 class _EarnPageState extends State<EarnPage> {
   int _tab = 0;
 
+  Future<void> _fetchData() async {
+    widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
+  }
+
   @override
   void initState() {
-    widget.plugin.service!.earn.getDexIncentiveLoyaltyEndBlock();
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -69,6 +73,10 @@ class _EarnPageState extends State<EarnPage> {
       body: SafeArea(
         child: Column(
           children: [
+            ConnectionChecker(
+              widget.plugin,
+              onConnected: _fetchData,
+            ),
             Container(
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: PluginPageTitleTaps(

@@ -134,7 +134,6 @@ class EarnDetailPage extends StatelessWidget {
                       1000 *
                       (incentiveEndBlocks ?? 0))
                   .toInt()));
-
           return SafeArea(
               child: Stack(
             children: [
@@ -153,6 +152,7 @@ class EarnDetailPage extends StatelessWidget {
                             Query(
                                 options: QueryOptions(
                                   document: gql(queryPoolDetail),
+                                  fetchPolicy: FetchPolicy.noCache,
                                   variables: <String, String?>{
                                     'pool': poolInfo!.tokenNameId,
                                   },
