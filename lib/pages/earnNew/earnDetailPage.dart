@@ -178,9 +178,9 @@ class EarnDetailPage extends StatelessWidget {
                                         .toList()
                                         .forEach((element) {
                                       datas.add(TimeSeriesAmount(
-                                          DateTime.parse(element["date"]),
+                                          DateTime.parse(element["timestamp"]),
                                           Fmt.balanceDouble(
-                                              element["tvlUSD"], 18)));
+                                              element["totalTVL"], 18)));
                                     });
                                     return Column(
                                       crossAxisAlignment:

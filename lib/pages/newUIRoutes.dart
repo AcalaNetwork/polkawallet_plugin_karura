@@ -71,7 +71,12 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           WithdrawLiquidityPage.route: (_) =>
               WithdrawLiquidityPage(plugin, keyring),
           EarnHistoryPage.route: (_) => EarnHistoryPage(plugin, keyring),
-          EarnDetailPage.route: (_) => EarnDetailPage(plugin, keyring),
+          EarnDetailPage.route: (_) => ClientProvider(
+                child: Builder(
+                  builder: (_) => EarnDetailPage(plugin, keyring),
+                ),
+                uri: GraphQLConfig['dexUri']!,
+              ),
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
           InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
           EarnTxDetailPage.route: (_) => EarnTxDetailPage(plugin, keyring),
