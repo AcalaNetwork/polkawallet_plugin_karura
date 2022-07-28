@@ -41,6 +41,7 @@ import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:rive/rive.dart';
 
 class LoanPage extends StatefulWidget {
   LoanPage(this.plugin, this.keyring);
@@ -771,7 +772,7 @@ class _LoanPageState extends State<LoanPage> {
                                     BorderRadius.all(Radius.circular(4.44))),
                           ),
                           Text(
-                            "Debit ${Fmt.priceFloorFormatter(Fmt.bigIntToDouble(loan.debits, balancePair[1].decimals!))} ${PluginFmt.tokenView(karura_stable_coin_view)} (~ \$${Fmt.priceFloorFormatter(Fmt.bigIntToDouble(loan.debits, balancePair[1].decimals!))})",
+                            "${dic['loan.multiply.debt']} ${Fmt.priceFloorFormatter(Fmt.bigIntToDouble(loan.debits, balancePair[1].decimals!))} ${PluginFmt.tokenView(karura_stable_coin_view)} (~ \$${Fmt.priceFloorFormatter(Fmt.bigIntToDouble(loan.debits, balancePair[1].decimals!))})",
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5
@@ -797,7 +798,7 @@ class _LoanPageState extends State<LoanPage> {
                                     BorderRadius.all(Radius.circular(4.44))),
                           ),
                           Text(
-                            "Collateral ${Fmt.priceFloorBigIntFormatter(loan.collaterals, balancePair[0].decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)} (~ \$${Fmt.priceFloorFormatter(Fmt.balanceDouble(loan.collaterals.toString(), balancePair[0].decimals!) * availablePrice)})",
+                            "${dic['loan.collateral']} ${Fmt.priceFloorBigIntFormatter(loan.collaterals, balancePair[0].decimals!)} ${PluginFmt.tokenView(loan.token!.symbol)} (~ \$${Fmt.priceFloorFormatter(Fmt.balanceDouble(loan.collaterals.toString(), balancePair[0].decimals!) * availablePrice)})",
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5
@@ -901,20 +902,22 @@ class CreateVaultWidget extends StatelessWidget {
           Column(children: [
             Container(
                 margin: EdgeInsets.only(top: 30, bottom: 14),
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.circular(110)),
-                    boxShadow: [
-                      BoxShadow(
-                          color: PluginColorsDark.primary,
-                          blurRadius: 5,
-                          spreadRadius: 4)
-                    ]),
-                child: FittedBox(
-                    fit: BoxFit.fill,
-                    child: plugin.tokenIcons[symbol.toUpperCase()])),
+                width: 120,
+                height: 120,
+                child: Stack(
+                  children: [
+                    RiveAnimation.asset(
+                        'packages/polkawallet_plugin_karura/assets/images/cdp_multiply.riv'),
+                    Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      margin: EdgeInsets.all(10),
+                      child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: plugin.tokenIcons[symbol.toUpperCase()]),
+                    )
+                  ],
+                )),
             Text(
               "Vault ${PluginFmt.tokenView(symbol)}",
               style: Theme.of(context).textTheme.headline1?.copyWith(

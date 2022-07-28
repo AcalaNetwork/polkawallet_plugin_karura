@@ -228,7 +228,7 @@ const Map<String, String> zhDex = {
   'v3.unbonding': '正在解绑',
   'v3.claim': '可领取',
   'v3.createVaultText': '创建一个债仓开始你的DeFi之旅',
-  'v3.loan.canMint': '可铸造',
+  'v3.loan.canMint': '可生成',
   'v3.loan.loanRatio': '借贷率',
   'v3.loan.submit': '提交',
   'v3.loan.unavailable': '生成 aUSD 暂不可用',

@@ -253,7 +253,7 @@ class CollateralIncentiveList extends StatelessWidget {
                   }
                   final rewardToken = AssetsUtils.getBalanceFromTokenNameId(
                       plugin, e['tokenNameId']);
-                  return '${Fmt.priceFloor(amount.toDouble())} ${PluginFmt.tokenView(rewardToken.symbol)}';
+                  return '${Fmt.priceFloor(amount.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(rewardToken.symbol)}';
                 }).join(' + ')
               : '0.00';
 

@@ -55,7 +55,7 @@ class _RedeemPageState extends State<RedeemPage> {
 
   late int stakeDecimal;
 
-  late double minRedeem;
+  late double minRedeem = 0;
 
   Timer? _timer;
 
