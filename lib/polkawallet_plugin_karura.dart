@@ -21,7 +21,6 @@ import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/newUIRoutes.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
-import 'package:polkawallet_plugin_karura/service/graphql.dart';
 import 'package:polkawallet_plugin_karura/service/index.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';

@@ -176,6 +176,7 @@ const Map<String, String> zhDex = {
   'homa.Redeemed': '提取',
   'homaLite.Redeemed': '提取',
   'homa.RedeemRequest': '提取请求',
+  'homa.QueuedRedeemRequesting': '排队赎回请求:',
   'homa.RequestedRedeem': '提取请求',
   'homaLite.RedeemRequested': '提取请求',
   'homa.RedeemRequestCancelled': '取消提取',

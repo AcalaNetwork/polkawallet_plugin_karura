@@ -186,6 +186,7 @@ const Map<String, String> enDex = {
   'homa.Redeemed': 'Redeemed',
   'homaLite.Redeemed': 'Redeemed',
   'homa.RedeemRequest': 'Redeem Request',
+  'homa.QueuedRedeemRequesting': 'Queued redeem Requesting:',
   'homa.RequestedRedeem': 'Redeem Request',
   'homaLite.RedeemRequested': 'Redeem Request',
   'homa.RedeemRequestCancelled': 'Cancel Redeem',

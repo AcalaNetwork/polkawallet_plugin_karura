@@ -308,6 +308,12 @@ class _RedeemPageState extends State<RedeemPage> {
             widget.plugin.store!.assets.tokenBalanceMap["L$stakeToken"]!;
         final max = _getMaxAmount();
 
+        final redeemRequest = Fmt.balanceDouble(
+            (widget.plugin.store?.homa.userInfo?.redeemRequest ??
+                    {})['amount'] ??
+                '0',
+            lTokenBalance.decimals!);
+
         return PluginScaffold(
           appBar: PluginAppBar(
             title: Text('${dic['homa.redeem']} $stakeToken'),
@@ -319,11 +325,42 @@ class _RedeemPageState extends State<RedeemPage> {
               margin: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: <Widget>[
+                  Visibility(
+                      visible: redeemRequest > 0,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 14),
+                        child: Row(
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Image.asset(
+                                  "packages/polkawallet_plugin_karura/assets/images/QueuedRedeemRequesting.png",
+                                  width: 26,
+                                )),
+                            Text(
+                              dic['homa.QueuedRedeemRequesting']!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(color: Colors.white),
+                            ),
+                            Text(
+                              "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} L$stakeToken",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600),
+                            )
+                          ],
+                        ),
+                      )),
                   PluginInputBalance(
                     tokenViewFunction: (value) {
                       return PluginFmt.tokenView(value);
                     },
-                    margin: EdgeInsets.only(bottom: 2),
+                    margin: EdgeInsets.only(bottom: 2, top: 14),
                     titleTag: dic['earn.unStake'],
                     inputCtrl: _amountPayCtrl,
                     balance: TokenBalanceData(

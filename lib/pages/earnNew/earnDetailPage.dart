@@ -632,7 +632,7 @@ class _UserCard extends StatelessWidget {
     var reward = rewardV2.isEmpty ? '0' : rewardV2;
     if (rewardSaving > 0) {
       reward =
-          "$reward + ${Fmt.priceFloor(rewardSaving, lengthMax: 2)} $stableCoinSymbolView";
+          "$reward + ${Fmt.priceFloor(rewardSaving, lengthMax: 4)} $stableCoinSymbolView";
       rewardPrice += rewardSaving;
     }
 
