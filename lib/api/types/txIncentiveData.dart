@@ -21,6 +21,7 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
       HistoryData history, PluginKarura plugin) {
     final data = TxDexIncentiveData();
     data.hash = history.hash;
+    data.resolveLinks = history.resolveLinks;
     data.event = history.event;
 
     final token = AssetsUtils.tokenDataFromCurrencyId(
@@ -51,6 +52,7 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
 abstract class _TxDexIncentiveData {
   String? block;
   String? hash;
+  String? resolveLinks;
   String? event;
   late String poolId;
   String? amountShare;

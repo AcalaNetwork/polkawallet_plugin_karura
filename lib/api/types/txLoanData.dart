@@ -15,6 +15,7 @@ class TxLoanData extends _TxLoanData {
     TxLoanData data = TxLoanData();
     data.event = history.event;
     data.hash = history.hash;
+    data.resolveLinks = history.resolveLinks;
 
     final token = AssetsUtils.tokenDataFromCurrencyId(
         plugin, {'token': history.data!['collateralId']});
@@ -65,7 +66,7 @@ class TxLoanData extends _TxLoanData {
 abstract class _TxLoanData {
   String? block;
   String? hash;
-
+  String? resolveLinks;
   String? token;
   String? event;
   String? actionType;

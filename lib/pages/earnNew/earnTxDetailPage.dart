@@ -38,6 +38,7 @@ class EarnTxDetailPage extends StatelessWidget {
       success: true,
       action: dic[earn_actions_map[tx.event]] ?? "",
       hash: tx.hash,
+      resolveLinks: tx.resolveLinks,
       blockTime:
           Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.time, true)),
       networkName: networkName,

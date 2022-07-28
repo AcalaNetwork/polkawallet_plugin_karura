@@ -15,7 +15,7 @@ class TxHomaData extends _TxHomaData {
   static TxHomaData fromHistory(HistoryData history) {
     TxHomaData data = TxHomaData();
     data.action = history.event;
-
+    data.resolveLinks = history.resolveLinks;
     data.hash = history.hash;
     data.isSuccess = true;
 
@@ -50,7 +50,8 @@ class TxHomaData extends _TxHomaData {
             Fmt.balanceInt(history.data!['redeemedStakingAmount']);
         break;
       case actionRedeemedByUnbond:
-        data.amountReceive = Fmt.balanceInt(history.data!['liquidAmount']);
+        data.amountReceive =
+            Fmt.balanceInt(history.data!['unbondingStakingAmount']);
     }
 
     data.time = (history.data!['timestamp'] as String).replaceAll(' ', '');
@@ -61,7 +62,7 @@ class TxHomaData extends _TxHomaData {
 abstract class _TxHomaData {
   String? block;
   String? hash;
-
+  String? resolveLinks;
   String? action;
   BigInt? amountPay;
   BigInt? amountReceive;

@@ -21,11 +21,11 @@
     "@polkadot/api": "^8.14.1"
   },
   "dependencies": {
-    "@acala-network/api": "^4.1.6-20",
-    "@acala-network/sdk": "^4.1.6-20",
-    "@acala-network/sdk-core": "^4.1.6-20",
-    "@acala-network/sdk-swap": "^4.1.6-20",
-    "@acala-network/sdk-wallet": "^4.1.6-20",
+    "@acala-network/api": "^4.1.6-21",
+    "@acala-network/sdk": "^4.1.6-21",
+    "@acala-network/sdk-core": "^4.1.6-21",
+    "@acala-network/sdk-swap": "^4.1.6-21",
+    "@acala-network/sdk-wallet": "^4.1.6-21",
     "@babel/polyfill": "^7.8.3",
     "@nuts-finance/sdk-stable-asset": "1.2.0",
     "@polkadot/api": "^8.14.1",
