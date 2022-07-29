@@ -742,7 +742,7 @@ class _LoanPageState extends State<LoanPage> {
                                     : [colorDanger[1], colorDanger[1]],
                             size: 130,
                             startAngle: pi * 3 / 2,
-                            bgColor: Color(0x4cFFFFFF))
+                            bgColor: const Color(0x4cFFFFFF))
                       ],
                     ),
                     Padding(
