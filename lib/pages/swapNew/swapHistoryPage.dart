@@ -16,6 +16,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginFilterWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -35,6 +36,7 @@ class SwapHistoryPage extends StatefulWidget {
 class _SwapHistoryPageState extends State<SwapHistoryPage> {
   List<TxSwapData> _list = [];
   bool _isLoading = true;
+  String filterString = PluginFilterWidget.pluginAllFilter;
 
   @override
   void initState() {
@@ -100,120 +102,168 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+
+    final list;
+    switch (filterString) {
+      case TxSwapData.actionTypeSwapFilter:
+        list = _list.where((element) => (element.action == 'swap')).toList();
+        break;
+      case TxSwapData.actionTypeAddLiquidityFilter:
+        list = _list
+            .where((element) =>
+                (element.action == 'addLiquidity' || element.action == 'mint'))
+            .toList();
+        break;
+      case TxSwapData.actionTypeRemoveLiquidityFilter:
+        list = _list
+            .where((element) => (element.action == 'removeLiquidity' ||
+                element.action == 'proportionredeem' ||
+                element.action == 'singleredeem' ||
+                element.action == 'multiredeem'))
+            .toList();
+        break;
+      case TxSwapData.actionTypeAddProvisionFilter:
+        list = _list
+            .where((element) => (element.action == 'addProvision'))
+            .toList();
+        break;
+      default:
+        list = _list;
+    }
+
     return PluginScaffold(
-      appBar: PluginAppBar(
-        title: Text(dic['loan.txs']!),
-        centerTitle: true,
-      ),
-      body: _isLoading
-          ? const PluginPopLoadingContainer(loading: true)
-          : SafeArea(
-              child: ListView.builder(
-              itemCount: _list.length + 1,
-              itemBuilder: (BuildContext context, int i) {
-                if (i == _list.length) {
-                  return ListTail(
-                    isEmpty: _list.length == 0,
-                    isLoading: _isLoading,
-                    color: Colors.white,
-                  );
-                }
+        appBar: PluginAppBar(
+          title: Text(dic['loan.txs']!),
+          centerTitle: true,
+        ),
+        body: _isLoading
+            ? const PluginPopLoadingContainer(loading: true)
+            : SafeArea(
+                child: Column(children: [
+                PluginFilterWidget(
+                  options: [
+                    PluginFilterWidget.pluginAllFilter,
+                    TxSwapData.actionTypeSwapFilter,
+                    TxSwapData.actionTypeAddLiquidityFilter,
+                    TxSwapData.actionTypeRemoveLiquidityFilter,
+                    TxSwapData.actionTypeAddProvisionFilter,
+                  ],
+                  filter: (option) {
+                    setState(() {
+                      filterString = option;
+                    });
+                  },
+                ),
+                Expanded(
+                    child: ListView.builder(
+                  itemCount: list.length + 1,
+                  itemBuilder: (BuildContext context, int i) {
+                    if (i == list.length) {
+                      return ListTail(
+                        isEmpty: list.length == 0,
+                        isLoading: _isLoading,
+                        color: Colors.white,
+                      );
+                    }
 
-                final TxSwapData detail = _list[i];
-                TransferIconType type = TransferIconType.swap;
-                String describe = "";
-                String action = detail.action ?? "";
-                switch (detail.action) {
-                  case "removeLiquidity":
-                    type = TransferIconType.remove_liquidity;
-                    describe =
-                        "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                  case "addProvision":
-                    type = TransferIconType.add_provision;
-                    describe =
-                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
-                    break;
-                  case "addLiquidity":
-                    type = TransferIconType.add_liquidity;
-                    describe =
-                        "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                  case "swap":
-                    type = TransferIconType.swap;
-                    describe =
-                        "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
-                    break;
-                  //taiga
-                  case "mint":
-                    type = TransferIconType.add_liquidity;
-                    action = "addLiquidity";
-                    describe =
-                        "add ${detail.amounts.map((e) => e.toTokenString()).join(" + ")} to pool";
-                    break;
-                  case "proportionredeem":
-                  case "singleredeem":
-                  case "multiredeem":
-                    type = TransferIconType.remove_liquidity;
-                    action = "removeLiquidity";
-                    describe =
-                        "remove ${detail.amountPay} shares from ${PluginFmt.tokenView(detail.tokenPay)} pool";
-                    break;
-                }
+                    final TxSwapData detail = list[i];
+                    TransferIconType type = TransferIconType.swap;
+                    String describe = "";
+                    String action = detail.action ?? "";
+                    switch (detail.action) {
+                      case "removeLiquidity":
+                        type = TransferIconType.remove_liquidity;
+                        describe =
+                            "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                        break;
+                      case "addProvision":
+                        type = TransferIconType.add_provision;
+                        describe =
+                            "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
+                        break;
+                      case "addLiquidity":
+                        type = TransferIconType.add_liquidity;
+                        describe =
+                            "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                        break;
+                      case "swap":
+                        type = TransferIconType.swap;
+                        describe =
+                            "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                        break;
+                      //taiga
+                      case "mint":
+                        type = TransferIconType.add_liquidity;
+                        action = "addLiquidity";
+                        describe =
+                            "add ${detail.amounts.map((e) => e.toTokenString()).join(" + ")} to pool";
+                        break;
+                      case "proportionredeem":
+                      case "singleredeem":
+                      case "multiredeem":
+                        type = TransferIconType.remove_liquidity;
+                        action = "removeLiquidity";
+                        describe =
+                            "remove ${detail.amountPay} shares from ${PluginFmt.tokenView(detail.tokenPay)} pool";
+                        break;
+                    }
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Color(0x14ffffff),
-                    border: Border(
-                        bottom:
-                            BorderSide(width: 0.5, color: Color(0x24ffffff))),
-                  ),
-                  child: ListTile(
-                    dense: true,
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dic['dex.$action']!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Color(0x14ffffff),
+                        border: Border(
+                            bottom: BorderSide(
+                                width: 0.5, color: Color(0x24ffffff))),
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              dic['dex.$action']!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600),
+                            ),
+                            Text(describe,
+                                textAlign: TextAlign.start,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: Colors.white))
+                          ],
                         ),
-                        Text(describe,
-                            textAlign: TextAlign.start,
+                        subtitle: Text(
+                            Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
+                                .parse(detail.time, true)),
                             style: Theme.of(context)
                                 .textTheme
                                 .headline5
-                                ?.copyWith(color: Colors.white))
-                      ],
-                    ),
-                    subtitle: Text(
-                        Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
-                            .parse(detail.time, true)),
-                        style: Theme.of(context).textTheme.headline5?.copyWith(
-                            color: Colors.white,
-                            fontSize: UI.getTextSize(10, context))),
-                    leading: TransferIcon(
-                        type: detail.isSuccess == false
-                            ? TransferIconType.failure
-                            : type,
-                        bgColor: detail.isSuccess == false
-                            ? Color(0xFFD7D7D7)
-                            : Color(0x57FFFFFF)),
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        SwapDetailPage.route,
-                        arguments: detail,
-                      );
-                    },
-                  ),
-                );
-              },
-            )),
-    );
+                                ?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: UI.getTextSize(10, context))),
+                        leading: TransferIcon(
+                            type: detail.isSuccess == false
+                                ? TransferIconType.failure
+                                : type,
+                            bgColor: detail.isSuccess == false
+                                ? Color(0xFFD7D7D7)
+                                : Color(0x57FFFFFF)),
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            SwapDetailPage.route,
+                            arguments: detail,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                )),
+              ])));
   }
 }

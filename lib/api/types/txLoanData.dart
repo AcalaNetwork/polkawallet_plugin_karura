@@ -11,12 +11,20 @@ class TxLoanData extends _TxLoanData {
   static const String actionTypePayback = 'payback';
   static const String actionTypeCreate = 'create';
   static const String actionLiquidate = 'liquidate';
+
+  static const String actionTypeDepositFilter = 'Deposit';
+  static const String actionTypeWithdrawFilter = 'Withdraw';
+  static const String actionTypeBorrowFilter = 'Mint';
+  static const String actionTypePaybackFilter = 'Payback';
+  static const String actionTypeCreateFilter = 'Create';
+  static const String actionLiquidateFilter = 'Liquidate';
+
   static TxLoanData fromJson(HistoryData history, PluginKarura plugin) {
     TxLoanData data = TxLoanData();
     data.event = history.event;
     data.hash = history.hash;
+    data.message = history.message;
     data.resolveLinks = history.resolveLinks;
-
     final token = AssetsUtils.tokenDataFromCurrencyId(
         plugin, {'token': history.data!['collateralId']});
     data.token = token.symbol;
@@ -41,7 +49,7 @@ class TxLoanData extends _TxLoanData {
     data.amountDebit = Fmt.priceCeilBigInt(data.debit,
         plugin.store!.assets.tokenBalanceMap[karura_stable_coin]!.decimals!,
         lengthMax: 6);
-    if (data.event == 'ConfiscateCollateralAndDebit') {
+    if (data.event == 'cdpEngine.LiquidateUnsafeCDP') {
       data.actionType = TxLoanData.actionLiquidate;
     } else if (data.collateral == BigInt.zero) {
       data.actionType = data.debit! > BigInt.zero
@@ -74,7 +82,7 @@ abstract class _TxLoanData {
   BigInt? debit;
   String? amountCollateral;
   String? amountDebit;
-
+  String? message;
   late String time;
   bool? isSuccess = true;
 }

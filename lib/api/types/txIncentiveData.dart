@@ -17,6 +17,12 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
   static const String actionUnStake = 'incentives.WithdrawDexShare';
   static const String actionClaimRewards = 'incentives.ClaimRewards';
   static const String actionPayoutRewards = 'incentives.PayoutRewards';
+
+  static const String actionStakeFilter = 'Stake LP';
+  static const String actionUnStakeFilter = 'Unstake LP';
+  static const String actionClaimRewardsFilter = 'Claim Rewards';
+  static const String actionPayoutRewardsFilter = 'Payout Rewards';
+
   static TxDexIncentiveData fromHistory(
       HistoryData history, PluginKarura plugin) {
     final data = TxDexIncentiveData();

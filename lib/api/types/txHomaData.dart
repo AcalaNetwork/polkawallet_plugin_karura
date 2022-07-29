@@ -12,6 +12,11 @@ class TxHomaData extends _TxHomaData {
   static const String actionWithdrawRedemption = 'homa.WithdrawRedemption';
   static const String actionRedeemedByUnbond = 'homa.RedeemedByUnbond';
 
+  static const String actionMintFilter = 'Mint';
+  static const String actionRequestedRedeemFilter = 'RequestedRedeem';
+  static const String actionUnbondFilter = 'Unbond';
+  static const String actionFastRedeemFilter = 'Fast Redeem';
+
   static TxHomaData fromHistory(HistoryData history) {
     TxHomaData data = TxHomaData();
     data.action = history.event;
