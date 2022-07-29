@@ -481,7 +481,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
           max = BigInt.zero;
         }
 
-        final chainTo = _chainTo ?? tokenXcmConfig[0];
+        final String? chainTo =
+            _chainTo ?? (canCrossChain ? tokenXcmConfig[0] : null);
         final isTokenFromStateMine =
             token.src != null && token.src!['Parachain'] == '1,000';
         final isToMoonRiver = chainTo == para_chain_name_moon;
@@ -523,11 +524,13 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
             : widget.plugin.basic.ss58;
         final feeTokenSymbol = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
             {})['nativeToken'];
-        final feeToken = isFromKar
+        final TokenBalanceData? feeToken = isFromKar
             ? AssetsUtils.getBalanceFromTokenNameId(widget.plugin, nativeToken)
-            : widget.plugin.store!.assets.allTokens.firstWhere((e) =>
-                e.symbol!.toUpperCase() ==
-                feeTokenSymbol.toString().toUpperCase());
+            : widget.plugin.store!.assets.allTokens.isNotEmpty
+                ? widget.plugin.store!.assets.allTokens.firstWhere((e) =>
+                    e.symbol!.toUpperCase() ==
+                    feeTokenSymbol.toString().toUpperCase())
+                : null;
 
         final labelStyle = Theme.of(context)
             .textTheme
@@ -856,7 +859,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                                   ),
                                 ),
                                 Text(
-                                    '${Fmt.priceCeilBigInt(fee, feeToken.decimals!, lengthMax: 6)} $feeTokenSymbol',
+                                    '${Fmt.priceCeilBigInt(fee, feeToken?.decimals ?? 12, lengthMax: 6)} $feeTokenSymbol',
                                     style: infoValueStyle),
                               ],
                             )),
@@ -940,7 +943,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 title: _connecting ? dic['xcm.connecting']! : dic['make']!,
                 onPressed: () async {
                   final params = await _getTxParams(
-                      TokenIcon(_chainFrom, crossChainIcons), feeToken);
+                      TokenIcon(_chainFrom, crossChainIcons), feeToken!);
                   if (params != null) {
                     final res = await Navigator.of(context)
                         .pushNamed(XcmTxConfirmPage.route, arguments: params);
