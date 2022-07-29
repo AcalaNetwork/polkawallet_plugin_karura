@@ -83,6 +83,7 @@ class TxSwapData extends _TxSwapData {
     final data = TxSwapData();
     data.action = json['__typename'].toString().toLowerCase();
     data.hash = json['extrinsicId'];
+    data.isTaiga = true;
 
     switch (data.action) {
       case "swap":
@@ -145,6 +146,7 @@ abstract class _TxSwapData {
   String? amountShare;
   late String time;
   bool? isSuccess;
+  bool isTaiga = false;
   List<_token> amounts = [];
 }
 

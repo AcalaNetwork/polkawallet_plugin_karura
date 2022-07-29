@@ -221,7 +221,8 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              dic['dex.$action']!,
+                              dic['dex.$action']! +
+                                  (detail.isTaiga ? "(Taiga)" : ""),
                               style: Theme.of(context)
                                   .textTheme
                                   .headline5
@@ -250,9 +251,11 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
                             type: detail.isSuccess == false
                                 ? TransferIconType.failure
                                 : type,
-                            bgColor: detail.isSuccess == false
-                                ? Color(0xFFD7D7D7)
-                                : Color(0x57FFFFFF)),
+                            bgColor: detail.isTaiga
+                                ? Color(0xFF974DE4)
+                                : detail.isSuccess == false
+                                    ? Color(0xFFD7D7D7)
+                                    : Color(0x57FFFFFF)),
                         onTap: () {
                           Navigator.pushNamed(
                             context,
