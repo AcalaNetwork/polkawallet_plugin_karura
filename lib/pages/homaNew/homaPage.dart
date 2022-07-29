@@ -19,7 +19,7 @@ import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
@@ -167,29 +167,27 @@ class _HomaPageState extends State<HomaPage> {
 
       if (widget.plugin.sdk.api.connectedNode == null) {
         return PluginScaffold(
-          appBar: PluginAppBar(
-            title: Text('${dic['homa.title']} $stakeSymbol'),
-            actions: [
-              Container(
-                margin: EdgeInsets.only(right: 16),
-                child: PluginIconButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
-                  icon: Image.asset(
-                    'packages/polkawallet_plugin_karura/assets/images/history.png',
-                    width: 16,
+            appBar: PluginAppBar(
+              title: Text('${dic['homa.title']} $stakeSymbol'),
+              actions: [
+                Container(
+                  margin: EdgeInsets.only(right: 16),
+                  child: PluginIconButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(HomaHistoryPage.route),
+                    icon: Image.asset(
+                      'packages/polkawallet_plugin_karura/assets/images/history.png',
+                      width: 16,
+                    ),
                   ),
-                ),
-              )
-            ],
-          ),
-          body: Column(
-            children: [
-              ConnectionChecker(widget.plugin, onConnected: _refreshData),
-              PluginLoadingWidget()
-            ],
-          ),
-        );
+                )
+              ],
+            ),
+            body: PluginPopLoadingContainer(
+              loading: true,
+              child:
+                  ConnectionChecker(widget.plugin, onConnected: _refreshData),
+            ));
       }
 
       final env = widget.plugin.store?.homa.env;

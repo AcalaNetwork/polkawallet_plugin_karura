@@ -13,6 +13,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
@@ -301,11 +302,8 @@ class _MintPageState extends State<MintPage> {
           body: SafeArea(
               child: isDataLoading ||
                       (isRewardsOpen && isSelectMethod && dexPools.length == 0)
-                  ? Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      child: Center(child: PluginLoadingWidget()),
-                    )
+                  ? const Expanded(
+                      child: PluginPopLoadingContainer(loading: true))
                   : ListView(
                       padding: EdgeInsets.all(16),
                       children: <Widget>[

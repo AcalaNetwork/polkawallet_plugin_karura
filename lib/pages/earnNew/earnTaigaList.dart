@@ -11,6 +11,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -52,21 +53,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
           ),
           Expanded(
               child: dexPools.length == 0 || taigaTokenPairs.length == 0
-                  ? ListView(
-                      padding: EdgeInsets.all(16),
-                      children: [
-                        Center(
-                          child: Container(
-                            height: MediaQuery.of(context).size.width,
-                            child: ListTail(
-                              isEmpty: true,
-                              isLoading: _loading,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      ],
-                    )
+                  ? PluginPopLoadingContainer(loading: _loading)
                   : GridView.builder(
                       padding: EdgeInsets.all(16),
                       itemCount: dexPools.length,

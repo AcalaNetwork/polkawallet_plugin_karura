@@ -33,7 +33,7 @@ import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
@@ -333,15 +333,10 @@ class _LoanPageState extends State<LoanPage> {
             height: double.infinity,
             margin: EdgeInsets.only(top: 16),
             child: isDataLoading
-                ? Column(
-                    children: [
-                      ConnectionChecker(widget.plugin, onConnected: _fetchData),
-                      Container(
-                        height: MediaQuery.of(context).size.height / 2,
-                        child: PluginLoadingWidget(),
-                      )
-                    ],
-                  )
+                ? PluginPopLoadingContainer(
+                    loading: true,
+                    child: ConnectionChecker(widget.plugin,
+                        onConnected: _fetchData))
                 : LoanTabBarWidget(
                     initialTab:
                         initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,

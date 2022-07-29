@@ -12,7 +12,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
@@ -47,13 +47,7 @@ class MultiplyHistoryPage extends StatelessWidget {
               FetchMore? fetchMore,
             }) {
               if (result.data == null) {
-                return Container(
-                  height: MediaQuery.of(context).size.height / 3,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [PluginLoadingWidget()],
-                  ),
-                );
+                return PluginPopLoadingContainer(loading: true);
               }
               final list = List.of(result.data!['extrinsics']['nodes'])
                   .map((i) => TxMultiplyData.fromJson(i as Map, plugin))

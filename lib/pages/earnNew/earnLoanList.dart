@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/tapTooltip.dart';
 import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
@@ -64,25 +65,12 @@ class _EarnLoanListState extends State<EarnLoanList> {
   Widget build(BuildContext context) {
     final incentiveTokenSymbol = widget.plugin.networkState.tokenSymbol![0];
     return _loading
-        ? ListView(
-            padding: EdgeInsets.all(16),
-            children: [
-              ConnectionChecker(
-                widget.plugin,
-                onConnected: _fetchData,
-              ),
-              Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.width,
-                  child: ListTail(
-                    isEmpty: true,
-                    isLoading: true,
-                    color: Colors.white,
-                  ),
-                ),
-              )
-            ],
-          )
+        ? PluginPopLoadingContainer(
+            loading: true,
+            child: ConnectionChecker(
+              widget.plugin,
+              onConnected: _fetchData,
+            ))
         : CollateralIncentiveList(
             plugin: widget.plugin,
             tokenIcons: widget.plugin.tokenIcons,

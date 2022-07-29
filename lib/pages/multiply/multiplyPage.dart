@@ -18,7 +18,7 @@ import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
@@ -115,123 +115,104 @@ class _MultiplyPageState extends State<MultiplyPage> {
               PluginAccountInfoAction(widget.keyring)
             ],
           ),
-          body: Container(
-              width: double.infinity,
-              height: double.infinity,
-              margin: EdgeInsets.only(top: 16),
-              child: SafeArea(
-                  child: isDataLoading
-                      ? Column(
+          body: isDataLoading
+              ? PluginPopLoadingContainer(
+                  loading: true,
+                  child:
+                      ConnectionChecker(widget.plugin, onConnected: _fetchData))
+              : Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  margin: EdgeInsets.only(top: 16),
+                  child: SafeArea(
+                      child: LoanTabBarWidget(
+                    initialTab:
+                        initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
+                    data: loantypes.map((e) {
+                      final _loans = loans.where(
+                          (data) => data.token!.symbol == e.token!.symbol);
+                      LoanData? loan = _loans.length > 0 ? _loans.first : null;
+                      Widget child = CreateVaultWidget(
+                          e.token!.symbol!, widget.plugin, onPressed: () async {
+                        final res = await Navigator.of(context).pushNamed(
+                            MultiplyCreatePage.route,
+                            arguments: e.token);
+                        if (res != null) {
+                          _fetchData();
+                        }
+                      });
+                      if (loan != null) {
+                        if (_pageController[loan.token!.symbol] == null) {
+                          _pageController[loan.token!.symbol!] =
+                              PageController();
+                        }
+                        child = PageView(
+                          scrollDirection: Axis.vertical,
+                          controller: _pageController[loan.token!.symbol!],
                           children: [
-                            ConnectionChecker(widget.plugin,
-                                onConnected: _fetchData),
-                            Container(
-                              height: MediaQuery.of(context).size.height / 2,
-                              child: PluginLoadingWidget(),
-                            )
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                LoanView(
+                                    loan,
+                                    widget.plugin.store!.assets
+                                            .prices[loan.token!.tokenNameId] ??
+                                        BigInt.zero,
+                                    widget.plugin),
+                                GestureDetector(
+                                    onTap: () {
+                                      _pageController[loan.token!.symbol!]!
+                                          .animateToPage(
+                                        1,
+                                        duration: Duration(milliseconds: 400),
+                                        curve: Curves.ease,
+                                      );
+                                    },
+                                    child: Padding(
+                                        padding: EdgeInsets.only(bottom: 22),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              dic![
+                                                  'loan.multiply.adjustMultiple']!,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline3
+                                                  ?.copyWith(
+                                                      fontSize: UI.getTextSize(
+                                                          18, context),
+                                                      color: PluginColorsDark
+                                                          .headline1),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 5),
+                                              child: Image.asset(
+                                                "packages/polkawallet_plugin_karura/assets/images/adjust_multiple.png",
+                                                width: 10,
+                                              ),
+                                            )
+                                          ],
+                                        )))
+                              ],
+                            ),
+                            MultiplyAdjustPanel(
+                                widget.plugin, widget.keyring, e, () {
+                              _fetchData();
+                            }),
                           ],
-                        )
-                      : LoanTabBarWidget(
-                          initialTab: initialLoanTypeIndex > -1
-                              ? initialLoanTypeIndex
-                              : 0,
-                          data: loantypes.map((e) {
-                            final _loans = loans.where((data) =>
-                                data.token!.symbol == e.token!.symbol);
-                            LoanData? loan =
-                                _loans.length > 0 ? _loans.first : null;
-                            Widget child = CreateVaultWidget(
-                                e.token!.symbol!, widget.plugin,
-                                onPressed: () async {
-                              final res = await Navigator.of(context).pushNamed(
-                                  MultiplyCreatePage.route,
-                                  arguments: e.token);
-                              if (res != null) {
-                                _fetchData();
-                              }
-                            });
-                            if (loan != null) {
-                              if (_pageController[loan.token!.symbol] == null) {
-                                _pageController[loan.token!.symbol!] =
-                                    PageController();
-                              }
-                              child = PageView(
-                                scrollDirection: Axis.vertical,
-                                controller:
-                                    _pageController[loan.token!.symbol!],
-                                children: [
-                                  Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      LoanView(
-                                          loan,
-                                          widget.plugin.store!.assets.prices[
-                                                  loan.token!.tokenNameId] ??
-                                              BigInt.zero,
-                                          widget.plugin),
-                                      GestureDetector(
-                                          onTap: () {
-                                            _pageController[
-                                                    loan.token!.symbol!]!
-                                                .animateToPage(
-                                              1,
-                                              duration:
-                                                  Duration(milliseconds: 400),
-                                              curve: Curves.ease,
-                                            );
-                                          },
-                                          child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(bottom: 22),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    dic![
-                                                        'loan.multiply.adjustMultiple']!,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline3
-                                                        ?.copyWith(
-                                                            fontSize:
-                                                                UI.getTextSize(
-                                                                    18,
-                                                                    context),
-                                                            color:
-                                                                PluginColorsDark
-                                                                    .headline1),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 5),
-                                                    child: Image.asset(
-                                                      "packages/polkawallet_plugin_karura/assets/images/adjust_multiple.png",
-                                                      width: 10,
-                                                    ),
-                                                  )
-                                                ],
-                                              )))
-                                    ],
-                                  ),
-                                  MultiplyAdjustPanel(
-                                      widget.plugin, widget.keyring, e, () {
-                                    _fetchData();
-                                  }),
-                                ],
-                              );
-                            }
-                            return LoanTabBarWidgetData(
-                              PluginTokenIcon(
-                                e.token!.symbol!,
-                                widget.plugin.tokenIcons,
-                                size: 34,
-                              ),
-                              child,
-                            );
-                          }).toList(),
-                        ))));
+                        );
+                      }
+                      return LoanTabBarWidgetData(
+                        PluginTokenIcon(
+                          e.token!.symbol!,
+                          widget.plugin.tokenIcons,
+                          size: 34,
+                        ),
+                        child,
+                      );
+                    }).toList(),
+                  ))));
     });
   }
 }
