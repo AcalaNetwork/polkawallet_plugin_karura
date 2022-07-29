@@ -144,6 +144,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   void _onChainSelected(List<String> chains) {
+    if (_chainFrom == chains[0] && _chainTo == chains[1]) {
+      return;
+    }
+    _amountCtrl.text = "";
     if (chains[0] != plugin_name_karura) {
       _updateFromChain(chains[0]);
     }
