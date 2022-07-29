@@ -287,10 +287,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
 
   Future<XcmTxConfirmParams?> _getTxParams(
       Widget? chainFromIcon, TokenBalanceData feeToken) async {
-    if (_accountToError == null &&
-        _formKey.currentState!.validate() &&
-        !_submitting &&
-        !_connecting) {
+    if (_formKey.currentState!.validate() && !_submitting && !_connecting) {
       setState(() {
         _submitting = true;
       });
@@ -356,6 +353,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   void _fetchData() {
+    if (_chainFrom != plugin_name_karura && _connecting == true) {
+      _updateFromChain(_chainFrom);
+    }
     if (_token != null) {
       _getTxFee();
     }
