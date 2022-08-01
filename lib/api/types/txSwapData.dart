@@ -93,12 +93,33 @@ class TxSwapData extends _TxSwapData {
             plugin, jsonDecode(json['inputAsset']));
         data.tokenPay = tokenPay.symbol;
         data.tokenReceive = tokenReceive.symbol;
-        data.amountPay = Fmt.priceFloorBigInt(
-            Fmt.balanceInt(json['outputAmount']), tokenPay.decimals ?? 12,
-            lengthMax: 6);
-        data.amountReceive = Fmt.priceFloorBigInt(
-            Fmt.balanceInt(json['inputAmount']), tokenReceive.decimals ?? 12,
-            lengthMax: 6);
+
+        if (tokenPay.symbol == 'LKSM') {
+          data.amountPay = Fmt.priceFloor(
+              Fmt.bigIntToDouble(Fmt.balanceInt(json['outputAmount']),
+                      tokenPay.decimals ?? 12) /
+                  Fmt.bigIntToDouble(
+                      Fmt.balanceInt(json['block']['liquidExchangeRate']), 18),
+              lengthMax: 6);
+        } else {
+          data.amountPay = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(json['outputAmount']), tokenPay.decimals ?? 12,
+              lengthMax: 6);
+        }
+
+        if (tokenReceive.symbol == 'LKSM') {
+          data.amountReceive = Fmt.priceFloor(
+              Fmt.bigIntToDouble(Fmt.balanceInt(json['inputAmount']),
+                      tokenPay.decimals ?? 12) /
+                  Fmt.bigIntToDouble(
+                      Fmt.balanceInt(json['block']['liquidExchangeRate']), 18),
+              lengthMax: 6);
+        } else {
+          data.amountReceive = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(json['inputAmount']), tokenReceive.decimals ?? 12,
+              lengthMax: 6);
+        }
+
         break;
       case "mint":
         final taigaData = plugin.store!.earn.taigaTokenPairs.firstWhere(
@@ -109,12 +130,26 @@ class TxSwapData extends _TxSwapData {
 
         tokenPair.forEach((element) {
           final index = tokenPair.indexOf(element);
-          data.amounts.add(_token()
-            ..amount = Fmt.priceFloorBigInt(
+          final amount;
+          if (element.symbol == 'LKSM') {
+            amount = Fmt.priceFloor(
+                Fmt.bigIntToDouble(
+                        Fmt.balanceInt(
+                            json['inputAmounts'].toString().split(",")[index]),
+                        tokenPair[index].decimals ?? 12) /
+                    Fmt.bigIntToDouble(
+                        Fmt.balanceInt(json['block']['liquidExchangeRate']),
+                        18),
+                lengthMax: 6);
+          } else {
+            amount = Fmt.priceFloorBigInt(
                 Fmt.balanceInt(
                     json['inputAmounts'].toString().split(",")[index]),
                 tokenPair[index].decimals ?? 12,
-                lengthMax: 6)
+                lengthMax: 6);
+          }
+          data.amounts.add(_token()
+            ..amount = amount
             ..symbol = element.symbol);
         });
         break;

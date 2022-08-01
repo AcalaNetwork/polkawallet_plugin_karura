@@ -41,7 +41,9 @@ class HomaTxDetailPage extends StatelessWidget {
     final infoItems = <TxDetailInfoItem>[
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.action!.replaceAll('homa.', ''), style: amountStyle),
+        content: Text(
+            tx.action!.replaceAll('homa.', '').replaceAll('homaLite.', ''),
+            style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
