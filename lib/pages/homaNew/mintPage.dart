@@ -132,7 +132,8 @@ class _MintPageState extends State<MintPage> {
     }
   }
 
-  Future<void> _onSubmit(bool isRewardsOpen, int stakeDecimal) async {
+  Future<void> _onSubmit(
+      bool isRewardsOpen, int stakeDecimal, double taigeApr) async {
     final pay = _amountPayCtrl.text.trim();
 
     if (_error != null || pay.isEmpty) return;
@@ -216,7 +217,8 @@ class _MintPageState extends State<MintPage> {
       final data = ModalRoute.of(context)!.settings.arguments as Map;
       if (data != null &&
           data["selectMethod"] != null &&
-          data["selectMethod"]) {
+          data["selectMethod"] &&
+          taigeApr != 0) {
         Navigator.of(context).popAndPushNamed(CompletedPage.route, arguments: {
           "receive": Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12,
               lengthMax: 4)
@@ -300,10 +302,8 @@ class _MintPageState extends State<MintPage> {
               title: Text('${dic['homa.mint']} L$stakeToken'),
               centerTitle: true),
           body: SafeArea(
-              child: isDataLoading ||
-                      (isRewardsOpen && isSelectMethod && dexPools.length == 0)
-                  ? const Expanded(
-                      child: PluginPopLoadingContainer(loading: true))
+              child: isDataLoading
+                  ? const PluginPopLoadingContainer(loading: true)
                   : ListView(
                       padding: EdgeInsets.all(16),
                       children: <Widget>[
@@ -411,7 +411,7 @@ class _MintPageState extends State<MintPage> {
                                           subtitle: Container(
                                             margin: EdgeInsets.only(top: 8),
                                             child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}% + ${dic['v3.homa.stake.apy.reward']} ${(taigaApr * 100).toStringAsFixed(2)}%)',
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%${taigaApr == 0 ? '' : ' + ${dic['v3.homa.stake.apy.reward']} ${(taigaApr * 100).toStringAsFixed(2)}%'})',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6
@@ -465,8 +465,8 @@ class _MintPageState extends State<MintPage> {
                             padding: EdgeInsets.only(top: 8, bottom: 32),
                             child: PluginButton(
                               title: dic['v3.loan.submit']!,
-                              onPressed: () =>
-                                  _onSubmit(isRewardsOpen, stakeDecimal),
+                              onPressed: () => _onSubmit(
+                                  isRewardsOpen, stakeDecimal, taigaApr),
                             ))
                       ],
                     )),
