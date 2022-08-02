@@ -76,7 +76,12 @@ class _DexPoolListState extends State<DexPoolList> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final dexPools = widget.plugin.store!.earn.taigaTokenPairs.toList();
+      final taigaDexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+      final taigaTokenPairs =
+          widget.plugin.store!.earn.taigaTokenPairs.toList();
+      final dexPools = taigaDexPools.length > 0 && taigaTokenPairs.length > 0
+          ? taigaTokenPairs
+          : [];
       dexPools.retainWhere((e) => e.provisioning == null);
       dexPools.addAll(widget.plugin.store!.earn.dexPools.toList());
       return RefreshIndicator(
