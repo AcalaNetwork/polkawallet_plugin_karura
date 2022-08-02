@@ -48,7 +48,7 @@ class _DexPoolListState extends State<DexPoolList> {
     pools.asMap().forEach((i, e) {
       poolInfoMap[e.tokenNameId] = res![i];
     });
-    await _queryTaigaPoolInfo();
+    _queryTaigaPoolInfo();
     if (mounted) {
       setState(() {
         _poolInfoMap = poolInfoMap;
@@ -76,7 +76,7 @@ class _DexPoolListState extends State<DexPoolList> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final dexPools = widget.plugin.store!.earn.taigaTokenPairs;
+      final dexPools = widget.plugin.store!.earn.taigaTokenPairs.toList();
       dexPools.retainWhere((e) => e.provisioning == null);
       dexPools.addAll(widget.plugin.store!.earn.dexPools.toList());
       return RefreshIndicator(
