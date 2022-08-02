@@ -39,6 +39,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/pages/v3/xcmTxConfirmPage.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginKarura extends PolkawalletPlugin {
   PluginKarura({String name = plugin_name_karura})
@@ -180,7 +181,7 @@ class PluginKarura extends PolkawalletPlugin {
 
     final total = data.map((e) => e.value).reduce((a, b) => a! + b!);
     InstrumentData totalBalance = InstrumentData(total, [],
-        currencySymbol: _currencySymbol(priceCurrency),
+        currencySymbol: Fmt.priceCurrencySymbol(priceCurrency),
         title: I18n.of(context)!
             .getDic(i18n_full_dic_karura, 'acala')!["v3.myDefi"]);
     data.forEach((element) {
@@ -192,17 +193,6 @@ class PluginKarura extends PolkawalletPlugin {
     datas.add(totalBalance);
     datas.add(totalBalance1);
     return datas;
-  }
-
-  String _currencySymbol(String priceCurrency) {
-    switch (priceCurrency) {
-      case "USD":
-        return "\$";
-      case "CNY":
-        return "￥";
-      default:
-        return "\$";
-    }
   }
 
   Color _instrumentColor(String? category) {
