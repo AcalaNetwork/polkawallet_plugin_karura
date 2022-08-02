@@ -48,7 +48,7 @@ class _DexPoolListState extends State<DexPoolList> {
     pools.asMap().forEach((i, e) {
       poolInfoMap[e.tokenNameId] = res![i];
     });
-    _queryTaigaPoolInfo();
+    await _queryTaigaPoolInfo();
     if (mounted) {
       setState(() {
         _poolInfoMap = poolInfoMap;
@@ -147,7 +147,7 @@ class _TaigaDexPoolCard extends StatelessWidget {
         balancePair.map((e) => PluginFmt.tokenView(e.symbol)).join('-');
 
     final taigaPoolInfo =
-        plugin!.store!.earn.taigaPoolInfoMap[pool!.tokenNameId]!;
+        plugin!.store!.earn.taigaPoolInfoMap[pool!.tokenNameId];
 
     var unstaked = false;
     var staked = false;
@@ -157,12 +157,12 @@ class _TaigaDexPoolCard extends StatelessWidget {
     if (balance != null && Fmt.balanceInt(balance.amount) > BigInt.zero) {
       unstaked = true;
     }
-    if (BigInt.parse(taigaPoolInfo.userShares) > BigInt.zero) {
+    if (BigInt.parse(taigaPoolInfo?.userShares ?? "0") > BigInt.zero) {
       staked = true;
     }
 
     var claim = BigInt.zero;
-    taigaPoolInfo.reward.forEach((e) {
+    taigaPoolInfo?.reward.forEach((e) {
       claim += BigInt.parse(e);
     });
     if (claim > BigInt.zero) {

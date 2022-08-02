@@ -29,9 +29,14 @@ class AcalaServiceEarn {
   }
 
   Future<Map?> getTaigaPoolInfo(String address) async {
-    final Map? res = await plugin.sdk.webView!
-        .evalJavascript('acala.getTaigaPoolInfo(api, "$address")');
-    return res;
+    try {
+      final Map? res = await plugin.sdk.webView!
+          .evalJavascript('acala.getTaigaPoolInfo(api, "$address")');
+      return res;
+    } catch (error) {
+      print(error);
+      return {};
+    }
   }
 
   Future<Map?> queryIncentives() async {
