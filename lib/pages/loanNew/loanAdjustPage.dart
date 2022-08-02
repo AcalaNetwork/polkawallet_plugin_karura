@@ -654,7 +654,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
   void _inputChage(String titleTag, String v, {bool isMax = false}) {
     if (v.trim().isEmpty) {
-      return;
+      v = '0';
     }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
