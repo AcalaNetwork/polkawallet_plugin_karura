@@ -392,7 +392,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                   fontWeight: FontWeight.w300),
                         ),
                         Text(
-                          "${minRedeem.toStringAsFixed(4)} $stakeToken",
+                          "${minRedeem.toStringAsFixed(4)} L$stakeToken",
                           style: Theme.of(context)
                               .textTheme
                               .headline5
