@@ -245,6 +245,13 @@ class _MintPageState extends State<MintPage> {
         _queryTaigaPoolInfo();
       }
     });
+    initMint();
+  }
+
+  Future<void> initMint() async {
+    if (widget.plugin.store!.homa.env == null) {
+      await widget.plugin.service!.homa.queryHomaEnv();
+    }
   }
 
   @override
