@@ -292,8 +292,10 @@ class _TransferPageState extends State<TransferPage> {
     final tokenXcmFromConfig = List<String>.from(
         (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
 
-    final canCrossChain =
-        tokenXcmConfig.length > 0 || tokenXcmFromConfig.length > 0;
+    // TODO: remove cross-chain from this page
+    final canCrossChain = false;
+    // final canCrossChain =
+    //     tokenXcmConfig.length > 0 || tokenXcmFromConfig.length > 0;
 
     return Scaffold(
         appBar: AppBar(
