@@ -127,7 +127,7 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                                   margin: EdgeInsets.symmetric(horizontal: 18),
                                   decoration: _index == index
                                       ? BoxDecoration(
-                                          color: Color(0x5CFFFFFF),
+                                          color: Color(0xA3FFFFFF),
                                           borderRadius: const BorderRadius.all(
                                               const Radius.circular(10)))
                                       : null,
@@ -140,16 +140,16 @@ class _LoanTabBarWidgetState extends State<LoanTabBarWidget> {
                                           child: Center(
                                             child: widget.data[index].icon,
                                           )),
-                                      Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                              color: _index == index
-                                                  ? Colors.transparent
-                                                  : Color(0x33000000),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(34))))
+                                      // Container(
+                                      //     width: 34,
+                                      //     height: 34,
+                                      //     decoration: BoxDecoration(
+                                      //         color: _index == index
+                                      //             ? Colors.transparent
+                                      //             : Color(0x33000000),
+                                      //         borderRadius:
+                                      //             const BorderRadius.all(
+                                      //                 Radius.circular(34))))
                                     ],
                                   ),
                                 ),
