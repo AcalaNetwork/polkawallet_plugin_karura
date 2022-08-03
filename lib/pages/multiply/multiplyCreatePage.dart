@@ -249,10 +249,12 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                           topRight: Radius.circular(4),
                           bottomRight: Radius.circular(4))),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       PluginInfoItem(
                         title: dic['collateral.interest']!,
                         content: Fmt.ratio(loanType.stableFeeYear),
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -264,10 +266,12 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                       PluginInfoItem(
                         title: dic['liquid.ratio']!,
                         content: Fmt.ratio(ratioRight / 100),
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -279,11 +283,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                       PluginInfoItem(
                         title: dic['collateral.price.current']!,
                         content:
                             '\$${Fmt.priceFloorBigInt(oraclePrice, acala_price_decimals)}',
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -295,11 +301,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                       PluginInfoItem(
                         title: dic['borrow.min']!,
                         content:
                             '${minToBorrow.toStringAsFixed(2)} $karura_stable_coin_view',
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -311,6 +319,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                     ],
                   ),

@@ -57,7 +57,7 @@ const Map<String, String> enDex = {
   'loan.create': 'Create Vault',
   'loan.liquidate': 'Liquidate',
   'liquid.price': 'Liquidation Price',
-  'liquid.ratio': 'Liquidation Ratio',
+  'liquid.ratio': 'Liquidation',
   'liquid.ratio.require': 'Required Ratio',
   'liquid.price.new': 'New Liquidation Price',
   'liquid.ratio.current': 'Current Ratio',
