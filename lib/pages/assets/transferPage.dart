@@ -285,12 +285,12 @@ class _TransferPageState extends State<TransferPage> {
     final token = _token ??
         AssetsUtils.getBalanceFromTokenNameId(widget.plugin, args.tokenNameId);
 
-    final tokensConfig =
-        widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-    final tokenXcmConfig =
-        List<String>.from((tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
-    final tokenXcmFromConfig = List<String>.from(
-        (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
+    // final tokensConfig =
+    //     widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+    // final tokenXcmConfig =
+    //     List<String>.from((tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
+    // final tokenXcmFromConfig = List<String>.from(
+    //     (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
 
     // TODO: remove cross-chain from this page
     final canCrossChain = false;

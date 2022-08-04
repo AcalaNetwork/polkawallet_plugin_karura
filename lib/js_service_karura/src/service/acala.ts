@@ -620,7 +620,7 @@ async function queryIncentives(api: ApiPromise) {
     api.query.incentives.incentiveRewardAmounts.entries(),
     api.query.incentives.claimRewardDeductionRates.entries(),
     api.query.incentives.dexSavingRewardRates.entries(),
-    getAllTokens(api),
+    ((<any>window).wallet as Wallet).getTokens(),
   ]);
   const res: IncentiveResult = {
     Dex: {},
@@ -658,7 +658,7 @@ async function queryIncentives(api: ApiPromise) {
         : forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, id));
     const incentiveToken = e[0].args[1];
     const incentiveTokenNameId = forceToCurrencyName(api.createType("AcalaPrimitivesCurrencyCurrencyId" as any, incentiveToken));
-    const incentiveTokenDecimal = _getTokenDecimal(pools[3], incentiveTokenNameId);
+    const incentiveTokenDecimal = Object.values(pools[3]).find(e => e.name === incentiveTokenNameId)?.decimals;
 
     if (!res[incentiveType][idString]) {
       res[incentiveType][idString] = [];
