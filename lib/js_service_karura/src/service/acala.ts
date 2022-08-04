@@ -255,7 +255,7 @@ async function getTaigaPoolInfo(api: ApiPromise, address: string) {
   return {
     "sa://0": {
       apy: taiKSMApy,
-      reward: taiKSMReward.claimable,
+      reward: taiKSMReward?.claimable || ["0", "0"],
       rewardTokens: ["sa://0", "TAI"],
       userShares: taiKSMshares.shares,
       totalShares: taiKSMshares.sharesTotal,
@@ -263,7 +263,7 @@ async function getTaigaPoolInfo(api: ApiPromise, address: string) {
     },
     "sa://1": {
       apy: threeUSDApy,
-      reward: threeUSDReward.claimable,
+      reward: threeUSDReward?.claimable ?? ["0", "0"],
       rewardTokens: ["sa://1", "TAI", "sa://0", "LKSM", "KAR"],
       userShares: "0",
       totalShares: threeUSDIssurance.toChainData(),
