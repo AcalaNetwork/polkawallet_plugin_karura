@@ -276,6 +276,13 @@ class _SwapFormState extends State<SwapForm>
 
   void _onSlippageChange(String v) {
     final Map? dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
+    if (v.trim().isEmpty) {
+      setState(() {
+        _slippageError = null;
+      });
+      _updateSlippage(0.005, custom: true);
+      return;
+    }
     try {
       double value = double.parse(v.trim());
       if (value >= 50 || value < 0.1) {
