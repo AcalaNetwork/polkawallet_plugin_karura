@@ -24,6 +24,9 @@ class LoanTxDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> dic =
         I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
+    final Map<String, String> dicCommon =
+        I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
+
     final amountStyle = TextStyle(
         fontSize: UI.getTextSize(16, context),
         fontWeight: FontWeight.bold,
@@ -35,28 +38,44 @@ class LoanTxDetailPage extends StatelessWidget {
     final List<TxDetailInfoItem> items = [
       TxDetailInfoItem(
         label: 'Event',
-        content: Text(tx.event!.replaceAll('loans.', ''), style: amountStyle),
+        content: Text(
+            tx.event!.replaceAll('loans.', '').replaceAll('cdpEngine.', ''),
+            style: amountStyle),
       ),
       TxDetailInfoItem(
         label: dic['txs.action'],
         content: Text(dic['loan.${tx.actionType}']!, style: amountStyle),
       )
     ];
-    if (tx.collateral != BigInt.zero) {
-      items.add(TxDetailInfoItem(
-        label: tx.collateral! > BigInt.zero
-            ? dic['loan.deposit']
-            : dic['loan.withdraw'],
-        content: Text('${tx.amountCollateral} ${PluginFmt.tokenView(tx.token)}',
-            style: amountStyle),
-      ));
-    }
-    if (tx.debit != BigInt.zero) {
-      items.add(TxDetailInfoItem(
-        label: tx.debit! < BigInt.zero ? dic['loan.payback'] : dic['loan.mint'],
-        content: Text('${tx.amountDebit} $karura_stable_coin_view',
-            style: amountStyle),
-      ));
+
+    if (tx.actionType == TxLoanData.actionLiquidate) {
+      if (tx.collateral != BigInt.zero) {
+        items.add(TxDetailInfoItem(
+          label: dicCommon['amount'],
+          content: Text(
+              '${tx.amountCollateral} ${PluginFmt.tokenView(tx.token)}',
+              style: amountStyle),
+        ));
+      }
+    } else {
+      if (tx.collateral != BigInt.zero) {
+        items.add(TxDetailInfoItem(
+          label: tx.collateral! > BigInt.zero
+              ? dic['loan.deposit']
+              : dic['loan.withdraw'],
+          content: Text(
+              '${tx.amountCollateral} ${PluginFmt.tokenView(tx.token)}',
+              style: amountStyle),
+        ));
+      }
+      if (tx.debit != BigInt.zero) {
+        items.add(TxDetailInfoItem(
+          label:
+              tx.debit! < BigInt.zero ? dic['loan.payback'] : dic['loan.mint'],
+          content: Text('${tx.amountDebit} $karura_stable_coin_view',
+              style: amountStyle),
+        ));
+      }
     }
 
     String? networkName = plugin.basic.name;
