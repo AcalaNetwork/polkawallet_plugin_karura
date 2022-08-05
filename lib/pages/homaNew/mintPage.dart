@@ -166,7 +166,7 @@ class _MintPageState extends State<MintPage> {
                     ?.copyWith(color: Colors.white),
               ),
               dic['dex.receive']!: Text(
-                '≈ ${Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12, lengthMax: 4)} L$relay_chain_token_symbol',
+                '≈ ${Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12, lengthMax: 8)} L$relay_chain_token_symbol',
                 style: Theme.of(context)
                     .textTheme
                     .headline1

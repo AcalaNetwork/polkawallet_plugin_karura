@@ -52,14 +52,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
     return {
       'detail': {
         dic['loan.multiply.buying']: Text(
-          '≈ ${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
+          '≈ ${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
           style: Theme.of(context)
               .textTheme
               .headline1
               ?.copyWith(color: PluginColorsDark.headline1),
         ),
         dic['loan.multiply.outstandingDebt']: Text(
-          '${Fmt.priceCeilBigInt(debitNew - raisingDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
+          '${Fmt.priceCeilBigInt(debitNew - raisingDebit, balancePair[1].decimals!, lengthMax: 8)} $karura_stable_coin_view',
           style: Theme.of(context)
               .textTheme
               .headline1
@@ -82,14 +82,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
 
     final detail = {
       dic['loan.multiply.selling']: Text(
-        '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
+        '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
             ?.copyWith(color: PluginColorsDark.headline1),
       ),
       dic['loan.multiply.outstandingDebt']: Text(
-        '≈ ${Fmt.priceCeilBigInt(debitNew, balancePair[1].decimals!)} $karura_stable_coin_view',
+        '≈ ${Fmt.priceCeilBigInt(debitNew, balancePair[1].decimals!, lengthMax: 8)} $karura_stable_coin_view',
         style: Theme.of(context)
             .textTheme
             .headline1

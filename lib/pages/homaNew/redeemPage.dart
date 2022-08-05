@@ -218,7 +218,7 @@ class _RedeemPageState extends State<RedeemPage> {
             ?.copyWith(color: Colors.white),
       ),
       dic['dex.receive']!: Text(
-        '≈ ${Fmt.priceFloor((_selectIndex == 0 ? _fastReceiveAmount : _selectIndex == 1 ? _swapAmount : _receiveAmount) as double?)} $stakeToken',
+        '≈ ${Fmt.priceFloor((_selectIndex == 0 ? _fastReceiveAmount : _selectIndex == 1 ? _swapAmount : _receiveAmount) as double?, lengthMax: 8)} $stakeToken',
         style: Theme.of(context)
             .textTheme
             .headline1

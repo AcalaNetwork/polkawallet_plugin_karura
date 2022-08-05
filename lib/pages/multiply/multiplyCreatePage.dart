@@ -140,14 +140,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           txTitle: pageTitle,
           txDisplayBold: {
             dic['loan.multiply.buying']!: Text(
-              '≈ ${Fmt.priceFloorBigInt(buyingCollateral, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
+              '≈ ${Fmt.priceFloorBigInt(buyingCollateral, balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(token.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
                   ?.copyWith(color: PluginColorsDark.headline1),
             ),
             dic['loan.multiply.debt']!: Text(
-              '${Fmt.priceCeilBigInt(debitChange, balancePair[1].decimals!)} $karura_stable_coin_view',
+              '${Fmt.priceCeilBigInt(debitChange, balancePair[1].decimals!, lengthMax: 8)} $karura_stable_coin_view',
               style: Theme.of(context)
                   .textTheme
                   .headline1

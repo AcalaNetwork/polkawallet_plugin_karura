@@ -129,7 +129,7 @@ class _BootstrapListState extends State<BootstrapList> {
         },
         txDisplayBold: {
           dic['loan.amount']!: Text(
-            '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
+            '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 8)} LP',
             style: Theme.of(context)
                 .textTheme
                 .headline1
@@ -150,7 +150,7 @@ class _BootstrapListState extends State<BootstrapList> {
       },
       txDisplayBold: {
         dic['loan.amount']!: Text(
-          '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 4)} LP',
+          '${Fmt.priceFloorBigInt(amount, decimals, lengthMax: 8)} LP',
           style: Theme.of(context).textTheme.headline1,
         ),
       },

@@ -134,7 +134,7 @@ class _HomaPageState extends State<HomaPage> {
         txDisplay: {},
         txDisplayBold: {
           dic['loan.amount']!: Text(
-            '${Fmt.priceFloor(claimable as double?, lengthMax: 4)} $relay_chain_token_symbol',
+            '${Fmt.priceFloor(claimable as double?, lengthMax: 8)} $relay_chain_token_symbol',
             style: Theme.of(context)
                 .textTheme
                 .headline1

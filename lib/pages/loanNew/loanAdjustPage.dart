@@ -134,14 +134,14 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     buildFirstInputView(),
                                     InfoItemRow(
                                       "${dic['v3.loan.requiredSafety']}",
-                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.requiredCollateral, _editorLoan!.token!.decimals!)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
+                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.requiredCollateral, _editorLoan!.token!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
                                       labelStyle: textStyle,
                                       contentStyle: textStyle,
                                     ),
                                     buildLastInputView(),
                                     InfoItemRow(
                                       "${dic['v3.loan.currentCollateral']}:",
-                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.collaterals, _editorLoan!.token!.decimals!)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
+                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.collaterals, _editorLoan!.token!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
                                       labelStyle: textStyle,
                                       contentStyle: textStyle,
                                     ),
@@ -159,7 +159,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     ),
                                     InfoItemRow(
                                       "${dic['v3.loan.newLiquidationPrice']}:",
-                                      "\$ ${Fmt.priceFloorBigInt(_editorLoan!.liquidationPrice, acala_price_decimals)}",
+                                      "\$ ${Fmt.priceFloorBigInt(_editorLoan!.liquidationPrice, acala_price_decimals, lengthMax: 4)}",
                                       labelStyle: textStyle,
                                       contentStyle: textStyle,
                                     ),
@@ -848,7 +848,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         return null;
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',
+        '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(loan.token!.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -915,7 +915,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         }
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt((debitS == debitShares ? debits : loan.type.debitShareToDebit(debitS)).abs(), balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
+        '${Fmt.priceFloorBigInt((debitS == debitShares ? debits : loan.type.debitShareToDebit(debitS)).abs(), balancePair[1].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(karura_stable_coin)}',
         style: Theme.of(context)
             .textTheme
             .headline1
