@@ -155,7 +155,7 @@ async function getAllTokens(api: ApiPromise) {
  * getTokensPrices
  */
 async function getTokenPrices(tokens: string[]) {
-  const prices = await Promise.all(tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e)));
+  const prices = await Promise.all(tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e).catch(_ => new BN(0))));
   return prices.reduce((res, e, i) => ({ ...res, [tokens[i]]: e.toNumber(6) }), {});
 }
 

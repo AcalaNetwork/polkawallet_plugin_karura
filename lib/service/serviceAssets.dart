@@ -23,12 +23,14 @@ class ServiceAssets {
   final AcalaApi? api;
   final PluginStore? store;
 
-  Future<void> queryMarketPrices() async {
+  Future<void> queryMarketPrices({bool withDexPrice = true}) async {
     if (store!.earn.dexPools.length == 0) {
       await plugin.service?.earn.getDexPools();
     }
 
-    queryDexPrices();
+    if (withDexPrice) {
+      queryDexPrices();
+    }
 
     final prices = await plugin.api!.assets.getTokenPrices(
         plugin.store!.assets.allTokens.map((e) => e.symbol ?? '').toList());

@@ -18,6 +18,7 @@ import 'package:polkawallet_sdk/api/types/txInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
@@ -26,7 +27,6 @@ import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 
 class SwapForm extends StatefulWidget {
   SwapForm(this.plugin, this.keyring, {this.initialSwapPair});
@@ -209,7 +209,7 @@ class _SwapFormState extends State<SwapForm>
     if (_swapPair.length < 2) return;
     _interfaceError = null;
 
-    widget.plugin.service!.assets.queryMarketPrices();
+    widget.plugin.service!.assets.queryMarketPrices(withDexPrice: false);
 
     try {
       if (supply == null) {
