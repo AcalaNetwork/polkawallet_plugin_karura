@@ -77,7 +77,12 @@ class ServiceAssets {
         locked: res['frozen'].toString(),
         reserved: res['reserved'].toString(),
         detailPageRoute: token.detailPageRoute,
-        price: AssetsUtils.getMarketPrice(plugin, token.symbol ?? ''));
+        price: AssetsUtils.getMarketPrice(plugin, token.symbol ?? ''),
+        getPrice: () {
+          return AssetsUtils.getMarketPrice(plugin, token.symbol ?? '');
+        },
+        priceCurrency: token.priceCurrency,
+        priceRate: token.priceRate);
     balances[token.tokenNameId] = data;
 
     store!.assets
