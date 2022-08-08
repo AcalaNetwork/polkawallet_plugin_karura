@@ -11,7 +11,7 @@ class TxLoanData extends _TxLoanData {
   static const String actionTypeWithdraw = 'withdraw';
   static const String actionTypeBorrow = 'mint';
   static const String actionTypePayback = 'payback';
-  static const String actionTypeCreate = 'create';
+  static const String actionTypeUpdate = 'update';
   static const String actionLiquidate = 'liquidate';
   static const String actionClose = 'close';
 
@@ -19,7 +19,6 @@ class TxLoanData extends _TxLoanData {
   static const String actionTypeWithdrawFilter = 'Withdraw';
   static const String actionTypeBorrowFilter = 'Mint';
   static const String actionTypePaybackFilter = 'Payback';
-  static const String actionTypeCreateFilter = 'Create';
   static const String actionLiquidateFilter = 'Liquidate';
 
   static TxLoanData fromJson(HistoryData history, PluginKarura plugin) {
@@ -73,7 +72,7 @@ class TxLoanData extends _TxLoanData {
     } else if (data.debit! < BigInt.zero) {
       data.actionType = TxLoanData.actionTypePayback;
     } else {
-      data.actionType = TxLoanData.actionTypeCreate;
+      data.actionType = TxLoanData.actionTypeUpdate;
     }
 
     data.time = (history.data!['timestamp'] as String).replaceAll(' ', '');

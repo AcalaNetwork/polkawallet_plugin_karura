@@ -57,6 +57,17 @@ class LoanTxDetailPage extends StatelessWidget {
               style: amountStyle),
         ));
       }
+    } else if (tx.actionType == TxLoanData.actionClose) {
+      items.add(TxDetailInfoItem(
+        label: dic['loan.return'],
+        content: Text('${tx.amountCollateral} ${PluginFmt.tokenView(tx.token)}',
+            style: amountStyle),
+      ));
+      items.add(TxDetailInfoItem(
+        label: dic['loan.payback'],
+        content: Text('${tx.amountDebit} $karura_stable_coin_view',
+            style: amountStyle),
+      ));
     } else {
       if (tx.collateral != BigInt.zero) {
         items.add(TxDetailInfoItem(

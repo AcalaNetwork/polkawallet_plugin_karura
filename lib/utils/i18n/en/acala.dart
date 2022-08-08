@@ -360,5 +360,7 @@ const Map<String, String> enDex = {
   'v3.loan.message1': 'Mint up to',
   'v3.loan.totalMinted': 'Total minted',
   'v3.loan.needAdjust': 'Need Adjust',
-  'v3.loan.ableWithdraw': 'Able to withdraw'
+  'v3.loan.ableWithdraw': 'Able to withdraw',
+  'loan.return': 'Return',
+  'loan.update': 'Update Vault',
 };
