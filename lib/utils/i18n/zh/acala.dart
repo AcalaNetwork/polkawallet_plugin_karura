@@ -338,10 +338,7 @@ const Map<String, String> zhDex = {
   'v3.loan.totalMinted': '总铸造',
   'v3.loan.needAdjust': '需要调整',
   'v3.loan.ableWithdraw': '能取回',
-<<<<<<< HEAD
   'loan.return': '退回',
   'loan.update': '更新债仓',
-=======
   'v3.loan.amountLowError': '兑换金额过低'
->>>>>>> 2fe3f94 (fix bug)
 };
