@@ -15,11 +15,14 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
@@ -46,10 +49,22 @@ class _HomaPageState extends State<HomaPage> {
     await widget.plugin.service!.homa.queryHomaEnv();
     widget.plugin.service!.homa.queryHomaPendingRedeem();
 
+    _queryTaigaPoolInfo();
+
     if (_timer == null) {
       _timer = Timer.periodic(Duration(seconds: 20), (timer) {
         _refreshData();
       });
+    }
+  }
+
+  Future<void> _queryTaigaPoolInfo() async {
+    if (widget.plugin.store!.earn.taigaPoolInfoMap.length == 0) {
+      final info = await widget.plugin.api!.earn
+          .getTaigaPoolInfo(widget.keyring.current.address!);
+      widget.plugin.store!.earn.setTaigaPoolInfo(info);
+      final data = await widget.plugin.api!.earn.getTaigaTokenPairs();
+      widget.plugin.store!.earn.setTaigaTokenPairs(data!);
     }
   }
 
@@ -58,11 +73,11 @@ class _HomaPageState extends State<HomaPage> {
       context: context,
       builder: (BuildContext context) {
         final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-        return CupertinoAlertDialog(
+        return PolkawalletAlertDialog(
           title: Text(dic['homa.confirm']!),
           content: Text(dic['homa.redeem.hint']!),
           actions: <Widget>[
-            CupertinoButton(
+            PolkawalletActionSheetAction(
               child: Text(
                 dic['homa.redeem.cancel']!,
                 style: TextStyle(
@@ -73,7 +88,8 @@ class _HomaPageState extends State<HomaPage> {
                 Navigator.of(context).pop();
               },
             ),
-            CupertinoButton(
+            PolkawalletActionSheetAction(
+              isDefaultAction: true,
               child: Text(dic['homa.confirm']!),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -118,7 +134,7 @@ class _HomaPageState extends State<HomaPage> {
         txDisplay: {},
         txDisplayBold: {
           dic['loan.amount']!: Text(
-            '${Fmt.priceFloor(claimable as double?, lengthMax: 4)} $relay_chain_token_symbol',
+            '${Fmt.priceFloor(claimable as double?, lengthMax: 8)} $relay_chain_token_symbol',
             style: Theme.of(context)
                 .textTheme
                 .headline1
@@ -151,30 +167,27 @@ class _HomaPageState extends State<HomaPage> {
 
       if (widget.plugin.sdk.api.connectedNode == null) {
         return PluginScaffold(
-          appBar: PluginAppBar(
-            title: Text('${dic['homa.title']} $stakeSymbol'),
-            actions: [
-              Container(
-                margin: EdgeInsets.only(right: 16),
-                child: PluginIconButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(HomaHistoryPage.route),
-                  icon: Icon(
-                    Icons.history,
-                    size: 22,
-                    color: Color(0xFF17161F),
+            appBar: PluginAppBar(
+              title: Text('${dic['homa.title']} $stakeSymbol'),
+              actions: [
+                Container(
+                  margin: EdgeInsets.only(right: 16),
+                  child: PluginIconButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(HomaHistoryPage.route),
+                    icon: Image.asset(
+                      'packages/polkawallet_plugin_karura/assets/images/history.png',
+                      width: 16,
+                    ),
                   ),
-                ),
-              )
-            ],
-          ),
-          body: Column(
-            children: [
-              ConnectionChecker(widget.plugin, onConnected: _refreshData),
-              PluginLoadingWidget()
-            ],
-          ),
-        );
+                )
+              ],
+            ),
+            body: PluginPopLoadingContainer(
+              loading: true,
+              child:
+                  ConnectionChecker(widget.plugin, onConnected: _refreshData),
+            ));
       }
 
       final env = widget.plugin.store?.homa.env;
@@ -197,10 +210,7 @@ class _HomaPageState extends State<HomaPage> {
           MediaQuery.of(context).size.width - paddingHorizontal * 2;
       final riveHeight = riveWidget / 360 * 292;
 
-      // todo: use dead coded 19.92% now.
-      final aprValue = 22.44;
-      // final aprValue =
-      //     "${Fmt.priceFloor((env?.apy ?? 0) * 100, lengthFixed: 0)}%";
+      final aprValue = (env?.apy ?? 0) * 100;
       bool isRewardsOpen = false;
       double rewardApr = 0;
       final rewards =
@@ -213,6 +223,12 @@ class _HomaPageState extends State<HomaPage> {
           }
         });
       }
+
+      final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+      double taigaApr = 0;
+      dexPools["sa://0"]?.apy.forEach((key, value) {
+        taigaApr += value;
+      });
       final aprStyle = Theme.of(context).textTheme.headline4?.copyWith(
           fontSize: UI.getTextSize(20, context),
           fontWeight: FontWeight.bold,
@@ -229,17 +245,17 @@ class _HomaPageState extends State<HomaPage> {
           title: Text('${dic['homa.title']} $stakeSymbol'),
           actions: [
             Container(
-              margin: EdgeInsets.only(right: 16),
+              margin: EdgeInsets.only(right: 12),
               child: PluginIconButton(
                 onPressed: () =>
                     Navigator.of(context).pushNamed(HomaHistoryPage.route),
-                icon: Icon(
-                  Icons.history,
-                  size: 22,
-                  color: Color(0xFF17161F),
+                icon: Image.asset(
+                  'packages/polkawallet_plugin_karura/assets/images/history.png',
+                  width: 16,
                 ),
               ),
-            )
+            ),
+            PluginAccountInfoAction(widget.keyring)
           ],
         ),
         body: Container(
@@ -338,9 +354,9 @@ class _HomaPageState extends State<HomaPage> {
                       alignment: Alignment.topRight,
                       child: Container(
                           margin: EdgeInsets.only(
-                              top: riveTop + riveHeight * 0.17,
+                              top: riveTop + riveHeight * 0.18,
                               right: paddingHorizontal +
-                                  riveWidget * 0.195 -
+                                  riveWidget * 0.19 -
                                   PluginFmt.boundingTextSize(
                                               aprValue.toStringAsFixed(2) + '%',
                                               aprStyle)
@@ -449,11 +465,16 @@ class _HomaPageState extends State<HomaPage> {
                             Container(
                               width: double.infinity,
                               margin: EdgeInsets.only(bottom: 16),
-                              padding: EdgeInsets.only(
-                                  left: 11, top: 16, bottom: 20),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 19),
                               decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 2),
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(8),
+                                    bottomLeft: Radius.circular(8),
+                                    bottomRight: Radius.circular(8)),
+                                border: Border.all(
+                                    color: Colors.white.withAlpha(97),
+                                    width: 1.5),
                               ),
                               child: Row(
                                 children: [
@@ -463,15 +484,16 @@ class _HomaPageState extends State<HomaPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: 127,
-                                        height: 61,
-                                        padding:
-                                            EdgeInsets.only(left: 10, top: 6),
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: AssetImage(
-                                              'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
-                                        )),
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 10, top: 6, bottom: 6),
+                                        decoration: ShapeDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          shape: BeveledRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(10))),
+                                        ),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -486,30 +508,34 @@ class _HomaPageState extends State<HomaPage> {
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
-                                            Text(
-                                              Fmt.priceFloorFormatter(
-                                                  balanceLiquidToken,
-                                                  lengthMax: 4),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Colors.white),
-                                            )
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5),
+                                                child: Text(
+                                                  Fmt.priceFloorFormatter(
+                                                      balanceLiquidToken,
+                                                      lengthMax: 4),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline4
+                                                      ?.copyWith(
+                                                          color: Colors.white),
+                                                ))
                                           ],
                                         ),
                                       ),
                                       Container(
-                                        width: 127,
-                                        height: 61,
-                                        padding:
-                                            EdgeInsets.only(left: 10, top: 6),
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 10, top: 6, bottom: 6),
                                         margin: EdgeInsets.only(top: 15),
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: AssetImage(
-                                              'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
-                                        )),
+                                        decoration: ShapeDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          shape: BeveledRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(10))),
+                                        ),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -524,34 +550,40 @@ class _HomaPageState extends State<HomaPage> {
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
-                                            Text(
-                                              "${Fmt.priceFloorFormatter(unbonding, lengthMax: 4)} $stakeSymbol",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Colors.white),
-                                            )
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5),
+                                                child: Text(
+                                                  "${Fmt.priceFloorFormatter(unbonding, lengthMax: 4)} $stakeSymbol",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline4
+                                                      ?.copyWith(
+                                                          color: Colors.white),
+                                                ))
                                           ],
                                         ),
                                       )
                                     ],
                                   )),
+                                  Container(
+                                    width: 46,
+                                  ),
                                   Expanded(
                                       child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Container(
-                                        width: 127,
-                                        height: 61,
-                                        padding:
-                                            EdgeInsets.only(left: 10, top: 6),
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                          image: AssetImage(
-                                              'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item_bg.png'),
-                                        )),
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 10, top: 6, bottom: 6),
+                                        decoration: ShapeDecoration(
+                                          color: Color(0x1AFFFFFF),
+                                          shape: BeveledRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(10))),
+                                        ),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -566,16 +598,19 @@ class _HomaPageState extends State<HomaPage> {
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
-                                            Text(
-                                              Fmt.priceFloorFormatter(
-                                                  balanceStakeToken,
-                                                  lengthMax: 4),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4
-                                                  ?.copyWith(
-                                                      color: Colors.white),
-                                            )
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 5),
+                                                child: Text(
+                                                  Fmt.priceFloorFormatter(
+                                                      balanceStakeToken,
+                                                      lengthMax: 4),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline4
+                                                      ?.copyWith(
+                                                          color: Colors.white),
+                                                ))
                                           ],
                                         ),
                                       ),
@@ -586,16 +621,19 @@ class _HomaPageState extends State<HomaPage> {
                                             }
                                           },
                                           child: Container(
-                                            width: 127,
-                                            height: 61,
+                                            width: double.infinity,
                                             padding: EdgeInsets.only(
-                                                left: 10, top: 6),
+                                                left: 10, top: 6, bottom: 6),
                                             margin: EdgeInsets.only(top: 15),
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                              image: AssetImage(
-                                                  'packages/polkawallet_plugin_karura/assets/images/homa_myStats_item${claimable > 0 ? '_select' : ''}_bg.png'),
-                                            )),
+                                            decoration: ShapeDecoration(
+                                              color: PluginColorsDark.primary,
+                                              shape: BeveledRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  10))),
+                                            ),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -612,16 +650,21 @@ class _HomaPageState extends State<HomaPage> {
                                                           fontWeight:
                                                               FontWeight.w600),
                                                 ),
-                                                Text(
-                                                  "${Fmt.priceFloorFormatter(claimable, lengthMax: 4)} $stakeSymbol",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline4
-                                                      ?.copyWith(
-                                                          color: claimable > 0
-                                                              ? Colors.black
-                                                              : Colors.white),
-                                                )
+                                                Padding(
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
+                                                    child: Text(
+                                                      "${Fmt.priceFloorFormatter(claimable, lengthMax: 4)} $stakeSymbol",
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .headline4
+                                                          ?.copyWith(
+                                                              color: claimable >
+                                                                      0
+                                                                  ? Colors.black
+                                                                  : Colors
+                                                                      .white),
+                                                    ))
                                               ],
                                             ),
                                           ))
@@ -671,28 +714,27 @@ class _HomaPageState extends State<HomaPage> {
                                 visible: isRewardsOpen,
                                 child: Container(
                                   margin: EdgeInsets.only(bottom: 16),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        dic['event.vault.rewards']!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w400),
-                                      ),
-                                      Text(
-                                        " ${(aprValue + rewardApr * 100).toStringAsFixed(2)}%!",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4
-                                            ?.copyWith(
-                                                color: Color(0xFFFC8156),
-                                                fontWeight: FontWeight.w400),
-                                      )
-                                    ],
-                                  ),
+                                  child: RichText(
+                                      text: TextSpan(
+                                          text: dic['event.vault.rewards']!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w400),
+                                          children: [
+                                        TextSpan(
+                                            text:
+                                                " ${(aprValue + (rewardApr > taigaApr ? rewardApr : taigaApr) * 100).toStringAsFixed(2)}%!",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline4
+                                                ?.copyWith(
+                                                    color: Color(0xFFFC8156),
+                                                    fontWeight:
+                                                        FontWeight.w400)),
+                                      ])),
                                 )),
                           ],
                         ),
@@ -724,15 +766,16 @@ class _HomaPageState extends State<HomaPage> {
                           backgroundColor: (env?.totalStaking ?? 0) <
                                   (env?.stakingSoftCap ?? 0)
                               ? null
-                              : Color(0x54FFFFFF),
+                              : Color(0xFFD4D4D4),
                           onPressed: (env?.totalStaking ?? 0) <
                                   (env?.stakingSoftCap ?? 0)
                               ? () async {
                                   // if (!(await _confirmMint())) return;
 
                                   Navigator.of(context)
-                                      .pushNamed(MintPage.route)
-                                      .then((value) {
+                                      .pushNamed(MintPage.route, arguments: {
+                                    "selectMethod": true
+                                  }).then((value) {
                                     if (value != null) {
                                       _refreshData();
                                     }

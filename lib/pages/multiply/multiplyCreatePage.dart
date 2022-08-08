@@ -5,10 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderOverlayShape.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderThumbShape.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTickMarkShape.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTrackShape.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -23,6 +19,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
+import 'package:polkawallet_ui/components/v3/plugin/slider/PluginSlider.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
@@ -53,13 +50,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
     final token =
         ModalRoute.of(context)?.settings.arguments as TokenBalanceData;
     final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
-        null,
-        '1',
-        [karura_stable_coin, token.tokenNameId!].map((e) {
-          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-          return {...token.currencyId!, 'decimals': token.decimals};
-        }).toList(),
-        '0.05');
+        null, '1', [karura_stable_coin, token.tokenNameId!], '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
@@ -149,14 +140,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           txTitle: pageTitle,
           txDisplayBold: {
             dic['loan.multiply.buying']!: Text(
-              '≈ ${Fmt.priceFloorBigInt(buyingCollateral, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(token.symbol)}',
+              '≈ ${Fmt.priceFloorBigInt(buyingCollateral, balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(token.symbol)}',
               style: Theme.of(context)
                   .textTheme
                   .headline1
                   ?.copyWith(color: PluginColorsDark.headline1),
             ),
             dic['loan.multiply.debt']!: Text(
-              '${Fmt.priceCeilBigInt(debitChange, balancePair[1].decimals!)} $karura_stable_coin_view',
+              '${Fmt.priceCeilBigInt(debitChange, balancePair[1].decimals!, lengthMax: 8)} $karura_stable_coin_view',
               style: Theme.of(context)
                   .textTheme
                   .headline1
@@ -258,10 +249,12 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                           topRight: Radius.circular(4),
                           bottomRight: Radius.circular(4))),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       PluginInfoItem(
                         title: dic['collateral.interest']!,
                         content: Fmt.ratio(loanType.stableFeeYear),
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -273,10 +266,12 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                       PluginInfoItem(
                         title: dic['liquid.ratio']!,
                         content: Fmt.ratio(ratioRight / 100),
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -288,11 +283,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                       PluginInfoItem(
                         title: dic['collateral.price.current']!,
                         content:
                             '\$${Fmt.priceFloorBigInt(oraclePrice, acala_price_decimals)}',
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -304,11 +301,13 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                       PluginInfoItem(
                         title: dic['borrow.min']!,
                         content:
                             '${minToBorrow.toStringAsFixed(2)} $karura_stable_coin_view',
+                        contentCrossAxisAlignment: CrossAxisAlignment.start,
                         titleStyle: Theme.of(context)
                             .textTheme
                             .headline5
@@ -320,6 +319,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             fontWeight: FontWeight.w600,
                             fontSize: UI.getTextSize(12, context),
                             height: 1.7),
+                        isExpanded: false,
                       ),
                     ],
                   ),
@@ -333,9 +333,10 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                   titleTag: dic['loan.collateral'],
                   onInputChange: (v) =>
                       _onAmount1Change(v, loanType, available, balancePair),
-                  balance: token,
+                  balance: balancePair[0],
                   tokenIconsMap: widget.plugin.tokenIcons,
-                  marketPrices: widget.plugin.store!.assets.marketPrices,
+                  getMarketPrice: (tokenSymbol) =>
+                      AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
                   onClear: () {
                     setState(() {
                       _amountCtrl.text = '';
@@ -359,37 +360,14 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                             bottomRight: Radius.circular(4))),
                     child: Column(
                       children: [
-                        SliderTheme(
-                            data: SliderThemeData(
-                                trackHeight: 12,
-                                activeTrackColor: PluginColorsDark.green,
-                                disabledActiveTrackColor:
-                                    PluginColorsDark.primary,
-                                inactiveTrackColor: Color(0x4DFFFFFF),
-                                disabledInactiveTrackColor: Color(0x4DFFFFFF),
-                                overlayColor: Colors.transparent,
-                                trackShape: const MultiplySliderTrackShape(),
-                                thumbShape: MultiplySliderThumbShape(),
-                                tickMarkShape:
-                                    const MultiplySliderTickMarkShape(),
-                                overlayShape:
-                                    const MultiplySliderOverlayShape(),
-                                valueIndicatorColor: Color(0xFF7D7D7D),
-                                valueIndicatorTextStyle: Theme.of(context)
-                                    .textTheme
-                                    .headline3
-                                    ?.copyWith(
-                                        color: PluginColorsDark.headline1,
-                                        fontSize: UI.getTextSize(14, context))),
-                            child: Slider(
-                              min: 0,
-                              max: ratioLeft - ratioRight,
-                              divisions: steps.toInt(),
-                              value: _slider,
-                              label:
-                                  '${dic['loan.ratio']} ${ratioLeft - _slider}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
-                              onChanged: _onSliderChanged,
-                            )),
+                        PluginSlider(
+                          max: ratioLeft - ratioRight,
+                          divisions: steps.toInt(),
+                          value: _slider,
+                          label:
+                              '${dic['loan.ratio']} ${(ratioLeft - _slider).toStringAsFixed(1)}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
+                          onChanged: _onSliderChanged,
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -445,7 +423,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       children: [
                         MultiplyInfoItemRow(
                           dic['loan.ratio']!,
-                          "${ratioLeft - _slider}%",
+                          "${(ratioLeft - _slider).toStringAsFixed(2)}%",
                         ),
                         MultiplyInfoItemRow(
                           dic['liquid.price']!,

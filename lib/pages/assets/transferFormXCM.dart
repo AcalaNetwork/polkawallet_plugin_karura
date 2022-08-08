@@ -28,6 +28,7 @@ import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
 import 'package:polkawallet_ui/components/v3/addressIcon.dart';
 import 'package:polkawallet_ui/components/v3/addressTextFormField.dart';
 import 'package:polkawallet_ui/components/v3/button.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/pages/v3/xcmTxConfirmPage.dart';
@@ -55,7 +56,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   TokenBalanceData? _token;
   String _chainFrom = plugin_name_karura;
   String? _chainTo;
-  bool _accountToEditable = false;
+  bool _accountToFocus = false;
   bool _keepAlive = true;
 
   Map _accountSysInfo = {};
@@ -84,28 +85,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     return null;
   }
 
-  Future<String?> _checkBlackList(KeyPairData acc) async {
-    final addresses =
-        await widget.plugin.sdk.api.account.decodeAddress([acc.address!]);
-    if (addresses != null) {
-      final pubKey = addresses.keys.toList()[0];
-      if (widget.plugin.sdk.blackList.indexOf(pubKey) > -1) {
-        return I18n.of(context)!
-            .getDic(i18n_full_dic_karura, 'common')!['transfer.scam'];
-      }
-    }
-    return null;
-  }
-
   Future<String?> _checkAccountTo(KeyPairData acc, int chainToSS58) async {
-    final blackListCheck = await _checkBlackList(acc);
-    if (blackListCheck != null) return blackListCheck;
-
-    if (widget.keyring.allAccounts.indexWhere((e) => e.pubKey == acc.pubKey) >=
-        0) {
-      return null;
-    }
-
     final addressCheckValid = await widget.plugin.sdk.webView!.evalJavascript(
         '(account.checkAddressFormat != undefined ? {}:null)',
         wrapPromise: false);
@@ -164,6 +144,10 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   void _onChainSelected(List<String> chains) {
+    if (_chainFrom == chains[0] && _chainTo == chains[1]) {
+      return;
+    }
+    _amountCtrl.text = "";
     if (chains[0] != plugin_name_karura) {
       _updateFromChain(chains[0]);
     }
@@ -218,43 +202,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
     });
   }
 
-  Future<void> _onSwitchEditable(bool v) async {
-    if (v) {
-      final confirm = await showCupertinoDialog(
-          context: context,
-          builder: (_) {
-            final dic =
-                I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-            final dicCommon =
-                I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
-            return CupertinoAlertDialog(
-              title: Text(dic['cross.warn']!),
-              content: Text(dic['cross.warn.info']!),
-              actions: [
-                CupertinoButton(
-                    child: Text(dicCommon['cancel']!),
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    }),
-                CupertinoButton(
-                    child: Text(dicCommon['ok']!),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    }),
-              ],
-            );
-          });
-      if (!confirm) return;
-    }
-    setState(() {
-      _accountToEditable = v;
-      if (!v) {
-        _accountTo = widget.keyring.current;
-        _accountToError = null;
-      }
-    });
-  }
-
   void _onSwitchCheckAlive(bool res, bool isNoDeath) {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common')!;
 
@@ -262,16 +209,18 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
+            type: DialogType.warn,
             title: Text(dic['note']!),
             content: Text(dic['transfer.note.msg1']!),
             actions: <Widget>[
-              CupertinoButton(
+              PolkawalletActionSheetAction(
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['cancel']!),
                 onPressed: () => Navigator.of(context).pop(),
               ),
-              CupertinoButton(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                 onPressed: () {
@@ -281,11 +230,11 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     showCupertinoDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
+                        return PolkawalletAlertDialog(
                           title: Text(dic['note']!),
                           content: Text(dic['transfer.note.msg2']!),
                           actions: <Widget>[
-                            CupertinoButton(
+                            PolkawalletActionSheetAction(
                               child: Text(I18n.of(context)!
                                   .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                               onPressed: () => Navigator.of(context).pop(),
@@ -342,10 +291,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
 
   Future<XcmTxConfirmParams?> _getTxParams(
       Widget? chainFromIcon, TokenBalanceData feeToken) async {
-    if (_accountToError == null &&
-        _formKey.currentState!.validate() &&
-        !_submitting &&
-        !_connecting) {
+    if (_formKey.currentState!.validate() && !_submitting && !_connecting) {
       setState(() {
         _submitting = true;
       });
@@ -411,6 +357,9 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   }
 
   void _fetchData() {
+    if (_chainFrom != plugin_name_karura && _connecting == true) {
+      _updateFromChain(_chainFrom);
+    }
     if (_token != null) {
       _getTxFee();
     }
@@ -420,6 +369,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
   @override
   void initState() {
     super.initState();
+    _accountTo = widget.keyring.current;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final argsJson = ModalRoute.of(context)!.settings.arguments as Map? ?? {};
@@ -437,7 +387,6 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
       setState(() {
         _token = token;
         _accountOptions = widget.keyring.allWithContacts.toList();
-        _accountTo = widget.keyring.current;
 
         if (args.chainTo == null) {
           _chainTo = tokenXcmConfig[0];
@@ -536,7 +485,8 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
           max = BigInt.zero;
         }
 
-        final chainTo = _chainTo ?? tokenXcmConfig[0];
+        final String? chainTo =
+            _chainTo ?? (canCrossChain ? tokenXcmConfig[0] : null);
         final isTokenFromStateMine =
             token.src != null && token.src!['Parachain'] == '1,000';
         final isToMoonRiver = chainTo == para_chain_name_moon;
@@ -578,15 +528,23 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
             : widget.plugin.basic.ss58;
         final feeTokenSymbol = ((tokensConfig['xcmChains'] ?? {})[_chainFrom] ??
             {})['nativeToken'];
-        final feeToken = isFromKar
+        final TokenBalanceData? feeToken = isFromKar
             ? AssetsUtils.getBalanceFromTokenNameId(widget.plugin, nativeToken)
-            : widget.plugin.store!.assets.allTokens.firstWhere((e) =>
-                e.symbol!.toUpperCase() ==
-                feeTokenSymbol.toString().toUpperCase());
+            : widget.plugin.store!.assets.allTokens.isNotEmpty
+                ? widget.plugin.store!.assets.allTokens.firstWhere((e) =>
+                    e.symbol!.toUpperCase() ==
+                    feeTokenSymbol.toString().toUpperCase())
+                : null;
 
-        final labelStyle = Theme.of(context).textTheme.headline4;
-        final subTitleStyle =
-            TextStyle(fontSize: UI.getTextSize(12, context), height: 1);
+        final labelStyle = Theme.of(context)
+            .textTheme
+            .headline4
+            ?.copyWith(fontWeight: FontWeight.bold);
+        final subTitleStyle = Theme.of(context).textTheme.headline5?.copyWith(
+            height: 1,
+            fontWeight: FontWeight.w300,
+            fontSize: 12,
+            color: UI.isDarkTheme(context) ? Colors.white : Color(0xBF565554));
         final infoValueStyle = Theme.of(context)
             .textTheme
             .headline5!
@@ -609,21 +567,17 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                   )
                 : Container(),
             Text(dic['address.from'] ?? '', style: labelStyle),
-            AddressFormItem(widget.keyring.current),
-            Container(height: 8.h),
-            Visibility(
-                visible: !_accountToEditable && !isToMoonRiver,
-                child: Text(dic['address'] ?? '', style: labelStyle)),
-            Visibility(
-                visible: !_accountToEditable && !isToMoonRiver,
+            Padding(
+                padding: EdgeInsets.only(top: 3),
                 child: AddressFormItem(widget.keyring.current)),
+            Container(height: 8.h),
             Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Visibility(
-                    visible: _accountToEditable,
+                    visible: !isToMoonRiver,
                     child: AddressTextFormField(
                       widget.plugin.sdk.api,
                       _accountOptions,
@@ -639,62 +593,60 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                         });
                       },
                       key: ValueKey<KeyPairData?>(_accountTo),
+                      isClean: true,
+                      sdk: widget.plugin.sdk,
+                      onFocusChange: (hasFocus) {
+                        setState(() {
+                          _accountToFocus = hasFocus;
+                        });
+                      },
                     ),
                   ),
                   Visibility(
-                      visible: _accountToError != null,
+                      visible: !isToMoonRiver &&
+                          (_accountToFocus ||
+                              _accountTo?.pubKey !=
+                                  widget.keyring.current.pubKey),
+                      child: Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Text(dicAcala['cross.warn.info']!,
+                            style: TextStyle(
+                                fontSize: UI.getTextSize(12, context),
+                                color: Theme.of(context).errorColor)),
+                      )),
+                  Visibility(
+                      visible: !isToMoonRiver && _accountToError != null,
                       child: Container(
                         margin: EdgeInsets.only(top: 4),
                         child: Text(_accountToError ?? "",
                             style: TextStyle(
                                 fontSize: UI.getTextSize(12, context),
-                                color: Colors.red)),
+                                color: Theme.of(context).errorColor)),
                       )),
-                  isToMoonRiver
-                      ? v3.TextInputWidget(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: v3.InputDecorationV3(
-                            hintText: dic['address'],
-                            labelText: dic['address'],
-                            labelStyle: labelStyle,
-                            suffix: GestureDetector(
-                              child: Icon(
-                                Icons.cancel,
-                                size: 18,
-                                color: Theme.of(context).unselectedWidgetColor,
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _address20Ctrl.text = '';
-                                });
-                              },
+                  Visibility(
+                      visible: isToMoonRiver,
+                      child: v3.TextInputWidget(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: v3.InputDecorationV3(
+                          hintText: dic['address'],
+                          labelText: dic['address'],
+                          labelStyle: labelStyle,
+                          suffix: GestureDetector(
+                            child: Icon(
+                              Icons.cancel,
+                              size: 18,
+                              color: Theme.of(context).unselectedWidgetColor,
                             ),
+                            onTap: () {
+                              setState(() {
+                                _address20Ctrl.text = '';
+                              });
+                            },
                           ),
-                          controller: _address20Ctrl,
-                          validator: _validateAddress20,
-                        )
-                      : GestureDetector(
-                          child: Container(
-                            child: Row(
-                              children: [
-                                v3.Checkbox(
-                                  padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
-                                  value: _accountToEditable,
-                                  onChanged: _onSwitchEditable,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    dicAcala['cross.edit']!,
-                                    style: TextStyle(
-                                        fontSize: UI.getTextSize(14, context)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () => _onSwitchEditable(!_accountToEditable),
                         ),
+                        controller: _address20Ctrl,
+                        validator: _validateAddress20,
+                      )),
                   Container(height: 10.h),
                   v3.TextInputWidget(
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -779,18 +731,19 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
             ),
             RoundedCard(
               margin: EdgeInsets.only(top: 16.h),
-              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+              padding: EdgeInsets.symmetric(vertical: 6),
               child: Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 16),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Row(
                       children: [
                         Expanded(
                           child: Container(
                               padding: EdgeInsets.only(right: 40),
                               child: Text(dicAcala['cross.exist']!,
-                                  style: labelStyle)),
+                                  style: labelStyle?.copyWith(
+                                      fontWeight: FontWeight.w400))),
                         ),
                         Expanded(
                             flex: 0,
@@ -801,15 +754,19 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 8),
+                      padding: EdgeInsets.symmetric(vertical: 6),
+                      child: Divider(height: 1)),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(right: 4),
-                            child:
-                                Text(dicAcala['cross.fee']!, style: labelStyle),
+                            child: Text(dicAcala['cross.fee']!,
+                                style: labelStyle?.copyWith(
+                                    fontWeight: FontWeight.w400)),
                           ),
                         ),
                         Text(
@@ -821,111 +778,144 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                   ),
                   Visibility(
                     visible: isFromKar && sendFee.length > 0,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Text('XCM fee', style: labelStyle),
-                            ),
-                          ),
-                          Text(
-                              '${Fmt.priceFloorBigInt(sendFeeAmount, sendFeeToken.decimals ?? 12, lengthMax: 6)} ${sendFeeToken.symbol}',
-                              style: infoValueStyle),
-                        ],
-                      ),
+                    child: Column(
+                      children: [
+                        Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6),
+                            child: Divider(height: 1)),
+                        Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Text('XCM fee',
+                                        style: labelStyle?.copyWith(
+                                            fontWeight: FontWeight.w400)),
+                                  ),
+                                ),
+                                Text(
+                                    '${Fmt.priceFloorBigInt(sendFeeAmount, sendFeeToken.decimals ?? 12, lengthMax: 6)} ${sendFeeToken.symbol}',
+                                    style: infoValueStyle),
+                              ],
+                            )),
+                      ],
                     ),
                   ),
                   Visibility(
                     visible: isFromKar,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Container(
-                                padding: EdgeInsets.only(right: 60),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(dicAcala['transfer.exist']!,
-                                        style: labelStyle),
-                                    Text(dicAcala['cross.exist.msg']!,
-                                        style: subTitleStyle),
-                                  ],
-                                )),
-                          ),
-                          Text(
-                              '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView',
-                              style: infoValueStyle),
-                        ],
-                      ),
-                    ),
+                    child: Column(children: [
+                      Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6),
+                          child: Divider(height: 1)),
+                      Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    padding: EdgeInsets.only(right: 60),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(dicAcala['transfer.exist']!,
+                                            style: labelStyle?.copyWith(
+                                                fontWeight: FontWeight.w400)),
+                                        Padding(
+                                            padding: EdgeInsets.only(top: 2),
+                                            child: Text(
+                                                dicAcala['cross.exist.msg']!,
+                                                style: subTitleStyle?.copyWith(
+                                                    height: 1.3))),
+                                      ],
+                                    )),
+                              ),
+                              Text(
+                                  '${Fmt.priceCeilBigInt(existDeposit, token.decimals!, lengthMax: 6)} $tokenView',
+                                  style: infoValueStyle),
+                            ],
+                          )),
+                    ]),
                   ),
                   Visibility(
                       visible: _fee != null,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 4),
-                                child: Text(dicAcala['transfer.fee']!,
-                                    style: labelStyle),
-                              ),
-                            ),
-                            Text(
-                                '${Fmt.priceCeilBigInt(fee, feeToken.decimals!, lengthMax: 6)} $feeTokenSymbol',
-                                style: infoValueStyle),
-                          ],
-                        ),
-                      )),
+                      child: Column(children: [
+                        Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6),
+                            child: Divider(height: 1)),
+                        Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Text(dicAcala['transfer.fee']!,
+                                        style: labelStyle?.copyWith(
+                                            fontWeight: FontWeight.w400)),
+                                  ),
+                                ),
+                                Text(
+                                    '${Fmt.priceCeilBigInt(fee, feeToken?.decimals ?? 12, lengthMax: 6)} $feeTokenSymbol',
+                                    style: infoValueStyle),
+                              ],
+                            )),
+                      ])),
                   Visibility(
                       visible: isFromKar &&
                           tokenSymbol == nativeToken &&
                           available > BigInt.zero,
-                      child: Container(
-                        margin: EdgeInsets.only(top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                  padding: EdgeInsets.only(right: 60),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        dic['transfer.alive']!,
-                                        style: labelStyle,
-                                      ),
-                                      Text(
-                                        dic['transfer.alive.msg']!,
-                                        style: subTitleStyle,
-                                      ),
-                                    ],
-                                  )),
-                            ),
-                            v3.CupertinoSwitch(
-                              value: _keepAlive,
-                              // account is not allow_death if it has
-                              // locked/reserved balances
-                              onChanged: (v) => _onSwitchCheckAlive(
-                                  v,
-                                  !isAccountNormal ||
-                                      notTransferable > BigInt.zero),
-                            )
-                          ],
-                        ),
-                      ))
+                      child: Column(children: [
+                        Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6),
+                            child: Divider(height: 1)),
+                        Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                      padding: EdgeInsets.only(right: 60),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            dic['transfer.alive']!,
+                                            style: labelStyle?.copyWith(
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          Padding(
+                                              padding: EdgeInsets.only(top: 2),
+                                              child: Text(
+                                                dic['transfer.alive.msg']!,
+                                                style: subTitleStyle?.copyWith(
+                                                    height: 1.3),
+                                              )),
+                                        ],
+                                      )),
+                                ),
+                                v3.CupertinoSwitch(
+                                  value: _keepAlive,
+                                  // account is not allow_death if it has
+                                  // locked/reserved balances
+                                  onChanged: (v) => _onSwitchCheckAlive(
+                                      v,
+                                      !isAccountNormal ||
+                                          notTransferable > BigInt.zero),
+                                )
+                              ],
+                            )),
+                      ]))
                 ],
               ),
             ),
@@ -957,7 +947,7 @@ class _TransferFormXCMState extends State<TransferFormXCM> {
                 title: _connecting ? dic['xcm.connecting']! : dic['make']!,
                 onPressed: () async {
                   final params = await _getTxParams(
-                      TokenIcon(_chainFrom, crossChainIcons), feeToken);
+                      TokenIcon(_chainFrom, crossChainIcons), feeToken!);
                   if (params != null) {
                     final res = await Navigator.of(context)
                         .pushNamed(XcmTxConfirmPage.route, arguments: params);

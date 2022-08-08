@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
+import 'package:polkawallet_plugin_karura/pages/homaNew/completedPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/redeemPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -12,6 +13,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
@@ -37,7 +39,15 @@ class _MintPageState extends State<MintPage> {
   String _amountReceive = '';
   BigInt? _maxInput;
   bool isLoading = false;
-  int _selectIndex = 0;
+  int _selectIndex = 1;
+
+  Future<void> _queryTaigaPoolInfo() async {
+    final info = await widget.plugin.api!.earn
+        .getTaigaPoolInfo(widget.keyring.current.address!);
+    widget.plugin.store!.earn.setTaigaPoolInfo(info);
+    final data = await widget.plugin.api!.earn.getTaigaTokenPairs();
+    widget.plugin.store!.earn.setTaigaTokenPairs(data!);
+  }
 
   Future<void> _updateReceiveAmount(double input) async {
     if (input == 0) {
@@ -122,7 +132,8 @@ class _MintPageState extends State<MintPage> {
     }
   }
 
-  Future<void> _onSubmit(bool isRewardsOpen, int stakeDecimal) async {
+  Future<void> _onSubmit(
+      bool isRewardsOpen, int stakeDecimal, double taigeApr) async {
     final pay = _amountPayCtrl.text.trim();
 
     if (_error != null || pay.isEmpty) return;
@@ -155,7 +166,7 @@ class _MintPageState extends State<MintPage> {
                     ?.copyWith(color: Colors.white),
               ),
               dic['dex.receive']!: Text(
-                '≈ ${Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12, lengthMax: 4)} L$relay_chain_token_symbol',
+                '≈ ${Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12, lengthMax: 8)} L$relay_chain_token_symbol',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
@@ -203,7 +214,18 @@ class _MintPageState extends State<MintPage> {
         ))) as Map?;
 
     if (res != null) {
-      Navigator.of(context).pop('${Fmt.balanceDouble(_amountReceive, 12)}');
+      final data = ModalRoute.of(context)!.settings.arguments as Map;
+      if (data != null &&
+          data["selectMethod"] != null &&
+          data["selectMethod"] &&
+          taigeApr != 0) {
+        Navigator.of(context).popAndPushNamed(CompletedPage.route, arguments: {
+          "receive": Fmt.priceFloorBigInt(Fmt.balanceInt(_amountReceive), 12,
+              lengthMax: 4)
+        });
+      } else {
+        Navigator.of(context).pop('${Fmt.balanceDouble(_amountReceive, 12)}');
+      }
     }
   }
 
@@ -211,6 +233,25 @@ class _MintPageState extends State<MintPage> {
   void dispose() {
     _amountPayCtrl.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final data = ModalRoute.of(context)!.settings.arguments as Map;
+      if (data != null && data["selectMethod"] != null) {
+        _queryTaigaPoolInfo();
+      }
+    });
+    initMint();
+  }
+
+  Future<void> initMint() async {
+    if (widget.plugin.store!.homa.env == null) {
+      await widget.plugin.service!.homa.queryHomaEnv();
+    }
   }
 
   @override
@@ -237,8 +278,14 @@ class _MintPageState extends State<MintPage> {
 
         final minStake = widget.plugin.store!.homa.env?.mintThreshold;
 
+        final data = ModalRoute.of(context)!.settings.arguments as Map;
+        bool isSelectMethod = false;
+        if (data != null && data["selectMethod"] != null) {
+          isSelectMethod = data["selectMethod"];
+        }
+
         bool isRewardsOpen = false;
-        final baseApr = 22.44;
+        final baseApr = (widget.plugin.store!.homa.env?.apy ?? 0) * 100;
         double rewardApr = 0;
         final rewards =
             widget.plugin.store!.earn.incentives.loans?['L$stakeToken'];
@@ -251,17 +298,19 @@ class _MintPageState extends State<MintPage> {
           });
         }
 
+        final dexPools = widget.plugin.store!.earn.taigaPoolInfoMap;
+        double taigaApr = 0;
+        dexPools["sa://0"]?.apy.forEach((key, value) {
+          taigaApr += value;
+        });
+
         return PluginScaffold(
           appBar: PluginAppBar(
               title: Text('${dic['homa.mint']} L$stakeToken'),
               centerTitle: true),
           body: SafeArea(
               child: isDataLoading
-                  ? Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      child: Center(child: PluginLoadingWidget()),
-                    )
+                  ? const PluginPopLoadingContainer(loading: true)
                   : ListView(
                       padding: EdgeInsets.all(16),
                       children: <Widget>[
@@ -305,7 +354,7 @@ class _MintPageState extends State<MintPage> {
                               text: Fmt.priceFloorBigInt(
                                   Fmt.balanceInt(_amountReceive), 12,
                                   lengthMax: 4),
-                              margin: EdgeInsets.only(bottom: 2),
+                              margin: EdgeInsets.only(top: 15),
                               titleTag: dic['homa.mint'],
                               balance: widget.plugin.store!.assets
                                   .tokenBalanceMap["L$stakeToken"],
@@ -340,9 +389,9 @@ class _MintPageState extends State<MintPage> {
                           ),
                         ),
                         Visibility(
-                          visible: isRewardsOpen,
+                          visible: isRewardsOpen && isSelectMethod,
                           child: Padding(
-                              padding: EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.only(top: 36),
                               child: Column(
                                 children: [
                                   PluginTextTag(
@@ -355,13 +404,39 @@ class _MintPageState extends State<MintPage> {
                                     margin: EdgeInsets.only(bottom: 20),
                                     decoration: BoxDecoration(
                                         border: Border.all(
-                                            color: Color(0xCCFFFFFF), width: 1),
+                                            color: Color(0x4AFFFFFF), width: 1),
                                         borderRadius: const BorderRadius.only(
-                                            bottomLeft: Radius.circular(8),
-                                            topRight: Radius.circular(8),
-                                            bottomRight: Radius.circular(8))),
+                                            bottomLeft: Radius.circular(17),
+                                            topRight: Radius.circular(17),
+                                            bottomRight: Radius.circular(17))),
                                     child: Column(
                                       children: [
+                                        UnStakeTypeItemWidget(
+                                          title: dic['earn.dex.joinPool']!,
+                                          value:
+                                              "${dic['v3.homa.stake.apy.total']!} ${(baseApr + taigaApr * 100).toStringAsFixed(2)}%",
+                                          subtitle: Container(
+                                            margin: EdgeInsets.only(top: 8),
+                                            child: Text(
+                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%${taigaApr == 0 ? '' : ' + ${dic['v3.homa.stake.apy.reward']} ${(taigaApr * 100).toStringAsFixed(2)}%'})',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline6
+                                                  ?.copyWith(
+                                                      color: Color(0xFFFC8156)),
+                                            ),
+                                          ),
+                                          describe: dic[
+                                              'earn.dex.joinPool.describe']!,
+                                          margin: EdgeInsets.only(bottom: 12),
+                                          valueColor: Color(0xFFFC8156),
+                                          isSelect: _selectIndex == 1,
+                                          ontap: () {
+                                            setState(() {
+                                              _selectIndex = 1;
+                                            });
+                                          },
+                                        ),
                                         UnStakeTypeItemWidget(
                                           title: dic['v3.homa.stake.more']!,
                                           value:
@@ -379,7 +454,6 @@ class _MintPageState extends State<MintPage> {
                                           ),
                                           describe: dic[
                                               'v3.homa.stake.more.describe']!,
-                                          margin: EdgeInsets.only(bottom: 12),
                                           valueColor: Color(0xFFFC8156),
                                           isSelect: _selectIndex == 0,
                                           ontap: () {
@@ -387,32 +461,7 @@ class _MintPageState extends State<MintPage> {
                                               _selectIndex = 0;
                                             });
                                           },
-                                        ),
-                                        UnStakeTypeItemWidget(
-                                          title: dic['v3.homa.stake']!,
-                                          value:
-                                              "${dic['v3.homa.stake.apy.total']!} ${baseApr.toStringAsFixed(2)}%",
-                                          subtitle: Container(
-                                            margin: EdgeInsets.only(top: 8),
-                                            child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%)',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline6
-                                                  ?.copyWith(
-                                                      color: Color(0xFFFC8156)),
-                                            ),
-                                          ),
-                                          describe:
-                                              dic['v3.homa.stake.describe']!,
-                                          valueColor: Color(0xFFFC8156),
-                                          isSelect: _selectIndex == 1,
-                                          ontap: () {
-                                            setState(() {
-                                              _selectIndex = 1;
-                                            });
-                                          },
-                                        ),
+                                        )
                                       ],
                                     ),
                                   ),
@@ -423,8 +472,8 @@ class _MintPageState extends State<MintPage> {
                             padding: EdgeInsets.only(top: 8, bottom: 32),
                             child: PluginButton(
                               title: dic['v3.loan.submit']!,
-                              onPressed: () =>
-                                  _onSubmit(isRewardsOpen, stakeDecimal),
+                              onPressed: () => _onSubmit(
+                                  isRewardsOpen, stakeDecimal, taigaApr),
                             ))
                       ],
                     )),

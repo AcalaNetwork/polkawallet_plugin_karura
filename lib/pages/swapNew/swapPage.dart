@@ -11,6 +11,7 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
@@ -66,36 +67,39 @@ class _SwapPageState extends State<SwapPage> {
     return PluginScaffold(
       extendBodyBehindAppBar: true,
       appBar: PluginAppBar(
-        title: PluginPageTitleTaps(
-          names: [dic['dex.title']!, dic['dex.lp']!, dic['boot.title']!],
-          activeTab: _tab,
-          isSpaceBetween: true,
-          onTap: (i) {
-            if (i != _tab) {
-              setState(() {
-                _tab = i;
-              });
-            }
-          },
-        ),
+        title: Text(dic['dex.title']!),
         actions: [
           Container(
-            margin: EdgeInsets.only(right: 16),
+            margin: EdgeInsets.only(right: 8),
             child: PluginIconButton(
               onPressed: () =>
                   Navigator.of(context).pushNamed(SwapHistoryPage.route),
-              icon: Icon(
-                Icons.history,
-                size: 22,
-                color: Color(0xFF17161F),
+              icon: Image.asset(
+                'packages/polkawallet_plugin_karura/assets/images/history.png',
+                width: 16,
               ),
             ),
-          )
+          ),
+          PluginAccountInfoAction(widget.keyring)
         ],
       ),
       body: SafeArea(
           child: Column(
         children: [
+          Padding(
+              padding: EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 5),
+              child: PluginPageTitleTaps(
+                names: [dic['dex.title']!, dic['dex.lp']!, dic['boot.title']!],
+                activeTab: _tab,
+                isSpaceBetween: true,
+                onTap: (i) {
+                  if (i != _tab) {
+                    setState(() {
+                      _tab = i;
+                    });
+                  }
+                },
+              )),
           ConnectionChecker(widget.plugin, onConnected: _updateData),
           _loading
               ? SwapSkeleton()

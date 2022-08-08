@@ -35,21 +35,23 @@ class EarnTxDetailPage extends StatelessWidget {
     }
     return PluginTxDetail(
       current: keyring.current,
-      success: tx.isSuccess,
-      action: dic['earn.${tx.event}'],
-      // blockNum: int.parse(tx.block),
+      success: true,
+      action: dic[earn_actions_map[tx.event]] ?? "",
       hash: tx.hash,
+      resolveLinks: tx.resolveLinks,
       blockTime:
           Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss").parse(tx.time, true)),
       networkName: networkName,
       infoItems: [
         TxDetailInfoItem(
           label: 'Event',
-          content: Text(tx.event!, style: amountStyle),
+          content: Text(tx.event?.replaceAll('incentives.', '') ?? "",
+              style: amountStyle),
         ),
         TxDetailInfoItem(
           label: dic['txs.action'],
-          content: Text(dic['earn.${tx.event}']!, style: amountStyle),
+          content:
+              Text(dic[earn_actions_map[tx.event]] ?? "", style: amountStyle),
         ),
         TxDetailInfoItem(
           label: dic['earn.stake.pool'],
@@ -58,7 +60,7 @@ class EarnTxDetailPage extends StatelessWidget {
         TxDetailInfoItem(
           label: I18n.of(context)!
               .getDic(i18n_full_dic_karura, 'common')!['amount'],
-          content: Text(tx.amountShare!, style: amountStyle),
+          content: Text(tx.amountShare ?? "", style: amountStyle),
         )
       ],
     );

@@ -13,7 +13,7 @@ const Map<String, String> enCommon = {
       'Unset the keep-alive option, the account will be removed due to low balance.',
   'transfer.note.msg2':
       'There are other locked assets in this account that cannot be removed.',
-  'send': 'Send',
+  'send': 'Transfer',
   'receive': 'Receive',
   'all': 'All',
   'in': 'In',

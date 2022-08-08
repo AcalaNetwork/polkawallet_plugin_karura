@@ -13,7 +13,10 @@ import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
@@ -52,15 +55,6 @@ class _EarnDexListState extends State<EarnDexList> {
         _fetchData();
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchData();
-    });
   }
 
   @override
@@ -253,6 +247,10 @@ class _EarnDexListState extends State<EarnDexList> {
       }
       return Column(
         children: [
+          ConnectionChecker(
+            widget.plugin,
+            onConnected: _fetchData,
+          ),
           Container(
               margin: EdgeInsets.only(left: 16, right: 16, bottom: 14, top: 5),
               padding: EdgeInsets.only(left: 8, top: 4, bottom: 5, right: 8),
@@ -344,23 +342,13 @@ class _EarnDexListState extends State<EarnDexList> {
                       });
                     },
                   ),
-                  GestureDetector(
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          border: Border.all(
-                              width: 1, color: PluginColorsDark.headline1)),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          'assets/images/icon_screening.svg',
-                          color: PluginColorsDark.headline1,
-                          width: 22,
-                        ),
-                      ),
+                  PluginIconButton(
+                    icon: SvgPicture.asset(
+                      'assets/images/icon_screening.svg',
+                      color: PluginColorsDark.headline1,
+                      width: 22,
                     ),
-                    onTap: () {
+                    onPressed: () {
                       showCupertinoModalPopup(
                         context: context,
                         builder: (context) {
@@ -370,11 +358,12 @@ class _EarnDexListState extends State<EarnDexList> {
                             dic['earn.dex.sort2'],
                             dic['earn.dex.sort3']
                           ];
-                          return CupertinoActionSheet(
+                          return PolkawalletActionSheet(
                             actions: <Widget>[
                               ...sortType.map((element) {
                                 final index = sortType.indexOf(element);
-                                return CupertinoActionSheetAction(
+                                return PolkawalletActionSheetAction(
+                                  isDefaultAction: element == dic[_sort],
                                   onPressed: () {
                                     if ('earn.dex.sort$index' != _sort) {
                                       setState(() {
@@ -383,13 +372,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                     }
                                     Navigator.pop(context);
                                   },
-                                  child: Text(
-                                    element!,
-                                    style: TextStyle(
-                                        color: element == dic[_sort]
-                                            ? Color(0xFFFE0000)
-                                            : Color(0xFF007AFE)),
-                                  ),
+                                  child: Text(element!),
                                 );
                               }).toList()
                             ],
@@ -397,26 +380,12 @@ class _EarnDexListState extends State<EarnDexList> {
                         },
                       );
                     },
-                  )
+                  ),
                 ],
               )),
           Expanded(
               child: dexPools.length == 0
-                  ? ListView(
-                      padding: EdgeInsets.all(16),
-                      children: [
-                        Center(
-                          child: Container(
-                            height: MediaQuery.of(context).size.width,
-                            child: ListTail(
-                              isEmpty: true,
-                              isLoading: _loading,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      ],
-                    )
+                  ? PluginPopLoadingContainer(loading: _loading)
                   : GridView.builder(
                       padding: EdgeInsets.all(16),
                       itemCount: dexPools.length,
@@ -537,7 +506,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                                         left: 4),
                                                     child: Image.asset(
                                                       "packages/polkawallet_plugin_karura/assets/images/unstaked.png",
-                                                      width: 24,
+                                                      width: 22,
                                                     ))),
                                             Visibility(
                                                 visible: (poolInfo?.shares ??
@@ -546,10 +515,9 @@ class _EarnDexListState extends State<EarnDexList> {
                                                 child: Padding(
                                                     padding: EdgeInsets.only(
                                                         left: 4),
-                                                    child: SvgPicture.asset(
-                                                      "packages/polkawallet_plugin_karura/assets/images/staked.svg",
-                                                      color: Colors.white,
-                                                      width: 24,
+                                                    child: Image.asset(
+                                                      "packages/polkawallet_plugin_karura/assets/images/staked_1.png",
+                                                      width: 22,
                                                     ))),
                                             Visibility(
                                                 visible: canClaim,
@@ -558,7 +526,7 @@ class _EarnDexListState extends State<EarnDexList> {
                                                         left: 4),
                                                     child: Image.asset(
                                                       "packages/polkawallet_plugin_karura/assets/images/rewards.png",
-                                                      width: 24,
+                                                      width: 22,
                                                     ))),
                                           ],
                                         )

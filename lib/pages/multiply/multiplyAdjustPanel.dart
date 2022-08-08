@@ -7,10 +7,6 @@ import 'package:polkawallet_plugin_karura/api/types/loanType.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderOverlayShape.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderThumbShape.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTickMarkShape.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/slider/multiplySliderTrackShape.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -26,7 +22,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_ui/components/v3/plugin/slider/PluginSlider.dart';
 
 class MultiplyAdjustPanel extends StatefulWidget {
   MultiplyAdjustPanel(this.plugin, this.keyring, this.loanType, this.onRefresh);
@@ -56,14 +52,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
     return {
       'detail': {
         dic['loan.multiply.buying']: Text(
-          '≈ ${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
+          '≈ ${Fmt.priceFloorBigInt(collateralChange, balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
           style: Theme.of(context)
               .textTheme
               .headline1
               ?.copyWith(color: PluginColorsDark.headline1),
         ),
         dic['loan.multiply.outstandingDebt']: Text(
-          '${Fmt.priceCeilBigInt(debitNew - raisingDebit, balancePair[1].decimals!)} $karura_stable_coin_view',
+          '${Fmt.priceCeilBigInt(debitNew - raisingDebit, balancePair[1].decimals!, lengthMax: 8)} $karura_stable_coin_view',
           style: Theme.of(context)
               .textTheme
               .headline1
@@ -86,14 +82,14 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
 
     final detail = {
       dic['loan.multiply.selling']: Text(
-        '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
+        '${Fmt.priceFloorBigInt(collateralChange.abs(), balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(widget.loanType.token?.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
             ?.copyWith(color: PluginColorsDark.headline1),
       ),
       dic['loan.multiply.outstandingDebt']: Text(
-        '≈ ${Fmt.priceCeilBigInt(debitNew, balancePair[1].decimals!)} $karura_stable_coin_view',
+        '≈ ${Fmt.priceCeilBigInt(debitNew, balancePair[1].decimals!, lengthMax: 8)} $karura_stable_coin_view',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -143,28 +139,16 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
   }
 
   Future<void> _updateDexBuyingPrice() async {
-    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
-        null,
-        '1',
-        [karura_stable_coin, widget.loanType.token!.tokenNameId!].map((e) {
-          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-          return {...token.currencyId!, 'decimals': token.decimals};
-        }).toList(),
-        '0.05');
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(null, '1',
+        [karura_stable_coin, widget.loanType.token!.tokenNameId!], '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
   }
 
   Future<void> _updateDexSellingPrice() async {
-    final res = await widget.plugin.api!.swap.queryTokenSwapAmount(
-        '1',
-        null,
-        [widget.loanType.token!.tokenNameId!, karura_stable_coin].map((e) {
-          final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, e);
-          return {...token.currencyId!, 'decimals': token.decimals};
-        }).toList(),
-        '0.05');
+    final res = await widget.plugin.api!.swap.queryTokenSwapAmount('1', null,
+        [widget.loanType.token!.tokenNameId!, karura_stable_coin], '0.05');
     setState(() {
       _dexPrice = res.amount ?? 0;
     });
@@ -272,9 +256,10 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
               inputCtrl: TextEditingController()..text = collateralView,
               margin: EdgeInsets.only(bottom: 25, top: 10),
               titleTag: dic['loan.collateral'],
-              balance: token,
+              balance: balancePair[0],
               tokenIconsMap: widget.plugin.tokenIcons,
-              marketPrices: widget.plugin.store!.assets.marketPrices,
+              getMarketPrice: (tokenSymbol) =>
+                  AssetsUtils.getMarketPrice(widget.plugin, tokenSymbol),
             ),
             PluginTextTag(
               title: dic['loan.multiply.adjustYourMultiply']!,
@@ -291,80 +276,32 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                   children: [
                     Stack(
                       children: [
-                        SliderTheme(
-                          data: SliderThemeData(
-                              trackHeight: 12,
-                              activeTrackColor: Color(0xFFB9B9B9),
-                              disabledActiveTrackColor: Color(0xFFB9B9B9),
-                              inactiveTrackColor: Color(0x4DFFFFFF),
-                              disabledInactiveTrackColor: Color(0x4DFFFFFF),
-                              overlayColor: Colors.transparent,
-                              trackShape: const MultiplySliderTrackShape(),
-                              thumbShape:
-                                  MultiplySliderThumbShape(isShow: false),
-                              tickMarkShape:
-                                  const MultiplySliderTickMarkShape(),
-                              overlayShape: const MultiplySliderOverlayShape(),
-                              valueIndicatorColor: Color(0xFFC9C9C9),
-                              valueIndicatorTextStyle: Theme.of(context)
-                                  .textTheme
-                                  .headline3
-                                  ?.copyWith(
-                                      color: Colors.black,
-                                      fontSize: UI.getTextSize(14, context))),
-                          child: Slider(
-                            min: 0,
-                            max: ratioLeft - ratioRight,
-                            divisions: steps.toInt(),
-                            value: _oldSlider,
-                            label: Fmt.ratio(loan?.collateralRatio ?? 2),
-                            activeColor: PluginColorsDark.headline2,
-                            inactiveColor: PluginColorsDark.headline2,
-                            onChanged: (v) => null,
-                          ),
+                        PluginSlider(
+                          max: ratioLeft - ratioRight,
+                          divisions: steps.toInt(),
+                          value: _oldSlider,
+                          label: Fmt.ratio(loan?.collateralRatio ?? 2),
+                          enabled: false,
                         ),
-                        SliderTheme(
-                            data: SliderThemeData(
-                                trackHeight: 12,
-                                activeTrackColor: PluginColorsDark.green,
-                                disabledActiveTrackColor:
-                                    PluginColorsDark.primary,
-                                inactiveTrackColor: Color(0x4DFFFFFF),
-                                disabledInactiveTrackColor: Color(0x4DFFFFFF),
-                                overlayColor: Colors.transparent,
-                                trackShape: const MultiplySliderTrackShape(),
-                                thumbShape: MultiplySliderThumbShape(),
-                                tickMarkShape:
-                                    const MultiplySliderTickMarkShape(),
-                                overlayShape:
-                                    const MultiplySliderOverlayShape(),
-                                valueIndicatorColor: Color(0xFF7D7D7D),
-                                valueIndicatorTextStyle: Theme.of(context)
-                                    .textTheme
-                                    .headline3
-                                    ?.copyWith(
-                                        color: PluginColorsDark.headline1,
-                                        fontSize: UI.getTextSize(14, context))),
-                            child: Slider(
-                              min: 0,
-                              max: ratioLeft - ratioRight,
-                              divisions: steps.toInt(),
-                              value: _slider,
-                              label:
-                                  '${dic['loan.ratio']} ${(ratioLeft - _slider).toStringAsFixed(1)}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
-                              onChanged: (value) {
-                                if (_slider != value) {
-                                  if (value > _slider) {
-                                    _updateDexBuyingPrice();
-                                  } else {
-                                    _updateDexSellingPrice();
-                                  }
-                                  setState(() {
-                                    _slider = value;
-                                  });
-                                }
-                              },
-                            )),
+                        PluginSlider(
+                          max: ratioLeft - ratioRight,
+                          divisions: steps.toInt(),
+                          value: _slider,
+                          label:
+                              '${dic['loan.ratio']} ${(ratioLeft - _slider).toStringAsFixed(1)}%\n(${dic['liquid.price']} \$${Fmt.priceFloorBigInt(liquidationPriceNew, acala_price_decimals)})',
+                          onChanged: (value) {
+                            if (_slider != value) {
+                              if (value > _slider) {
+                                _updateDexBuyingPrice();
+                              } else {
+                                _updateDexSellingPrice();
+                              }
+                              setState(() {
+                                _slider = value;
+                              });
+                            }
+                          },
+                        ),
                       ],
                     ),
                     Row(
@@ -538,8 +475,9 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                       color: Color(0xFFFFFFFF).withAlpha(204)),
                 ),
                 onTap: () async {
-                  final res =
-                      await Navigator.of(context).pushNamed(LoanPage.route);
+                  final res = await Navigator.of(context).pushNamed(
+                      LoanPage.route,
+                      arguments: {'loanType': token.tokenNameId});
                   if (res != null) {
                     Future.delayed(Duration(milliseconds: 500), () {
                       widget.onRefresh();

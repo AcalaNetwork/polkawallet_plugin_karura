@@ -1,60 +1,56 @@
-import 'dart:convert';
-
+import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
+const earn_actions_map = {
+  'incentives.AddLiquidity': 'earn.AddLiquidity',
+  'incentives.RemoveLiquidity': 'earn.RemoveLiquidity',
+  'incentives.DepositDexShare': 'earn.DepositDexShare',
+  'incentives.WithdrawDexShare': 'earn.WithdrawDexShare',
+  'incentives.ClaimRewards': 'earn.ClaimRewards',
+};
+
 class TxDexIncentiveData extends _TxDexIncentiveData {
-  static const String actionStake = 'DepositDexShare';
-  static const String actionUnStake = 'WithdrawDexShare';
-  static const String actionClaimRewards = 'ClaimRewards';
-  static const String actionPayoutRewards = 'PayoutRewards';
-  static TxDexIncentiveData fromJson(
-      Map<String, dynamic> json, PluginKarura plugin) {
+  static const String actionStake = 'incentives.DepositDexShare';
+  static const String actionUnStake = 'incentives.WithdrawDexShare';
+  static const String actionClaimRewards = 'incentives.ClaimRewards';
+  static const String actionPayoutRewards = 'incentives.PayoutRewards';
+
+  static const String actionStakeFilter = 'Stake LP';
+  static const String actionUnStakeFilter = 'Unstake LP';
+  static const String actionClaimRewardsFilter = 'Claim Rewards';
+  static const String actionPayoutRewardsFilter = 'Payout Rewards';
+
+  static TxDexIncentiveData fromHistory(
+      HistoryData history, PluginKarura plugin) {
     final data = TxDexIncentiveData();
-    data.hash = json['extrinsic']['id'];
-    data.event = json['type'];
+    data.hash = history.hash;
+    data.resolveLinks = history.resolveLinks;
+    data.event = history.event;
+
+    final token = AssetsUtils.tokenDataFromCurrencyId(
+        plugin, {'token': history.data!['tokenId']});
+    final shareTokenView = PluginFmt.tokenView(token.symbol);
+    data.poolId = token.symbol ?? "";
 
     switch (data.event) {
-      case actionClaimRewards:
-        final pair = (jsonDecode(json['data'][1]['value'])['dex']['dexShare']
-                as List)
-            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
-            .toList();
-        final poolId = pair.join('-');
-        final rewardToken = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['data'][2]['value']));
-        data.poolId = poolId;
+      case TxDexIncentiveData.actionClaimRewards:
         data.amountShare =
-            '${Fmt.balance(json['data'][3]['value'], rewardToken.decimals!)} ${PluginFmt.tokenView(rewardToken.symbol)}';
+            '${Fmt.balance(history.data!['actualAmount'], token.decimals!, length: 6)} $shareTokenView';
         break;
-      case actionPayoutRewards:
-        final pair = (jsonDecode(json['data'][1]['value'])['dexIncentive']
-                ['dexShare'] as List)
-            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e).symbol)
-            .toList();
-        final poolId = pair.join('-');
-        final rewardToken = AssetsUtils.tokenDataFromCurrencyId(
-            plugin, jsonDecode(json['data'][2]['value']));
-        data.poolId = poolId;
+      case TxDexIncentiveData.actionPayoutRewards:
         data.amountShare =
-            '${Fmt.balance(json['data'][3]['value'], rewardToken.decimals!)} ${PluginFmt.tokenView(rewardToken.symbol)}';
+            '${Fmt.balance(history.data!['actualPayout'], token.decimals!, length: 6)} $shareTokenView';
         break;
-      case actionStake:
-      case actionUnStake:
-        final pair = (jsonDecode(json['data'][1]['value'])['dexShare'] as List)
-            .map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
-            .toList();
-        final poolId = pair.map((e) => e.symbol).join('-');
-        final shareTokenView = PluginFmt.tokenView(poolId);
-        data.poolId = poolId;
+      default:
         data.amountShare =
-            '${Fmt.balance(json['data'][2]['value'], pair[0].decimals!)} $shareTokenView';
-        break;
+            '${Fmt.balance(history.data!['amount'], token.decimals!, length: 6)} $shareTokenView';
     }
-    data.time = (json['timestamp'] as String).replaceAll(' ', '');
-    data.isSuccess = json['extrinsic']['isSuccess'];
+
+    data.time = (history.data!['timestamp'] as String).replaceAll(' ', '');
+    data.isSuccess = true;
     return data;
   }
 }
@@ -62,6 +58,7 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
 abstract class _TxDexIncentiveData {
   String? block;
   String? hash;
+  String? resolveLinks;
   String? event;
   late String poolId;
   String? amountShare;

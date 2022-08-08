@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
+import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -44,6 +45,7 @@ class _RedeemPageState extends State<RedeemPage> {
   num _receiveAmount = 0;
   num _fastReceiveAmount = 0;
   num _swapAmount = 0;
+  SwapOutputData _swapOutput = SwapOutputData();
 
   List<String>? symbols;
   final stakeToken = relay_chain_token_symbol;
@@ -53,7 +55,7 @@ class _RedeemPageState extends State<RedeemPage> {
 
   late int stakeDecimal;
 
-  late double minRedeem;
+  late double minRedeem = 0;
 
   Timer? _timer;
 
@@ -69,12 +71,24 @@ class _RedeemPageState extends State<RedeemPage> {
     decimals = widget.plugin.networkState.tokenDecimals;
 
     karBalance = Fmt.balanceDouble(
-        widget.plugin.balances.native!.availableBalance.toString(),
+        widget.plugin.balances.native?.availableBalance.toString() ?? "",
         decimals![symbols!.indexOf("L$stakeToken")]);
 
     stakeDecimal = decimals![symbols!.indexOf("L$stakeToken")];
 
-    minRedeem = widget.plugin.store!.homa.env?.redeemThreshold ?? 0;
+    initMinRedeem();
+  }
+
+  Future<void> initMinRedeem() async {
+    if (widget.plugin.store!.homa.env == null) {
+      await widget.plugin.service!.homa.queryHomaEnv();
+    }
+    if (widget.plugin.store!.homa.userInfo == null) {
+      widget.plugin.service!.homa.queryHomaPendingRedeem();
+    }
+    setState(() {
+      minRedeem = widget.plugin.store!.homa.env?.redeemThreshold ?? 0;
+    });
   }
 
   Future<void> _updateReceiveAmount(double? input) async {
@@ -89,7 +103,8 @@ class _RedeemPageState extends State<RedeemPage> {
       ]);
 
       setState(() {
-        _fastReceiveAmount = data[0]!['receive'];
+        _fastReceiveAmount =
+            data[0]!['canTryFastRedeem'] ? data[0]!['receive'] : 0;
         _receiveAmount = data[1]!['receive'];
         if (data[0]!['receive'] == 0) {
           _selectIndex = 1;
@@ -100,16 +115,18 @@ class _RedeemPageState extends State<RedeemPage> {
           AssetsUtils.getBalanceFromTokenNameId(widget.plugin, 'L$stakeToken');
       final token =
           AssetsUtils.getBalanceFromTokenNameId(widget.plugin, stakeToken);
+      const slippage = 0.005;
       final swapRes = await widget.plugin.api!.swap.queryTokenSwapAmount(
           input.toString(),
           null,
           [
-            {...lToken.currencyId!, 'decimals': lToken.decimals},
-            {...token.currencyId!, 'decimals': token.decimals},
+            lToken.tokenNameId!,
+            token.tokenNameId!,
           ],
-          '0.1');
+          slippage.toString());
       setState(() {
-        _swapAmount = swapRes.amount!;
+        _swapAmount = swapRes.amount! * (1 - slippage);
+        _swapOutput = swapRes;
         isLoading = false;
       });
     }
@@ -201,7 +218,7 @@ class _RedeemPageState extends State<RedeemPage> {
             ?.copyWith(color: Colors.white),
       ),
       dic['dex.receive']!: Text(
-        '≈ ${Fmt.priceFloor((_selectIndex == 0 ? _fastReceiveAmount : _selectIndex == 1 ? _swapAmount : _receiveAmount) as double?)} $stakeToken',
+        '≈ ${Fmt.priceFloor((_selectIndex == 0 ? _fastReceiveAmount : _selectIndex == 1 ? _swapAmount : _receiveAmount) as double?, lengthMax: 8)} $stakeToken',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -240,26 +257,12 @@ class _RedeemPageState extends State<RedeemPage> {
         params = [];
         paramsRaw = '[['
             'api.tx.homa.requestRedeem(...${jsonEncode([0, false])}),'
-            'api.tx.dex.swapWithExactSupply(...${jsonEncode([
-              [
-                {'Token': 'L$stakeToken'},
-                {'Token': stakeToken}
-              ],
-              (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
-              "0",
-            ])})'
+            'api.tx.${_swapOutput.tx!["section"]}.${_swapOutput.tx!["method"]}(...${jsonEncode(_swapOutput.tx!["params"])})'
             ']]';
       } else {
-        module = 'dex';
-        call = 'swapWithExactSupply';
-        params = [
-          [
-            {'Token': 'L$stakeToken'},
-            {'Token': stakeToken}
-          ],
-          (_maxInput ?? Fmt.tokenInt(pay, stakeDecimal)).toString(),
-          "0",
-        ];
+        module = _swapOutput.tx!["section"];
+        call = _swapOutput.tx!["method"];
+        params = _swapOutput.tx!["params"];
       }
     }
 
@@ -305,6 +308,12 @@ class _RedeemPageState extends State<RedeemPage> {
             widget.plugin.store!.assets.tokenBalanceMap["L$stakeToken"]!;
         final max = _getMaxAmount();
 
+        final redeemRequest = Fmt.balanceDouble(
+            (widget.plugin.store?.homa.userInfo?.redeemRequest ??
+                    {})['amount'] ??
+                '0',
+            lTokenBalance.decimals!);
+
         return PluginScaffold(
           appBar: PluginAppBar(
             title: Text('${dic['homa.redeem']} $stakeToken'),
@@ -316,11 +325,42 @@ class _RedeemPageState extends State<RedeemPage> {
               margin: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: <Widget>[
+                  Visibility(
+                      visible: redeemRequest > 0,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 14),
+                        child: Row(
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Image.asset(
+                                  "packages/polkawallet_plugin_karura/assets/images/QueuedRedeemRequesting.png",
+                                  width: 26,
+                                )),
+                            Text(
+                              dic['homa.QueuedRedeemRequesting']!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(color: Colors.white),
+                            ),
+                            Text(
+                              "${Fmt.priceFloor(redeemRequest, lengthMax: 4)} L$stakeToken",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600),
+                            )
+                          ],
+                        ),
+                      )),
                   PluginInputBalance(
                     tokenViewFunction: (value) {
                       return PluginFmt.tokenView(value);
                     },
-                    margin: EdgeInsets.only(bottom: 2),
+                    margin: EdgeInsets.only(bottom: 2, top: 14),
                     titleTag: dic['earn.unStake'],
                     inputCtrl: _amountPayCtrl,
                     balance: TokenBalanceData(
@@ -352,7 +392,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                   fontWeight: FontWeight.w300),
                         ),
                         Text(
-                          "${minRedeem.toStringAsFixed(4)} $stakeToken",
+                          "${minRedeem.toStringAsFixed(4)} L$stakeToken",
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -378,20 +418,19 @@ class _RedeemPageState extends State<RedeemPage> {
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 11, vertical: 14),
-                            margin: EdgeInsets.only(bottom: 20),
                             decoration: BoxDecoration(
                                 border: Border.all(
-                                    color: Color(0xCCFFFFFF), width: 1),
+                                    color: Color(0x4AFFFFFF), width: 1),
                                 borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(8),
-                                    topRight: Radius.circular(8),
-                                    bottomRight: Radius.circular(8))),
+                                    bottomLeft: Radius.circular(17),
+                                    topRight: Radius.circular(17),
+                                    bottomRight: Radius.circular(17))),
                             child: Column(
                               children: [
                                 UnStakeTypeItemWidget(
                                   title: dic['homa.fast']!,
                                   value:
-                                      "$_fastReceiveAmount $relay_chain_token_symbol",
+                                      "${Fmt.priceFloor(_fastReceiveAmount.toDouble(), lengthMax: 4)} $relay_chain_token_symbol",
                                   describe: dic['homa.fast.describe']!,
                                   isSelect: _selectIndex == 0,
                                   ontap: () {
@@ -403,7 +442,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                 UnStakeTypeItemWidget(
                                   title: dic['dex.swap']!,
                                   value:
-                                      "$_swapAmount $relay_chain_token_symbol",
+                                      "${Fmt.priceFloor(_swapAmount.toDouble(), lengthMax: 4)} $relay_chain_token_symbol",
                                   margin: EdgeInsets.symmetric(vertical: 14),
                                   describe: dic['dex.swap.describe']!,
                                   isSelect: _selectIndex == 1,
@@ -416,7 +455,7 @@ class _RedeemPageState extends State<RedeemPage> {
                                 UnStakeTypeItemWidget(
                                   title: dic['v3.homa.unbond']!,
                                   value:
-                                      "$_receiveAmount $relay_chain_token_symbol",
+                                      "${Fmt.priceFloor(_receiveAmount.toDouble(), lengthMax: 4)} $relay_chain_token_symbol",
                                   describe: dic['v3.homa.unbond.describe']!,
                                   isSelect: _selectIndex == 2,
                                   ontap: () {
@@ -432,20 +471,25 @@ class _RedeemPageState extends State<RedeemPage> {
                               visible: _fastReceiveAmount == 0 &&
                                   _selectIndex == 0 &&
                                   _amountPayCtrl.text.length > 0,
-                              child: Text(
-                                dic['v3.fastRedeemError']!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: Colors.white,
-                                        fontSize: UI.getTextSize(12, context),
-                                        fontWeight: FontWeight.w300),
+                              child: Container(
+                                width: double.infinity,
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.only(top: 2),
+                                child: Text(
+                                  dic['v3.fastRedeemError']!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                          color: Theme.of(context).errorColor,
+                                          fontSize: UI.getTextSize(12, context),
+                                          fontWeight: FontWeight.w300),
+                                ),
                               )),
                         ],
                       )),
                   Padding(
-                      padding: EdgeInsets.only(bottom: 24, top: 8),
+                      padding: EdgeInsets.only(bottom: 24, top: 28),
                       child: PluginButton(
                         title: dic['homa.redeem']!,
                         onPressed: _onSubmit,

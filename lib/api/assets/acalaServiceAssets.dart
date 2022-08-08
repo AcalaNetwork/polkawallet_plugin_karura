@@ -22,6 +22,12 @@ class AcalaServiceAssets {
     return res;
   }
 
+  Future<Map> getTokenPrices(List<String> tokens) async {
+    final Map? res = await plugin.sdk.webView!
+        .evalJavascript('acala.getTokenPrices(${jsonEncode(tokens)})');
+    return res ?? {};
+  }
+
   void unsubscribeTokenBalances(String? address) async {
     final tokens = await plugin.api!.assets.getAllTokenSymbols(withCache: true);
     tokens.forEach((e) {

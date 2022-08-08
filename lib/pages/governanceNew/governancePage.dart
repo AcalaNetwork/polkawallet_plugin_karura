@@ -12,7 +12,9 @@ import 'package:polkawallet_sdk/api/types/gov/referendumInfoData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/addressIcon.dart';
+import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
@@ -115,6 +117,11 @@ class _GovernancePageState extends State<GovernancePage> {
   }
 
   Future<void> _freshData() async {
+    if (widget.plugin.sdk.api.connectedNode != null) {
+      widget.plugin.service!.gov.unsubscribeBestNumber();
+      widget.plugin.service!.gov.subscribeBestNumber();
+    }
+
     await _queryDemocracyLocks();
     if (_tabIndex == 0) {
       await _fetchReferendums();
@@ -128,18 +135,6 @@ class _GovernancePageState extends State<GovernancePage> {
     }
 
     _fetchExternal();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.plugin.sdk.api.connectedNode != null) {
-      widget.plugin.service!.gov.subscribeBestNumber();
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState!.show();
-    });
   }
 
   @override
@@ -267,7 +262,7 @@ class _GovernancePageState extends State<GovernancePage> {
                     child: Swiper(
                       itemCount: locks.length,
                       itemWidth: double.infinity,
-                      loop: locks.length == 1 ? false : true,
+                      loop: false,
                       itemBuilder: (BuildContext context, int index) {
                         var unlockAt = locks[index]['unlockAt'];
                         final int blockDuration =
@@ -447,6 +442,7 @@ class _GovernancePageState extends State<GovernancePage> {
       appBar: PluginAppBar(
         title: Text(I18n.of(context)!
             .getDic(i18n_full_dic_karura, 'common')!['governance']!),
+        actions: [PluginAccountInfoAction(widget.keyring)],
       ),
       body: Observer(builder: (_) {
         final list = _tabIndex == 0
@@ -459,6 +455,8 @@ class _GovernancePageState extends State<GovernancePage> {
         final decimals = widget.plugin.networkState.tokenDecimals![0];
         final symbol = widget.plugin.networkState.tokenSymbol![0];
         return RefreshIndicator(
+            color: Colors.black,
+            backgroundColor: Colors.white,
             key: _refreshKey,
             onRefresh: _freshData,
             child: ListView.builder(
@@ -490,7 +488,9 @@ class _GovernancePageState extends State<GovernancePage> {
                                   },
                                   _tabIndex,
                                   margin: EdgeInsets.zero,
-                                )
+                                ),
+                                ConnectionChecker(widget.plugin,
+                                    onConnected: _freshData)
                               ],
                             )),
                         content: list?.length == 0

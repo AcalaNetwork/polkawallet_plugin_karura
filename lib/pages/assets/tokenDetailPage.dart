@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:polkawallet_plugin_karura/api/types/transferData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
+import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -21,11 +19,14 @@ import 'package:polkawallet_ui/components/tokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/components/v3/borderedTitle.dart';
 import 'package:polkawallet_ui/components/v3/cardButton.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/iconButton.dart' as v3;
 import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:intl/intl.dart';
 
 class TokenDetailPage extends StatefulWidget {
   TokenDetailPage(this.plugin, this.keyring);
@@ -55,6 +56,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
       final TokenBalanceData token =
           ModalRoute.of(context)!.settings.arguments as TokenBalanceData;
       widget.plugin.service!.assets.updateTokenBalances(token);
+      widget.plugin.service!.history.getTransfers(token.tokenNameId ?? '');
     });
   }
 
@@ -88,7 +90,19 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
           if (disabledTokens != null) {
             transferDisabled = List.of(disabledTokens).contains(tokenSymbol);
           }
+
+          final list =
+              widget.plugin.store?.history.transfersMap[token.tokenNameId];
+          final txs = list?.toList();
+          if (_txFilterIndex > 0) {
+            txs?.retainWhere((e) =>
+                (_txFilterIndex == 1 ? e.data!['to'] : e.data?['from']) ==
+                widget.keyring.current.address);
+          }
+
           return RefreshIndicator(
+            color: Colors.black,
+            backgroundColor: Colors.white,
             key: _refreshKey,
             onRefresh: () =>
                 widget.plugin.service!.assets.updateTokenBalances(token),
@@ -98,9 +112,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                   balance,
                   symbol: tokenSymbol ?? '',
                   decimals: token.decimals!,
-                  tokenPrice:
-                      widget.plugin.store?.assets.marketPrices[tokenSymbol] ??
-                          0,
+                  tokenPrice: AssetsUtils.getMarketPrice(
+                      widget.plugin, tokenSymbol ?? ''),
                   bgColors: [Color(0xFF2B292A), Color(0xFFCD4337)],
                   icon: TokenIcon(
                     tokenSymbol ?? '',
@@ -119,8 +132,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               icon: Padding(
                                 padding: EdgeInsets.only(left: 3),
                                 child: Image.asset(
-                                  "packages/polkawallet_plugin_karura/assets/images/send.png",
-                                  width: 37,
+                                  "packages/polkawallet_plugin_karura/assets/images/send${UI.isDarkTheme(context) ? "_dark" : ""}.png",
+                                  width: 32,
                                 ),
                               ),
                               text: dic['send']!,
@@ -143,8 +156,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                             padding: EdgeInsets.symmetric(horizontal: 3.w),
                             child: CardButton(
                               icon: Image.asset(
-                                  "packages/polkawallet_plugin_karura/assets/images/qr.png",
-                                  width: 37),
+                                "packages/polkawallet_plugin_karura/assets/images/qr${UI.isDarkTheme(context) ? "_dark" : ""}.png",
+                                width: 32,
+                              ),
                               text: dic['receive']!,
                               onPressed: () {
                                 Navigator.pushNamed(
@@ -170,11 +184,22 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               height: 28.h,
                               margin: EdgeInsets.only(right: 8.w),
                               decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                image: DecorationImage(
-                                    image: AssetImage(
-                                        "packages/polkawallet_plugin_karura/assets/images/bg_tag.png"),
-                                    fit: BoxFit.fill),
+                                color: UI.isDarkTheme(context)
+                                    ? Color(0x52000000)
+                                    : Colors.transparent,
+                                borderRadius: UI.isDarkTheme(context)
+                                    ? BorderRadius.all(Radius.circular(5))
+                                    : null,
+                                border: UI.isDarkTheme(context)
+                                    ? Border.all(
+                                        color: Color(0x26FFFFFF), width: 1)
+                                    : null,
+                                image: UI.isDarkTheme(context)
+                                    ? null
+                                    : DecorationImage(
+                                        image: AssetImage(
+                                            "assets/images/bg_tag.png"),
+                                        fit: BoxFit.fill),
                               ),
                               child: Center(
                                 child: Text(filterOptions[_txFilterIndex]!,
@@ -182,8 +207,10 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                         .textTheme
                                         .headline5
                                         ?.copyWith(
-                                            color: Theme.of(context)
-                                                .toggleableActiveColor,
+                                            color: UI.isDarkTheme(context)
+                                                ? Colors.white
+                                                : Theme.of(context)
+                                                    .toggleableActiveColor,
                                             fontWeight: FontWeight.w600)),
                               ),
                             ),
@@ -192,9 +219,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                   showCupertinoModalPopup(
                                       context: context,
                                       builder: (context) {
-                                        return CupertinoActionSheet(
+                                        return PolkawalletActionSheet(
                                           actions: filterOptions.map((e) {
-                                            return CupertinoButton(
+                                            return PolkawalletActionSheetAction(
                                                 child: Text(e!),
                                                 onPressed: () {
                                                   setState(() {
@@ -205,7 +232,8 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                                   Navigator.pop(context);
                                                 });
                                           }).toList(),
-                                          cancelButton: CupertinoButton(
+                                          cancelButton:
+                                              PolkawalletActionSheetAction(
                                             child: Text(dic['cancel']!),
                                             onPressed: () =>
                                                 Navigator.pop(context),
@@ -216,7 +244,9 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                                 child: v3.IconButton(
                                   icon: SvgPicture.asset(
                                     'assets/images/icon_screening.svg',
-                                    color: Color(0xFF979797),
+                                    color: UI.isDarkTheme(context)
+                                        ? Colors.white
+                                        : Color(0xFF979797),
                                     width: 22.h,
                                   ),
                                 ))
@@ -227,42 +257,14 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                 Expanded(
                   child: Container(
                     color: titleColor,
-                    child: Query(
-                        options: QueryOptions(
-                          document: gql(transferQuery),
-                          variables: <String, String?>{
-                            'account': widget.keyring.current.address,
-                            'token': token.tokenNameId,
-                          },
-                        ),
-                        builder: (
-                          QueryResult result, {
-                          Future<QueryResult?> Function()? refetch,
-                          FetchMore? fetchMore,
-                        }) {
-                          if (result.data == null) {
-                            return Container(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [PluginLoadingWidget()],
-                              ),
-                            );
-                          }
-                          final txs =
-                              List.of(result.data!['transfers']['nodes'])
-                                  .map((i) =>
-                                      TransferData.fromJson(i as Map, token))
-                                  .toList();
-                          txs.removeWhere((e) =>
-                              e.to == widget.keyring.current.address &&
-                              e.isSuccess == false);
-
-                          if (_txFilterIndex > 0) {
-                            txs.retainWhere((e) =>
-                                (_txFilterIndex == 1 ? e.to : e.from) ==
-                                widget.keyring.current.address);
-                          }
-                          return ListView.builder(
+                    child: txs == null
+                        ? Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [PluginLoadingWidget()],
+                            ),
+                          )
+                        : ListView.builder(
                             itemCount: txs.length + 1,
                             itemBuilder: (_, i) {
                               if (i == txs.length) {
@@ -271,13 +273,12 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                               }
                               return TransferListItem(
                                 data: txs[i],
-                                token: tokenSymbol,
-                                isOut: txs[i].from ==
+                                token: token,
+                                isOut: txs[i].data!['from'] ==
                                     widget.keyring.current.address,
                               );
                             },
-                          );
-                        }),
+                          ),
                   ),
                 ),
               ],
@@ -297,9 +298,13 @@ Widget priceItemBuild(Widget icon, String title, String price, Color color,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-              height: 16.w,
-              width: 16.w,
+              height: 18.w,
+              width: 18.w,
+              padding: EdgeInsets.all(2),
               margin: EdgeInsets.only(right: 8.w),
+              decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(27),
+                  borderRadius: BorderRadius.all(Radius.circular(4))),
               child: icon),
           Text(
             title,
@@ -354,16 +359,18 @@ class BalanceCard extends StatelessWidget {
     double? tokenValue;
     if (tokenPrice != null) {
       tokenValue = (tokenPrice ?? 0) > 0
-          ? tokenPrice! * Fmt.bigIntToDouble(total, decimals)
+          ? tokenPrice! *
+              Fmt.bigIntToDouble(total, decimals) *
+              (tokenBalance?.priceRate ?? 1.0)
           : 0;
     }
 
-    final titleColor = Theme.of(context).cardColor;
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.w),
+    final titleColor =
+        UI.isDarkTheme(context) ? Colors.white : Theme.of(context).cardColor;
+    final child = Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(const Radius.circular(16)),
+        borderRadius: const BorderRadius.all(const Radius.circular(8)),
         gradient: LinearGradient(
           colors: bgColors ??
               [Theme.of(context).primaryColor, Theme.of(context).hoverColor],
@@ -407,7 +414,7 @@ class BalanceCard extends StatelessWidget {
                       Visibility(
                         visible: tokenValue != null,
                         child: Text(
-                          '≈ \$ ${Fmt.priceFloor(tokenValue)}',
+                          '≈ ${Fmt.priceCurrencySymbol(tokenBalance?.priceCurrency)} ${Fmt.priceFloor(tokenValue)}',
                           style: Theme.of(context)
                               .textTheme
                               .headline6
@@ -470,6 +477,14 @@ class BalanceCard extends StatelessWidget {
         ],
       ),
     );
+
+    return UI.isDarkTheme(context)
+        ? RoundedCard(
+            margin: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.w),
+            child: child,
+          )
+        : Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.w), child: child);
   }
 }
 
@@ -481,40 +496,44 @@ class TransferListItem extends StatelessWidget {
     this.crossChain,
   });
 
-  final TransferData? data;
-  final String? token;
+  final HistoryData? data;
+  final TokenBalanceData? token;
   final String? crossChain;
   final bool? isOut;
 
   @override
   Widget build(BuildContext context) {
-    final address = isOut! ? data!.to : data!.from;
-    final title = Fmt.address(address);
+    final address = isOut! ? data!.data!['to'] : data!.data!['from'];
+    final title = isOut!
+        ? 'Send to ${Fmt.address(address)}'
+        : 'Receive from ${Fmt.address(address)}';
+    final amount = Fmt.priceFloorBigInt(
+        BigInt.parse(data!.data!['amount']), token?.decimals ?? 12,
+        lengthMax: 6);
+
     return ListTile(
       dense: true,
-      leading: data!.isSuccess!
-          ? isOut!
-              ? TransferIcon(
-                  type: TransferIconType.rollOut,
-                  bgColor: Theme.of(context).cardColor)
-              : TransferIcon(
-                  type: TransferIconType.rollIn,
-                  bgColor: Theme.of(context).cardColor)
+      minLeadingWidth: 32,
+      horizontalTitleGap: 8,
+      leading: isOut!
+          ? TransferIcon(
+              type: TransferIconType.rollOut,
+              bgColor: Theme.of(context).cardColor)
           : TransferIcon(
-              type: TransferIconType.failure, bgColor: Color(0xFFD7D7D7)),
-      title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
-      subtitle: Text(Fmt.dateTime(DateTime.parse(data!.timestamp))),
+              type: TransferIconType.rollIn, bgColor: Color(0xFFD7D7D7)),
+      title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}',
+          style: Theme.of(context).textTheme.headline4),
+      subtitle: Text(Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
+          .parse(data!.data!['timestamp'], true))),
       trailing: Container(
         width: 110,
         child: Row(
           children: <Widget>[
             Expanded(
               child: Text(
-                '${isOut! ? '-' : '+'} ${data!.amount}',
+                '${isOut! ? '-' : '+'} $amount',
                 style: Theme.of(context).textTheme.headline5!.copyWith(
-                    color: data!.isSuccess!
-                        ? Theme.of(context).toggleableActiveColor
-                        : Theme.of(context).unselectedWidgetColor,
+                    color: Theme.of(context).toggleableActiveColor,
                     fontWeight: FontWeight.w600),
                 textAlign: TextAlign.right,
               ),

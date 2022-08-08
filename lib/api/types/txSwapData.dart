@@ -1,10 +1,18 @@
 import 'dart:convert';
 
+import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
+import 'package:polkawallet_plugin_karura/utils/format.dart';
+import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxSwapData extends _TxSwapData {
+  static const String actionTypeSwapFilter = 'Swap';
+  static const String actionTypeAddLiquidityFilter = 'Add Liquidity';
+  static const String actionTypeRemoveLiquidityFilter = 'Remove Liquidity';
+  static const String actionTypeAddProvisionFilter = 'Add Provision';
+
   static TxSwapData fromJson(Map json, PluginKarura plugin) {
     final data = TxSwapData();
     data.action = json['type'];
@@ -71,6 +79,97 @@ class TxSwapData extends _TxSwapData {
     data.isSuccess = json['extrinsic']['isSuccess'];
     return data;
   }
+
+  static TxSwapData fromTaigaJson(Map json, PluginKarura plugin) {
+    final data = TxSwapData();
+    data.action = json['__typename'].toString().toLowerCase();
+    data.hash = json['extrinsicId'];
+    data.isTaiga = true;
+
+    switch (data.action) {
+      case "swap":
+        final tokenPay = AssetsUtils.tokenDataFromCurrencyId(
+            plugin, jsonDecode(json['outputAsset']));
+        final tokenReceive = AssetsUtils.tokenDataFromCurrencyId(
+            plugin, jsonDecode(json['inputAsset']));
+        data.tokenPay = tokenPay.symbol;
+        data.tokenReceive = tokenReceive.symbol;
+
+        if (tokenPay.symbol == 'LKSM') {
+          data.amountPay = Fmt.priceFloor(
+              Fmt.bigIntToDouble(Fmt.balanceInt(json['outputAmount']),
+                      tokenPay.decimals ?? 12) /
+                  Fmt.bigIntToDouble(
+                      Fmt.balanceInt(json['block']['liquidExchangeRate']), 18),
+              lengthMax: 6);
+        } else {
+          data.amountPay = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(json['outputAmount']), tokenPay.decimals ?? 12,
+              lengthMax: 6);
+        }
+
+        if (tokenReceive.symbol == 'LKSM') {
+          data.amountReceive = Fmt.priceFloor(
+              Fmt.bigIntToDouble(Fmt.balanceInt(json['inputAmount']),
+                      tokenPay.decimals ?? 12) /
+                  Fmt.bigIntToDouble(
+                      Fmt.balanceInt(json['block']['liquidExchangeRate']), 18),
+              lengthMax: 6);
+        } else {
+          data.amountReceive = Fmt.priceFloorBigInt(
+              Fmt.balanceInt(json['inputAmount']), tokenReceive.decimals ?? 12,
+              lengthMax: 6);
+        }
+
+        break;
+      case "mint":
+        final taigaData = plugin.store!.earn.taigaTokenPairs.firstWhere(
+            (element) => element.tokenNameId == "sa://${json['poolId']}",
+            orElse: () => DexPoolData());
+        final tokenPair = taigaData.tokens
+            ?.map((e) => AssetsUtils.tokenDataFromCurrencyId(plugin, e))
+            .toList();
+
+        tokenPair?.forEach((element) {
+          final index = tokenPair.indexOf(element);
+          final amount;
+          if (element.symbol == 'LKSM') {
+            amount = Fmt.priceFloor(
+                Fmt.bigIntToDouble(
+                        Fmt.balanceInt(
+                            json['inputAmounts'].toString().split(",")[index]),
+                        tokenPair[index].decimals ?? 12) /
+                    Fmt.bigIntToDouble(
+                        Fmt.balanceInt(json['block']['liquidExchangeRate']),
+                        18),
+                lengthMax: 6);
+          } else {
+            amount = Fmt.priceFloorBigInt(
+                Fmt.balanceInt(
+                    json['inputAmounts'].toString().split(",")[index]),
+                tokenPair[index].decimals ?? 12,
+                lengthMax: 6);
+          }
+          data.amounts.add(_token()
+            ..amount = amount
+            ..symbol = element.symbol);
+        });
+        break;
+      case "proportionredeem":
+      case "singleredeem":
+      case "multiredeem":
+        final tokenPay = AssetsUtils.getBalanceFromTokenNameId(
+            plugin, "sa://${json['poolId']}");
+        data.tokenPay = tokenPay.symbol;
+        data.amountPay = Fmt.priceFloorBigInt(
+            Fmt.balanceInt(json['inputAmount']), tokenPay.decimals ?? 12,
+            lengthMax: 6);
+        break;
+    }
+
+    data.time = (json['timestamp'] as String).replaceAll(' ', '');
+    return data;
+  }
 }
 
 abstract class _TxSwapData {
@@ -83,5 +182,16 @@ abstract class _TxSwapData {
   String? amountReceive;
   String? amountShare;
   late String time;
-  bool? isSuccess = true;
+  bool? isSuccess;
+  bool isTaiga = false;
+  List<_token> amounts = [];
+}
+
+class _token {
+  String? symbol;
+  String? amount;
+
+  String toTokenString() {
+    return "$amount ${PluginFmt.tokenView(symbol)}";
+  }
 }

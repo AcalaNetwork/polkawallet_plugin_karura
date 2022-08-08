@@ -21,7 +21,6 @@ import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/newUIRoutes.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
-import 'package:polkawallet_plugin_karura/service/graphql.dart';
 import 'package:polkawallet_plugin_karura/service/index.dart';
 import 'package:polkawallet_plugin_karura/store/cache/storeCache.dart';
 import 'package:polkawallet_plugin_karura/store/index.dart';
@@ -40,6 +39,7 @@ import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/pages/v3/xcmTxConfirmPage.dart';
+import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginKarura extends PolkawalletPlugin {
   PluginKarura({String name = plugin_name_karura})
@@ -67,7 +67,7 @@ class PluginKarura extends PolkawalletPlugin {
           isTestNet: name != plugin_name_karura,
           isXCMSupport: name == plugin_name_karura,
           parachainId: '2000',
-          jsCodeVersion: 32901,
+          jsCodeVersion: 33001,
         );
 
   @override
@@ -155,13 +155,9 @@ class PluginKarura extends PolkawalletPlugin {
           onSwitchHideBalance,
           hideBalance: hideBalance,
         );
-      final Map<String?, double> marketPrices = Map<String?, double>();
-      store!.assets.marketPrices.forEach((key, value) {
-        marketPrices[key] = value * rate;
-      });
 
       final data = AssetsUtils.aggregatedAssetsDataFromJson(
-          store!.assets.aggregatedAssets!, balances, marketPrices);
+          this, store!.assets.aggregatedAssets!, balances);
       // // data.forEach((element) => print(element));
       // final total = data.map((e) => e.value).reduce((a, b) => a + b);
       // return Text('total: ${hideBalance ? '***' : total}');
@@ -185,30 +181,18 @@ class PluginKarura extends PolkawalletPlugin {
 
     final total = data.map((e) => e.value).reduce((a, b) => a! + b!);
     InstrumentData totalBalance = InstrumentData(total, [],
-        currencySymbol: _currencySymbol(priceCurrency),
+        currencySymbol: Fmt.priceCurrencySymbol(priceCurrency),
         title: I18n.of(context)!
             .getDic(i18n_full_dic_karura, 'acala')!["v3.myDefi"]);
     data.forEach((element) {
       totalBalance.items.add(InstrumentItemData(
           _instrumentColor(element.category),
-          element.category,
-          element.value,
-          _instrumentIconName(element.category)));
+          element.category == "LP Staking" ? "LP Stake" : element.category,
+          element.value));
     });
     datas.add(totalBalance);
     datas.add(totalBalance1);
     return datas;
-  }
-
-  String _currencySymbol(String priceCurrency) {
-    switch (priceCurrency) {
-      case "USD":
-        return "\$";
-      case "CNY":
-        return "￥";
-      default:
-        return "\$";
-    }
   }
 
   Color _instrumentColor(String? category) {
@@ -216,28 +200,13 @@ class PluginKarura extends PolkawalletPlugin {
       case "Tokens":
         return Color(0xFF5E5C59);
       case "Vaults":
-        return Color(0xFFCE623C);
+        return Color(0xFFFF7647);
       case "LP Staking":
-        return Color(0xFF768FE1);
+        return Color(0xFF7D97EE);
       case "Rewards":
         return Color(0xFFFFC952);
       default:
         return Color(0xFFFFC952);
-    }
-  }
-
-  String _instrumentIconName(String? category) {
-    switch (category) {
-      case "Tokens":
-        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_black.png";
-      case "Vaults":
-        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_orange.png";
-      case "LP Staking":
-        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_blue.png";
-      case "Rewards":
-        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_yellow.png";
-      default:
-        return "packages/polkawallet_plugin_karura/assets/images/icon_instrument_yellow.png";
     }
   }
 
@@ -257,12 +226,7 @@ class PluginKarura extends PolkawalletPlugin {
       CurrencySelectPage.route: (_) => CurrencySelectPage(this),
       AccountQrCodePage.route: (_) => AccountQrCodePage(this, keyring),
 
-      TokenDetailPage.route: (_) => ClientProvider(
-            child: Builder(
-              builder: (_) => TokenDetailPage(this, keyring),
-            ),
-            uri: GraphQLConfig['httpUri']!,
-          ),
+      TokenDetailPage.route: (_) => TokenDetailPage(this, keyring),
       TransferPage.route: (_) => TransferPage(this, keyring),
       TransferDetailPage.route: (_) => TransferDetailPage(this, keyring),
 
@@ -328,6 +292,7 @@ class PluginKarura extends PolkawalletPlugin {
       _store!.earn.setDexPoolInfo({}, reset: true);
       _store!.earn.setBootstraps([]);
       _store!.homa.setUserInfo(null);
+      _store!.history.loadCache(acc.pubKey);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);
@@ -361,6 +326,7 @@ class PluginKarura extends PolkawalletPlugin {
     _service!.connected = true;
 
     if (keyring.current.address != null) {
+      await _store?.swap.initDexTokens(this);
       _subscribeTokenBalances(keyring.current);
     }
   }

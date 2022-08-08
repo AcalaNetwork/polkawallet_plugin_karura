@@ -95,7 +95,10 @@ class XcmChainSelector extends StatelessWidget {
                 ? SvgPicture.network(v)
                 : Image.network(v))));
 
-    final labelStyle = Theme.of(context).textTheme.headline4;
+    final labelStyle = Theme.of(context)
+        .textTheme
+        .headline4
+        ?.copyWith(fontWeight: FontWeight.bold);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -108,7 +111,7 @@ class XcmChainSelector extends StatelessWidget {
               GestureDetector(
                 child: RoundedCard(
                   padding: EdgeInsets.fromLTRB(8, 10, 0, 8),
-                  margin: EdgeInsets.only(bottom: 8),
+                  margin: EdgeInsets.only(bottom: 8, top: 3),
                   child: CurrencyWithIcon(
                     (from.length > 8 ? '${from.substring(0, 8)}...' : from)
                         .toUpperCase(),
@@ -148,12 +151,11 @@ class XcmChainSelector extends StatelessWidget {
           flex: 0,
           child: GestureDetector(
             child: Container(
-              padding: EdgeInsets.fromLTRB(8, 14, 8, 20),
-              child: Icon(
-                Icons.arrow_forward,
-                size: 18,
-                color: Theme.of(context).toggleableActiveColor,
-              ),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              margin: EdgeInsets.only(bottom: 15),
+              child: Image.asset(
+                  "packages/polkawallet_plugin_karura/assets/images/xcm_to.png",
+                  width: 13),
             ),
             onTap: fromChains.length > 0 ? _switch : null,
           ),
@@ -166,7 +168,7 @@ class XcmChainSelector extends StatelessWidget {
               GestureDetector(
                 child: RoundedCard(
                   padding: EdgeInsets.fromLTRB(8, 10, 0, 8),
-                  margin: EdgeInsets.only(bottom: 8),
+                  margin: EdgeInsets.only(bottom: 8, top: 3),
                   child: CurrencyWithIcon(
                     (to.length > 8 ? '${to.substring(0, 8)}...' : to)
                         .toUpperCase(),

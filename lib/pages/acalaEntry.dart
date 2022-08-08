@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginItemCard.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 
 class DefiWidget extends StatelessWidget {
   DefiWidget(this.plugin);
@@ -54,11 +55,11 @@ class DefiWidget extends StatelessWidget {
                 showCupertinoDialog(
                   context: context,
                   builder: (context) {
-                    return CupertinoAlertDialog(
+                    return PolkawalletAlertDialog(
                       title: Text(dic['upgrading']!),
                       content: Text(dic['upgrading.context']!),
                       actions: <Widget>[
-                        CupertinoDialogAction(
+                        PolkawalletActionSheetAction(
                           child: Text(dic['upgrading.btn']!),
                           onPressed: () {
                             Navigator.of(context).pop();

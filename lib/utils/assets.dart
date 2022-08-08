@@ -9,8 +9,8 @@ class AssetsUtils {
   static const categoryLPFree = 'LP Free';
   static const categoryRewards = 'Rewards';
 
-  static List<AggregatedAssetsData> aggregatedAssetsDataFromJson(Map assetsMap,
-      BalancesStore balances, Map<String?, double> marketPrices) {
+  static List<AggregatedAssetsData> aggregatedAssetsDataFromJson(
+      PluginKarura plugin, Map assetsMap, BalancesStore balances) {
     AggregatedAssetsData _getDataItem(String k) {
       final data = AggregatedAssetsData();
       data.category = k;
@@ -19,7 +19,7 @@ class AssetsUtils {
         final item = AggregatedAssetsItemData();
         item.token = key;
         item.amount = double.parse(assetsMap[k][key].toString());
-        item.value = (marketPrices[key] ?? 0) * item.amount;
+        item.value = getMarketPrice(plugin, key) * item.amount;
         return item;
       }).toList());
       data.value = data.assets.length > 0
@@ -116,7 +116,8 @@ class AssetsUtils {
   }
 
   static double getMarketPrice(PluginKarura plugin, String tokenSymbol) {
-    final market = plugin.store!.assets.marketPrices[tokenSymbol] ?? 0;
+    final market =
+        plugin.store!.assets.marketPrices[tokenSymbol]?.toDouble() ?? 0;
     return market == 0
         ? plugin.store!.assets.dexPrices[tokenSymbol] ?? 0
         : market;

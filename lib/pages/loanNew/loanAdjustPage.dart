@@ -13,10 +13,10 @@ import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/infoItemRow.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPageTitleTaps.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
@@ -134,14 +134,14 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     buildFirstInputView(),
                                     InfoItemRow(
                                       "${dic['v3.loan.requiredSafety']}",
-                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.requiredCollateral, _editorLoan!.token!.decimals!)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
+                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.requiredCollateral, _editorLoan!.token!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
                                       labelStyle: textStyle,
                                       contentStyle: textStyle,
                                     ),
                                     buildLastInputView(),
                                     InfoItemRow(
                                       "${dic['v3.loan.currentCollateral']}:",
-                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.collaterals, _editorLoan!.token!.decimals!)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
+                                      "${Fmt.priceFloorBigIntFormatter(_editorLoan!.collaterals, _editorLoan!.token!.decimals!, lengthMax: 4)} ${PluginFmt.tokenView(_editorLoan!.token!.symbol)}",
                                       labelStyle: textStyle,
                                       contentStyle: textStyle,
                                     ),
@@ -159,7 +159,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                     ),
                                     InfoItemRow(
                                       "${dic['v3.loan.newLiquidationPrice']}:",
-                                      "\$ ${Fmt.priceFloorBigInt(_editorLoan!.liquidationPrice, acala_price_decimals)}",
+                                      "\$ ${Fmt.priceFloorBigInt(_editorLoan!.liquidationPrice, acala_price_decimals, lengthMax: 4)}",
                                       labelStyle: textStyle,
                                       contentStyle: textStyle,
                                     ),
@@ -184,7 +184,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   Widget buildLastInputView() {
-    if (_editorLoan == null) {
+    if (_editorLoan == null ||
+        _loan?.type.maximumTotalDebitValue == BigInt.zero) {
       return Container();
     }
     var titleTag = '';
@@ -227,18 +228,29 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                     _selectRadio = !_selectRadio;
                   });
                 },
-                child: Padding(
-                    padding: EdgeInsets.only(top: 3),
+                child: Container(
+                    margin: EdgeInsets.only(top: 16),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                        color: _selectRadio
+                            ? Color(0xA6D8D8D8)
+                            : Color(0xFFD8D8D8),
+                        borderRadius: BorderRadius.circular(4)),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        PluginRadioButton(
-                          value: _selectRadio,
+                        Icon(
+                          _selectRadio ? Icons.remove_circle : Icons.add_circle,
+                          color: Color(0xFF616161),
+                          size: 12,
                         ),
                         Padding(
-                            padding: EdgeInsets.only(left: 5),
+                            padding: EdgeInsets.only(left: 2),
                             child: Text(
                               "$seleteRadioTest (${PluginFmt.tokenView(banlance.symbol)})",
-                              style: textStyle,
+                              style: textStyle?.copyWith(
+                                  color: Color(0xFF24262A), height: 1.3),
                             )),
                       ],
                     ))),
@@ -247,7 +259,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 child: Column(
                   children: [
                     Padding(
-                        padding: EdgeInsets.only(top: 30),
+                        padding: EdgeInsets.only(top: 16),
                         child: PluginInputBalance(
                           key: Key("2"),
                           tokenViewFunction: (value) {
@@ -371,6 +383,39 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                         )),
                     ErrorMessage(_error2,
                         margin: EdgeInsets.symmetric(vertical: 2)),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(2)),
+                                color: Color(0x73D8D8D8)),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 6, right: 6),
+                            width: 83,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(2)),
+                                color: Color(0x73D8D8D8)),
+                          ),
+                          Container(
+                            width: 20,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(2)),
+                                color: Color(0x73D8D8D8)),
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 ))
           ],
@@ -608,6 +653,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
   }
 
   void _inputChage(String titleTag, String v, {bool isMax = false}) {
+    if (v.trim().isEmpty) {
+      v = '0';
+    }
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     final balancePair = AssetsUtils.getBalancePairFromTokenNameId(
         widget.plugin, [_editorLoan!.token!.tokenNameId, karura_stable_coin]);
@@ -757,10 +805,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       await showCupertinoDialog(
           context: context,
           builder: (_) {
-            return CupertinoAlertDialog(
+            return PolkawalletAlertDialog(
               content: Text(dic!['v3.loan.paybackMessage']!),
               actions: <Widget>[
-                CupertinoDialogAction(
+                PolkawalletActionSheetAction(
                   child: Text(dic['v3.loan.iUnderstand']!),
                   onPressed: () => Navigator.of(context).pop(false),
                 )
@@ -785,11 +833,11 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         showCupertinoDialog(
             context: context,
             builder: (_) {
-              return CupertinoAlertDialog(
+              return PolkawalletAlertDialog(
                 content: Text(
                     "${I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min']} ${Fmt.priceFloorBigInt(Fmt.balanceInt(loan.token!.minBalance) * BigInt.from(100), loan.token!.decimals!, lengthFixed: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}"),
                 actions: <Widget>[
-                  CupertinoDialogAction(
+                  PolkawalletActionSheetAction(
                     child: Text(I18n.of(context)!.getDic(
                         i18n_full_dic_karura, 'common')!['upgrading.btn']!),
                     onPressed: () => Navigator.of(context).pop(false),
@@ -800,7 +848,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         return null;
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(loan.token!.symbol)}',
+        '${Fmt.priceFloorBigInt(collaterals.abs(), balancePair[0].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(loan.token!.symbol)}',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -820,11 +868,11 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           showCupertinoDialog(
               context: context,
               builder: (_) {
-                return CupertinoAlertDialog(
+                return PolkawalletAlertDialog(
                   content: Text(
                       "${dic!['v3.loan.errorMessage5']}$minimumDebitValue${dic['v3.loan.errorMessage6']}"),
                   actions: <Widget>[
-                    CupertinoDialogAction(
+                    PolkawalletActionSheetAction(
                       child: Text(I18n.of(context)!.getDic(
                           i18n_full_dic_karura, 'common')!['upgrading.btn']!),
                       onPressed: () => Navigator.of(context).pop(false),
@@ -867,7 +915,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
         }
       }
       detail[dic![dicValue]!] = Text(
-        '${Fmt.priceFloorBigInt((debitS == debitShares ? debits : loan.type.debitShareToDebit(debitS)).abs(), balancePair[1].decimals!, lengthMax: 4)} ${PluginFmt.tokenView(karura_stable_coin)}',
+        '${Fmt.priceFloorBigInt((debitS == debitShares ? debits : loan.type.debitShareToDebit(debitS)).abs(), balancePair[1].decimals!, lengthMax: 8)} ${PluginFmt.tokenView(karura_stable_coin)}',
         style: Theme.of(context)
             .textTheme
             .headline1
@@ -896,14 +944,16 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     final bool? res = await showCupertinoDialog(
         context: context,
         builder: (_) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
             content: Text(message),
             actions: <Widget>[
-              CupertinoDialogAction(
-                child: Text(dic['loan.warn.back']!),
+              PolkawalletActionSheetAction(
+                child: Text(I18n.of(context)!
+                    .getDic(i18n_full_dic_karura, 'common')!['cancel']!),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
-              CupertinoDialogAction(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_karura, 'common')!['ok']!),
                 onPressed: () => Navigator.of(context).pop(true),

@@ -26,6 +26,7 @@ import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
 import 'package:polkawallet_ui/components/v3/addressIcon.dart';
 import 'package:polkawallet_ui/components/v3/addressTextFormField.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/dialog.dart';
 import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/components/v3/roundedCard.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
@@ -67,26 +68,6 @@ class _TransferPageState extends State<TransferPage> {
 
   bool _submitting = false;
 
-  Future<String?> _checkBlackList(KeyPairData acc) async {
-    final addresses =
-        await widget.plugin.sdk.api.account.decodeAddress([acc.address!]);
-    if (addresses != null) {
-      final pubKey = addresses.keys.toList()[0];
-      if (widget.plugin.sdk.blackList.indexOf(pubKey) > -1) {
-        return I18n.of(context)!
-            .getDic(i18n_full_dic_karura, 'common')!['transfer.scam'];
-      }
-    }
-    return null;
-  }
-
-  Future<String?> _checkAccountTo(KeyPairData acc) async {
-    final blackListCheck = await _checkBlackList(acc);
-    if (blackListCheck != null) return blackListCheck;
-
-    return null;
-  }
-
   Future<void> _getAccountSysInfo() async {
     final info = await widget.plugin.sdk.webView?.evalJavascript(
         'api.query.system.account("${widget.keyring.current.address}")');
@@ -124,17 +105,13 @@ class _TransferPageState extends State<TransferPage> {
     final acc = KeyPairData();
     acc.address = (to as QRCodeResult).address!.address;
     acc.name = to.address!.name;
-    final res = await Future.wait([
-      widget.plugin.sdk.api.account.getAddressIcons([acc.address]),
-      _checkAccountTo(acc),
-    ]);
-    if (res[0] != null) {
-      final List icon = res[0] as List<dynamic>;
-      acc.icon = icon[0][1];
+    final res =
+        await widget.plugin.sdk.api.account.getAddressIcons([acc.address]);
+    if (res != null) {
+      acc.icon = res[0][1];
     }
     setState(() {
       _accountTo = acc;
-      _accountToError = res[1] as String?;
     });
     print(_accountTo!.address);
   }
@@ -158,16 +135,17 @@ class _TransferPageState extends State<TransferPage> {
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
-          return CupertinoAlertDialog(
+          return PolkawalletAlertDialog(
             title: Text(dic['note']!),
             content: Text(dic['transfer.note.msg1']!),
             actions: <Widget>[
-              CupertinoButton(
+              PolkawalletActionSheetAction(
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['cancel']!),
                 onPressed: () => Navigator.of(context).pop(),
               ),
-              CupertinoButton(
+              PolkawalletActionSheetAction(
+                isDefaultAction: true,
                 child: Text(I18n.of(context)!
                     .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                 onPressed: () {
@@ -177,11 +155,11 @@ class _TransferPageState extends State<TransferPage> {
                     showCupertinoDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
+                        return PolkawalletAlertDialog(
                           title: Text(dic['note']!),
                           content: Text(dic['transfer.note.msg2']!),
                           actions: <Widget>[
-                            CupertinoButton(
+                            PolkawalletActionSheetAction(
                               child: Text(I18n.of(context)!
                                   .getDic(i18n_full_dic_ui, 'common')!['ok']!),
                               onPressed: () => Navigator.of(context).pop(),
@@ -307,15 +285,17 @@ class _TransferPageState extends State<TransferPage> {
     final token = _token ??
         AssetsUtils.getBalanceFromTokenNameId(widget.plugin, args.tokenNameId);
 
-    final tokensConfig =
-        widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
-    final tokenXcmConfig =
-        List<String>.from((tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
-    final tokenXcmFromConfig = List<String>.from(
-        (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
+    // final tokensConfig =
+    //     widget.plugin.store!.setting.remoteConfig['tokens'] ?? {};
+    // final tokenXcmConfig =
+    //     List<String>.from((tokensConfig['xcm'] ?? {})[token.tokenNameId] ?? []);
+    // final tokenXcmFromConfig = List<String>.from(
+    //     (tokensConfig['xcmFrom'] ?? {})[token.tokenNameId] ?? []);
 
-    final canCrossChain =
-        tokenXcmConfig.length > 0 || tokenXcmFromConfig.length > 0;
+    // TODO: remove cross-chain from this page
+    final canCrossChain = false;
+    // final canCrossChain =
+    //     tokenXcmConfig.length > 0 || tokenXcmFromConfig.length > 0;
 
     return Scaffold(
         appBar: AppBar(
@@ -330,7 +310,7 @@ class _TransferPageState extends State<TransferPage> {
                   icon: SvgPicture.asset(
                     'assets/images/scan.svg',
                     color: Theme.of(context).cardColor,
-                    width: 18,
+                    width: 24,
                   ),
                   onPressed: () => _onScan(),
                   isBlueBg: true),
@@ -430,10 +410,20 @@ class _TransferPageState extends State<TransferPage> {
                           max = BigInt.zero;
                         }
 
-                        final labelStyle =
-                            Theme.of(context).textTheme.headline4;
-                        final subTitleStyle = TextStyle(
-                            fontSize: UI.getTextSize(12, context), height: 1);
+                        final labelStyle = Theme.of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(fontWeight: FontWeight.bold);
+                        final subTitleStyle = Theme.of(context)
+                            .textTheme
+                            .headline5
+                            ?.copyWith(
+                                height: 1,
+                                fontWeight: FontWeight.w300,
+                                fontSize: 12,
+                                color: UI.isDarkTheme(context)
+                                    ? Colors.white
+                                    : Color(0xBF565554));
                         final infoValueStyle = Theme.of(context)
                             .textTheme
                             .headline5!
@@ -445,7 +435,9 @@ class _TransferPageState extends State<TransferPage> {
                             ConnectionChecker(widget.plugin,
                                 onConnected: _fetchData),
                             Text(dic['address.from'] ?? '', style: labelStyle),
-                            AddressFormItem(widget.keyring.current),
+                            Padding(
+                                padding: EdgeInsets.only(top: 3),
+                                child: AddressFormItem(widget.keyring.current)),
                             Container(height: 8.h),
                             Form(
                               key: _formKey,
@@ -460,13 +452,12 @@ class _TransferPageState extends State<TransferPage> {
                                     hintText: dic['address'],
                                     initialValue: _accountTo,
                                     onChanged: (KeyPairData acc) async {
-                                      final error = await _checkAccountTo(acc);
                                       setState(() {
                                         _accountTo = acc;
-                                        _accountToError = error;
                                       });
                                     },
                                     key: ValueKey<KeyPairData?>(_accountTo),
+                                    sdk: widget.plugin.sdk,
                                   ),
                                   Visibility(
                                       visible: _accountToError != null,
@@ -574,11 +565,12 @@ class _TransferPageState extends State<TransferPage> {
                             ),
                             RoundedCard(
                               margin: EdgeInsets.only(top: 16.h),
-                              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+                              padding: EdgeInsets.symmetric(vertical: 6),
                               child: Column(
                                 children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 8),
+                                  Container(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 16.w),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -589,15 +581,27 @@ class _TransferPageState extends State<TransferPage> {
                                               child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   Text(
                                                       dicAcala[
                                                           'transfer.exist']!,
-                                                      style: labelStyle),
-                                                  Text(
-                                                      dicAcala[
-                                                          'cross.exist.msg']!,
-                                                      style: subTitleStyle),
+                                                      style:
+                                                          labelStyle?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400)),
+                                                  Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 2),
+                                                      child: Text(
+                                                          dicAcala[
+                                                              'cross.exist.msg']!,
+                                                          style: subTitleStyle
+                                                              ?.copyWith(
+                                                                  height:
+                                                                      1.3))),
                                                 ],
                                               )),
                                         ),
@@ -609,72 +613,102 @@ class _TransferPageState extends State<TransferPage> {
                                   ),
                                   Visibility(
                                       visible: _fee?.partialFee != null,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Expanded(
-                                              child: Padding(
-                                                padding:
-                                                    EdgeInsets.only(right: 4),
-                                                child: Text(
-                                                    dicAcala['transfer.fee']!,
-                                                    style: labelStyle),
-                                              ),
-                                            ),
-                                            Text(
-                                                '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken',
-                                                style: infoValueStyle),
-                                          ],
+                                      child: Column(children: [
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.symmetric(vertical: 6),
+                                          child: Divider(height: 1),
                                         ),
-                                      )),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16.w),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                      EdgeInsets.only(right: 4),
+                                                  child: Text(
+                                                      dicAcala['transfer.fee']!,
+                                                      style:
+                                                          labelStyle?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400)),
+                                                ),
+                                              ),
+                                              Text(
+                                                  '${Fmt.priceCeilBigInt(Fmt.balanceInt((_fee?.partialFee ?? 0).toString()), nativeTokenDecimals, lengthMax: 6)} $nativeToken',
+                                                  style: infoValueStyle),
+                                            ],
+                                          ),
+                                        )
+                                      ])),
                                   Visibility(
                                       visible: tokenSymbol == nativeToken &&
                                           available > BigInt.zero,
-                                      child: Container(
-                                        margin: EdgeInsets.only(top: 8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Expanded(
-                                              child: Container(
-                                                  padding: EdgeInsets.only(
-                                                      right: 60),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        dic['transfer.alive']!,
-                                                        style: labelStyle,
-                                                      ),
-                                                      Text(
-                                                        dic['transfer.alive.msg']!,
-                                                        style: subTitleStyle,
-                                                      ),
-                                                    ],
-                                                  )),
-                                            ),
-                                            v3.CupertinoSwitch(
-                                              value: _keepAlive,
-                                              // account is not allow_death if it has
-                                              // locked/reserved balances
-                                              onChanged: (v) =>
-                                                  _onSwitchCheckAlive(
-                                                      v,
-                                                      !isAccountNormal ||
-                                                          notTransferable >
-                                                              BigInt.zero),
-                                            )
-                                          ],
-                                        ),
-                                      ))
+                                      child: Column(children: [
+                                        Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 6),
+                                            child: Divider(height: 1)),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16.w),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                    padding: EdgeInsets.only(
+                                                        right: 60),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          dic['transfer.alive']!,
+                                                          style: labelStyle
+                                                              ?.copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400),
+                                                        ),
+                                                        Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 2),
+                                                            child: Text(
+                                                              dic['transfer.alive.msg']!,
+                                                              style: subTitleStyle!
+                                                                  .copyWith(
+                                                                      height:
+                                                                          1.3),
+                                                            )),
+                                                      ],
+                                                    )),
+                                              ),
+                                              v3.CupertinoSwitch(
+                                                value: _keepAlive,
+                                                // account is not allow_death if it has
+                                                // locked/reserved balances
+                                                onChanged: (v) =>
+                                                    _onSwitchCheckAlive(
+                                                        v,
+                                                        !isAccountNormal ||
+                                                            notTransferable >
+                                                                BigInt.zero),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      ]))
                                 ],
                               ),
                             ),
