@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -11,6 +13,7 @@ class TxLoanData extends _TxLoanData {
   static const String actionTypePayback = 'payback';
   static const String actionTypeCreate = 'create';
   static const String actionLiquidate = 'liquidate';
+  static const String actionClose = 'close';
 
   static const String actionTypeDepositFilter = 'Deposit';
   static const String actionTypeWithdrawFilter = 'Withdraw';
@@ -32,15 +35,21 @@ class TxLoanData extends _TxLoanData {
     switch (history.event) {
       case 'loans.PositionUpdated':
         data.collateral = Fmt.balanceInt(history.data!["collateralAdjustment"]);
-        data.debit = Fmt.balanceInt(history.data!["debitAdjustment"]);
+        data.debit = Fmt.balanceInt(
+                (history.data!['debitAdjustment'] ?? '0').toString()) *
+            Fmt.balanceInt(
+                (history.data!['debitExchangeRate'] ?? '1000000000000')
+                    .toString()) ~/
+            BigInt.from(pow(10, acala_price_decimals));
         break;
       case 'cdpEngine.LiquidateUnsafeCDP':
         data.collateral = Fmt.balanceInt(history.data!["collateralAmount"]);
         data.debit = Fmt.balanceInt(history.data!["badDebitVolumeUSD"]);
         break;
       case 'loans.CloseCDPInDebitByDEX':
-        data.collateral = Fmt.balanceInt(history.data!["refundAmount"]);
-        data.debit = Fmt.balanceInt(history.data!["soldAmount"]);
+        data.collateral = Fmt.balanceInt(history.data!["refundAmount"]) +
+            Fmt.balanceInt(history.data!["soldAmount"]);
+        data.debit = Fmt.balanceInt(history.data!["debitVolumeUSD"]);
     }
 
     data.amountCollateral = Fmt.priceFloorBigInt(
@@ -51,6 +60,8 @@ class TxLoanData extends _TxLoanData {
         lengthMax: 6);
     if (data.event == 'cdpEngine.LiquidateUnsafeCDP') {
       data.actionType = TxLoanData.actionLiquidate;
+    } else if (data.event == 'loans.CloseCDPInDebitByDEX') {
+      data.actionType = TxLoanData.actionClose;
     } else if (data.collateral == BigInt.zero) {
       data.actionType = data.debit! > BigInt.zero
           ? TxLoanData.actionTypeBorrow
