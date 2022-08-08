@@ -211,6 +211,8 @@ class _SwapFormState extends State<SwapForm>
 
     widget.plugin.service!.assets.queryMarketPrices(withDexPrice: false);
 
+    supply = supply != null ? double.parse(supply).toString() : supply;
+    target = target != null ? double.parse(target).toString() : target;
     try {
       if (supply == null) {
         final inputAmount = double.tryParse(target!);
@@ -224,7 +226,7 @@ class _SwapFormState extends State<SwapForm>
         );
         if (mounted) {
           setState(() {
-            if (target.isNotEmpty) {
+            if (target!.isNotEmpty) {
               _amountPayCtrl.text = output.amount.toString();
             } else {
               _amountPayCtrl.text = '';
@@ -248,7 +250,7 @@ class _SwapFormState extends State<SwapForm>
         );
         if (mounted) {
           setState(() {
-            if (supply.isNotEmpty) {
+            if (supply!.isNotEmpty) {
               _amountReceiveCtrl.text = output.amount.toString();
             } else {
               _amountReceiveCtrl.text = '';
@@ -348,8 +350,8 @@ class _SwapFormState extends State<SwapForm>
     if (_onCheckBalance()) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-      final pay = _amountPayCtrl.text.trim();
-      final receive = _amountReceiveCtrl.text.trim();
+      final pay = double.parse(_amountPayCtrl.text.trim()).toString();
+      final receive = double.parse(_amountReceiveCtrl.text.trim()).toString();
       final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
               module: _swapOutput.tx!["section"],
@@ -509,7 +511,16 @@ class _SwapFormState extends State<SwapForm>
 
         final showExchangeRate = swapPair.length > 1 &&
             _amountPayCtrl.text.isNotEmpty &&
-            _amountReceiveCtrl.text.isNotEmpty;
+            _amountReceiveCtrl.text.isNotEmpty &&
+            double.parse(_amountReceiveCtrl.text.trim()) > 0;
+
+        String? amountLowError;
+        if (swapPair.length > 1 &&
+            _amountPayCtrl.text.isNotEmpty &&
+            _amountReceiveCtrl.text.isNotEmpty &&
+            double.parse(_amountReceiveCtrl.text.trim()) == 0) {
+          amountLowError = dic['v3.loan.amountLowError'];
+        }
 
         final labelStyle = Theme.of(context)
             .textTheme
@@ -640,7 +651,7 @@ class _SwapFormState extends State<SwapForm>
               ],
             ),
             ErrorMessage(
-              _error ?? _errorReceive ?? _interfaceError,
+              _error ?? _errorReceive ?? _interfaceError ?? amountLowError,
               margin: EdgeInsets.symmetric(vertical: 2),
             ),
             Visibility(
@@ -650,7 +661,8 @@ class _SwapFormState extends State<SwapForm>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("${dic['collateral.price']}:", style: labelStyle),
+                      Text("${dic['collateral.exchangeRate']}:",
+                          style: labelStyle),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
@@ -842,7 +854,8 @@ class _SwapFormState extends State<SwapForm>
                       )
                     ]))),
             Visibility(
-                visible: _detailShow && _interfaceError == null,
+                visible:
+                    showExchangeRate && _detailShow && _interfaceError == null,
                 child: Container(
                   // decoration: BoxDecoration(
                   //     color: Color(0x24FFFFFF),

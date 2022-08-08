@@ -62,7 +62,7 @@ const Map<String, String> enDex = {
   'liquid.price.new': 'New Liquidation Price',
   'liquid.ratio.current': 'Current Ratio',
   'liquid.ratio.new': 'New Collateral Ratio',
-  'collateral.price': 'Price',
+  'collateral.exchangeRate': '兑换比率',
   'collateral.price.current': 'Current Price',
   'collateral.interest': 'Stability Fee',
   'collateral.require': 'Required',
@@ -363,4 +363,5 @@ const Map<String, String> enDex = {
   'v3.loan.ableWithdraw': 'Able to withdraw',
   'loan.return': 'Return',
   'loan.update': 'Update Vault',
+  'v3.loan.amountLowError': 'amount too low to swap'
 };
