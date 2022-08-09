@@ -328,8 +328,8 @@ class _TaigaWithdrawLiquidityPageState
                                                           .locale
                                                           .toString()
                                                           .contains('zh')
-                                                      ? 60
-                                                      : 80,
+                                                      ? 45
+                                                      : 70,
                                                   right: 12),
                                               title:
                                                   "${PluginFmt.tokenView(balance.symbol)}",
