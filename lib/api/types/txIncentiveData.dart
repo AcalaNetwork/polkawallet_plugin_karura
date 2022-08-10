@@ -33,7 +33,7 @@ class TxDexIncentiveData extends _TxDexIncentiveData {
     final token = AssetsUtils.tokenDataFromCurrencyId(
         plugin, {'token': history.data!['tokenId']});
     final shareTokenView = PluginFmt.tokenView(token.symbol);
-    data.poolId = token.symbol ?? "";
+    data.poolId = shareTokenView.replaceAll('LP', '').trim();
 
     switch (data.event) {
       case TxDexIncentiveData.actionClaimRewards:
