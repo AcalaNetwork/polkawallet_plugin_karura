@@ -28,6 +28,7 @@ import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
+import 'package:decimal/decimal.dart';
 
 class SwapForm extends StatefulWidget {
   SwapForm(this.plugin, this.keyring, {this.initialSwapPair});
@@ -217,8 +218,9 @@ class _SwapFormState extends State<SwapForm>
 
     widget.plugin.service!.assets.queryMarketPrices(withDexPrice: false);
 
-    supply = supply != null ? double.parse(supply).toString() : supply;
-    target = target != null ? double.parse(target).toString() : target;
+    supply = supply != null ? Decimal.tryParse(supply).toString() : supply;
+    target = target != null ? Decimal.tryParse(target).toString() : target;
+
     try {
       if (supply == null) {
         final inputAmount = double.tryParse(target!);
@@ -360,8 +362,8 @@ class _SwapFormState extends State<SwapForm>
     if (_onCheckBalance() && !_isLoading) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-      final pay = double.parse(_amountPayCtrl.text.trim()).toString();
-      final receive = double.parse(_amountReceiveCtrl.text.trim()).toString();
+      final pay = Decimal.parse(_amountPayCtrl.text.trim()).toString();
+      final receive = Decimal.parse(_amountReceiveCtrl.text.trim()).toString();
       final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
               module: _swapOutput.tx!["section"],
@@ -965,6 +967,18 @@ class _SwapFormState extends State<SwapForm>
                                   color: Color(0xFF404142),
                                   padding: EdgeInsets.zero,
                                   elevation: 3,
+                                  onShow: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
+                                  onCanceled: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
+                                  onSelected: (value) {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
                                   itemWidth:
                                       _getRouteWidth(_swapOutput.path ?? []),
                                   shape: const RoundedRectangleBorder(

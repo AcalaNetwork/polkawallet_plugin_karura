@@ -266,6 +266,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                             return PluginFmt.tokenView(value);
                           },
                           titleTag: titleTag,
+                          balanceLabel: titleTag == dic['loan.mint']
+                              ? dic['v3.loan.canMint']
+                              : null,
                           inputCtrl: _lastController,
                           onSetMax: Fmt.bigIntToDouble(
                                           BigInt.parse(banlance.amount!),
@@ -453,6 +456,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               },
               titleTag: titleTag,
               inputCtrl: _firstController,
+              balanceLabel:
+                  titleTag == dic['loan.mint'] ? dic['v3.loan.canMint'] : null,
               onSetMax: Fmt.bigIntToDouble(BigInt.parse(banlance.amount!),
                               banlance.decimals!) >
                           0.000001 &&

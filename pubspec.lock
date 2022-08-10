@@ -261,7 +261,7 @@ packages:
     source: hosted
     version: "0.7.5"
   decimal:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: decimal
       url: "https://pub.dartlang.org"
