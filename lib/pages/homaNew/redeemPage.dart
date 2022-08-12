@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -536,7 +537,7 @@ class UnStakeTypeItemWidget extends StatelessWidget {
           decoration: BoxDecoration(
               color: Color(0x24FFFFFF),
               border: isSelect
-                  ? Border.all(color: Color(0xFFFC8156), width: 2)
+                  ? Border.all(color: PluginColorsDark.primary, width: 2)
                   : null,
               borderRadius: const BorderRadius.all(Radius.circular(8))),
           child: Column(

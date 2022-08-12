@@ -341,7 +341,7 @@ class _HomaPageState extends State<HomaPage> {
                           ),
                         ),
                         Container(
-                          color: Color(0xFFFC8156),
+                          color: PluginColorsDark.primary,
                           height: 28,
                           width: 3,
                           margin: EdgeInsets.symmetric(horizontal: 3),
@@ -398,7 +398,7 @@ class _HomaPageState extends State<HomaPage> {
                             Container(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 2),
-                              color: Color(0xFFFC8156),
+                              color: PluginColorsDark.primary,
                               child: Text(
                                 dic['v3.totalStaked']!,
                                 style: Theme.of(context)
@@ -731,7 +731,8 @@ class _HomaPageState extends State<HomaPage> {
                                                 .textTheme
                                                 .headline4
                                                 ?.copyWith(
-                                                    color: Color(0xFFFC8156),
+                                                    color: PluginColorsDark
+                                                        .primary,
                                                     fontWeight:
                                                         FontWeight.w400)),
                                       ])),

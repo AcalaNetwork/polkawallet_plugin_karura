@@ -21,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -303,7 +304,7 @@ class _TaigaDexPoolCard extends StatelessWidget {
                     child: PluginOutlinedButtonSmall(
                       margin: EdgeInsets.all(0),
                       content: dic['dex.addLiquidity'],
-                      color: Color(0xFFFC8156),
+                      color: PluginColorsDark.primary,
                       active: true,
                       onPressed: () => Navigator.of(context).pushNamed(
                           TaigaAddLiquidityPage.route,
@@ -480,7 +481,7 @@ class _DexPoolCard extends StatelessWidget {
                     child: PluginOutlinedButtonSmall(
                       margin: EdgeInsets.all(0),
                       content: dic['dex.addLiquidity'],
-                      color: Color(0xFFFC8156),
+                      color: PluginColorsDark.primary,
                       active: true,
                       onPressed: () => Navigator.of(context).pushNamed(
                           AddLiquidityPage.route,
