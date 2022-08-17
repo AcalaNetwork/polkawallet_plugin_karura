@@ -415,19 +415,7 @@ class _MintPageState extends State<MintPage> {
                                         UnStakeTypeItemWidget(
                                           title: dic['earn.dex.joinPool']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} ${(baseApr + taigaApr * 100).toStringAsFixed(2)}%",
-                                          subtitle: Container(
-                                            margin: EdgeInsets.only(top: 8),
-                                            child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%${taigaApr == 0 ? '' : ' + ${dic['v3.homa.stake.apy.reward']} ${(taigaApr * 100).toStringAsFixed(2)}%'})',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline6
-                                                  ?.copyWith(
-                                                      color: PluginColorsDark
-                                                          .primary),
-                                            ),
-                                          ),
+                                              "${dic['v3.homa.stake.apy.total']!} ${(taigaApr * 100).toStringAsFixed(2)}%",
                                           describe: dic[
                                               'earn.dex.joinPool.describe']!,
                                           margin: EdgeInsets.only(bottom: 12),

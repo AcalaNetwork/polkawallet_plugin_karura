@@ -726,7 +726,7 @@ class _HomaPageState extends State<HomaPage> {
                                           children: [
                                         TextSpan(
                                             text:
-                                                " ${(aprValue + (rewardApr > taigaApr ? rewardApr : taigaApr) * 100).toStringAsFixed(2)}%!",
+                                                "${(aprValue + rewardApr * 100 > taigaApr * 100 ? aprValue + rewardApr * 100 : taigaApr * 100).toStringAsFixed(2)}%!",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4
