@@ -159,7 +159,7 @@ async function initKeys(accounts: KeyringPair$Json[], ss58Formats: number[]) {
  * estimate gas fee of an extrinsic
  */
 async function txFeeEstimate(api: ApiPromise, txInfo: any, paramList: any[]) {
-  let tx: SubmittableExtrinsic<"promise"> = api.tx[txInfo.module][txInfo.call](...paramList);
+  let tx: SubmittableExtrinsic<"promise"> = !!txInfo.txHex ? api.tx(txInfo.txHex) : api.tx[txInfo.module][txInfo.call](...paramList);
 
   let sender = txInfo.sender.address;
   if (txInfo.proxy) {
@@ -226,7 +226,7 @@ export function _getDispatchError(dispatchError: DispatchError): string {
  */
 function sendTx(api: ApiPromise, txInfo: any, paramList: any[], password: string, msgId: string) {
   return new Promise(async (resolve) => {
-    let tx: SubmittableExtrinsic<"promise"> = api.tx[txInfo.module][txInfo.call](...paramList);
+    let tx: SubmittableExtrinsic<"promise"> = !!txInfo.txHex ? api.tx(txInfo.txHex) : api.tx[txInfo.module][txInfo.call](...paramList);
 
     let unsub = () => {};
     const onStatusChange = (result: SubmittableResult) => {
