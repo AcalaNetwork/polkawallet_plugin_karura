@@ -119,7 +119,8 @@ async function calcTokenSwapAmount(apiRx: ApiRx, input: number, output: number, 
         tx: {
           section: tx.method.section,
           method: tx.method.method,
-          params: tx.args.map((e) => e.toJSON()),
+          params: tx.args.map((e) => e.toHuman()),
+          txHex: tx.toHex()
         },
       };
     }
@@ -289,10 +290,12 @@ async function getTaigaMintAmount(poolNameId: string, input: string[], slippage:
       )
       .pipe(take(1))
   );
+  const tx = (<any>window).api.tx.stableAsset.mint(...res.toChainData());
   return {
     output: res.outputAmount.toChainData(),
     minAmount: res.getMinMintAmount().toChainData(),
-    params: res.toChainData(),
+    params: tx.args.map(e => e.toHuman()),
+    txHex: tx.toHex()
   };
 }
 
@@ -312,10 +315,12 @@ async function getTaigaRedeemAmount(poolNameId: string, input: string, slippage:
       )
       .pipe(take(1))
   );
+  const tx = (<any>window).api.tx.stableAsset.redeemProportion(...res.toChainData());
   return {
     output: res.outputAmounts.map((e) => e.toChainData()),
     minAmount: res.getMinOutputAmounts().map((e) => e.toChainData()),
-    params: res.toChainData(),
+    params: tx.args.map(e => e.toHuman()),
+    txHex: tx.toHex()
   };
 }
 

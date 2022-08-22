@@ -161,6 +161,7 @@ class _TaigaWithdrawLiquidityPageState
           ),
         },
         params: _redeemAmount!["params"],
+        txHex: _redeemAmount!["txHex"],
         isPlugin: true,
       );
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -28,7 +29,6 @@ import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 import 'package:rive/rive.dart';
-import 'package:decimal/decimal.dart';
 
 class SwapForm extends StatefulWidget {
   SwapForm(this.plugin, this.keyring, {this.initialSwapPair});
@@ -386,6 +386,7 @@ class _SwapFormState extends State<SwapForm>
                 ),
               },
               params: _swapOutput.tx!["params"],
+              txHex: _swapOutput.tx!["txHex"],
               isPlugin: true,
               onStatusChange: (status) {
                 if (status ==
