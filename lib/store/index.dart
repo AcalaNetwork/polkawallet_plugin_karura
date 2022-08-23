@@ -18,9 +18,10 @@ class PluginStore {
         earn = EarnStore(cache),
         swap = SwapStore(cache),
         homa = HomaStore(cache),
-        history = HistoryStore(cache);
+        history = HistoryStore(cache),
+        accounts = AccountsStore(cache);
 
-  final accounts = AccountsStore();
+  final AccountsStore accounts;
 
   final SettingStore setting;
   final AssetsStore assets;

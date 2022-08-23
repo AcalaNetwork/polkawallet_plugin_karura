@@ -9,4 +9,6 @@ class StoreCache {
   final swapPair = {}.val('swapPair', getBox: _storage);
 
   final aggregatedAssets = {}.val('aggregatedAssets', getBox: _storage);
+
+  final accounts = {}.val('accounts', getBox: _storage);
 }

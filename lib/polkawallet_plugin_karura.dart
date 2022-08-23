@@ -34,6 +34,7 @@ import 'package:polkawallet_sdk/plugin/homeNavItem.dart';
 import 'package:polkawallet_sdk/plugin/index.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
+import 'package:polkawallet_sdk/storage/types/ethWalletData.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/pages/accountQrCodePage.dart';
@@ -293,6 +294,7 @@ class PluginKarura extends PolkawalletPlugin {
       _store!.earn.setBootstraps([]);
       _store!.homa.setUserInfo(null);
       _store!.history.loadCache(acc.pubKey);
+      _store!.accounts.loadCache(acc);
       print('acala plugin cache data loaded');
     } catch (err) {
       print(err);
@@ -328,16 +330,35 @@ class PluginKarura extends PolkawalletPlugin {
     if (keyring.current.address != null) {
       await _store?.swap.initDexTokens(this);
       _subscribeTokenBalances(keyring.current);
+      _getEvmAccount(keyring.current);
     }
   }
 
   @override
   Future<void> onAccountChanged(KeyPairData acc) async {
+    store!.accounts.setEthWalletData(null, acc);
     _loadCacheData(acc);
 
     if (_service!.connected) {
       _api!.assets.unsubscribeTokenBalances(acc.address);
       _subscribeTokenBalances(acc);
+      _getEvmAccount(acc);
+    }
+  }
+
+  Future<void> _getEvmAccount(KeyPairData acc) async {
+    if (store?.accounts.ethWalletData != null) return;
+    final data = await sdk.api.service.webView!
+        .evalJavascript('api.query.evmAccounts.evmAddresses("${acc.address}")');
+    if (data != null) {
+      try {
+        final icons = await sdk.api.eth.account.service.getAddressIcons([data]);
+        store!.accounts.setEthWalletData(
+            EthWalletData()
+              ..address = data
+              ..icon = (icons!.last as List).last.toString(),
+            acc);
+      } catch (_) {}
     }
   }
 }

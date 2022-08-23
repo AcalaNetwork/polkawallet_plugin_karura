@@ -9,6 +9,21 @@ part of 'accounts.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$AccountsStore on _AccountsStore, Store {
+  final _$ethWalletDataAtom = Atom(name: '_AccountsStore.ethWalletData');
+
+  @override
+  EthWalletData? get ethWalletData {
+    _$ethWalletDataAtom.reportRead();
+    return super.ethWalletData;
+  }
+
+  @override
+  set ethWalletData(EthWalletData? value) {
+    _$ethWalletDataAtom.reportWrite(value, super.ethWalletData, () {
+      super.ethWalletData = value;
+    });
+  }
+
   final _$addressIndexMapAtom = Atom(name: '_AccountsStore.addressIndexMap');
 
   @override
@@ -39,6 +54,23 @@ mixin _$AccountsStore on _AccountsStore, Store {
     });
   }
 
+  final _$setEthWalletDataAsyncAction =
+      AsyncAction('_AccountsStore.setEthWalletData');
+
+  @override
+  Future<void> setEthWalletData(
+      EthWalletData? ethWalletData, KeyPairData? current) {
+    return _$setEthWalletDataAsyncAction
+        .run(() => super.setEthWalletData(ethWalletData, current));
+  }
+
+  final _$loadCacheAsyncAction = AsyncAction('_AccountsStore.loadCache');
+
+  @override
+  Future<void> loadCache(KeyPairData acc) {
+    return _$loadCacheAsyncAction.run(() => super.loadCache(acc));
+  }
+
   final _$_AccountsStoreActionController =
       ActionController(name: '_AccountsStore');
 
@@ -67,6 +99,7 @@ mixin _$AccountsStore on _AccountsStore, Store {
   @override
   String toString() {
     return '''
+ethWalletData: ${ethWalletData},
 addressIndexMap: ${addressIndexMap},
 addressIconsMap: ${addressIconsMap}
     ''';
