@@ -1088,14 +1088,13 @@ class RouteWidget extends StatelessWidget {
                     child: Stack(
                       children: path![index].path!.map((i) {
                         final indexI = path![index].path!.indexOf(i);
-                        final balancePair =
-                            AssetsUtils.getBalancePairFromTokenNameId(
-                                plugin, [i]);
+                        final token =
+                            AssetsUtils.getBalanceFromTokenNameId(plugin, i);
                         return Padding(
                           child: PluginTokenIcon(
-                              balancePair[0].symbol!, plugin.tokenIcons,
+                              token.symbol!, plugin.tokenIcons,
                               size: 27),
-                          padding: EdgeInsets.only(left: indexI == 0 ? 0 : 20),
+                          padding: EdgeInsets.only(left: indexI * 20),
                         );
                       }).toList(),
                     ))
