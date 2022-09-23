@@ -192,6 +192,15 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
     if (debits >= _maxToBorrow) {
       return '${dic!['loan.max']} $max';
     }
+    final totalDebitInCDP = loanType.debitShareToDebit(widget
+            .plugin.store!.loan.totalCDPs[loanType.token!.tokenNameId]?.debit ??
+        BigInt.zero);
+    final totalDebitLimit = loanType.maximumTotalDebitValue > totalDebitInCDP
+        ? loanType.maximumTotalDebitValue - totalDebitInCDP
+        : BigInt.zero;
+    if (debits >= totalDebitLimit) {
+      return dic!['loan.max.sys'];
+    }
     return null;
   }
 

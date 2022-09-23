@@ -73,6 +73,7 @@ const Map<String, String> zhDex = {
   'loan.amount.debit': '您要生成多少稳定币？',
   'loan.amount.collateral': '您要存入多少质押物？',
   'loan.max': '最大值',
+  'loan.max.sys': '数量超出系统限制',
   'loan.txs': '交易记录',
   'loan.warn1': '债仓未清零时，余额不能小于 ',
   'loan.warn2': 'aUSD，本次操作后将剩余 ',
