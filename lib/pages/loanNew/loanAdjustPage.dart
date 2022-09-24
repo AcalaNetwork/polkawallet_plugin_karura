@@ -663,7 +663,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       }
 
       if (titleTag == dic['loan.mint'] &&
-          debits >= (totalDebitLimit ?? BigInt.zero)) {
+          debits > (totalDebitLimit ?? BigInt.zero)) {
         return dic['loan.max.sys'];
       }
     }

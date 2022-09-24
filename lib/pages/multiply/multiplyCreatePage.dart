@@ -413,7 +413,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                     margin: EdgeInsets.symmetric(vertical: 2),
                     isRight: true),
                 ErrorMessage(
-                    debitChange >= totalDebitLimit ? dic['loan.max.sys'] : null,
+                    debitChange > totalDebitLimit ? dic['loan.max.sys'] : null,
                     margin: EdgeInsets.symmetric(vertical: 2),
                     isRight: true),
                 PluginTextTag(
@@ -470,7 +470,7 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       onPressed: () {
                         if (_error1 == null &&
                             debitChange > loanType.minimumDebitValue &&
-                            debitChange < totalDebitLimit) {
+                            debitChange <= totalDebitLimit) {
                           _onSubmit(pageTitle, loanType, buyingCollateral,
                               debitChange);
                         }

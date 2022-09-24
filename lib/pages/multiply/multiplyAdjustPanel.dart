@@ -348,7 +348,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                 margin: EdgeInsets.symmetric(vertical: 2),
                 isRight: true),
             ErrorMessage(
-                debitChange >= totalDebitLimit ? dic['loan.max.sys'] : null,
+                debitChange > totalDebitLimit ? dic['loan.max.sys'] : null,
                 margin: EdgeInsets.symmetric(vertical: 2),
                 isRight: true),
             PluginTextTag(
@@ -469,7 +469,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                   title: '${dic['v3.loan.submit']}',
                   onPressed: () {
                     if (debitNew > loanType.minimumDebitValue &&
-                        debitChange < totalDebitLimit &&
+                        debitChange <= totalDebitLimit &&
                         collateralChange != BigInt.zero) {
                       _onSubmit(
                           loanType, collateralChange, debitChange, debitNew);

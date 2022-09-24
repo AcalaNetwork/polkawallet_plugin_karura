@@ -10,8 +10,6 @@ import { IncentiveResult, TaigaUserReward } from "../types/acalaTypes";
 import { firstValueFrom, throttleTime, take } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
 import { BalanceData } from "@acala-network/sdk/wallet/type";
-import { data } from "@acala-network/sdk/cross-chain/configs/chains";
-import subscan from "../utils/config/links/subscan";
 import { HistoryRecord } from "@acala-network/sdk/history/types";
 import { StableAssetRx } from "@nuts-finance/sdk-stable-asset";
 import { BigNumber } from "bignumber.js";
