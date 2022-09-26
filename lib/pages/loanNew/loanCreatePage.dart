@@ -189,8 +189,17 @@ class _LoanCreatePageState extends State<LoanCreatePage> {
       return '${assetDic!['min']} ${min.toStringAsFixed(2)}';
     }
     BigInt debits = Fmt.tokenInt(v, stableCoinDecimals);
-    if (debits >= _maxToBorrow) {
+    if (debits > _maxToBorrow) {
       return '${dic!['loan.max']} $max';
+    }
+    final totalDebitInCDP = loanType.debitShareToDebit(widget
+            .plugin.store!.loan.totalCDPs[loanType.token!.tokenNameId]?.debit ??
+        BigInt.zero);
+    final totalDebitLimit = loanType.maximumTotalDebitValue > totalDebitInCDP
+        ? loanType.maximumTotalDebitValue - totalDebitInCDP
+        : BigInt.zero;
+    if (debits > totalDebitLimit) {
+      return dic!['loan.max.sys'];
     }
     return null;
   }

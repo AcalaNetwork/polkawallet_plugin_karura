@@ -341,7 +341,7 @@ class _HomaPageState extends State<HomaPage> {
                           ),
                         ),
                         Container(
-                          color: Color(0xFFFC8156),
+                          color: PluginColorsDark.primary,
                           height: 28,
                           width: 3,
                           margin: EdgeInsets.symmetric(horizontal: 3),
@@ -398,7 +398,7 @@ class _HomaPageState extends State<HomaPage> {
                             Container(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 2),
-                              color: Color(0xFFFC8156),
+                              color: PluginColorsDark.primary,
                               child: Text(
                                 dic['v3.totalStaked']!,
                                 style: Theme.of(context)
@@ -726,12 +726,13 @@ class _HomaPageState extends State<HomaPage> {
                                           children: [
                                         TextSpan(
                                             text:
-                                                " ${(aprValue + (rewardApr > taigaApr ? rewardApr : taigaApr) * 100).toStringAsFixed(2)}%!",
+                                                "${(aprValue + rewardApr * 100 > taigaApr * 100 ? aprValue + rewardApr * 100 : taigaApr * 100).toStringAsFixed(2)}%!",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4
                                                 ?.copyWith(
-                                                    color: Color(0xFFFC8156),
+                                                    color: PluginColorsDark
+                                                        .primary,
                                                     fontWeight:
                                                         FontWeight.w400)),
                                       ])),

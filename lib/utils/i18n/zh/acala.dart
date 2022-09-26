@@ -61,7 +61,7 @@ const Map<String, String> zhDex = {
   'liquid.price.new': '新的清算价格',
   'liquid.ratio.current': '当前质押率',
   'liquid.ratio.new': '新的质押率',
-  'collateral.price': '当前市价',
+  'collateral.exchangeRate': '当前市价',
   'collateral.price.current': '当前价格',
   'collateral.interest': '稳定费率',
   'collateral.require': '安全质押数量',
@@ -73,6 +73,7 @@ const Map<String, String> zhDex = {
   'loan.amount.debit': '您要生成多少稳定币？',
   'loan.amount.collateral': '您要存入多少质押物？',
   'loan.max': '最大值',
+  'loan.max.sys': '数量超出系统限制',
   'loan.txs': '交易记录',
   'loan.warn1': '债仓未清零时，余额不能小于 ',
   'loan.warn2': 'aUSD，本次操作后将剩余 ',
@@ -340,4 +341,5 @@ const Map<String, String> zhDex = {
   'v3.loan.ableWithdraw': '能取回',
   'loan.return': '退回',
   'loan.update': '更新债仓',
+  'v3.loan.amountLowError': '兑换金额过低'
 };

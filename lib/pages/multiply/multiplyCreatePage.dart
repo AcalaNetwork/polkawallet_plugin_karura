@@ -232,6 +232,12 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
           collateralDecimals: balancePair[0].decimals!,
           stableCoinDecimals: balancePair[1].decimals!);
 
+      final totalDebitInCDP = loanType.debitShareToDebit(widget.plugin.store!
+              .loan.totalCDPs[loanType.token!.tokenNameId]?.debit ??
+          BigInt.zero);
+      final totalDebitLimit = loanType.maximumTotalDebitValue > totalDebitInCDP
+          ? loanType.maximumTotalDebitValue - totalDebitInCDP
+          : BigInt.zero;
       return PluginScaffold(
         appBar: PluginAppBar(title: Text(pageTitle), centerTitle: true),
         body: Builder(builder: (BuildContext context) {
@@ -406,6 +412,10 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                         : null,
                     margin: EdgeInsets.symmetric(vertical: 2),
                     isRight: true),
+                ErrorMessage(
+                    debitChange > totalDebitLimit ? dic['loan.max.sys'] : null,
+                    margin: EdgeInsets.symmetric(vertical: 2),
+                    isRight: true),
                 PluginTextTag(
                   margin: EdgeInsets.only(top: 25),
                   title: dic['loan.multiply.orderInfo']!,
@@ -459,7 +469,8 @@ class _MultiplyCreatePageState extends State<MultiplyCreatePage> {
                       title: '${dic['v3.loan.submit']}',
                       onPressed: () {
                         if (_error1 == null &&
-                            debitChange > loanType.minimumDebitValue) {
+                            debitChange > loanType.minimumDebitValue &&
+                            debitChange <= totalDebitLimit) {
                           _onSubmit(pageTitle, loanType, buyingCollateral,
                               debitChange);
                         }

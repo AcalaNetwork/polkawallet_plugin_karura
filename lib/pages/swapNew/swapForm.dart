@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -27,6 +28,7 @@ import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:rive/rive.dart';
 
 class SwapForm extends StatefulWidget {
   SwapForm(this.plugin, this.keyring, {this.initialSwapPair});
@@ -71,6 +73,8 @@ class _SwapFormState extends State<SwapForm>
   AnimationController? _animationController;
   Animation<double>? _animation;
   double angle = 0;
+
+  bool _isLoading = false;
 
   Future<void> _getTxFee() async {
     final sender = TxSenderData(
@@ -169,6 +173,9 @@ class _SwapFormState extends State<SwapForm>
   }
 
   void _onInputChange(String input) {
+    setState(() {
+      _isLoading = true;
+    });
     if (_delayTimer != null) {
       _delayTimer!.cancel();
     }
@@ -211,6 +218,9 @@ class _SwapFormState extends State<SwapForm>
 
     widget.plugin.service!.assets.queryMarketPrices(withDexPrice: false);
 
+    supply = supply != null ? Decimal.tryParse(supply).toString() : supply;
+    target = target != null ? Decimal.tryParse(target).toString() : target;
+
     try {
       if (supply == null) {
         final inputAmount = double.tryParse(target!);
@@ -224,7 +234,7 @@ class _SwapFormState extends State<SwapForm>
         );
         if (mounted) {
           setState(() {
-            if (target.isNotEmpty) {
+            if (target!.isNotEmpty) {
               _amountPayCtrl.text = output.amount.toString();
             } else {
               _amountPayCtrl.text = '';
@@ -248,7 +258,7 @@ class _SwapFormState extends State<SwapForm>
         );
         if (mounted) {
           setState(() {
-            if (supply.isNotEmpty) {
+            if (supply!.isNotEmpty) {
               _amountReceiveCtrl.text = output.amount.toString();
             } else {
               _amountReceiveCtrl.text = '';
@@ -261,9 +271,13 @@ class _SwapFormState extends State<SwapForm>
           _onCheckBalance();
         }
       }
+      setState(() {
+        _isLoading = false;
+      });
     } on Exception catch (err) {
       setState(() {
         _interfaceError = err.toString().split(':')[1];
+        _isLoading = false;
       });
     }
   }
@@ -345,11 +359,11 @@ class _SwapFormState extends State<SwapForm>
   }
 
   Future<void> _onSubmit(List<int?> pairDecimals, double minMax) async {
-    if (_onCheckBalance()) {
+    if (_onCheckBalance() && !_isLoading) {
       final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
-      final pay = _amountPayCtrl.text.trim();
-      final receive = _amountReceiveCtrl.text.trim();
+      final pay = Decimal.parse(_amountPayCtrl.text.trim()).toString();
+      final receive = Decimal.parse(_amountReceiveCtrl.text.trim()).toString();
       final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
           arguments: TxConfirmParams(
               module: _swapOutput.tx!["section"],
@@ -372,6 +386,7 @@ class _SwapFormState extends State<SwapForm>
                 ),
               },
               params: _swapOutput.tx!["params"],
+              txHex: _swapOutput.tx!["txHex"],
               isPlugin: true,
               onStatusChange: (status) {
                 if (status ==
@@ -509,7 +524,16 @@ class _SwapFormState extends State<SwapForm>
 
         final showExchangeRate = swapPair.length > 1 &&
             _amountPayCtrl.text.isNotEmpty &&
-            _amountReceiveCtrl.text.isNotEmpty;
+            _amountReceiveCtrl.text.isNotEmpty &&
+            double.parse(_amountReceiveCtrl.text.trim()) > 0;
+
+        String? amountLowError;
+        if (swapPair.length > 1 &&
+            _amountPayCtrl.text.isNotEmpty &&
+            _amountReceiveCtrl.text.isNotEmpty &&
+            double.parse(_amountReceiveCtrl.text.trim()) == 0) {
+          amountLowError = dic['v3.loan.amountLowError'];
+        }
 
         final labelStyle = Theme.of(context)
             .textTheme
@@ -556,6 +580,7 @@ class _SwapFormState extends State<SwapForm>
                                 ? [token.tokenNameId, swapPair[0]]
                                 : [token.tokenNameId, swapPair[1]];
                             _maxInput = null;
+                            _isLoading = true;
                           });
                           widget.plugin.store!.swap.setSwapPair(
                               _swapPair, widget.keyring.current.pubKey);
@@ -607,6 +632,7 @@ class _SwapFormState extends State<SwapForm>
                               ? [swapPair[1], token.tokenNameId]
                               : [swapPair[0], token.tokenNameId];
                           _maxInput = null;
+                          _isLoading = true;
                         });
                         widget.plugin.store!.swap.setSwapPair(
                             _swapPair, widget.keyring.current.pubKey);
@@ -632,15 +658,29 @@ class _SwapFormState extends State<SwapForm>
                   ],
                 ),
                 GestureDetector(
-                  child: Image.asset(
-                      'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
-                      width: 39),
-                  onTap: _swapPair.length > 1 ? () => _switchPair() : null,
+                  child: _isLoading
+                      ? Container(
+                          width: 36,
+                          height: 36,
+                          padding: EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                              color: Color(0xFF212224),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: RiveAnimation.asset(
+                              'packages/polkawallet_plugin_karura/assets/images/swap_loading.riv'),
+                        )
+                      : Image.asset(
+                          'packages/polkawallet_plugin_karura/assets/images/swap_switch.png',
+                          width: 36),
+                  onTap: _swapPair.length > 1 && !_isLoading
+                      ? () => _switchPair()
+                      : null,
                 ),
               ],
             ),
             ErrorMessage(
-              _error ?? _errorReceive ?? _interfaceError,
+              _error ?? _errorReceive ?? _interfaceError ?? amountLowError,
               margin: EdgeInsets.symmetric(vertical: 2),
             ),
             Visibility(
@@ -650,7 +690,8 @@ class _SwapFormState extends State<SwapForm>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("${dic['collateral.price']}:", style: labelStyle),
+                      Text("${dic['collateral.exchangeRate']}:",
+                          style: labelStyle),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
@@ -842,7 +883,8 @@ class _SwapFormState extends State<SwapForm>
                       )
                     ]))),
             Visibility(
-                visible: _detailShow && _interfaceError == null,
+                visible:
+                    showExchangeRate && _detailShow && _interfaceError == null,
                 child: Container(
                   // decoration: BoxDecoration(
                   //     color: Color(0x24FFFFFF),
@@ -926,6 +968,18 @@ class _SwapFormState extends State<SwapForm>
                                   color: Color(0xFF404142),
                                   padding: EdgeInsets.zero,
                                   elevation: 3,
+                                  onShow: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
+                                  onCanceled: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
+                                  onSelected: (value) {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
                                   itemWidth:
                                       _getRouteWidth(_swapOutput.path ?? []),
                                   shape: const RoundedRectangleBorder(
@@ -1034,14 +1088,13 @@ class RouteWidget extends StatelessWidget {
                     child: Stack(
                       children: path![index].path!.map((i) {
                         final indexI = path![index].path!.indexOf(i);
-                        final balancePair =
-                            AssetsUtils.getBalancePairFromTokenNameId(
-                                plugin, [i]);
+                        final token =
+                            AssetsUtils.getBalanceFromTokenNameId(plugin, i);
                         return Padding(
                           child: PluginTokenIcon(
-                              balancePair[0].symbol!, plugin.tokenIcons,
+                              token.symbol!, plugin.tokenIcons,
                               size: 27),
-                          padding: EdgeInsets.only(left: indexI == 0 ? 0 : 20),
+                          padding: EdgeInsets.only(left: indexI * 20),
                         );
                       }).toList(),
                     ))

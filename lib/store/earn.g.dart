@@ -221,6 +221,7 @@ dexPools: ${dexPools},
 bootstraps: ${bootstraps},
 dexPoolInfoMap: ${dexPoolInfoMap},
 taigaPoolInfoMap: ${taigaPoolInfoMap},
+taigaTokenPairs: ${taigaTokenPairs},
 dexIncentiveEndBlock: ${dexIncentiveEndBlock},
 dexIncentiveLoyaltyEndBlock: ${dexIncentiveLoyaltyEndBlock}
     ''';

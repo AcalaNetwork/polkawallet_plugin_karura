@@ -18,6 +18,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -414,22 +415,11 @@ class _MintPageState extends State<MintPage> {
                                         UnStakeTypeItemWidget(
                                           title: dic['earn.dex.joinPool']!,
                                           value:
-                                              "${dic['v3.homa.stake.apy.total']!} ${(baseApr + taigaApr * 100).toStringAsFixed(2)}%",
-                                          subtitle: Container(
-                                            margin: EdgeInsets.only(top: 8),
-                                            child: Text(
-                                              '(${dic['v3.homa.stake.apy.protocol']} ${baseApr.toStringAsFixed(2)}%${taigaApr == 0 ? '' : ' + ${dic['v3.homa.stake.apy.reward']} ${(taigaApr * 100).toStringAsFixed(2)}%'})',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline6
-                                                  ?.copyWith(
-                                                      color: Color(0xFFFC8156)),
-                                            ),
-                                          ),
+                                              "${dic['v3.homa.stake.apy.total']!} ${(taigaApr * 100).toStringAsFixed(2)}%",
                                           describe: dic[
                                               'earn.dex.joinPool.describe']!,
                                           margin: EdgeInsets.only(bottom: 12),
-                                          valueColor: Color(0xFFFC8156),
+                                          valueColor: PluginColorsDark.primary,
                                           isSelect: _selectIndex == 1,
                                           ontap: () {
                                             setState(() {
@@ -449,12 +439,13 @@ class _MintPageState extends State<MintPage> {
                                                   .textTheme
                                                   .headline6
                                                   ?.copyWith(
-                                                      color: Color(0xFFFC8156)),
+                                                      color: PluginColorsDark
+                                                          .primary),
                                             ),
                                           ),
                                           describe: dic[
                                               'v3.homa.stake.more.describe']!,
-                                          valueColor: Color(0xFFFC8156),
+                                          valueColor: PluginColorsDark.primary,
                                           isSelect: _selectIndex == 0,
                                           ontap: () {
                                             setState(() {

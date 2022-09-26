@@ -114,7 +114,7 @@ class _TokenDetailPageSate extends State<TokenDetailPage> {
                   decimals: token.decimals!,
                   tokenPrice: AssetsUtils.getMarketPrice(
                       widget.plugin, tokenSymbol ?? ''),
-                  bgColors: [Color(0xFF2B292A), Color(0xFFCD4337)],
+                  bgColors: [Color(0xFFFF483E), Color(0xFF2E2E2E)],
                   icon: TokenIcon(
                     tokenSymbol ?? '',
                     widget.plugin.tokenIcons,
@@ -368,115 +368,135 @@ class BalanceCard extends StatelessWidget {
     final titleColor =
         UI.isDarkTheme(context) ? Colors.white : Theme.of(context).cardColor;
     final child = Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(const Radius.circular(8)),
-        gradient: LinearGradient(
-          colors: bgColors ??
-              [Theme.of(context).primaryColor, Theme.of(context).hoverColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            // color: primaryColor.withAlpha(100),
-            color: Color(0x4D000000),
-            blurRadius: 5.0,
-            spreadRadius: 1.0,
-            offset: Offset(5.0, 5.0),
-          )
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(bottom: 22.h),
-              child: Row(
-                children: [
-                  Container(margin: EdgeInsets.only(right: 8), child: icon),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        Fmt.priceFloorBigInt(total, decimals, lengthMax: 8),
-                        style: TextStyle(
-                            color: titleColor,
-                            fontSize: UI.getTextSize(20, context),
-                            letterSpacing: -0.8,
-                            fontWeight: FontWeight.w600,
-                            fontFamily:
-                                UI.getFontFamily('TitilliumWeb', context)),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Visibility(
-                        visible: tokenValue != null,
-                        child: Text(
-                          '≈ ${Fmt.priceCurrencySymbol(tokenBalance?.priceCurrency)} ${Fmt.priceFloor(tokenValue)}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              ?.copyWith(
-                                  color: titleColor,
-                                  letterSpacing: -0.8,
-                                  fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )),
-          Container(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Column(
-              children: [
-                priceItemBuild(
-                    SvgPicture.asset(
-                      'assets/images/transferrable_icon.svg',
-                      color: titleColor,
-                    ),
-                    dic['asset.transferable']!,
-                    Fmt.priceFloorBigInt(
-                      transferable,
-                      decimals,
-                      lengthMax: 4,
-                    ),
-                    titleColor,
-                    context),
-                priceItemBuild(
-                    SvgPicture.asset(
-                      'assets/images/locked_icon.svg',
-                      color: titleColor,
-                    ),
-                    dic['asset.lock']!,
-                    Fmt.priceFloorBigInt(
-                      locked,
-                      decimals,
-                      lengthMax: 4,
-                    ),
-                    titleColor,
-                    context),
-                priceItemBuild(
-                    SvgPicture.asset(
-                      'assets/images/reversed_icon.svg',
-                      color: titleColor,
-                    ),
-                    dic['asset.reserve']!,
-                    Fmt.priceFloorBigInt(
-                      locked,
-                      decimals,
-                      lengthMax: 4,
-                    ),
-                    titleColor,
-                    context),
-              ],
-            ),
+        // padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(const Radius.circular(8)),
+          gradient: LinearGradient(
+            colors: bgColors ??
+                [Theme.of(context).primaryColor, Theme.of(context).hoverColor],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-    );
+          boxShadow: [
+            BoxShadow(
+              // color: primaryColor.withAlpha(100),
+              color: Color(0x4D000000),
+              blurRadius: 5.0,
+              spreadRadius: 1.0,
+              offset: Offset(5.0, 5.0),
+            )
+          ],
+        ),
+        child: Stack(
+          alignment: AlignmentDirectional.bottomEnd,
+          children: [
+            Visibility(
+                visible: symbol.contains('-'),
+                child: Padding(
+                    padding: EdgeInsets.only(right: 7, top: 10),
+                    child: Image.asset(
+                      "packages/polkawallet_plugin_karura/assets/images/lp_balanceCard.png",
+                      width: 110,
+                    ))),
+            Padding(
+                padding: EdgeInsets.all(14.w),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(bottom: 22.h),
+                        child: Row(
+                          children: [
+                            Container(
+                                margin: EdgeInsets.only(right: 8), child: icon),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  Fmt.priceFloorBigInt(total, decimals,
+                                      lengthMax: 8),
+                                  style: TextStyle(
+                                      color: titleColor,
+                                      fontSize: UI.getTextSize(20, context),
+                                      letterSpacing: -0.8,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: UI.getFontFamily(
+                                          'TitilliumWeb', context)),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Visibility(
+                                  visible: tokenValue != null,
+                                  child: Text(
+                                    '≈ ${Fmt.priceCurrencySymbol(tokenBalance?.priceCurrency)} ${Fmt.priceFloor(tokenValue)}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline6
+                                        ?.copyWith(
+                                            color: titleColor,
+                                            letterSpacing: -0.8,
+                                            fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: Column(
+                        children: [
+                          priceItemBuild(
+                              SvgPicture.asset(
+                                'assets/images/transferrable_icon.svg',
+                                color: titleColor,
+                              ),
+                              dic['asset.transferable']!,
+                              Fmt.priceFloorBigInt(
+                                transferable,
+                                decimals,
+                                lengthMax: 4,
+                              ),
+                              titleColor,
+                              context),
+                          priceItemBuild(
+                              SvgPicture.asset(
+                                'assets/images/locked_icon.svg',
+                                color: titleColor,
+                              ),
+                              symbol.contains('-')
+                                  ? I18n.of(context)!.getDic(
+                                      i18n_full_dic_karura,
+                                      'acala')!['earn.staked']!
+                                  : dic['asset.lock']!,
+                              Fmt.priceFloorBigInt(
+                                locked,
+                                decimals,
+                                lengthMax: 4,
+                              ),
+                              titleColor,
+                              context),
+                          priceItemBuild(
+                              SvgPicture.asset(
+                                'assets/images/reversed_icon.svg',
+                                color: titleColor,
+                              ),
+                              dic['asset.reserve']!,
+                              Fmt.priceFloorBigInt(
+                                locked,
+                                decimals,
+                                lengthMax: 4,
+                              ),
+                              titleColor,
+                              context),
+                        ],
+                      ),
+                    ),
+                  ],
+                )),
+          ],
+        ));
 
     return UI.isDarkTheme(context)
         ? RoundedCard(

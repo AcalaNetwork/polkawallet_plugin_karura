@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -534,32 +532,6 @@ class _LoanPageState extends State<LoanPage> {
                                         title:
                                             "${dic['loan.mint']}/${dic['loan.payback']}",
                                         onPressed: () async {
-                                          if (loan.type
-                                                  .maximumTotalDebitValue ==
-                                              BigInt.zero) {
-                                            showCupertinoDialog(
-                                                context: context,
-                                                builder: (_) {
-                                                  return PolkawalletAlertDialog(
-                                                    content: Text(
-                                                        '${PluginFmt.tokenView(loan.token!.symbol)} ${dic['v3.loan.unavailable']}'),
-                                                    actions: [
-                                                      CupertinoButton(
-                                                          child: Text(I18n.of(
-                                                                      context)!
-                                                                  .getDic(
-                                                                      i18n_full_dic_karura,
-                                                                      'common')![
-                                                              'cancel']!),
-                                                          onPressed: () =>
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop())
-                                                    ],
-                                                  );
-                                                });
-                                            return;
-                                          }
                                           final res =
                                               await Navigator.of(context)
                                                   .pushNamed(

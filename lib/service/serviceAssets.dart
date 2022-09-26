@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
@@ -11,6 +12,7 @@ import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
 import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class ServiceAssets {
@@ -131,8 +133,17 @@ class ServiceAssets {
         return MapEntry(
             (k as String).toUpperCase(),
             (v as String).contains('.svg')
-                ? SvgPicture.network(v)
-                : Image.network(v));
+                ? SvgPicture.network(
+                    v,
+                    placeholderBuilder: (context) => PluginLoadingWidget(),
+                  )
+                : Image.network(
+                    v,
+                    loadingBuilder: (context, child, loadingProgress) =>
+                        loadingProgress == null ? child : PluginLoadingWidget(),
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.image_not_supported),
+                  ));
       }));
 
       store!.assets.crossChainIcons = data[1]!;

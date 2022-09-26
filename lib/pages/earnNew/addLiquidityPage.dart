@@ -24,6 +24,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginRadioButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -758,7 +759,7 @@ class StakeLPTips extends StatelessWidget {
                       Fmt.ratio(rewardAPY + savingRewardAPY),
                       style: Theme.of(context).textTheme.headline3?.copyWith(
                           fontSize: UI.getTextSize(26, context),
-                          color: Color(0xFFFC8156)),
+                          color: PluginColorsDark.primary),
                     ),
                   ],
                 ),

@@ -57,7 +57,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
   }
 
   Future<List<TxSwapData>> querySwapHistory() async {
-    final client = clientFor(uri: GraphQLConfig['defiUri']!);
+    final client = clientFor(uri: GraphQLConfig['swapUri']!);
 
     final result = await client.value.query(QueryOptions(
       document: gql(swapQuery),

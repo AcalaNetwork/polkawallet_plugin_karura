@@ -266,6 +266,9 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                             return PluginFmt.tokenView(value);
                           },
                           titleTag: titleTag,
+                          balanceLabel: titleTag == dic['loan.mint']
+                              ? dic['v3.loan.canMint']
+                              : null,
                           inputCtrl: _lastController,
                           onSetMax: Fmt.bigIntToDouble(
                                           BigInt.parse(banlance.amount!),
@@ -442,6 +445,13 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
       }
     }
     final banlance = getBalance(titleTag);
+
+    final totalDebitInCDP = _loan!.type.debitShareToDebit(widget.plugin.store!
+            .loan.totalCDPs[_loan!.type.token!.tokenNameId]?.debit ??
+        BigInt.zero);
+    final totalDebitLimit = _loan!.type.maximumTotalDebitValue > totalDebitInCDP
+        ? _loan!.type.maximumTotalDebitValue - totalDebitInCDP
+        : BigInt.zero;
     return Padding(
         padding: EdgeInsets.only(bottom: 10),
         child: Column(
@@ -453,6 +463,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               },
               titleTag: titleTag,
               inputCtrl: _firstController,
+              balanceLabel:
+                  titleTag == dic['loan.mint'] ? dic['v3.loan.canMint'] : null,
               onSetMax: Fmt.bigIntToDouble(BigInt.parse(banlance.amount!),
                               banlance.decimals!) >
                           0.000001 &&
@@ -525,7 +537,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               },
               onInputChange: (v) {
                 var error = _validateAmount(
-                    v, banlance.amount!, banlance.decimals!, titleTag);
+                    v, banlance.amount!, banlance.decimals!, titleTag,
+                    totalDebitLimit: totalDebitLimit);
                 setState(() {
                   _error1 = error;
                 });
@@ -621,7 +634,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
 
   String? _validateAmount(
       String value, String max, int decimals, String titleTag,
-      {BigInt? valueBigint}) {
+      {BigInt? valueBigint, BigInt? totalDebitLimit}) {
     // final assetDic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'common');
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala');
 
@@ -647,6 +660,11 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           : _loan!.debits + debit;
       if (debits > BigInt.zero && debits < _loan!.type.minimumDebitValue) {
         return '${dic['loan.warn1']}$minimumDebitValue ${PluginFmt.tokenView(karura_stable_coin)}';
+      }
+
+      if (titleTag == dic['loan.mint'] &&
+          debits > (totalDebitLimit ?? BigInt.zero)) {
+        return dic['loan.max.sys'];
       }
     }
     return null;

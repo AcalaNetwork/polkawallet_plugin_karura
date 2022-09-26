@@ -19,10 +19,10 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInputBalance.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTextTag.dart';
+import 'package:polkawallet_ui/components/v3/plugin/slider/PluginSlider.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/v3/plugin/slider/PluginSlider.dart';
 
 class MultiplyAdjustPanel extends StatefulWidget {
   MultiplyAdjustPanel(this.plugin, this.keyring, this.loanType, this.onRefresh);
@@ -245,6 +245,12 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
           ? 0.0
           : ratioLeft - loan!.collateralRatio * 100;
 
+      final totalDebitInCDP = loanType.debitShareToDebit(widget.plugin.store!
+              .loan.totalCDPs[loanType.token!.tokenNameId]?.debit ??
+          BigInt.zero);
+      final totalDebitLimit = loanType.maximumTotalDebitValue > totalDebitInCDP
+          ? loanType.maximumTotalDebitValue - totalDebitInCDP
+          : BigInt.zero;
       return SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -339,6 +345,10 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                 debitNew < loanType.minimumDebitValue
                     ? '${assetDic!['min']} ${Fmt.bigIntToDouble(loanType.minimumDebitValue, balancePair[1].decimals!).toStringAsFixed(2)} ${PluginFmt.tokenView(karura_stable_coin_view)}'
                     : null,
+                margin: EdgeInsets.symmetric(vertical: 2),
+                isRight: true),
+            ErrorMessage(
+                debitChange > totalDebitLimit ? dic['loan.max.sys'] : null,
                 margin: EdgeInsets.symmetric(vertical: 2),
                 isRight: true),
             PluginTextTag(
@@ -459,6 +469,7 @@ class _MultiplyAdjustPanelState extends State<MultiplyAdjustPanel> {
                   title: '${dic['v3.loan.submit']}',
                   onPressed: () {
                     if (debitNew > loanType.minimumDebitValue &&
+                        debitChange <= totalDebitLimit &&
                         collateralChange != BigInt.zero) {
                       _onSubmit(
                           loanType, collateralChange, debitChange, debitNew);
