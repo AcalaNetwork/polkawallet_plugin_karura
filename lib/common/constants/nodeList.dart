@@ -31,11 +31,6 @@ const node_list = [
     'ss58': ss58_prefix_karura,
     'endpoint': 'wss://karura-rpc-3.aca-api.network/ws',
   },
-  {
-    'name': 'Karura (via OnFinality)',
-    'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://karura.api.onfinality.io/public-ws',
-  },
   // {
   //   'name': 'Karura (Polkawallet dev node)',
   //   'ss58': ss58_prefix_karura,
