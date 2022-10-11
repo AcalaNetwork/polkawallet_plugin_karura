@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
-import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -15,13 +13,13 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/v3/dialog.dart';
+import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:polkawallet_ui/components/v3/index.dart' as v3;
 import 'package:polkawallet_ui/utils/index.dart';
 
 class EarnDexList extends StatefulWidget {
@@ -90,11 +88,6 @@ class _EarnDexListState extends State<EarnDexList> {
               incentive += e.amount ?? 0;
               rewards += e.apr ?? 0;
               loyaltyBonus = e.deduction;
-            });
-            (incentivesV2.dexSaving[dexPools[i].tokenNameId!] ?? [])
-                .forEach((e) {
-              savingRewards += e.apr ?? 0;
-              savingLoyaltyBonus = e.deduction;
             });
           }
 
@@ -405,33 +398,6 @@ class _EarnDexListState extends State<EarnDexList> {
                             .dexPoolInfoMap[dexPools[i].tokenNameId];
 
                         bool canClaim = false;
-                        double? savingLoyaltyBonus = 0;
-                        final incentiveV2 =
-                            widget.plugin.store!.earn.incentives;
-                        if (incentiveV2.dex != null) {
-                          (incentiveV2.dexSaving[dexPools[i].tokenNameId!] ??
-                                  [])
-                              .forEach((e) {
-                            savingLoyaltyBonus = e.deduction;
-                          });
-                        }
-                        var rewardSaving = (poolInfo?.reward?.saving ?? 0) *
-                            (1 - (savingLoyaltyBonus ?? 0));
-                        if (rewardSaving < 0) {
-                          rewardSaving = 0;
-                        }
-                        final savingRewardTokenMin = Fmt.balanceDouble(
-                            widget
-                                .plugin
-                                .store!
-                                .assets
-                                .tokenBalanceMap[karura_stable_coin]!
-                                .minBalance!,
-                            widget.plugin.networkState.tokenDecimals![widget
-                                .plugin.networkState.tokenSymbol!
-                                .indexOf(karura_stable_coin)]);
-                        canClaim = rewardSaving > savingRewardTokenMin;
-
                         (poolInfo?.reward?.incentive ?? []).forEach((e) {
                           final amount = double.parse(e['amount']);
                           if (amount > 0.0001) {
