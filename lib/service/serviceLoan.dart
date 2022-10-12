@@ -30,12 +30,6 @@ class ServiceLoan {
         plugin.networkState.tokenDecimals![0]);
   }
 
-  // Future<double> _fetchNativeTokenPrice() async {
-  //   final output = await api.swap.queryTokenSwapAmount('1', null,
-  //       [plugin.networkState.tokenSymbol[0], karura_stable_coin], '0.1');
-  //   return output.amount;
-  // }
-
   Map<String?, LoanData> _calcLoanData(
     List loans,
     List<LoanType> loanTypes,

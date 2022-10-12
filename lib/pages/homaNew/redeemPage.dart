@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polkawallet_plugin_karura/api/types/calcHomaRedeemAmount.dart';
 import 'package:polkawallet_plugin_karura/api/types/swapOutputData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
@@ -42,7 +41,6 @@ class _RedeemPageState extends State<RedeemPage> {
   String? _error;
   BigInt? _maxInput;
 
-  CalcHomaRedeemAmount? _data;
   num _receiveAmount = 0;
   num _fastReceiveAmount = 0;
   num _swapAmount = 0;
@@ -142,9 +140,6 @@ class _RedeemPageState extends State<RedeemPage> {
     final error = _validateInput(supply, max);
     setState(() {
       _error = error;
-      if (error != null) {
-        _data = null;
-      }
     });
 
     if (error != null) {
@@ -205,8 +200,7 @@ class _RedeemPageState extends State<RedeemPage> {
     }
     final pay = _amountPayCtrl.text.trim();
 
-    if (_error != null || pay.isEmpty || (_data == null && _receiveAmount == 0))
-      return;
+    if (_error != null || pay.isEmpty || _receiveAmount == 0) return;
 
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
