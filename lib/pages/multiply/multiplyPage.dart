@@ -5,6 +5,7 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTabBarWidget.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyAdjustPanel.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart';
+import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/pieChartPainter.dart';
 import 'package:polkawallet_plugin_karura/pages/types/loanPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -24,7 +25,6 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
 import 'package:rive/rive.dart';
 
 class MultiplyPage extends StatefulWidget {
@@ -77,24 +77,26 @@ class _MultiplyPageState extends State<MultiplyPage> {
               // do not show loan card if collateralRatio was not calculated.
               (loans.length > 0 && loans[0].collateralRatio <= 0));
 
-      final List<LoanType> loantypes = [], ortherType = [];
+      final List<LoanType> loanTypes = [], ortherType = [];
       widget.plugin.store!.loan.loanTypes.forEach((element) {
         if (element.maximumTotalDebitValue != BigInt.zero) {
           if (loans.indexWhere((loan) =>
                   loan.token?.tokenNameId == element.token?.tokenNameId) >=
               0) {
-            loantypes.add(element);
+            loanTypes.add(element);
           } else {
             ortherType.add(element);
           }
         }
       });
-      loantypes.addAll(ortherType);
+      loanTypes.addAll(ortherType);
+      loanTypes.removeWhere((e) =>
+          collateralFilterList.indexWhere((i) => e.token?.symbol == i) > -1);
 
       int initialLoanTypeIndex = 0;
       if (args.loanType != null) {
         initialLoanTypeIndex =
-            loantypes.indexWhere((e) => e.token?.tokenNameId == args.loanType);
+            loanTypes.indexWhere((e) => e.token?.tokenNameId == args.loanType);
       }
 
       return PluginScaffold(
@@ -128,7 +130,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
                       child: LoanTabBarWidget(
                     initialTab:
                         initialLoanTypeIndex > -1 ? initialLoanTypeIndex : 0,
-                    data: loantypes.map((e) {
+                    data: loanTypes.map((e) {
                       final _loans = loans.where(
                           (data) => data.token!.symbol == e.token!.symbol);
                       LoanData? loan = _loans.length > 0 ? _loans.first : null;
