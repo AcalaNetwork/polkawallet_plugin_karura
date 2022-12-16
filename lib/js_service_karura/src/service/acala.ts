@@ -1,5 +1,5 @@
 import { createDexShareName, FixedPointNumber, forceToCurrencyId, forceToCurrencyName, Token } from "@acala-network/sdk-core";
-import { AcalaDex, AggregateDex, NutsDex } from "@acala-network/sdk/dex";
+import { AcalaDex, AggregateDex, NutsDex } from "@acala-network/sdk-swap";
 import { ApiPromise, ApiRx } from "@polkadot/api";
 import { hexToString } from "@polkadot/util";
 import { nft_image_config } from "../constants/acala";
@@ -9,7 +9,7 @@ import axios from "axios";
 import { IncentiveResult, TaigaUserReward } from "../types/acalaTypes";
 import { firstValueFrom, throttleTime, take } from "rxjs";
 import { HomaEnvironment } from "@acala-network/sdk/homa/types";
-import { BalanceData } from "@acala-network/sdk/wallet/type";
+import { BalanceData } from "@acala-network/sdk/wallet";
 import { HistoryRecord } from "@acala-network/sdk/history/types";
 import { StableAssetRx } from "@nuts-finance/sdk-stable-asset";
 import { BigNumber } from "bignumber.js";

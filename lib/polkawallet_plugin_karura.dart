@@ -68,7 +68,7 @@ class PluginKarura extends PolkawalletPlugin {
           isTestNet: name != plugin_name_karura,
           isXCMSupport: name == plugin_name_karura,
           parachainId: '2000',
-          jsCodeVersion: 33601,
+          jsCodeVersion: 33801,
         );
 
   @override
@@ -328,7 +328,7 @@ class PluginKarura extends PolkawalletPlugin {
     _service!.connected = true;
 
     if (keyring.current.address != null) {
-      await _store?.swap.initDexTokens(this);
+      _store?.swap.initDexTokens(this);
       _subscribeTokenBalances(keyring.current);
       _getEvmAccount(keyring.current);
     }
