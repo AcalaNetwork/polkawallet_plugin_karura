@@ -5,8 +5,8 @@ const plugin_name_karura = 'karura';
 const ss58_prefix_karura = 8;
 
 const GraphQLConfig = {
-  "swapUri": "https://api.subquery.network/sq/AcalaNetwork/karura",
-  "defiUri": "https://api.subquery.network/sq/AcalaNetwork/karura-loan",
+  "swapUri": "https://api.polkawallet.io/karura-dex-subql",
+  "defiUri": "https://api.polkawallet.io/karura-loan-subql",
   "taigaUri": "https://api.subquery.network/sq/nutsfinance/taiga-protocol",
-  "dexUri": "https://api.subquery.network/sq/AcalaNetwork/karura-dex",
+  "dexUri": "https://api.polkawallet.io/karura-dex-subql",
 };

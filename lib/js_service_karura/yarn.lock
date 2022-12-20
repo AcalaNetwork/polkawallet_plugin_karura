@@ -7999,6 +7999,7 @@ __metadata:
   dependencies:
     "@acala-network/api": 4.1.8-9
     "@acala-network/api-derive": 4.1.8-9
+    "@acala-network/eth-providers": ^2.5.4
     "@acala-network/sdk": 4.1.8-9
     "@acala-network/sdk-core": 4.1.8-9
     "@acala-network/sdk-swap": 4.1.8-9

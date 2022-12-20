@@ -1,4 +1,5 @@
 import { WsProvider, ApiPromise, ApiRx } from "@polkadot/api";
+import { EvmRpcProvider } from "@acala-network/eth-providers";
 import { firstValueFrom } from "rxjs";
 import { subscribeMessage, getNetworkConst, getNetworkProperties } from "./service/setting";
 import keyring from "./service/keyring";
@@ -14,7 +15,7 @@ import { genLinks } from "./utils/config/config";
 function send(path: string, data: any) {
   console.log(JSON.stringify({ path, data }));
 }
-send("log", "acala main js loaded");
+send("log", "karura main js loaded");
 (<any>window).send = send;
 
 async function connectAll(nodes: string[]) {
@@ -34,13 +35,11 @@ async function connect(nodes: string[]) {
       if (!(<any>window).api) {
         (<any>window).api = res;
         (<any>window).apiRx = resRx;
-        // console.log(res);
         const url = nodes[(<any>res)._options.provider.__private_59_endpointIndex];
+        // console.log(res);
+        await _initAcalaSDK(res, url);
         send("log", `${url} wss connected success`);
         resolve(url);
-
-        (<any>window).wallet = new Wallet(res, { wsProvider });
-        (<any>window).wallet.isReady;
       } else {
         res.disconnect();
         const url = nodes[(<any>res)._options.provider.__private_59_endpointIndex];
@@ -53,6 +52,15 @@ async function connect(nodes: string[]) {
       resolve(null);
     }
   });
+}
+
+async function _initAcalaSDK(api: ApiPromise, url: string) {
+  const evmProvider = new EvmRpcProvider(url, {
+    maxBlockCacheSize: 1,
+    storageCacheSize: 100,
+  });
+  (<any>window).wallet = new Wallet(api, { evmProvider });
+  await (<any>window).wallet.isReady;
 }
 
 (<any>window).settings = {
