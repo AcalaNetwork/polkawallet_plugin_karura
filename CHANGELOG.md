@@ -1,3 +1,8 @@
+## [0.5.1] - 20221221
+- bump polkawallet_sdk v0.5.1.
+- bridge api update.
+- cross-chain staking api update.
+
 ## [0.4.9] - 20220808
 - bump polkawallet_sdk v0.4.9.
 - js api update.
