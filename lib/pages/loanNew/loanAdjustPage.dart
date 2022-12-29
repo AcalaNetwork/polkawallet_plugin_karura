@@ -893,9 +893,8 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
               });
           return null;
         }
-        final bool canContinue = await (_confirmPaybackParams(
-                '${dic!['loan.warn4']}$minimumDebitValue ${dic['loan.warn5']}')
-            as Future<bool>);
+        final canContinue = await UI.confirm(context,
+            '${dic!['loan.warn4']}$minimumDebitValue ${dic['loan.warn5']}');
         if (!canContinue) return null;
         debitS = loan.type.debitToDebitShare(
             loan.type.minimumDebitValue + BigInt.from(10000));
@@ -948,30 +947,5 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                 : loan.type.debitShareToDebit(debitS).toString()
       ]
     };
-  }
-
-  Future<bool?> _confirmPaybackParams(String message) async {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final bool? res = await showCupertinoDialog(
-        context: context,
-        builder: (_) {
-          return PolkawalletAlertDialog(
-            content: Text(message),
-            actions: <Widget>[
-              PolkawalletActionSheetAction(
-                child: Text(I18n.of(context)!
-                    .getDic(i18n_full_dic_karura, 'common')!['cancel']!),
-                onPressed: () => Navigator.of(context).pop(false),
-              ),
-              PolkawalletActionSheetAction(
-                isDefaultAction: true,
-                child: Text(I18n.of(context)!
-                    .getDic(i18n_full_dic_karura, 'common')!['ok']!),
-                onPressed: () => Navigator.of(context).pop(true),
-              )
-            ],
-          );
-        });
-    return res;
   }
 }

@@ -4,7 +4,6 @@ import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
 import 'package:polkawallet_plugin_karura/utils/format.dart';
-import 'package:polkawallet_sdk/plugin/store/balances.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class TxSwapData extends _TxSwapData {
@@ -150,7 +149,7 @@ class TxSwapData extends _TxSwapData {
                 tokenPair[index].decimals ?? 12,
                 lengthMax: 6);
           }
-          data.amounts.add(_token()
+          data.amounts.add(_Token()
             ..amount = amount
             ..symbol = element.symbol);
         });
@@ -184,10 +183,10 @@ abstract class _TxSwapData {
   late String time;
   bool? isSuccess;
   bool isTaiga = false;
-  List<_token> amounts = [];
+  List<_Token> amounts = [];
 }
 
-class _token {
+class _Token {
   String? symbol;
   String? amount;
 

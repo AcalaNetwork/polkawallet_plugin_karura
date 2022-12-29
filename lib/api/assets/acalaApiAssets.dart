@@ -112,11 +112,11 @@ class AcalaApiAssets {
   }
 
   Future<List<NFTData>> queryNFTs(String? address) async {
-    final List res =
-        await (service.queryNFTs(address) as Future<List<dynamic>>);
+    final List? res = await service.queryNFTs(address);
     return res
-        .map((e) => NFTData.fromJson(Map<String, dynamic>.of(e)))
-        .toList();
+            ?.map((e) => NFTData.fromJson(Map<String, dynamic>.of(e)))
+            .toList() ??
+        [];
   }
 
   Future<Map?> queryAggregatedAssets(String address) async {

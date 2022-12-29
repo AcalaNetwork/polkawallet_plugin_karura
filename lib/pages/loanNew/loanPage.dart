@@ -129,31 +129,6 @@ class _LoanPageState extends State<LoanPage> {
     widget.plugin.service!.loan.unsubscribeAccountLoans();
   }
 
-  Future<bool?> _confirmPaybackParams(String message) async {
-    final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
-    final bool? res = await showCupertinoDialog(
-        context: context,
-        builder: (_) {
-          return PolkawalletAlertDialog(
-            content: Text(message),
-            actions: <Widget>[
-              PolkawalletActionSheetAction(
-                child: Text(I18n.of(context)!
-                    .getDic(i18n_full_dic_karura, 'common')!['cancel']!),
-                onPressed: () => Navigator.of(context).pop(false),
-              ),
-              PolkawalletActionSheetAction(
-                isDefaultAction: true,
-                child: Text(I18n.of(context)!
-                    .getDic(i18n_full_dic_karura, 'common')!['ok']!),
-                onPressed: () => Navigator.of(context).pop(true),
-              )
-            ],
-          );
-        });
-    return res;
-  }
-
   Future<SwapOutputData> _queryReceiveAmount(
       BuildContext ctx, TokenBalanceData collateral, double debit) async {
     return widget.plugin.api!.swap.queryTokenSwapAmount(
@@ -223,7 +198,7 @@ class _LoanPageState extends State<LoanPage> {
               );
             },
           )
-        : await _confirmPaybackParams(dic!['v3.loan.closeVault']!);
+        : await UI.confirm(context, dic!['v3.loan.closeVault']!);
     if (confirmed) {
       var res;
       if (debit > 0) {

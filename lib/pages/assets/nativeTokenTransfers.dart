@@ -38,14 +38,14 @@ class _NativeTokenTransfersState extends State<NativeTokenTransfers> {
             (widget.transferType == 1 ? e.data!['to'] : e.data!['from']) ==
             widget.account);
       }
-      if (nativeToken == null) {
-        return Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PluginLoadingWidget()],
-          ),
-        );
-      }
+      // if (nativeToken == null) {
+      //   return Container(
+      //     child: Row(
+      //       mainAxisAlignment: MainAxisAlignment.center,
+      //       children: [PluginLoadingWidget()],
+      //     ),
+      //   );
+      // }
       return txs == null
           ? Container(
               child: Row(

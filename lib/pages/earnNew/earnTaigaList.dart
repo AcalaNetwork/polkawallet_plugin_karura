@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnTaigaDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -10,7 +8,6 @@ import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
-import 'package:polkawallet_ui/components/listTail.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
@@ -115,10 +112,6 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                         if (claim > BigInt.zero) {
                           canClaim = true;
                         }
-
-                        final tokenPairView = tokenPair
-                            .map((e) => PluginFmt.tokenView(e.symbol))
-                            .join('-');
 
                         return GestureDetector(
                           child: RoundedPluginCard(

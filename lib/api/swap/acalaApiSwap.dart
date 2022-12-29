@@ -40,13 +40,12 @@ class AcalaApiSwap {
     List<String?> swapPair,
     String slippage,
   ) async {
-    final output = await (service.queryTokenSwapAmount(
-            supplyAmount, targetAmount, swapPair, slippage)
-        as Future<Map<dynamic, dynamic>>);
+    final output = await service.queryTokenSwapAmount(
+        supplyAmount, targetAmount, swapPair, slippage);
     if (output != null && output['error'] != null) {
       throw new Exception(output['error']['message']);
     }
-    return SwapOutputData.fromJson(output);
+    return SwapOutputData.fromJson(output ?? {});
   }
 
   Future<List<DexPoolData>> getTokenPairs() async {
