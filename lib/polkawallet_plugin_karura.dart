@@ -263,9 +263,7 @@ class PluginKarura extends PolkawalletPlugin {
     _service!.assets.queryAggregatedAssets();
 
     final nft = await _api!.assets.queryNFTs(acc.address);
-    if (nft.isNotEmpty) {
-      _store!.assets.setNFTs(nft);
-    }
+    _store!.assets.setNFTs(nft);
   }
 
   void _loadCacheData(KeyPairData acc) {

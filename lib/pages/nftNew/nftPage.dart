@@ -55,9 +55,7 @@ class _NftPageState extends State<NftPage> {
   Future<void> _queryNFTs() async {
     final nft = await widget.plugin.api!.assets
         .queryNFTs(widget.keyring.current.address);
-    if (nft.isNotEmpty) {
-      widget.plugin.store!.assets.setNFTs(nft);
-    }
+    widget.plugin.store!.assets.setNFTs(nft);
   }
 
   Future<void> _onTransfer(NFTData item) async {
