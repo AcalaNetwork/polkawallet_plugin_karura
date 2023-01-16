@@ -93,9 +93,8 @@ class _NftPageState extends State<NftPage> {
                         padding: EdgeInsets.all(10),
                         width: itemCardSize,
                         height: itemCardSize,
-                        child: Image.network(
-                          '${item.metadata!['imageServiceUrl']}?imageView2/2/w/400',
-                        ),
+                        child:
+                            Image.network(item.metadata!['imageIpfsUrl'] ?? ''),
                       ),
                       Align(
                           alignment: Alignment.topRight,
