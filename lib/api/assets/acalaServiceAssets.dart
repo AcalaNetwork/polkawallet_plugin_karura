@@ -106,7 +106,7 @@ class AcalaServiceAssets {
     if (res != null) {
       final prices = Map<String, BigInt>();
       res.forEach((k, v) {
-        prices[k] = Fmt.tokenInt(v.toString(), 18);
+        prices[k] = Fmt.balanceInt(v.toString());
       });
       if (prices[relay_chain_token_symbol] != null &&
           prices[relay_chain_token_symbol]! > BigInt.zero) {

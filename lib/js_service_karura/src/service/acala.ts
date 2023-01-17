@@ -164,8 +164,10 @@ async function getAllTokens() {
     'DEX' = 3
  */
 async function getTokenPrices(tokens: string[], type: 0 | 1 | 2 | 3) {
-  const prices = await Promise.all(tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e, type).catch((_) => new BN(0))));
-  return prices.reduce((res, e, i) => ({ ...res, [tokens[i]]: e.toNumber(6) }), {});
+  const prices = await Promise.all(
+    tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e, type).catch((_) => FixedPointNumber.ZERO))
+  );
+  return prices.reduce((res, e, i) => ({ ...res, [tokens[i]]: e.toChainData() }), {});
 }
 
 function _getTokenType(token: Token) {

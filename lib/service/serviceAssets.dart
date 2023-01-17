@@ -36,7 +36,8 @@ class ServiceAssets {
     final prices = await plugin.api!.assets.getTokenPrices(
         plugin.store!.assets.allTokens.map((e) => e.symbol ?? '').toList(), 1);
 
-    store!.assets.setMarketPrices(prices);
+    store!.assets.setMarketPrices(
+        prices.map((k, v) => MapEntry(k, Fmt.balanceDouble(v, 18))));
   }
 
   Future<void> queryDexPrices() async {
