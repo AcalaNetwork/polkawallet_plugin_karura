@@ -34,7 +34,7 @@ class ServiceAssets {
     }
 
     final prices = await plugin.api!.assets.getTokenPrices(
-        plugin.store!.assets.allTokens.map((e) => e.symbol ?? '').toList());
+        plugin.store!.assets.allTokens.map((e) => e.symbol ?? '').toList(), 1);
 
     store!.assets.setMarketPrices(prices);
   }

@@ -22,9 +22,9 @@ class AcalaServiceAssets {
     return res;
   }
 
-  Future<Map> getTokenPrices(List<String> tokens) async {
+  Future<Map> getTokenPrices(List<String> tokens, int type) async {
     final Map? res = await plugin.sdk.webView!
-        .evalJavascript('acala.getTokenPrices(${jsonEncode(tokens)})');
+        .evalJavascript('acala.getTokenPrices(${jsonEncode(tokens)}, $type)');
     return res ?? {};
   }
 
@@ -98,14 +98,15 @@ class AcalaServiceAssets {
 
   Future<void> subscribeTokenPrices(
       Function(Map<String, BigInt>) callback) async {
-    final List? res = await plugin.sdk.webView!
-        .evalJavascript('api.rpc.oracle.getAllValues("Aggregated")');
+    final tokens = plugin.store?.loan.loanTypes
+            .map((e) => e.token?.tokenNameId ?? '')
+            .toList() ??
+        [];
+    final res = await plugin.api?.assets.getTokenPrices(tokens, 2);
     if (res != null) {
       final prices = Map<String, BigInt>();
-      res.forEach((e) {
-        final tokenNameId =
-            AssetsUtils.tokenDataFromCurrencyId(plugin, e[0]).tokenNameId!;
-        prices[tokenNameId] = Fmt.balanceInt(e[1]['value'].toString());
+      res.forEach((k, v) {
+        prices[k] = Fmt.tokenInt(v.toString(), 18);
       });
       if (prices[relay_chain_token_symbol] != null &&
           prices[relay_chain_token_symbol]! > BigInt.zero) {

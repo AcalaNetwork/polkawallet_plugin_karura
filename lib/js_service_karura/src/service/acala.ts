@@ -157,9 +157,14 @@ async function getAllTokens() {
 
 /**
  * getTokensPrices
+ * type: 
+    'AGGREGATE' = 0,
+    'MARKET' = 1,
+    'ORACLE' = 2,
+    'DEX' = 3
  */
-async function getTokenPrices(tokens: string[]) {
-  const prices = await Promise.all(tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e).catch((_) => new BN(0))));
+async function getTokenPrices(tokens: string[], type: 0 | 1 | 2 | 3) {
+  const prices = await Promise.all(tokens.map((e) => ((<any>window).wallet as Wallet).getPrice(e, type).catch((_) => new BN(0))));
   return prices.reduce((res, e, i) => ({ ...res, [tokens[i]]: e.toNumber(6) }), {});
 }
 
