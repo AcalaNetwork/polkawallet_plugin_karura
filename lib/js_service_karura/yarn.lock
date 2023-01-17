@@ -124,7 +124,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@acala-network/eth-providers@npm:2.5.4, @acala-network/eth-providers@npm:^2.5.4":
+"@acala-network/eth-providers@npm:2.5.4":
   version: 2.5.4
   resolution: "@acala-network/eth-providers@npm:2.5.4"
   dependencies:
@@ -8105,7 +8105,7 @@ __metadata:
   dependencies:
     "@acala-network/api": 4.1.8-10
     "@acala-network/api-derive": 4.1.8-10
-    "@acala-network/eth-providers": ^2.5.4
+    "@acala-network/eth-providers": ^2.5.9
     "@acala-network/sdk": 4.1.8-10
     "@acala-network/sdk-core": 4.1.8-10
     "@acala-network/sdk-swap": 4.1.8-10

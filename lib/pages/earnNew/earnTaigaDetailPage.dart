@@ -14,10 +14,10 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.da
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTagCard.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
+import 'package:polkawallet_ui/pages/DAppWrapperPage.dart';
 import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
-import 'package:polkawallet_ui/pages/DAppWrapperPage.dart';
 
 class EarnTaigaDetailPage extends StatefulWidget {
   EarnTaigaDetailPage(this.plugin, this.keyring, {Key? key}) : super(key: key);
@@ -88,7 +88,7 @@ class _EarnTaigaDetailPageState extends State<EarnTaigaDetailPage> {
           taigaData.balances!.forEach((element) {
             final index = taigaData.balances!.indexOf(element);
             totalStaked +=
-                Fmt.balanceDouble(element, tokenPair[index].decimals!);
+                Fmt.balanceDouble(element, tokenPair[index].decimals ?? 12);
           });
         }
 

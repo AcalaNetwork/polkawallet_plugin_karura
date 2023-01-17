@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polkawallet_plugin_karura/api/acalaApi.dart';
@@ -46,18 +44,11 @@ class ServiceAssets {
         e.tokenNameId == karura_stable_coin ||
         (e.symbol ?? '').toLowerCase().contains('tai'));
 
-    final output = await plugin.sdk.webView?.evalJavascript(
-        'Promise.all([${tokens.map((e) => 'acala.calcTokenSwapAmount(apiRx, 1, null, ${jsonEncode([
-                  e.tokenNameId,
-                  karura_stable_coin
-                ])}, "0.05")').join(',')}])');
+    final prices = await plugin.api!.assets
+        .getTokenPrices(tokens.map((e) => e.tokenNameId ?? '').toList(), 3);
 
-    final Map<String, double> prices = {};
-    output.asMap().forEach((k, v) {
-      prices[tokens[k].symbol!] = v?['amount'] ?? 0;
-    });
-
-    store?.assets.setDexPrices(prices);
+    store?.assets.setDexPrices(
+        prices.map((k, v) => MapEntry(k, Fmt.balanceDouble(v.toString(), 18))));
   }
 
   Future<TokenBalanceData> updateTokenBalances(TokenBalanceData token) async {

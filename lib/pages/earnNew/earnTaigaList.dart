@@ -90,7 +90,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                           taigaData.balances!.forEach((element) {
                             final index = taigaData.balances!.indexOf(element);
                             totalStaked += Fmt.balanceDouble(
-                                element, tokenPair[index].decimals!);
+                                element, tokenPair[index].decimals ?? 12);
                           });
                         }
 
