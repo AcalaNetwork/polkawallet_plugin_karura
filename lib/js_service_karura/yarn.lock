@@ -146,6 +146,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@acala-network/bodhi@npm:^2.6.5":
+  version: 2.6.5
+  resolution: "@acala-network/bodhi@npm:2.6.5"
+  dependencies:
+    "@acala-network/eth-providers": 2.6.5
+    "@ethersproject/abstract-provider": ~5.7.0
+    "@ethersproject/abstract-signer": ~5.7.0
+    "@ethersproject/address": ~5.7.0
+    "@ethersproject/bignumber": ~5.7.0
+    "@ethersproject/bytes": ~5.7.0
+    "@ethersproject/logger": ~5.7.0
+    "@ethersproject/properties": ~5.7.0
+    "@ethersproject/strings": ~5.7.0
+    "@polkadot/api": 9.10.3
+    "@polkadot/keyring": ^10.2.1
+    "@polkadot/types": 9.10.3
+    "@polkadot/util": ^10.2.1
+    "@polkadot/util-crypto": ^10.2.1
+    "@types/bn.js": ~5.1.0
+    bn.js: ~5.2.0
+    ethers: ~5.7.0
+  checksum: 31faf6bbaade334ba27e1180e4019049b9996ef0690732da666ad026062f06c86b8e0507573c84bd41b27b233da8b4391a5392d6b094b30feef12dedb48889fe
+  languageName: node
+  linkType: hard
+
 "@acala-network/contracts@npm:~4.3.4":
   version: 4.3.4
   resolution: "@acala-network/contracts@npm:4.3.4"
@@ -188,6 +213,42 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@acala-network/eth-providers@npm:2.6.5, @acala-network/eth-providers@npm:^2.6.5":
+  version: 2.6.5
+  resolution: "@acala-network/eth-providers@npm:2.6.5"
+  dependencies:
+    "@acala-network/api": ~4.1.8-9
+    "@acala-network/contracts": ~4.3.4
+    "@acala-network/eth-transactions": 2.6.5
+    "@acala-network/types": ~4.1.8-9
+    "@ethersproject/abstract-provider": ~5.7.0
+    "@ethersproject/address": ~5.7.0
+    "@ethersproject/bignumber": ~5.7.0
+    "@ethersproject/bytes": ~5.7.0
+    "@ethersproject/contracts": ~5.7.0
+    "@ethersproject/keccak256": ~5.7.0
+    "@ethersproject/logger": ~5.7.0
+    "@ethersproject/networks": ~5.7.0
+    "@ethersproject/properties": ~5.7.0
+    "@ethersproject/providers": ~5.7.0
+    "@ethersproject/transactions": ~5.7.0
+    "@ethersproject/wallet": ~5.7.0
+    "@polkadot/api": 9.10.3
+    "@polkadot/api-augment": 9.10.3
+    "@polkadot/api-derive": 9.10.3
+    "@polkadot/keyring": ^10.2.1
+    "@polkadot/types": 9.10.3
+    "@polkadot/util": ^10.2.1
+    "@polkadot/util-crypto": ^10.2.1
+    bn.js: ~5.2.0
+    ethers: ~5.7.0
+    graphql: ~16.0.1
+    graphql-request: ~3.6.1
+    lru-cache: ~7.8.2
+  checksum: 52ab6a313ef82558a7af9061b7d8bc6c4dada00517d008e34d9d4c5b462106be2cb9f73f8f7b02403df334b09e4467599bc8f10df9e0528aff9a4cef26ff7e1c
+  languageName: node
+  linkType: hard
+
 "@acala-network/eth-providers@npm:^2.5.9":
   version: 2.5.9
   resolution: "@acala-network/eth-providers@npm:2.5.9"
@@ -221,42 +282,6 @@ __metadata:
     graphql-request: ~3.6.1
     lru-cache: ~7.8.2
   checksum: 5ce43f5708bb8e202f033adff4331e0c9a9ddaf94ebd014e9b4fd32b3479c71a0aad0a9bc9d46334440fe997fafd6e81ec0025ce75202d7686176656978a5a27
-  languageName: node
-  linkType: hard
-
-"@acala-network/eth-providers@npm:^2.6.5":
-  version: 2.6.5
-  resolution: "@acala-network/eth-providers@npm:2.6.5"
-  dependencies:
-    "@acala-network/api": ~4.1.8-9
-    "@acala-network/contracts": ~4.3.4
-    "@acala-network/eth-transactions": 2.6.5
-    "@acala-network/types": ~4.1.8-9
-    "@ethersproject/abstract-provider": ~5.7.0
-    "@ethersproject/address": ~5.7.0
-    "@ethersproject/bignumber": ~5.7.0
-    "@ethersproject/bytes": ~5.7.0
-    "@ethersproject/contracts": ~5.7.0
-    "@ethersproject/keccak256": ~5.7.0
-    "@ethersproject/logger": ~5.7.0
-    "@ethersproject/networks": ~5.7.0
-    "@ethersproject/properties": ~5.7.0
-    "@ethersproject/providers": ~5.7.0
-    "@ethersproject/transactions": ~5.7.0
-    "@ethersproject/wallet": ~5.7.0
-    "@polkadot/api": 9.10.3
-    "@polkadot/api-augment": 9.10.3
-    "@polkadot/api-derive": 9.10.3
-    "@polkadot/keyring": ^10.2.1
-    "@polkadot/types": 9.10.3
-    "@polkadot/util": ^10.2.1
-    "@polkadot/util-crypto": ^10.2.1
-    bn.js: ~5.2.0
-    ethers: ~5.7.0
-    graphql: ~16.0.1
-    graphql-request: ~3.6.1
-    lru-cache: ~7.8.2
-  checksum: 52ab6a313ef82558a7af9061b7d8bc6c4dada00517d008e34d9d4c5b462106be2cb9f73f8f7b02403df334b09e4467599bc8f10df9e0528aff9a4cef26ff7e1c
   languageName: node
   linkType: hard
 
@@ -8224,6 +8249,7 @@ __metadata:
   dependencies:
     "@acala-network/api": 4.1.8-14
     "@acala-network/api-derive": 4.1.8-14
+    "@acala-network/bodhi": ^2.6.5
     "@acala-network/eth-providers": ^2.6.5
     "@acala-network/sdk": 4.1.8-14
     "@acala-network/sdk-core": 4.1.8-14
