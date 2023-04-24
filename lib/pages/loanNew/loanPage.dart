@@ -307,7 +307,7 @@ class _LoanPageState extends State<LoanPage> {
             width: double.infinity,
             height: double.infinity,
             margin: EdgeInsets.only(top: 16),
-            child: isDataLoading
+            child: widget.plugin.sdk.api.connectedNode == null || isDataLoading
                 ? PluginPopLoadingContainer(
                     loading: true,
                     child: ConnectionChecker(widget.plugin,

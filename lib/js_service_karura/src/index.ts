@@ -33,14 +33,14 @@ async function connect(nodes: string[]) {
       if (!(<any>window).api) {
         (<any>window).api = res;
         (<any>window).apiRx = resRx;
-        const url = nodes[(<any>res)._options.provider.__private_59_endpointIndex];
+        const url = (<any>res)._options.provider.endpoint;
         // console.log(res);
         await _initAcalaSDK(res, url);
         send("log", `${url} wss connected success`);
         resolve(url);
       } else {
         res.disconnect();
-        const url = nodes[(<any>res)._options.provider.__private_59_endpointIndex];
+        const url = (<any>res)._options.provider.endpoint;
         send("log", `${url} wss success and disconnected`);
         resolve(url);
       }
