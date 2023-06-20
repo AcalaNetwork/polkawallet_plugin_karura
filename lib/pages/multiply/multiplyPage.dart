@@ -79,7 +79,7 @@ class _MultiplyPageState extends State<MultiplyPage> {
 
       final List<LoanType> loanTypes = [], ortherType = [];
       widget.plugin.store!.loan.loanTypes.forEach((element) {
-        if (element.maximumTotalDebitValue != BigInt.zero) {
+        if (element.token?.symbol != 'tKSM') {
           if (loans.indexWhere((loan) =>
                   loan.token?.tokenNameId == element.token?.tokenNameId) >=
               0) {

@@ -268,12 +268,14 @@ class _LoanPageState extends State<LoanPage> {
 
       final loanTypes = [], ortherType = [];
       widget.plugin.store!.loan.loanTypes.forEach((element) {
-        if (loans.indexWhere((loan) =>
-                loan.token?.tokenNameId == element.token?.tokenNameId) >=
-            0) {
-          loanTypes.add(element);
-        } else {
-          ortherType.add(element);
+        if (element.token?.symbol != 'tKSM') {
+          if (loans.indexWhere((loan) =>
+                  loan.token?.tokenNameId == element.token?.tokenNameId) >=
+              0) {
+            loanTypes.add(element);
+          } else {
+            ortherType.add(element);
+          }
         }
       });
       loanTypes.addAll(ortherType);
