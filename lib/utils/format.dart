@@ -7,7 +7,9 @@ import 'package:polkawallet_ui/utils/format.dart';
 
 class PluginFmt {
   static String tokenView(String? token) {
-    if (token == karura_stable_coin) {
+    if (token == karura_stable_coin ||
+        token == acala_stable_coin_view_old ||
+        token == acala_seed_coin) {
       return karura_stable_coin_view;
     }
     if (token == acala_token_ren_btc) {

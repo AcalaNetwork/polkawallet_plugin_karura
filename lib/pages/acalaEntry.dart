@@ -3,13 +3,12 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnPage.dart';
 import 'package:polkawallet_plugin_karura/pages/homaNew/homaPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/multiplyPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginItemCard.dart';
 import 'package:polkawallet_ui/components/v3/dialog.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginItemCard.dart';
 
 class DefiWidget extends StatelessWidget {
   DefiWidget(this.plugin);
@@ -17,7 +16,7 @@ class DefiWidget extends StatelessWidget {
   final PluginKarura plugin;
 
   final _liveModuleRoutes = {
-    'multiply': MultiplyPage.route,
+    // 'multiply': MultiplyPage.route,
     'loan': LoanPage.route,
     'swap': SwapPage.route,
     'earn': EarnPage.route,
