@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -67,12 +64,17 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
       },
     ));
 
+    // log(jsonEncode(result.data));
     List<TxSwapData> list = [];
 
     if (result.data != null) {
-      list = List.of(result.data!['dexActions']['nodes'])
-          .map((i) => TxSwapData.fromJson(i as Map, widget.plugin))
-          .toList();
+      result.data!.forEach((key, value) {
+        if (value is Map && value['nodes'] != null) {
+          list.addAll(List.of(value['nodes'])
+              .map((i) => TxSwapData.fromJson(i as Map, widget.plugin))
+              .toList());
+        }
+      });
     }
 
     return list;
@@ -90,7 +92,7 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
         'address': widget.keyring.current.address,
       },
     ));
-    log(jsonEncode(resultTaiga.data));
+    // log(jsonEncode(resultTaiga.data));
     List<TxSwapData> list = [];
 
     if (resultTaiga.data != null) {
@@ -123,25 +125,25 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
     final list;
     switch (filterString) {
       case TxSwapData.actionTypeSwapFilter:
-        list = _list.where((element) => (element.action == 'swap')).toList();
+        list = _list.where((element) => (element.action == 'Swap')).toList();
         break;
       case TxSwapData.actionTypeAddLiquidityFilter:
         list = _list
             .where((element) =>
-                (element.action == 'addLiquidity' || element.action == 'mint'))
+                (element.action == 'AddLiquidity' || element.action == 'Mint'))
             .toList();
         break;
       case TxSwapData.actionTypeRemoveLiquidityFilter:
         list = _list
-            .where((element) => (element.action == 'removeLiquidity' ||
-                element.action == 'proportionredeem' ||
-                element.action == 'singleredeem' ||
-                element.action == 'multiredeem'))
+            .where((element) => (element.action == 'RemoveLiquidity' ||
+                element.action == 'ProportionRedeem' ||
+                element.action == 'SingleRedeem' ||
+                element.action == 'MultiRedeem'))
             .toList();
         break;
       case TxSwapData.actionTypeAddProvisionFilter:
         list = _list
-            .where((element) => (element.action == 'addProvision'))
+            .where((element) => (element.action == 'AddProvision'))
             .toList();
         break;
       default:
@@ -188,38 +190,38 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
                     String describe = "";
                     String action = detail.action ?? "";
                     switch (detail.action) {
-                      case "removeLiquidity":
+                      case "RemoveLiquidity":
                         type = TransferIconType.remove_liquidity;
                         describe =
-                            "remove ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                            "remove ${detail.amountShare} shares from LP ${PluginFmt.tokenView(detail.tokenPay)}-${PluginFmt.tokenView(detail.tokenReceive)} pool";
                         break;
-                      case "addProvision":
+                      case "AddProvision":
                         type = TransferIconType.add_provision;
                         describe =
-                            "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} in boostrap";
+                            "add ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} and ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} in boostrap";
                         break;
-                      case "addLiquidity":
+                      case "AddLiquidity":
                         type = TransferIconType.add_liquidity;
                         describe =
-                            "add ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} and ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                            "add ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} and ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)}";
                         break;
-                      case "swap":
+                      case "Swap":
                         type = TransferIconType.swap;
                         describe =
-                            "swap  ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)} for ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)}";
+                            "swap  ${detail.amountPay} ${PluginFmt.tokenView(detail.tokenPay)} for ${detail.amountReceive} ${PluginFmt.tokenView(detail.tokenReceive)}";
                         break;
                       //taiga
-                      case "mint":
+                      case "Mint":
                         type = TransferIconType.add_liquidity;
-                        action = "addLiquidity";
+                        action = "AddLiquidity";
                         describe =
                             "add ${detail.amounts.map((e) => e.toTokenString()).join(" + ")} to pool";
                         break;
-                      case "proportionredeem":
-                      case "singleredeem":
-                      case "multiredeem":
+                      case "ProportionRedeem":
+                      case "SingleRedeem":
+                      case "MultiRedeem":
                         type = TransferIconType.remove_liquidity;
-                        action = "removeLiquidity";
+                        action = "RemoveLiquidity";
                         describe =
                             "remove ${detail.amountPay} shares from ${PluginFmt.tokenView(detail.tokenPay)} pool";
                         break;

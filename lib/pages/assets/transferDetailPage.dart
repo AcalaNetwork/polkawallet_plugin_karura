@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/history/types/historyData.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -8,14 +9,13 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/txDetail.dart';
 import 'package:polkawallet_ui/utils/format.dart';
-import 'package:intl/intl.dart';
 
 class TransferDetailPage extends StatelessWidget {
   TransferDetailPage(this.plugin, this.keyring);
   final PluginKarura plugin;
   final Keyring keyring;
 
-  static final String route = '/assets/token/tx';
+  static final String route = '/assets/token/tx/detail';
 
   @override
   Widget build(BuildContext context) {
