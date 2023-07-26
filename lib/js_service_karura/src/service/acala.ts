@@ -144,7 +144,7 @@ async function getAllTokens() {
       return {
         type: _getTokenType(e),
         tokenNameId: e.name,
-        symbol: e.symbol === "aUSD" ? e.name : e.symbol,
+        symbol: e.symbol === "tKSM" ? e.symbol : e.symbol.toUpperCase(),
         id: Object.values(e.toChainData())[0].toString(),
         src: e.locations,
         currencyId: e.toChainData(),
