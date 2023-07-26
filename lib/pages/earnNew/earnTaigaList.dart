@@ -81,7 +81,7 @@ class _EarnTaigaListState extends State<EarnTaigaList> {
                             .toList();
 
                         var totalStaked = 0.0;
-                        if (tokenSymbol == "taiKSM") {
+                        if (tokenSymbol == "tKSM") {
                           totalStaked = Fmt.balanceDouble(
                                   taigaPoolInfo?.totalShares ?? "",
                                   balance.decimals!) *

@@ -90,4 +90,4 @@ const config_modules = {
 
 const image_assets_uri = 'packages/polkawallet_plugin_karura/assets/images';
 
-const collateralFilterList = ['taiKSM'];
+const collateralFilterList = ['tKSM'];

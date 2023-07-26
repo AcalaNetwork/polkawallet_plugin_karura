@@ -80,7 +80,7 @@ class _EarnTaigaDetailPageState extends State<EarnTaigaDetailPage> {
 
         final tokenSymbol = balance.symbol;
         var totalStaked = 0.0;
-        if (tokenSymbol == "taiKSM") {
+        if (tokenSymbol == "tKSM") {
           totalStaked = Fmt.balanceDouble(
                   taigaPool?.totalShares ?? "", balance.decimals!) *
               price;
@@ -111,7 +111,7 @@ class _EarnTaigaDetailPageState extends State<EarnTaigaDetailPage> {
         List<String> claimString = [];
         taigaPool!.reward.forEach((e) {
           var index = taigaPool.reward.indexOf(e);
-          if (tokenSymbol == "taiKSM") {
+          if (tokenSymbol == "tKSM") {
             index = taigaPool.reward.length - index - 1;
           }
           final rewardBalance = AssetsUtils.getBalanceFromTokenNameId(
