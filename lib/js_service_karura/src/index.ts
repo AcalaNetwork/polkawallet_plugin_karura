@@ -2,7 +2,7 @@ import { WsProvider, ApiPromise, ApiRx } from "@polkadot/api";
 import { EvmRpcProvider } from "@acala-network/eth-providers";
 import { firstValueFrom } from "rxjs";
 import { subscribeMessage, getNetworkConst, getNetworkProperties } from "./service/setting";
-import keyring from "./service/keyring";
+// import keyring from "./service/keyring";
 import { options } from "@acala-network/api";
 import { Wallet } from "@acala-network/sdk";
 import acala from "./service/acala";
@@ -69,6 +69,6 @@ async function _initAcalaSDK(api: ApiPromise, url: string) {
   subscribeMessage,
   genLinks,
 };
-(<any>window).keyring = keyring;
+// (<any>window).keyring = keyring;
 (<any>window).acala = acala;
 (<any>window).xcm = xcm;
