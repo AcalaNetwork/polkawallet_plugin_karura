@@ -59,9 +59,8 @@ const Map<String, String> enCommon = {
   'swap.title': 'Swap',
   'swap.brief':
       'Swap tokens or provide liquidity in Karura Decentralized Exchange.',
-  'earn.title': 'Earn',
-  'earn.brief':
-      'Earn rewards by staking your LP tokens or collaterizing your assets.',
+  'earn.title': 'Staking',
+  'earn.brief': 'Earn rewards by staking your tokens.',
   'homa.title': 'Liquid KSM',
   'homa.brief':
       'Stake KSM in Karura to earn staking rewards with keeping liquidity of your tokens.',

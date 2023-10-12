@@ -80,7 +80,7 @@ class _EarnPageState extends State<EarnPage> {
             Container(
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: PluginPageTitleTaps(
-                names: [dic['earn.dex']!, dic['earn.loan']!, dic['airdrop']!],
+                names: [dic['earn.loan']!, dic['earn.dex']!, dic['airdrop']!],
                 activeTab: _tab,
                 // fontSize: 20,
                 // lineWidth: 6,
@@ -94,9 +94,9 @@ class _EarnPageState extends State<EarnPage> {
             ),
             Expanded(
               child: _tab == 0
-                  ? EarnDexList(widget.plugin)
+                  ? EarnLoanList(widget.plugin, widget.keyring)
                   : _tab == 1
-                      ? EarnLoanList(widget.plugin, widget.keyring)
+                      ? EarnDexList(widget.plugin)
                       : EarnTaigaList(widget.plugin, widget.keyring),
             )
           ],

@@ -2,11 +2,6 @@ import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 
 const node_list = [
   {
-    'name': 'Karura (via Dwellir)',
-    'ss58': ss58_prefix_karura,
-    'endpoint': 'wss://karura-rpc.dwellir.com',
-  },
-  {
     'name': 'Karura (via Polkawallet)',
     'ss58': ss58_prefix_karura,
     'endpoint': 'wss://karura.polkawallet.io',
@@ -34,7 +29,7 @@ const node_list = [
   // {
   //   'name': 'Karura (Polkawallet dev node)',
   //   'ss58': ss58_prefix_karura,
-  //   'endpoint': 'wss://crosschain-dev.polkawallet.io:9907',
+  //   'endpoint': 'wss://crosschain-dev.polkawallet.io:9905',
   // },
   // {
   //   'name': 'Karura (Polkawallet dev node pha)',
