@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
+import 'package:polkawallet_plugin_karura/pages/loanNew/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/service/walletApi.dart';
 import 'package:polkawallet_plugin_karura/utils/assets.dart';
@@ -12,7 +13,6 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/v3/dialog.dart';
-import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginInfoItem.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginOutlinedButtonSmall.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
@@ -39,7 +39,26 @@ class _EarnLoanListState extends State<EarnLoanList> {
   BigInt _loyalty = BigInt.zero;
   BigInt _loyaltyUser = BigInt.zero;
 
-  bool _fetching = false;
+  BigInt _staked = BigInt.zero;
+  BigInt _active = BigInt.zero;
+  List<List<BigInt>> _unlocking = [];
+
+  Future<void> _fetchUserStaked() async {
+    final res = await widget.plugin.sdk.webView?.evalJavascript(
+        'api.query.earning.ledger("${widget.keyring.current.address}")');
+    if (res != null && mounted) {
+      setState(() {
+        _staked = Fmt.balanceInt(res['total'].toString());
+        _active = Fmt.balanceInt(res['active'].toString());
+        _unlocking = List.of(res['unlocking'])
+            .map((e) => [
+                  Fmt.balanceInt(e['value'].toString()),
+                  Fmt.balanceInt(e['unlockAt'].toString())
+                ])
+            .toList();
+      });
+    }
+  }
 
   Future<void> _fetchKarIssuance() async {
     final res = await widget.plugin.sdk.webView
@@ -61,10 +80,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
   }
 
   Future<void> _updateLoyaltyBonusUser() async {
-    setState(() {
-      _fetching = true;
-    });
-
     final res =
         await WalletApi.getKarLoyalBonusUser(widget.keyring.current.address!);
     final loyaltyUserList = (res ?? {})['data']['list'] as List;
@@ -77,7 +92,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
       if (loyaltyUser > BigInt.zero) {
         setState(() {
           _loyaltyUser = loyaltyUser;
-          _fetching = false;
         });
       }
     }
@@ -87,6 +101,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
     _fetchKarIssuance();
     _fetchLoyaltyBonus();
     _updateLoyaltyBonusUser();
+    _fetchUserStaked();
 
     widget.plugin.service!.gov.updateBestNumber();
 
@@ -103,8 +118,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
 
   Future<void> _onClaimReward(Map<String?, List<IncentiveItemData>>? incentives,
       TokenBalanceData token, String rewardView) async {
-    if (_fetching) return;
-
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
     double? loyaltyBonus = 0;
     if (incentives![token.tokenNameId] != null) {
@@ -282,6 +295,11 @@ class _EarnLoanListState extends State<EarnLoanList> {
       });
     }
 
+    final freeBalance =
+        Fmt.balanceInt(widget.plugin.balances.native?.freeBalance.toString());
+    final available = freeBalance - _staked;
+    print(freeBalance);
+    print(_staked);
     bool canClaim = false;
     final reward =
         widget.plugin.store!.loan.collateralRewards[token.tokenNameId];
@@ -299,8 +317,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
             return '${Fmt.priceFloor(amount.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(rewardToken.symbol)}';
           }).join(' + ')
         : '0.00';
-
-    final deposit = Fmt.priceFloorBigInt(reward?.shares, token.decimals ?? 12);
 
     return _loading
         ? PluginPopLoadingContainer(
@@ -344,19 +360,19 @@ class _EarnLoanListState extends State<EarnLoanList> {
                                       color: Colors.white)),
                         ),
                       ]),
-                      Divider(),
-                      InfoItemRow('KAR ${dic['earn.kar.volume']}',
+                      Divider(thickness: 0.5),
+                      LoanInfoItemRow('KAR ${dic['earn.kar.volume']}',
                           '${Fmt.priceFloorBigInt(_totalKar, 12)} KAR'),
-                      InfoItemRow(dic['earn.kar.pool']!,
+                      LoanInfoItemRow(dic['earn.kar.pool']!,
                           '${Fmt.priceFloorBigInt(reward?.sharesTotal, 12)} KAR'),
-                      InfoItemRow(
+                      LoanInfoItemRow(
                           dic['earn.kar.rate']!,
                           Fmt.ratio((reward?.sharesTotal ?? BigInt.zero) /
                               _totalKar)),
-                      Divider(),
-                      InfoItemRow(dic['earn.kar.emission']!,
+                      Divider(thickness: 0.5),
+                      LoanInfoItemRow(dic['earn.kar.emission']!,
                           '${Fmt.priceFloor(emission / 365 * 31)} KAR/Month'),
-                      InfoItemRow(dic['earn.kar.loyalty']!,
+                      LoanInfoItemRow(dic['earn.kar.loyalty']!,
                           '${Fmt.priceFloorBigInt(_loyalty, 12)} KAR'),
                     ],
                   ),
@@ -426,7 +442,8 @@ class _EarnLoanListState extends State<EarnLoanList> {
                                             CrossAxisAlignment.center,
                                         title:
                                             "Staked (${PluginFmt.tokenView(token.symbol)})",
-                                        content: deposit,
+                                        content:
+                                            Fmt.priceFloorBigInt(_active, 12),
                                         titleStyle: Theme.of(context)
                                             .textTheme
                                             .headline5
@@ -449,8 +466,8 @@ class _EarnLoanListState extends State<EarnLoanList> {
                                             CrossAxisAlignment.center,
                                         title:
                                             '${dic['earn.available']} (${PluginFmt.tokenView(token.symbol)})',
-                                        content: Fmt.priceFloorBigInt(
-                                            Fmt.balanceInt(token.amount), 12),
+                                        content:
+                                            Fmt.priceFloorBigInt(available, 12),
                                         titleStyle: Theme.of(context)
                                             .textTheme
                                             .headline5

@@ -95,19 +95,20 @@ class _LoanDepositPageState extends State<LoanDepositPage> {
 
     final minLabel = I18n.of(context)!
         .getDic(i18n_full_dic_karura, 'acala')!['homa.pool.min'];
+    final minBond = widget.plugin.networkConst['earning']['minBond'];
+    final minBondInt = Fmt.balanceInt(minBond.toString());
     if (params["type"] == LoanDepositPage.actionTypeDeposit) {
       collateral = valueInt + deposit;
-      if (valueInt > BigInt.zero &&
-          valueInt < Fmt.balanceInt('10000000000000')) {
-        return '$minLabel  10';
+      if (valueInt > BigInt.zero && valueInt < minBondInt) {
+        return '$minLabel  ${Fmt.priceFloorBigInt(minBondInt, 12)}';
       }
     } else {
       collateral = deposit - valueInt;
     }
     if ((_loan == null || _loan.debits == BigInt.zero) &&
         collateral > BigInt.zero &&
-        collateral < Fmt.balanceInt(token.minBalance) * BigInt.from(100)) {
-      return '$minLabel   ${Fmt.priceFloorBigInt(Fmt.balanceInt(token.minBalance) * BigInt.from(100), collateralDecimals, lengthFixed: 4)}';
+        collateral < minBondInt) {
+      return '$minLabel   ${Fmt.priceFloorBigInt(minBondInt, collateralDecimals)}';
     }
     return null;
   }
