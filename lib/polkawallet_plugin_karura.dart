@@ -16,6 +16,8 @@ import 'package:polkawallet_plugin_karura/pages/assets/tokenDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/assets/transferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/currencySelectPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earnRebondPage.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earningUnbondPage.dart';
 import 'package:polkawallet_plugin_karura/pages/governanceNew/governancePage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyPage.dart';
@@ -237,6 +239,9 @@ class PluginKarura extends PolkawalletPlugin {
       //multiply
       MultiplyPage.route: (_) => MultiplyPage(this, keyring),
       MultiplyCreatePage.route: (_) => MultiplyCreatePage(this, keyring),
+
+      EarningUnbondPage.route: (_) => EarningUnbondPage(this, keyring),
+      EarningRebondPage.route: (_) => EarningRebondPage(this, keyring),
     };
   }
 

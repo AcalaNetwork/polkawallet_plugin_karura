@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_plugin_karura/api/earn/types/incentivesData.dart';
+import 'package:polkawallet_plugin_karura/pages/earnNew/earningUnbondPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanInfoPanel.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -20,6 +21,7 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
 import 'package:polkawallet_ui/components/v3/plugin/roundedPluginCard.dart';
 import 'package:polkawallet_ui/components/v3/txButton.dart';
 import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -274,7 +276,11 @@ class _EarnLoanListState extends State<EarnLoanList> {
         params: [pool],
         isPlugin: true,
       );
-      Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: params);
+      final res = await Navigator.of(context)
+          .pushNamed(TxConfirmPage.route, arguments: params);
+      if (res != null) {
+        _fetchData();
+      }
     }
   }
 
@@ -285,12 +291,18 @@ class _EarnLoanListState extends State<EarnLoanList> {
     final token = AssetsUtils.getBalanceFromTokenNameId(widget.plugin, 'KAR');
     final incentives = widget.plugin.store!.earn.incentives.loans;
     double apy = 0;
-    double emission = 0;
+    String emissionView = '';
     if (incentives![token.tokenNameId] != null) {
       incentives[token.tokenNameId]!.forEach((e) {
         if (e.tokenNameId != 'Any') {
           apy += e.apr ?? 0;
-          emission += e.amount ?? 0;
+          if (emissionView.isEmpty) {
+            emissionView =
+                '${Fmt.priceFloor((e.amount ?? 0) / 365 * 31)} ${PluginFmt.tokenView(e.tokenNameId)}/Month';
+          } else {
+            emissionView +=
+                '\n${Fmt.priceFloor((e.amount ?? 0) / 365 * 31)} ${PluginFmt.tokenView(e.tokenNameId)}/Month';
+          }
         }
       });
     }
@@ -298,8 +310,6 @@ class _EarnLoanListState extends State<EarnLoanList> {
     final freeBalance =
         Fmt.balanceInt(widget.plugin.balances.native?.freeBalance.toString());
     final available = freeBalance - _staked;
-    print(freeBalance);
-    print(_staked);
     bool canClaim = false;
     final reward =
         widget.plugin.store!.loan.collateralRewards[token.tokenNameId];
@@ -317,6 +327,11 @@ class _EarnLoanListState extends State<EarnLoanList> {
             return '${Fmt.priceFloor(amount.toDouble(), lengthMax: 4)} ${PluginFmt.tokenView(rewardToken.symbol)}';
           }).join(' + ')
         : '0.00';
+
+    final maxUnbondingChunks = Fmt.balanceInt(widget
+        .plugin.networkConst['earning']['maxUnbondingChunks']
+        ?.toString());
+    final canUnbond = _unlocking.length < maxUnbondingChunks.toInt();
 
     return _loading
         ? PluginPopLoadingContainer(
@@ -370,8 +385,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
                           Fmt.ratio((reward?.sharesTotal ?? BigInt.zero) /
                               _totalKar)),
                       Divider(thickness: 0.5),
-                      LoanInfoItemRow(dic['earn.kar.emission']!,
-                          '${Fmt.priceFloor(emission / 365 * 31)} KAR/Month'),
+                      LoanInfoItemRow(dic['earn.kar.emission']!, emissionView),
                       LoanInfoItemRow(dic['earn.kar.loyalty']!,
                           '${Fmt.priceFloorBigInt(_loyalty, 12)} KAR'),
                     ],
@@ -391,7 +405,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
                         ),
                         padding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-                        child: Text('My Balance',
+                        child: Text(dic['earn.kar.balance']!,
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3
@@ -433,60 +447,93 @@ class _EarnLoanListState extends State<EarnLoanList> {
                                   style: TextStyle(fontSize: 10),
                                 ),
                               ),
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 16),
-                                  child: Row(
-                                    children: [
-                                      PluginInfoItem(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        title:
-                                            "Staked (${PluginFmt.tokenView(token.symbol)})",
-                                        content:
-                                            Fmt.priceFloorBigInt(_active, 12),
-                                        titleStyle: Theme.of(context)
-                                            .textTheme
-                                            .headline5
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              height: 1.0,
+                              Row(
+                                children: [
+                                  PluginInfoItem(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    title:
+                                        "Staked (${PluginFmt.tokenView(token.symbol)})",
+                                    content: Fmt.priceFloorBigInt(_active, 12),
+                                    titleStyle: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          height: 1.0,
+                                        ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize:
+                                                UI.getTextSize(20, context),
+                                            height: 1.5,
+                                            fontWeight: FontWeight.bold),
+                                  ),
+                                  PluginInfoItem(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    title:
+                                        '${dic['earn.available']} (${PluginFmt.tokenView(token.symbol)})',
+                                    content:
+                                        Fmt.priceFloorBigInt(available, 12),
+                                    titleStyle: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          height: 1.0,
+                                        ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize:
+                                                UI.getTextSize(20, context),
+                                            height: 1.5,
+                                            fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Visibility(
+                                  visible: _staked - _active > BigInt.zero,
+                                  child: Padding(
+                                      padding:
+                                          EdgeInsets.only(bottom: 8, left: 32),
+                                      child: GestureDetector(
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              '${dic['earn.unbond.title']} ${Fmt.priceFloorBigInt(_staked - _active, 12)} KAR',
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color:
+                                                      PluginColorsDark.primary),
                                             ),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    UI.getTextSize(20, context),
-                                                height: 1.5,
-                                                fontWeight: FontWeight.bold),
-                                      ),
-                                      PluginInfoItem(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        title:
-                                            '${dic['earn.available']} (${PluginFmt.tokenView(token.symbol)})',
-                                        content:
-                                            Fmt.priceFloorBigInt(available, 12),
-                                        titleStyle: Theme.of(context)
-                                            .textTheme
-                                            .headline5
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              height: 1.0,
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 8),
+                                              child: Icon(
+                                                Icons.info_outline,
+                                                size: 14,
+                                                color: PluginColorsDark.primary,
+                                              ),
                                             ),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    UI.getTextSize(20, context),
-                                                height: 1.5,
-                                                fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  )),
+                                          ],
+                                        ),
+                                        onTap: () async {
+                                          final res =
+                                              await Navigator.of(context)
+                                                  .pushNamed(
+                                                      EarningUnbondPage.route,
+                                                      arguments: _unlocking);
+                                          if (res != null) {
+                                            _fetchData();
+                                          }
+                                        },
+                                      ))),
                             ],
                           )),
                       Container(
@@ -509,14 +556,42 @@ class _EarnLoanListState extends State<EarnLoanList> {
                                   margin: EdgeInsets.zero,
                                   onPressed: (reward?.shares ?? BigInt.zero) >
                                           BigInt.zero
-                                      ? () => Navigator.of(context).pushNamed(
-                                            LoanDepositPage.route,
-                                            arguments: {
-                                              "type": LoanDepositPage
-                                                  .actionTypeWithdraw,
-                                              "tokenNameId": token.tokenNameId
-                                            },
-                                          )
+                                      ? canUnbond
+                                          ? () async {
+                                              final res =
+                                                  await Navigator.of(context)
+                                                      .pushNamed(
+                                                LoanDepositPage.route,
+                                                arguments: {
+                                                  "type": LoanDepositPage
+                                                      .actionTypeWithdraw,
+                                                  "tokenNameId":
+                                                      token.tokenNameId
+                                                },
+                                              );
+                                              if (res != null) {
+                                                _fetchData();
+                                              }
+                                            }
+                                          : () => showCupertinoDialog(
+                                              context: context,
+                                              builder: (_) =>
+                                                  PolkawalletAlertDialog(
+                                                    title: Text('Unstake'),
+                                                    content: Text(dic[
+                                                        'earn.unbond.max']!),
+                                                    actions: [
+                                                      PolkawalletActionSheetAction(
+                                                        isDefaultAction: true,
+                                                        child: Text(dic[
+                                                            'homa.confirm']!),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(),
+                                                      )
+                                                    ],
+                                                  ))
                                       : null,
                                 ),
                               ),
@@ -528,14 +603,20 @@ class _EarnLoanListState extends State<EarnLoanList> {
                                   active: true,
                                   padding: EdgeInsets.only(top: 8, bottom: 8),
                                   margin: EdgeInsets.zero,
-                                  onPressed: () =>
-                                      Navigator.of(context).pushNamed(
-                                    LoanDepositPage.route,
-                                    arguments: {
-                                      "type": LoanDepositPage.actionTypeDeposit,
-                                      "tokenNameId": token.tokenNameId
-                                    },
-                                  ),
+                                  onPressed: () async {
+                                    final res =
+                                        await Navigator.of(context).pushNamed(
+                                      LoanDepositPage.route,
+                                      arguments: {
+                                        "type":
+                                            LoanDepositPage.actionTypeDeposit,
+                                        "tokenNameId": token.tokenNameId
+                                      },
+                                    );
+                                    if (res != null) {
+                                      _fetchData();
+                                    }
+                                  },
                                 ),
                               ),
                               Container(width: 15),
