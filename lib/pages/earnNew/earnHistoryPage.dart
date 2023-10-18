@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:polkawallet_plugin_karura/api/types/txIncentiveData.dart';
-import 'package:polkawallet_plugin_karura/pages/earnNew/earnTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
 import 'package:polkawallet_plugin_karura/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/TransferIcon.dart';
 import 'package:polkawallet_ui/components/listTail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginFilterWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginFilterWidget.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
 
@@ -55,6 +54,19 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
 
               final list;
               switch (filterString) {
+                case TxDexIncentiveData.actionBondFilter:
+                  list = originList
+                      .where((element) =>
+                          element.event == TxDexIncentiveData.actionEarnBond ||
+                          element.event == TxDexIncentiveData.actionEarnRebond)
+                      .toList();
+                  break;
+                case TxDexIncentiveData.actionUnbondFilter:
+                  list = originList
+                      .where((element) =>
+                          element.event == TxDexIncentiveData.actionEarnUnbond)
+                      .toList();
+                  break;
                 case TxDexIncentiveData.actionStakeFilter:
                   list = originList
                       .where((element) =>
@@ -89,6 +101,8 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                 PluginFilterWidget(
                   options: [
                     PluginFilterWidget.pluginAllFilter,
+                    TxDexIncentiveData.actionBondFilter,
+                    TxDexIncentiveData.actionUnbondFilter,
                     TxDexIncentiveData.actionStakeFilter,
                     TxDexIncentiveData.actionUnStakeFilter,
                     TxDexIncentiveData.actionClaimRewardsFilter,
@@ -118,6 +132,8 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                       TransferIconType icon = TransferIconType.unstake;
                       switch (detail.event) {
                         case TxDexIncentiveData.actionStake:
+                        case TxDexIncentiveData.actionEarnBond:
+                        case TxDexIncentiveData.actionEarnRebond:
                           icon = TransferIconType.stake;
                           break;
                         case TxDexIncentiveData.actionClaimRewards:
@@ -137,26 +153,12 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                         ),
                         child: ListTile(
                           dense: true,
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                dic[earn_actions_map[detail.event]] ?? "",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600),
-                              ),
-                              Text(history.message ?? "",
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline5
-                                      ?.copyWith(color: Colors.white))
-                            ],
-                          ),
+                          title: Text(detail.message ?? "",
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  ?.copyWith(color: Colors.white)),
                           subtitle: Text(
                               Fmt.dateTime(DateFormat("yyyy-MM-ddTHH:mm:ss")
                                   .parse(detail.time, true)),
@@ -169,11 +171,9 @@ class _EarnHistoryPageState extends State<EarnHistoryPage> {
                           leading: TransferIcon(
                               type: icon, bgColor: Color(0x57FFFFFF)),
                           onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              EarnTxDetailPage.route,
-                              arguments: detail,
-                            );
+                            if (detail.resolveLinks != null) {
+                              UI.launchURL(detail.resolveLinks!);
+                            }
                           },
                         ),
                       );

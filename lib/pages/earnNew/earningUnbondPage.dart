@@ -28,7 +28,7 @@ class _EarningUnbondPageState extends State<EarningUnbondPage> {
     final dic = I18n.of(context)!.getDic(i18n_full_dic_karura, 'acala')!;
 
     final params = TxConfirmParams(
-      module: 'earn',
+      module: 'earning',
       call: 'withdrawUnbonded',
       txTitle: dic['earn.unbond.withdraw'],
       txDisplay: {
@@ -103,7 +103,8 @@ class _EarningUnbondPageState extends State<EarningUnbondPage> {
                                       e[1] - bestNumber > BigInt.zero
                                           ? Fmt.blockToTime(
                                               (e[1] - bestNumber).toInt(),
-                                              12500)
+                                              widget.plugin.store!.earn
+                                                  .blockDuration)
                                           : dic['earn.unbond.ready']!,
                                       style: titleStyle)),
                               Text(Fmt.priceFloorBigInt(e[0], 12) + ' KAR',
@@ -165,9 +166,9 @@ class _EarningUnbondPageState extends State<EarningUnbondPage> {
                               padding: EdgeInsets.only(top: 8, bottom: 8),
                               margin: EdgeInsets.zero,
                               onPressed: () async {
-                                final res = await Navigator.of(context).pushNamed(
-                                    EarningRebondPage.route,
-                                    arguments: args);
+                                final res = await Navigator.of(context)
+                                    .pushNamed(EarningRebondPage.route,
+                                        arguments: args);
                                 if (res != null) {
                                   Navigator.of(context).pop(res);
                                 }
