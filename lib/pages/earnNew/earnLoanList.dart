@@ -338,7 +338,7 @@ class _EarnLoanListState extends State<EarnLoanList> {
     final incentives = widget.plugin.store!.earn.incentives.loans;
     double apy = 0;
     String emissionView = '';
-    if (incentives![token.tokenNameId] != null) {
+    if (incentives != null && incentives[token.tokenNameId] != null) {
       incentives[token.tokenNameId]!.forEach((e) {
         if (e.tokenNameId != 'Any') {
           apy += e.apr ?? 0;
