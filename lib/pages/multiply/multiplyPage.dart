@@ -5,7 +5,6 @@ import 'package:polkawallet_plugin_karura/common/constants/index.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTabBarWidget.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyAdjustPanel.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/multiplyCreatePage.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/multiply/pieChartPainter.dart';
 import 'package:polkawallet_plugin_karura/pages/types/loanPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -18,7 +17,6 @@ import 'package:polkawallet_ui/components/connectionChecker.dart';
 import 'package:polkawallet_ui/components/v3/infoItemRow.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginAccountInfoAction.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginButton.dart';
-import 'package:polkawallet_ui/components/v3/plugin/pluginIconButton.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginPopLoadingWidget.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/components/v3/plugin/pluginTokenIcon.dart';
@@ -103,17 +101,17 @@ class _MultiplyPageState extends State<MultiplyPage> {
           appBar: PluginAppBar(
             title: Text(dicCommon!['multiply.title']!),
             actions: [
-              Container(
-                margin: EdgeInsets.only(right: 12),
-                child: PluginIconButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushNamed(MultiplyHistoryPage.route),
-                  icon: Image.asset(
-                    'packages/polkawallet_plugin_karura/assets/images/history.png',
-                    width: 16,
-                  ),
-                ),
-              ),
+              // Container(
+              //   margin: EdgeInsets.only(right: 12),
+              //   child: PluginIconButton(
+              //     onPressed: () => Navigator.of(context)
+              //         .pushNamed(MultiplyHistoryPage.route),
+              //     icon: Image.asset(
+              //       'packages/polkawallet_plugin_karura/assets/images/history.png',
+              //       width: 16,
+              //     ),
+              //   ),
+              // ),
               PluginAccountInfoAction(widget.keyring)
             ],
           ),

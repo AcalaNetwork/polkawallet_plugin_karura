@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:polkawallet_plugin_karura/common/constants/base.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/LPStakePage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/addLiquidityPage.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/earnDetailPage.dart';
@@ -25,8 +24,6 @@ import 'package:polkawallet_plugin_karura/pages/loanNew/loanDepositPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanPage.dart';
 import 'package:polkawallet_plugin_karura/pages/loanNew/loanTxDetailPage.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/multiplyHistoryPage.dart';
-import 'package:polkawallet_plugin_karura/pages/multiply/multiplyTxDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftPage.dart';
 import 'package:polkawallet_plugin_karura/pages/nftNew/nftTransferPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/bootstrapPage.dart';
@@ -34,7 +31,6 @@ import 'package:polkawallet_plugin_karura/pages/swapNew/swapDetailPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapHistoryPage.dart';
 import 'package:polkawallet_plugin_karura/pages/swapNew/swapPage.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
-import 'package:polkawallet_plugin_karura/service/graphql.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 
 Map<String, WidgetBuilder> getNewUiRoutes(
@@ -71,12 +67,7 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           WithdrawLiquidityPage.route: (_) =>
               WithdrawLiquidityPage(plugin, keyring),
           EarnHistoryPage.route: (_) => EarnHistoryPage(plugin, keyring),
-          EarnDetailPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => EarnDetailPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['dexUri']!,
-              ),
+          EarnDetailPage.route: (_) => EarnDetailPage(plugin, keyring),
           LPStakePage.route: (_) => LPStakePage(plugin, keyring),
           InviteFriendsPage.route: (_) => InviteFriendsPage(plugin, keyring),
           EarnTxDetailPage.route: (_) => EarnTxDetailPage(plugin, keyring),
@@ -94,16 +85,6 @@ Map<String, WidgetBuilder> getNewUiRoutes(
           //governanceNew
           GovernancePage.route: (_) => GovernancePage(plugin, keyring),
           ReferendumVotePage.route: (_) => ReferendumVotePage(plugin, keyring),
-
-          //multiply
-          MultiplyHistoryPage.route: (_) => ClientProvider(
-                child: Builder(
-                  builder: (_) => MultiplyHistoryPage(plugin, keyring),
-                ),
-                uri: GraphQLConfig['defiUri']!,
-              ),
-          MultiplyTxDetailPage.route: (_) =>
-              MultiplyTxDetailPage(plugin, keyring),
         }
       : {};
 }

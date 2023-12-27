@@ -4,12 +4,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:polkawallet_plugin_karura/api/types/dexPoolInfoData.dart';
 import 'package:polkawallet_plugin_karura/common/constants/index.dart';
-import 'package:polkawallet_plugin_karura/common/constants/subQuery.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/LPStakePage.dart';
-import 'package:polkawallet_plugin_karura/pages/earnNew/RewardsChart.dart';
 import 'package:polkawallet_plugin_karura/pages/earnNew/inviteFriendsPage.dart';
 import 'package:polkawallet_plugin_karura/pages/types/earnPageParams.dart';
 import 'package:polkawallet_plugin_karura/polkawallet_plugin_karura.dart';
@@ -143,87 +140,20 @@ class EarnDetailPage extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 11),
                         child: Column(
                           children: [
-                            Query(
-                                options: QueryOptions(
-                                  document: gql(queryPoolDetail),
-                                  fetchPolicy: FetchPolicy.noCache,
-                                  variables: <String, String?>{
-                                    'pool': poolInfo!.tokenNameId,
-                                  },
-                                ),
-                                builder: (
-                                  QueryResult result, {
-                                  Future<QueryResult?> Function()? refetch,
-                                  FetchMore? fetchMore,
-                                }) {
-                                  if (result.data != null &&
-                                      result.data!["pools"]["nodes"].length >
-                                          0 &&
-                                      result
-                                              .data!["pools"]["nodes"][0]
-                                                  ["dayData"]["nodes"]
-                                              .length >
-                                          0) {
-                                    final List<TimeSeriesAmount> datas = [];
-                                    result
-                                        .data!["pools"]["nodes"][0]["dayData"]
-                                            ["nodes"]
-                                        .reversed
-                                        .toList()
-                                        .forEach((element) {
-                                      datas.add(TimeSeriesAmount(
-                                          DateTime.parse(element["timestamp"]),
-                                          Fmt.balanceDouble(
-                                              element["totalTVL"], 18)));
-                                    });
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 50),
-                                          child: Text(
-                                            "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5
-                                                ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: UI.getTextSize(
-                                                        12, context),
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                          ),
-                                        ),
-                                        Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2.4,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 16),
-                                          child: RewardsChart.withData(datas),
-                                        )
-                                      ],
-                                    );
-                                  }
-                                  return Container(
-                                    alignment: Alignment.centerLeft,
-                                    padding:
-                                        EdgeInsets.only(left: 16, bottom: 10),
-                                    child: Text(
-                                      "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline5
-                                          ?.copyWith(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  UI.getTextSize(12, context),
-                                              fontWeight: FontWeight.w600),
-                                    ),
-                                  );
-                                }),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              padding: EdgeInsets.only(left: 16, bottom: 10),
+                              child: Text(
+                                "TVL: \$${Fmt.priceCeil(leftPrice + rightPrice)} | ${dic['earn.staked']}: \$${Fmt.priceCeil((leftPrice + rightPrice) * (shareTotal! / issuance!))}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: UI.getTextSize(12, context),
+                                        fontWeight: FontWeight.w600),
+                              ),
+                            ),
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 10),
                               color: Color(0xFF494b4e),
