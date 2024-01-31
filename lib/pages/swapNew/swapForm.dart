@@ -79,7 +79,7 @@ class _SwapFormState extends State<SwapForm>
   Future<void> _getTxFee() async {
     final sender = TxSenderData(
         widget.keyring.current.address, widget.keyring.current.pubKey);
-    final txInfo = TxInfoData('balances', 'transfer', sender);
+    final txInfo = TxInfoData('balances', 'transferKeepAlive', sender);
     final fee = await widget.plugin.sdk.api.tx
         .estimateFees(txInfo, [widget.keyring.current.address, '10000000000']);
     if (mounted) {
