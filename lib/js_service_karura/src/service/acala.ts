@@ -804,7 +804,7 @@ function _addAsset(assetsMap: object, tokenSymbol: string, value: number) {
 }
 function _calcStakingAssets(stakingLedger: any) {
   return {
-    KAR: FPNum(stakingLedger.toJSON().total, 12).toNumber(),
+    KAR: stakingLedger.toJSON() == null ? 0 : FPNum(stakingLedger.toJSON().total, 12).toNumber(),
   };
 }
 function _calcFreeTokens(api: ApiPromise, allTokens: any[], native: any, tokens: any[]) {
