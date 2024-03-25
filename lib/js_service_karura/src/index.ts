@@ -53,10 +53,7 @@ async function connect(nodes: string[]) {
 }
 
 async function _initAcalaSDK(api: ApiPromise, url: string) {
-  const evmProvider = new EvmRpcProvider(url, {
-    maxBlockCacheSize: 1,
-    storageCacheSize: 100,
-  });
+  const evmProvider = new EvmRpcProvider(url);
   (<any>window).wallet = new Wallet(api, { evmProvider });
   await (<any>window).wallet.isReady;
 }
