@@ -18,6 +18,9 @@ class PluginFmt {
     if (token == acala_token_polka_btc) {
       return acala_token_polka_btc_view;
     }
+    if (token == acala_token_usdc) {
+      return acala_token_usdc_view;
+    }
     if (token == 'VSKSM') {
       return 'vsKSM';
     }
