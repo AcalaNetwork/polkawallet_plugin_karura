@@ -83,6 +83,7 @@ class _NftPageState extends State<NftPage> {
               itemBuilder: (context, index) {
                 final item = list.firstWhere(
                     (e) => e.classId == classes.keys.toList()[index]);
+                final imageUrl = item.metadata!['imageServiceUrl'] ?? '';
                 return Container(
                   decoration: BoxDecoration(
                       color: Colors.white,
@@ -93,8 +94,7 @@ class _NftPageState extends State<NftPage> {
                         padding: EdgeInsets.all(10),
                         width: itemCardSize,
                         height: itemCardSize,
-                        child:
-                            Image.network(item.metadata!['imageIpfsUrl'] ?? ''),
+                        child: Image.network(imageUrl),
                       ),
                       Align(
                           alignment: Alignment.topRight,

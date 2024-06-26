@@ -620,15 +620,13 @@ async function _transformClassInfo(api: ApiPromise, id: number, data: any): Prom
   const properties = (_properties.toJSON() as unknown) as any[];
   const attribute = (data.data.attributes.toJSON() as unknown) as any;
   const owner = data.owner.toString();
-  const metadataIpfsUrl = _getMetadataUrl(cid);
 
   let name = "";
   let description = "";
   let dwebImage = "";
-  let serviceImage = "";
 
   try {
-    const metadataResult = await axios.get((nft_image_config as Record<string, string>)[String(id)] || metadataIpfsUrl);
+    const metadataResult = await axios.get((nft_image_config as Record<string, string>)[String(id)]);
 
     if (metadataResult.status !== 200) {
       throw new Error("fetch metadata error");
@@ -638,8 +636,7 @@ async function _transformClassInfo(api: ApiPromise, id: number, data: any): Prom
 
     name = data.name as string;
     description = data.description as string;
-    dwebImage = data.image as string;
-    serviceImage = data?.qiNiuImage as string;
+    dwebImage = (data?.qiNiuImage || data.image) as string;
   } catch (e) {
     console.error(e);
   }
@@ -651,24 +648,13 @@ async function _transformClassInfo(api: ApiPromise, id: number, data: any): Prom
     metadata: {
       description,
       dwebImage,
-      imageIpfsUrl: _getImageUrl(dwebImage),
-      imageServiceUrl: serviceImage,
+      imageIpfsUrl: "",
+      imageServiceUrl: dwebImage,
       name,
     },
-    metadataIpfsUrl,
     owner,
     properties,
   };
-}
-
-function _getMetadataUrl(cid: string) {
-  return `https://${cid}.ipfs.dweb.link/metadata.json`;
-}
-
-function _getImageUrl(data: string) {
-  const [cid, fileName] = data.replace("ipfs://", "").split("/");
-
-  return `https://${cid}.ipfs.dweb.link/${fileName}`;
 }
 
 async function queryNFTs(api: ApiPromise, address: string) {
